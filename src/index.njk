@@ -39,23 +39,27 @@ description: Pomagam firmom budować unikalne marki, które pozwalają bronić s
 </section>
 
 {# ===== SEKCJA 2 — STREFA ZGNIOTU ===== #}
-<section class="who-i-work-with reveal" id="o-mnie">
+<section class="who-i-work-with" id="o-mnie">
   <div class="container">
-    <h2>Chcesz wyrwać się ze strefy zgniotu w przesyconej kategorii?</h2>
-    <p>Specjalizuję się we wspieraniu firm, które od kilku kwartałów/lat zauważają wyraźny spadek dynamiki wzrostu wraz ze wzrostem skali działania. Pomagam im odkryć nowe źródło klientów i wykorzystać przewagę konkurencyjną.</p>
-    <a href="#cennik" class="btn btn-orange">Sprawdź, jak pracuję</a>
-  </div>
-</section>
-
-{# ===== SEKCJA 3 — INFOGRAPHIC ===== #}
-<section class="infographic reveal">
-  <div class="container">
-    <div class="infographic__image">
-      <img src="{{ '/img/infographic.svg' | url }}" alt="Schemat rozwoju kategorii i strefy zgniotu" width="900" height="500">
+    <div class="zgniotu-hero reveal">
+      <h2>Chcesz wyrwać się ze strefy zgniotu w przesyconej kategorii?</h2>
+      <p>Specjalizuję się we wspieraniu firm, które od kilku kwartałów/lat zauważają wyraźny spadek dynamiki wzrostu wraz ze wzrostem skali działania. Pomagam im odkryć nowe źródło klientów i wykorzystać przewagę konkurencyjną.</p>
+      <a href="#cennik" class="btn btn-orange">Sprawdź, jak pracuję</a>
     </div>
-    <div class="infographic__description reveal">
-      <p>Każda kategoria rozwija się według podobnego schematu: od innowacji i niskiej konkurencyjności, po dojrzałość i przesyt podaży. W takim środowisku, rynek naturalnie premiuje albo bardzo dużych, albo bardzo małych (wyspecjalizowanych). Firmy ze środka podlegają „zgnieceniu" — kurczą im się marże i spada wolumen klientów. Od tego momentu wzrost zaczyna przypominać grę o sumie zerowej: jeśli jedna firma rośnie, zwykle dzieje się to kosztem innej.</p>
-      <p>W takiej sytuacji, ratunkiem jest unikalny sposób działania — nowa definicja klienta, nowa propozycja wartości i nowa komunikacja. To wszystko składa się na <strong>Strategię Nowego Popytu</strong>.</p>
+
+    <div class="zgniotu-image reveal">
+      <img src="{{ '/img/strefa-zgniotu.png' | url }}" alt="Strefa zgniotu — schemat rozwoju kategorii" loading="lazy">
+    </div>
+
+    <div class="zgniotu-explainer reveal">
+      <div class="zgniotu-explainer__col">
+        <p>Każda kategoria rozwija się według podobnego schematu: od innowacji i niskiej konkurencyjności, po dojrzałość i przesyt podaży. W takim środowisku, rynek naturalnie premiuje albo bardzo dużych, albo bardzo małych (wyspecjalizowanych).</p>
+        <p>Firmy ze środka podlegają „zgnieceniu" — kurczą im się marże i spada wolumen klientów. Od tego momentu wzrost zaczyna przypominać grę o sumie zerowej: jeśli jedna firma rośnie, zwykle dzieje się to kosztem innej.</p>
+      </div>
+      <div class="zgniotu-explainer__col">
+        <p>W takiej sytuacji, ratunkiem jest unikalny sposób działania — nowa definicja klienta, nowa propozycja wartości i nowa komunikacja.</p>
+        <p class="zgniotu-explainer__highlight">To wszystko składa się na <strong>Strategię Nowego Popytu.</strong></p>
+      </div>
     </div>
   </div>
 </section>
@@ -88,19 +92,47 @@ description: Pomagam firmom budować unikalne marki, które pozwalają bronić s
 <section class="client-types">
   <div class="container">
     <h2 class="reveal">Z kim najczęściej współpracuję?</h2>
-    <div class="client-profile reveal">
-      <ul>
-        <li>Firma zarządzana przez właściciela/właścicieli, 10–50 osób, 10–50 mln przychodu — już z historią sukcesu, nie na starcie</li>
-        <li>Działa w dojrzewającej kategorii, gdzie działania konkurencji wyglądają identycznie</li>
-        <li>Marketing wydaje coraz więcej, a efekty przestają rosnąć proporcjonalnie — ROAS spada, CAC rośnie</li>
-        <li>Founder ma silne intuicje o rynku i chce zachować realny wpływ na kierunek marki</li>
-        <li>Czuje, że problem nie leży w egzekucji — tylko w tym, że firma gra w tę samą grę co wszyscy</li>
-        <li>Szuka nie nowej kampanii, lecz nowej logiki konkurowania</li>
-      </ul>
+    <div class="client-grid">
+      <div class="client-card reveal">
+        <div class="client-card__icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <p>Firma zarządzana przez właściciela, 10–50 osób, 10–50 mln przychodu — już z historią sukcesu, nie na starcie</p>
+      </div>
+      <div class="client-card reveal reveal-delay-1">
+        <div class="client-card__icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </div>
+        <p>Działa w dojrzewającej kategorii, gdzie działania konkurencji wyglądają identycznie</p>
+      </div>
+      <div class="client-card reveal reveal-delay-2">
+        <div class="client-card__icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <p>Marketing wydaje coraz więcej, a efekty przestają rosnąć proporcjonalnie — ROAS spada, CAC rośnie</p>
+      </div>
+      <div class="client-card reveal reveal-delay-3">
+        <div class="client-card__icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p>Founder ma silne intuicje o rynku i chce zachować realny wpływ na kierunek marki</p>
+      </div>
+      <div class="client-card reveal reveal-delay-1">
+        <div class="client-card__icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+        </div>
+        <p>Czuje, że problem nie leży w egzekucji — tylko w tym, że firma gra w tę samą grę co wszyscy</p>
+      </div>
+      <div class="client-card reveal reveal-delay-2">
+        <div class="client-card__icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+        </div>
+        <p>Szuka nie nowej kampanii, lecz nowej logiki konkurowania</p>
+      </div>
     </div>
     <div class="client-types__sub reveal">
       <h3>Chcesz dowiedzieć się więcej o projektowaniu strategii marki?</h3>
-      <a href="{{ '/blog/' | url }}" class="btn btn-orange">Czytaj bloga</a>
+      <a href="#cennik" class="btn btn-orange">Sprawdź formy współpracy</a>
     </div>
   </div>
 </section>
@@ -543,6 +575,6 @@ description: Pomagam firmom budować unikalne marki, które pozwalają bronić s
 <section class="cta-section reveal">
   <div class="container">
     <h2>Chcesz, aby Twoja marka wyróżniała się na rynku?</h2>
-    <a href="{{ '/kontakt/' | url }}" class="btn btn-white">Porozmawiajmy o strategii</a>
+    <a href="#cennik" class="btn btn-white">Porozmawiajmy o strategii</a>
   </div>
 </section>
