@@ -1,0 +1,35 @@
+<svg viewBox="0 0 900 450" xmlns="http://www.w3.org/2000/svg" font-family="'Sora', sans-serif">
+  <rect width="900" height="450" rx="16" fill="#ede9e7"/>
+
+  <!-- Grid lines -->
+  <line x1="100" y1="50" x2="100" y2="380" stroke="#d5d1ce" stroke-width="1"/>
+  <line x1="100" y1="380" x2="850" y2="380" stroke="#d5d1ce" stroke-width="1"/>
+
+  <!-- Phase labels -->
+  <text x="230" y="415" font-size="14" fill="#757575" text-anchor="middle" font-weight="500">Faza 1: Launch</text>
+  <text x="480" y="415" font-size="14" fill="#757575" text-anchor="middle" font-weight="500">Faza 2: Rozpęd</text>
+  <text x="730" y="415" font-size="14" fill="#757575" text-anchor="middle" font-weight="500">Faza 3: Ekspansja</text>
+
+  <!-- Phase dividers -->
+  <line x1="360" y1="50" x2="360" y2="380" stroke="#d5d1ce" stroke-width="1" stroke-dasharray="5,5"/>
+  <line x1="600" y1="50" x2="600" y2="380" stroke="#d5d1ce" stroke-width="1" stroke-dasharray="5,5"/>
+
+  <!-- Teal curve (with strategy) -->
+  <path d="M 100 320 C 200 310, 280 280, 360 240 C 440 200, 520 150, 600 120 C 680 90, 760 70, 850 60" stroke="#368786" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+  <!-- Orange curve (without strategy) -->
+  <path d="M 100 310 C 200 305, 280 300, 360 290 C 440 295, 520 320, 600 340 C 680 355, 760 365, 850 370" stroke="#ff4800" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+  <!-- Labels -->
+  <rect x="680" y="48" width="170" height="32" rx="6" fill="#368786" opacity="0.9"/>
+  <text x="765" y="69" font-size="12" fill="#ffffff" text-anchor="middle" font-weight="500">Z inwestycją w strategię</text>
+
+  <rect x="680" y="355" width="170" height="32" rx="6" fill="#ff4800" opacity="0.9"/>
+  <text x="765" y="376" font-size="12" fill="#ffffff" text-anchor="middle" font-weight="500">Bez strategii marki</text>
+
+  <!-- Y axis label -->
+  <text x="60" y="220" font-size="13" fill="#757575" text-anchor="middle" transform="rotate(-90, 60, 220)" font-weight="400">Wzrost marki →</text>
+
+  <!-- Title -->
+  <text x="450" y="30" font-size="16" fill="#0d0d0d" text-anchor="middle" font-weight="600">Rozwój firmy: ze strategią vs bez strategii</text>
+</svg>

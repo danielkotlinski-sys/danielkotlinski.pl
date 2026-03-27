@@ -1,0 +1,23 @@
+---
+layout: base.njk
+---
+<article class="article-page">
+  <div class="container">
+    <header class="article-page__header">
+      <p class="article-page__date">{{ date | dateFormat }}</p>
+      <h1 class="article-page__title">{{ title }}</h1>
+    </header>
+
+    {% if featuredImage %}
+    <img src="{{ featuredImage }}" alt="{{ title }}" class="article-page__featured-image" loading="eager">
+    {% endif %}
+
+    <div class="article-page__content">
+      {{ content | safe }}
+    </div>
+
+    <div style="margin-top: 60px; padding-top: 40px; border-top: 1px solid rgba(0,0,0,0.08); text-align: center;">
+      <a href="/blog/" class="btn btn-outline">← Wróć do bloga</a>
+    </div>
+  </div>
+</article>

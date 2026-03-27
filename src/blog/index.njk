@@ -1,0 +1,27 @@
+---
+layout: base.njk
+title: Blog - Daniel Kotlinski
+description: Artykuły o strategii marki, komunikacji i marketingu.
+---
+<section class="blog-page">
+  <div class="container">
+    <h1 class="reveal">Blog</h1>
+    <div class="blog-page__grid">
+      {%- for post in collections.blog %}
+      <a href="{{ post.url }}" class="blog-card reveal">
+        {% if post.data.featuredImage %}
+        <img src="{{ post.data.featuredImage }}" alt="{{ post.data.title }}" class="blog-card__image" loading="lazy">
+        {% endif %}
+        <div class="blog-card__content">
+          <p class="blog-card__date">{{ post.date | dateFormat }}</p>
+          <h3 class="blog-card__title">{{ post.data.title }}</h3>
+          <span class="blog-card__link">
+            Zobacz artykuł
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </span>
+        </div>
+      </a>
+      {%- endfor %}
+    </div>
+  </div>
+</section>

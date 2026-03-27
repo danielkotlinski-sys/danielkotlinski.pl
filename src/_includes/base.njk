@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title or site.title }}</title>
+  <meta name="description" content="{{ description or site.description }}">
+  <meta name="author" content="{{ site.author }}">
+  <link rel="canonical" href="{{ site.url }}{{ page.url }}">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="{{ title or site.title }}">
+  <meta property="og:description" content="{{ description or site.description }}">
+  <meta property="og:type" content="{{ 'article' if layout == 'post.njk' else 'website' }}">
+  <meta property="og:url" content="{{ site.url }}{{ page.url }}">
+  {% if featuredImage %}
+  <meta property="og:image" content="{{ site.url }}{{ featuredImage }}">
+  {% endif %}
+
+  <!-- Favicon -->
+  <link rel="icon" href="/img/logo.png" type="image/png">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  {% include "partials/navbar.njk" %}
+
+  <main>
+    {{ content | safe }}
+  </main>
+
+  {% include "partials/footer.njk" %}
+
+  {# ===== CONTACT DRAWER ===== #}
+  <div class="drawer-overlay" id="drawer-overlay"></div>
+  <aside class="drawer" id="contact-drawer" aria-hidden="true">
+    <div class="drawer__header">
+      <h3 class="drawer__title">Zapytaj o współpracę</h3>
+      <button class="drawer__close" id="drawer-close" aria-label="Zamknij">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="drawer__body">
+      <p class="drawer__service-label">Wybrany pakiet:</p>
+      <p class="drawer__service-name" id="drawer-service-name"></p>
+
+      <form class="drawer__form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+        <input type="hidden" name="service" id="drawer-service-input">
+        <div class="drawer__field">
+          <label for="drawer-name">Imię</label>
+          <input type="text" id="drawer-name" name="name" required placeholder="Twoje imię">
+        </div>
+        <div class="drawer__field">
+          <label for="drawer-email">Email</label>
+          <input type="email" id="drawer-email" name="email" required placeholder="adres@firma.pl">
+        </div>
+        <div class="drawer__field">
+          <label for="drawer-phone">Telefon <span>(opcjonalnie)</span></label>
+          <input type="tel" id="drawer-phone" name="phone" placeholder="790 000 000">
+        </div>
+        <div class="drawer__field">
+          <label for="drawer-message">Wiadomość <span>(opcjonalnie)</span></label>
+          <textarea id="drawer-message" name="message" rows="3" placeholder="Opisz krótko swoją firmę i wyzwanie..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-orange btn-full">Wyślij zapytanie</button>
+      </form>
+      <p class="drawer__note">Odpowiadam w ciągu 24h. Pierwsza rozmowa jest bezpłatna.</p>
+    </div>
+  </aside>
+
+  <script src="/js/main.js"></script>
+</body>
+</html>

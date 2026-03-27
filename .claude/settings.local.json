@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.danielkotlinski.pl)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(npm run:*)",
+      "mcp__Control_Chrome__open_url",
+      "mcp__Control_Chrome__get_page_content",
+      "mcp__Control_Chrome__get_current_tab",
+      "Bash(curl -sL \"https://framerusercontent.com/images/ZMJi94zWeh4yq7JvyiFq78DuWc.png?scale-down-to=1024\" -o src/img/logo-footer.png)",
+      "Bash(curl -sL \"https://framerusercontent.com/images/4vUbGYHpXq7aCLKRTWZfGDKZCg.png?scale-down-to=512\" -o src/img/logo-footer.png)",
+      "Bash(curl -sL \"https://framerusercontent.com/images/WOpmEMmtqjSVdLRRs7Oh0XYPoY.jpg?scale-down-to=1024\" -o src/img/daniel-newsletter.jpg)"
+    ]
+  }
+}

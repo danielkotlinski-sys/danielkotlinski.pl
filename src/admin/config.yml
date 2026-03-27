@@ -1,0 +1,30 @@
+backend:
+  name: github
+  repo: danielkotlinski-sys/danielkotlinski.pl
+  branch: main
+  site_domain: www.danielkotlinski.pl
+
+# Opcjonalnie: do testowania lokalnie bez auth
+# local_backend: true
+
+media_folder: "src/img/uploads"
+public_folder: "/img/uploads"
+
+slug:
+  encoding: "ascii"
+  clean_accents: true
+
+collections:
+  - name: "blog"
+    label: "Blog"
+    folder: "src/blog/posts"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Tytuł", name: "title", widget: "string" }
+      - { label: "Data publikacji", name: "date", widget: "datetime", format: "YYYY-MM-DD" }
+      - { label: "Obraz wyróżniający", name: "featuredImage", widget: "image", required: false }
+      - { label: "Opis (SEO)", name: "description", widget: "text", required: false }
+      - { label: "Layout", name: "layout", widget: "hidden", default: "post.njk" }
+      - { label: "Tagi", name: "tags", widget: "hidden", default: "blog" }
+      - { label: "Treść", name: "body", widget: "markdown" }
