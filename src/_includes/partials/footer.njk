@@ -1,19 +1,19 @@
 <footer class="footer">
   <div class="container">
     <div class="footer__logo">
-      <a href="/">
-        <img src="/img/logo-footer.png" alt="Kotlinski Brand Consultancy" width="220">
+      <a href="{{ '/' | url }}">
+        <img src="{{ '/img/logo-footer.png' | url }}" alt="Kotlinski Brand Consultancy" width="220">
       </a>
     </div>
 
     <div class="footer__sitemap">
       <h4>Mapa strony</h4>
-      <a href="/#o-mnie">O mnie</a>
-      <a href="/#uslugi">Usługi</a>
-      <a href="/#edukacja">Edukacja</a>
-      <a href="/#vlog">Vlog</a>
-      <a href="/blog/">Blog</a>
-      <a href="/newsletter/">Newsletter</a>
+      <a href="{{ '/' | url }}#o-mnie">O mnie</a>
+      <a href="{{ '/' | url }}#uslugi">Usługi</a>
+      <a href="{{ '/' | url }}#edukacja">Edukacja</a>
+      <a href="{{ '/' | url }}#vlog">Vlog</a>
+      <a href="{{ '/blog/' | url }}">Blog</a>
+      <a href="{{ '/newsletter/' | url }}">Newsletter</a>
     </div>
 
     <div class="footer__social-col">
@@ -27,8 +27,8 @@
   <div class="container footer__bottom">
     <p>&copy; Daniel Kotlinski</p>
     <div class="footer__legal">
-      <a href="/polityka-prywatnosci/">Polityka Prywatności</a>
-      <a href="/regulamin/">Regulamin</a>
+      <a href="{{ '/polityka-prywatnosci/' | url }}">Polityka Prywatności</a>
+      <a href="{{ '/regulamin/' | url }}">Regulamin</a>
     </div>
   </div>
 </footer>

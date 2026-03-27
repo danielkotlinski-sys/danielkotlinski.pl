@@ -16,7 +16,7 @@ description: Dołącz do newslettera o strategii marki i komunikacji.
 <section class="newsletter-signup">
   <div class="container newsletter-signup__grid">
     <div class="newsletter-signup__image reveal">
-      <img src="/img/daniel-newsletter.jpg" alt="Daniel Kotlinski" loading="lazy">
+      <img src="{{ '/img/daniel-newsletter.jpg' | url }}" alt="Daniel Kotlinski" loading="lazy">
     </div>
     <div class="newsletter-signup__form-card reveal reveal-delay-1">
       <form class="newsletter-form" action="https://formspree.io/f/YOUR_NEWSLETTER_FORM_ID" method="POST">
@@ -26,7 +26,7 @@ description: Dołącz do newslettera o strategii marki i komunikacji.
         <div class="contact-form__group">
           <input type="email" id="email" name="email" required placeholder="Twój e-mail">
         </div>
-        <p class="newsletter-form__legal">Zapisując się, akceptujesz <a href="/polityka-prywatnosci/">Politykę Prywatności</a> i <a href="/regulamin/">Regulamin</a>. Możesz wypisać się ZAWSZE.</p>
+        <p class="newsletter-form__legal">Zapisując się, akceptujesz <a href="{{ '/polityka-prywatnosci/' | url }}">Politykę Prywatności</a> i <a href="{{ '/regulamin/' | url }}">Regulamin</a>. Możesz wypisać się ZAWSZE.</p>
         <button type="submit" class="btn btn-orange btn-full">Zapisz mnie!</button>
       </form>
     </div>

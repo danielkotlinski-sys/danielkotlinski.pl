@@ -8,9 +8,9 @@ description: Artykuły o strategii marki, komunikacji i marketingu.
     <h1 class="reveal">Blog</h1>
     <div class="blog-page__grid">
       {%- for post in collections.blog %}
-      <a href="{{ post.url }}" class="blog-card reveal">
+      <a href="{{ post.url | url }}" class="blog-card reveal">
         {% if post.data.featuredImage %}
-        <img src="{{ post.data.featuredImage }}" alt="{{ post.data.title }}" class="blog-card__image" loading="lazy">
+        <img src="{{ post.data.featuredImage | url }}" alt="{{ post.data.title }}" class="blog-card__image" loading="lazy">
         {% endif %}
         <div class="blog-card__content">
           <p class="blog-card__date">{{ post.date | dateFormat }}</p>

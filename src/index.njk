@@ -10,10 +10,10 @@ description: Pomagam firmom budować silne marki. Strategia marki, konsultacje, 
     <div class="hero__content reveal">
       <h1>Serwus!<br>Tu Daniel.</h1>
       <p>Jestem <span class="text-orange">strategiem marki i komunikacji</span>. Pomagam firmom, które chcą świadomie budować markę, wyróżnić się na rynku i skutecznie komunikować swoją wartość.</p>
-      <a href="/kontakt/" class="btn btn-orange">Napisz do mnie</a>
+      <a href="{{ '/kontakt/' | url }}" class="btn btn-orange">Napisz do mnie</a>
     </div>
     <div class="hero__image reveal reveal-delay-2">
-      <img src="/img/hero-daniel.jpg" alt="Daniel Kotlinski przy biurku" width="560" height="420" loading="eager">
+      <img src="{{ '/img/hero-daniel.jpg' | url }}" alt="Daniel Kotlinski przy biurku" width="560" height="420" loading="eager">
     </div>
   </div>
 </section>
@@ -43,7 +43,7 @@ description: Pomagam firmom budować silne marki. Strategia marki, konsultacje, 
   <div class="container">
     <h2>Zasypuję lukę między biznesem a percepcją</h2>
     <p>Specjalizuję się we wspieraniu firm, które nigdy nie stworzyły strategii marki — albo tych, których dotychczasowa strategia przestała działać. Pomagam im odkryć, co naprawdę wyróżnia ich na rynku, i zamienić to w spójną komunikację.</p>
-    <a href="/kontakt/" class="btn btn-orange">Porozmawiajmy</a>
+    <a href="{{ '/kontakt/' | url }}" class="btn btn-orange">Porozmawiajmy</a>
   </div>
 </section>
 
@@ -51,7 +51,7 @@ description: Pomagam firmom budować silne marki. Strategia marki, konsultacje, 
 <section class="infographic reveal">
   <div class="container">
     <div class="infographic__image">
-      <img src="/img/infographic.svg" alt="Wykres wzrostu firmy ze strategią vs bez strategii" width="900" height="500">
+      <img src="{{ '/img/infographic.svg' | url }}" alt="Wykres wzrostu firmy ze strategią vs bez strategii" width="900" height="500">
     </div>
   </div>
 </section>
@@ -60,7 +60,7 @@ description: Pomagam firmom budować silne marki. Strategia marki, konsultacje, 
 <section class="about" id="about-section">
   <div class="container">
     <div class="about__image reveal">
-      <img src="/img/daniel-speaking.jpg" alt="Daniel Kotlinski przemawia na konferencji" width="560" height="620" loading="lazy">
+      <img src="{{ '/img/daniel-speaking.jpg' | url }}" alt="Daniel Kotlinski przemawia na konferencji" width="560" height="620" loading="lazy">
     </div>
     <div class="about__content reveal reveal-delay-2">
       <h2>Daniel Kotlinski</h2>
@@ -141,7 +141,7 @@ description: Pomagam firmom budować silne marki. Strategia marki, konsultacje, 
       </div>
     </div>
     <div class="client-types__cta reveal">
-      <a href="/kontakt/" class="btn btn-orange">Porozmawiajmy o strategii</a>
+      <a href="{{ '/kontakt/' | url }}" class="btn btn-orange">Porozmawiajmy o strategii</a>
     </div>
   </div>
 </section>
@@ -431,7 +431,7 @@ description: Pomagam firmom budować silne marki. Strategia marki, konsultacje, 
     <h2 class="reveal">Edukacja</h2>
     <div class="education__grid">
       <div class="education-card reveal">
-        <img src="/img/education-1.jpg" alt="Team Discovery - kurs" class="education-card__image" loading="lazy">
+        <img src="{{ '/img/education-1.jpg' | url }}" alt="Team Discovery - kurs" class="education-card__image" loading="lazy">
         <div class="education-card__content">
           <h3>Team Discovery</h3>
           <p>Warsztat strategiczny dla zespołów, który pomaga odkryć DNA marki i zbudować spójną wizję komunikacji.</p>
@@ -442,7 +442,7 @@ description: Pomagam firmom budować silne marki. Strategia marki, konsultacje, 
         </div>
       </div>
       <div class="education-card reveal reveal-delay-1">
-        <img src="/img/education-2.png" alt="Kurs online" class="education-card__image" loading="lazy">
+        <img src="{{ '/img/education-2.png' | url }}" alt="Kurs online" class="education-card__image" loading="lazy">
         <div class="education-card__content">
           <h3>Kurs strategii marki</h3>
           <p>Kompletny kurs online, w którym krok po kroku przeprowadzam Cię przez proces tworzenia strategii marki.</p>
@@ -501,13 +501,13 @@ description: Pomagam firmom budować silne marki. Strategia marki, konsultacje, 
         <p class="section-label">Blog</p>
         <h2>Piszę bloga o strategii marek</h2>
       </div>
-      <a href="/blog/" class="btn btn-teal">Zobacz wszystkie artykuły</a>
+      <a href="{{ '/blog/' | url }}" class="btn btn-teal">Zobacz wszystkie artykuły</a>
     </div>
     <div class="blog-section__grid">
       {%- for post in collections.blog | limit(3) %}
-      <a href="{{ post.url }}" class="blog-card reveal reveal-delay-{{ loop.index0 + 1 }}">
+      <a href="{{ post.url | url }}" class="blog-card reveal reveal-delay-{{ loop.index0 + 1 }}">
         {% if post.data.featuredImage %}
-        <img src="{{ post.data.featuredImage }}" alt="{{ post.data.title }}" class="blog-card__image" loading="lazy">
+        <img src="{{ post.data.featuredImage | url }}" alt="{{ post.data.title }}" class="blog-card__image" loading="lazy">
         {% endif %}
         <div class="blog-card__content">
           <p class="blog-card__date">{{ post.date | dateFormat }}</p>
@@ -534,7 +534,7 @@ description: Pomagam firmom budować silne marki. Strategia marki, konsultacje, 
   <div class="container">
     <div class="vlog__grid">
       <div class="vlog__image reveal">
-        <img src="/img/vlog-thumbnails.jpg" alt="Prosto Do Strategii - kanał YouTube" loading="lazy">
+        <img src="{{ '/img/vlog-thumbnails.jpg' | url }}" alt="Prosto Do Strategii - kanał YouTube" loading="lazy">
       </div>
       <div class="vlog__content reveal reveal-delay-2">
         <h3>Kanał o strategii marki i komunikacji, który pomaga:</h3>
@@ -563,6 +563,6 @@ description: Pomagam firmom budować silne marki. Strategia marki, konsultacje, 
 <section class="cta-section reveal">
   <div class="container">
     <h2>Chcesz, aby Twoja marka wyróżniała się na rynku?</h2>
-    <a href="/kontakt/" class="btn btn-white">Porozmawiajmy o strategii</a>
+    <a href="{{ '/kontakt/' | url }}" class="btn btn-white">Porozmawiajmy o strategii</a>
   </div>
 </section>

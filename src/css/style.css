@@ -1,7 +1,7 @@
 /* ===== FONTS ===== */
 @font-face {
   font-family: 'Shoika Light';
-  src: url('/fonts/shoika-light.woff2') format('woff2');
+  src: url('../fonts/shoika-light.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -9,7 +9,7 @@
 
 @font-face {
   font-family: 'Shoika';
-  src: url('/fonts/shoika-regular.woff2') format('woff2');
+  src: url('../fonts/shoika-regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: block;

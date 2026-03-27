@@ -18,10 +18,10 @@
   {% endif %}
 
   <!-- Favicon -->
-  <link rel="icon" href="/img/logo.png" type="image/png">
+  <link rel="icon" href="{{ '/img/logo.png' | url }}" type="image/png">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="{{ '/css/style.css' | url }}">
 </head>
 <body>
 
@@ -70,6 +70,6 @@
     </div>
   </aside>
 
-  <script src="/js/main.js"></script>
+  <script src="{{ '/js/main.js' | url }}"></script>
 </body>
 </html>
