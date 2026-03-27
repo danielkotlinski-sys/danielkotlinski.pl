@@ -1,21 +1,5 @@
 /* ===== FONTS ===== */
-@font-face {
-  font-family: 'Shoika Light';
-  src: url('../fonts/shoika-light.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Shoika';
-  src: url('../fonts/shoika-regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: block;
-}
-
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
 
 /* ===== CSS VARIABLES ===== */
 :root {
@@ -30,9 +14,9 @@
   --accent-orange: #ff4800;
   --accent-teal: #368786;
   --white: #ffffff;
-  --font-heading: 'Shoika Light', 'Georgia', serif;
-  --font-heading-bold: 'Shoika', 'Georgia', serif;
-  --font-body: 'Sora', 'Inter', -apple-system, sans-serif;
+  --font-heading: 'Instrument Serif', 'Georgia', serif;
+  --font-heading-bold: 'Instrument Serif', 'Georgia', serif;
+  --font-body: 'DM Sans', -apple-system, sans-serif;
   --max-width: 1200px;
   --section-padding: 100px 0;
   --border-radius: 16px;
@@ -529,46 +513,60 @@ p {
 
 .client-types h2 {
   text-align: center;
-  margin-bottom: 60px;
-}
-
-.client-types__grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
   margin-bottom: 48px;
 }
 
-.client-type-card {
+.client-profile {
+  max-width: 800px;
+  margin: 0 auto 48px;
   background-color: var(--bg-alt);
   border-radius: var(--border-radius);
-  padding: 40px;
+  padding: 40px 48px;
 }
 
-.client-type-card h3 {
-  font-size: 26px;
-  margin-bottom: 20px;
-  color: var(--accent-orange);
-}
-
-.client-type-card ul li {
-  padding: 8px 0;
+.client-profile ul li {
+  padding: 10px 0;
   font-size: 15px;
   color: var(--text-muted);
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 12px;
+  line-height: 1.6;
 }
 
-.client-type-card ul li::before {
-  content: '•';
-  color: var(--accent-orange);
-  font-weight: bold;
+.client-profile ul li::before {
+  content: '→';
+  color: var(--accent-teal);
+  font-weight: 600;
   flex-shrink: 0;
 }
 
-.client-types__cta {
+.client-types__sub {
   text-align: center;
+}
+
+.client-types__sub h3 {
+  font-size: 22px;
+  margin-bottom: 20px;
+  color: var(--text-dark);
+}
+
+/* Infographic description */
+.infographic__description {
+  max-width: 800px;
+  margin: 32px auto 0;
+  text-align: center;
+}
+
+.infographic__description p {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+
+.infographic__description strong {
+  color: var(--text-dark);
 }
 
 /* ===== EDUKACJA (EDUCATION) ===== */
