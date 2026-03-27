@@ -24,6 +24,14 @@ module.exports = function (eleventyConfig) {
     return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
   });
 
+  // ISO date filter (for sitemap)
+  eleventyConfig.addFilter("dateISO", function (date) {
+    return new Date(date).toISOString().split("T")[0];
+  });
+
+  // Passthrough for robots.txt
+  eleventyConfig.addPassthroughCopy({ "src/robots.txt": "robots.txt" });
+
   // Excerpt filter
   eleventyConfig.addFilter("excerpt", function (content) {
     if (!content) return "";
