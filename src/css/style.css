@@ -591,9 +591,11 @@ p {
   padding: var(--section-padding);
 }
 
+.lead-magnet h2 {
+  margin-bottom: 40px;
+}
+
 .lead-magnet__box {
-  max-width: 720px;
-  margin: 0 auto;
   text-align: center;
   background: linear-gradient(135deg, #2a6f6f 0%, #368786 50%, #2d7a7a 100%);
   border-radius: 20px;
@@ -605,23 +607,19 @@ p {
   display: inline-block;
   font-size: 13px;
   font-weight: 600;
-  color: var(--accent-orange);
-  border: 1.5px solid rgba(255, 72, 0, 0.5);
+  color: var(--white);
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
   border-radius: 100px;
   padding: 6px 16px;
   margin-bottom: 20px;
 }
 
-.lead-magnet__box h2 {
-  font-size: 34px;
+.lead-magnet__heading {
+  font-size: 32px;
   line-height: 1.2;
   margin-bottom: 16px;
   color: var(--white);
-}
-
-.lead-magnet__box h2 em {
-  color: var(--accent-orange);
-  font-style: italic;
+  font-family: var(--font-heading);
 }
 
 .lead-magnet__box p {
@@ -2017,8 +2015,8 @@ p {
     padding: 36px 24px;
   }
 
-  .lead-magnet__box h2 {
-    font-size: 26px;
+  .lead-magnet__heading {
+    font-size: 24px;
   }
 
   .popup {
