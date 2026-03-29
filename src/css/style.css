@@ -1266,9 +1266,23 @@ p {
 }
 
 @media (max-width: 809px) {
+  .process-timeline {
+    padding: 0;
+  }
+
+  .process-timeline.is-open {
+    max-height: none;
+    padding: 24px 0;
+    overflow: visible;
+  }
+
   .process-timeline__inner {
-    flex-direction: column;
-    gap: 20px;
+    flex-direction: row;
+    gap: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 24px 16px;
   }
 
   .process-timeline__inner::before {
@@ -1276,20 +1290,14 @@ p {
   }
 
   .process-step {
-    text-align: left;
-    display: flex;
-    gap: 14px;
-    align-items: flex-start;
+    flex: 0 0 200px;
+    scroll-snap-align: start;
+    text-align: center;
     padding: 0;
   }
 
   .process-step__number {
-    flex-shrink: 0;
-    margin-bottom: 0;
-  }
-
-  .process-timeline.is-open {
-    max-height: 800px;
+    margin-bottom: 10px;
   }
 }
 
