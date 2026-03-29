@@ -1295,23 +1295,20 @@ p {
 
   .process-timeline.is-open {
     max-height: none;
-    padding: 24px 0;
-    overflow: visible;
+    padding: 0;
+    border-top-width: 1px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
   }
 
   .process-timeline__inner {
     flex-direction: row;
     flex-wrap: nowrap;
-    gap: 16px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    padding: 0 24px 16px;
-  }
-
-  .process-timeline__inner::after {
-    content: '';
-    flex: 0 0 8px;
+    gap: 0;
+    display: inline-flex;
+    min-width: 100%;
+    padding: 20px 24px;
   }
 
   .process-timeline__inner::before {
@@ -1319,15 +1316,28 @@ p {
   }
 
   .process-step {
-    flex: 0 0 70vw;
-    min-width: 0;
+    flex: 0 0 auto;
+    width: 180px;
     scroll-snap-align: start;
     text-align: center;
-    padding: 0;
+    padding: 0 8px;
   }
 
   .process-step__number {
-    margin-bottom: 10px;
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+
+  .process-step h5 {
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+
+  .process-step p {
+    font-size: 11px;
+    line-height: 1.4;
   }
 }
 
