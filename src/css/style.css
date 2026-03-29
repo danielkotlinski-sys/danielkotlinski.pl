@@ -586,64 +586,263 @@ p {
 }
 
 
-/* ===== EDUKACJA (EDUCATION) ===== */
-.education {
+/* ===== LEAD MAGNET ===== */
+.lead-magnet {
   padding: var(--section-padding);
 }
 
-.education h2 {
-  text-align: center;
-  margin-bottom: 60px;
-}
-
-.education__grid {
+.lead-magnet__box {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 32px;
-}
-
-.education-card {
-  background-color: var(--bg-alt);
-  border-radius: var(--border-radius);
-  overflow: hidden;
-  transition: transform var(--transition), box-shadow var(--transition);
-}
-
-.education-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
-}
-
-.education-card__image {
-  width: 100%;
-  height: 240px;
-  object-fit: cover;
-}
-
-.education-card__content {
-  padding: 32px;
-}
-
-.education-card__content h3 {
-  margin-bottom: 12px;
-}
-
-.education-card__content p {
-  margin-bottom: 20px;
-  font-size: 15px;
-}
-
-.education-card__link {
-  display: inline-flex;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 60px;
   align-items: center;
-  gap: 8px;
+  background: linear-gradient(135deg, var(--white) 0%, #f5f2f0 100%);
+  border-radius: 20px;
+  padding: 60px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.06);
+}
+
+.lead-magnet__badge {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-orange);
+  border: 1.5px solid var(--accent-orange);
+  border-radius: 100px;
+  padding: 6px 16px;
+  margin-bottom: 20px;
+}
+
+.lead-magnet__content h2 {
+  font-size: 36px;
+  line-height: 1.2;
+  margin-bottom: 16px;
+}
+
+.lead-magnet__content h2 em {
+  color: var(--accent-orange);
+  font-style: italic;
+}
+
+.lead-magnet__content p {
+  font-size: 16px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.lead-magnet__tags {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.lead-magnet__tags span {
+  font-size: 13px;
+  color: var(--text-gray);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 100px;
+  padding: 6px 14px;
+  font-style: italic;
+}
+
+.lead-magnet__cta {
+  font-size: 17px;
+  padding: 16px 40px;
+}
+
+/* Days visual */
+.lead-magnet__days {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lead-magnet__day {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.lead-magnet__day:hover {
+  transform: translateX(6px);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.lead-magnet__day-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: var(--accent-teal);
+  color: var(--white);
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.lead-magnet__day-title {
   font-size: 15px;
   font-weight: 500;
-  color: var(--accent-orange);
+  color: var(--text-dark);
 }
 
-.education-card__link:hover {
+/* ===== LEAD MAGNET POPUP ===== */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 2000;
+  backdrop-filter: blur(3px);
+}
+
+.popup-overlay.is-active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.95);
+  width: 480px;
+  max-width: 92vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--white);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  z-index: 2001;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.popup.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.popup__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 8px;
+  color: var(--text-muted);
+  transition: background var(--transition);
+}
+
+.popup__close:hover {
+  background: var(--bg-alt);
+}
+
+.popup h3 {
+  font-size: 22px;
+  text-align: center;
+  margin-bottom: 28px;
+  padding-right: 32px;
+}
+
+.popup__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
+}
+
+.popup__field {
+  margin-bottom: 16px;
+}
+
+.popup__field label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.popup__field input,
+.popup__field select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color var(--transition);
+  -webkit-appearance: none;
+}
+
+.popup__field select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23636363' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+
+.popup__field input:focus,
+.popup__field select:focus {
+  border-color: var(--accent-teal);
+}
+
+.popup__form .btn {
+  margin-top: 8px;
+}
+
+.popup__legal {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-gray);
+  margin-top: 14px;
+}
+
+/* Success state */
+.popup__success {
+  text-align: center;
+  padding: 20px 0;
+  display: none;
+}
+
+.popup__success.is-visible {
+  display: block;
+}
+
+.popup__success h3 {
+  color: var(--accent-teal);
+  margin-bottom: 12px;
+  padding-right: 0;
+}
+
+.popup__success p {
+  color: var(--text-secondary);
+  font-size: 15px;
 }
 
 .education-card__link svg {
@@ -1856,7 +2055,21 @@ p {
     padding: 32px;
   }
 
-  .education__grid {
+  .lead-magnet__box {
+    grid-template-columns: 1fr;
+    padding: 32px;
+    gap: 32px;
+  }
+
+  .lead-magnet__content h2 {
+    font-size: 28px;
+  }
+
+  .popup {
+    padding: 28px;
+  }
+
+  .popup__row {
     grid-template-columns: 1fr;
   }
 

@@ -109,6 +109,35 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeDrawer();
 });
 
+// ===== LEAD MAGNET POPUP =====
+const lmPopup = document.getElementById('lead-magnet-popup');
+const lmOverlay = document.getElementById('lead-magnet-overlay');
+const lmOpen = document.getElementById('lead-magnet-open');
+const lmClose = document.getElementById('lead-magnet-close');
+
+function openPopup() {
+  if (!lmPopup) return;
+  lmPopup.classList.add('is-open');
+  lmPopup.setAttribute('aria-hidden', 'false');
+  lmOverlay.classList.add('is-active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePopup() {
+  if (!lmPopup) return;
+  lmPopup.classList.remove('is-open');
+  lmPopup.setAttribute('aria-hidden', 'true');
+  lmOverlay.classList.remove('is-active');
+  document.body.style.overflow = '';
+}
+
+if (lmOpen) lmOpen.addEventListener('click', openPopup);
+if (lmClose) lmClose.addEventListener('click', closePopup);
+if (lmOverlay) lmOverlay.addEventListener('click', closePopup);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && lmPopup && lmPopup.classList.contains('is-open')) closePopup();
+});
+
 // ===== SMOOTH SCROLL FOR ANCHOR LINKS =====
 document.querySelectorAll('a[href^="/#"]').forEach(anchor => {
   anchor.addEventListener('click', function (e) {

@@ -308,36 +308,99 @@ description: Pomagam firmom budować unikalne marki, które pozwalają bronić s
   </div>
 </section>
 
-{# ===== EDUKACJA ===== #}
-<section class="education" id="edukacja">
+{# ===== BEZPŁATNY KURS (LEAD MAGNET) ===== #}
+<section class="lead-magnet" id="edukacja">
   <div class="container">
-    <h2 class="reveal">Moje produkty cyfrowe</h2>
-    <div class="education__grid">
-      <div class="education-card reveal">
-        <img src="{{ '/img/education-1.jpg' | url }}" alt="Team Discovery - kurs" class="education-card__image" loading="lazy">
-        <div class="education-card__content">
-          <h3>Team Discovery</h3>
-          <p>Warsztat strategiczny dla zespołów, który pomaga odkryć DNA marki i zbudować spójną wizję komunikacji.</p>
-          <a href="#" class="education-card__link">
-            Dowiedz się więcej
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </a>
+    <div class="lead-magnet__box reveal">
+      <div class="lead-magnet__content">
+        <span class="lead-magnet__badge">Bezpłatny kurs mailowy &middot; 7&nbsp;lekcji</span>
+        <h2>Bezpłatny kurs o&nbsp;strategii marki dla <em>marketerów MŚP</em></h2>
+        <p>Codziennie przez 7&nbsp;dni otrzymasz 1&nbsp;lekcję o&nbsp;tym, jak znaleźć nowy popyt, obniżyć CAC i&nbsp;podnieść LTV dzięki inwestycji w&nbsp;unikalny brand.</p>
+        <div class="lead-magnet__tags">
+          <span>bezpłatnie</span>
+          <span>bez spamu</span>
+          <span>pierwsza lekcja od razu</span>
         </div>
+        <button class="btn btn-orange lead-magnet__cta" id="lead-magnet-open">Zapisz mnie!</button>
       </div>
-      <div class="education-card reveal reveal-delay-1">
-        <img src="{{ '/img/education-2.png' | url }}" alt="Kurs online" class="education-card__image" loading="lazy">
-        <div class="education-card__content">
-          <h3>Kurs strategii marki</h3>
-          <p>Kompletny kurs online, w którym krok po kroku przeprowadzam Cię przez proces tworzenia strategii marki.</p>
-          <a href="#" class="education-card__link">
-            Dowiedz się więcej
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </a>
+      <div class="lead-magnet__visual">
+        <div class="lead-magnet__days">
+          <div class="lead-magnet__day">
+            <span class="lead-magnet__day-num">1</span>
+            <span class="lead-magnet__day-title">Strefa zgniotu</span>
+          </div>
+          <div class="lead-magnet__day">
+            <span class="lead-magnet__day-num">2</span>
+            <span class="lead-magnet__day-title">Nowy popyt</span>
+          </div>
+          <div class="lead-magnet__day">
+            <span class="lead-magnet__day-num">3</span>
+            <span class="lead-magnet__day-title">Pozycjonowanie</span>
+          </div>
+          <div class="lead-magnet__day">
+            <span class="lead-magnet__day-num">4</span>
+            <span class="lead-magnet__day-title">Komunikacja</span>
+          </div>
+          <div class="lead-magnet__day">
+            <span class="lead-magnet__day-num">5</span>
+            <span class="lead-magnet__day-title">Obniżanie CAC</span>
+          </div>
+          <div class="lead-magnet__day">
+            <span class="lead-magnet__day-num">6</span>
+            <span class="lead-magnet__day-title">Podnoszenie LTV</span>
+          </div>
+          <div class="lead-magnet__day">
+            <span class="lead-magnet__day-num">7</span>
+            <span class="lead-magnet__day-title">Plan wdrożenia</span>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </section>
+
+{# ===== LEAD MAGNET POPUP ===== #}
+<div class="popup-overlay" id="lead-magnet-overlay"></div>
+<div class="popup" id="lead-magnet-popup" aria-hidden="true">
+  <button class="popup__close" id="lead-magnet-close" aria-label="Zamknij">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <h3>Zapisz się na bezpłatny kurs — 7&nbsp;dni, 7&nbsp;lekcji</h3>
+  <form class="popup__form" action="https://app.loops.so/api/newsletter-form/cml0sehqr1j1x0iyatwsyfgmr" method="POST">
+    <input type="hidden" name="source" value="strona-glowna">
+    <div class="popup__row">
+      <div class="popup__field">
+        <label for="lm-firstName">Imię</label>
+        <input type="text" id="lm-firstName" name="firstName" required placeholder="Jan">
+      </div>
+      <div class="popup__field">
+        <label for="lm-lastName">Nazwisko</label>
+        <input type="text" id="lm-lastName" name="lastName" required placeholder="Kowalski">
+      </div>
+    </div>
+    <div class="popup__field">
+      <label for="lm-email">E-mail</label>
+      <input type="email" id="lm-email" name="email" required placeholder="jan@firma.pl">
+    </div>
+    <div class="popup__field">
+      <label for="lm-company">Nazwa firmy</label>
+      <input type="text" id="lm-company" name="companyName" placeholder="Twoja firma">
+    </div>
+    <div class="popup__field">
+      <label for="lm-role">Jestem...</label>
+      <select id="lm-role" name="userGroup" required>
+        <option value="">Wybierz</option>
+        <option value="Prezesem / Founderem">Prezesem / Founderem</option>
+        <option value="Szefem Marketingu / E-commerce">Szefem Marketingu / E-commerce</option>
+        <option value="Specjalistą">Specjalistą</option>
+        <option value="Freelancerem">Freelancerem</option>
+        <option value="Inne">Inne</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-orange btn-full">Zapisz się →</button>
+    <p class="popup__legal">✓ bezpłatnie &nbsp; ✓ bez spamu &nbsp; ✓ wypisz się w&nbsp;każdej chwili</p>
+  </form>
+</div>
 
 {# ===== OPINIE (TESTIMONIALS) ===== #}
 <section class="testimonials">
