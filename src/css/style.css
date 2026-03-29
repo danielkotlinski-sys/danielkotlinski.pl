@@ -1245,14 +1245,15 @@ p {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
   border-radius: 50%;
   background-color: var(--accent-teal);
   color: white;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
-  margin-bottom: 12px;
+  flex-shrink: 0;
 }
 
 .process-step h5 {
@@ -1281,6 +1282,11 @@ p {
 
   .process-timeline__inner {
     padding: 0;
+    flex-direction: column;
+  }
+
+  .process-step {
+    flex-direction: row;
   }
 }
 
