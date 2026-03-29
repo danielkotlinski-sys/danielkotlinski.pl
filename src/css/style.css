@@ -885,6 +885,16 @@ p {
   line-height: 1.6;
 }
 
+.pricing-card__what,
+.pricing-card__who {
+  margin-bottom: 12px;
+}
+
+.pricing-card__what strong,
+.pricing-card__who strong {
+  color: var(--text-dark);
+}
+
 .pricing-card__middle {
   padding: 40px;
   border-right: 1px solid rgba(0, 0, 0, 0.06);

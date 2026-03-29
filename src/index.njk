@@ -139,148 +139,34 @@ description: Pomagam firmom budować unikalne marki, które pozwalają bronić s
   </div>
 </section>
 
+{% set checkSvg %}<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>{% endset %}
+{% set chevronSvg %}<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>{% endset %}
+
 {# ===== SEKCJA 7 — FORMA WSPÓŁPRACY (PRICING) ===== #}
 <section class="pricing" id="cennik">
   <div class="container">
     <p class="section-label reveal" style="text-align:center">Forma współpracy</p>
     <h2 class="reveal" style="text-align:center">Transparentne zasady współpracy</h2>
 
-    {# --- CARD 1: Brand Sprint Mini --- #}
+    {# --- CARD 1: Strategia Nowego Popytu (FIRST) --- #}
     <div class="pricing-card reveal">
       <div class="pricing-card__left">
-        <h3>Brand Sprint Mini</h3>
-        <p>Intensywny, 3-dniowy sprint strategiczny dla firm, które chcą przestać konkurować na tych samych zasadach co reszta kategorii — i mają na to 9 godzin wspólnej pracy.</p>
-        <button class="process-toggle" aria-expanded="false">
-          <span class="process-toggle__text">Zobacz jak wygląda proces</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-      </div>
-
-      <div class="pricing-card__middle">
-        <h4>Co otrzymujesz:</h4>
-        <ul>
-          <li>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            <div>
-              <strong>Pre-work przed startem</strong>
-              <span>Karta pracy do samodzielnej analizy konkurencji — żebyś przed pierwszym dniem wiedział, jak średnia rynkowa definiuje wartość dla klienta.</span>
-            </div>
-          </li>
-          <li>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            <div>
-              <strong>3 warsztaty po 3h</strong>
-              <span>Dzień 1: analiza pre-worku, identyfikacja szans. Dzień 2: kierunki unikalnej propozycji wartości. Dzień 3: Centralna Idea i Zasady Nadrzędne.</span>
-            </div>
-          </li>
-          <li>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            <div>
-              <strong>5 slajdów gotowych do wysłania w firmie</strong>
-              <span>Narracja strategiczna / Centralna Idea / Zapis pozycjonowania / Kluczowy benefit / Tabela: typowe podejście vs. Twoje.</span>
-            </div>
-          </li>
-          <li>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            <div>
-              <strong>30 dni supportu</strong>
-              <span>1h konsultacji po tym, jak zderzysz strategię z pierwszymi decyzjami i zespołem.</span>
-            </div>
-          </li>
-        </ul>
-      </div>
-
-      <div class="pricing-card__right">
-        <h4>Cena:</h4>
-        <p class="pricing-card__note">(w zależności od wielkości firmy)</p>
-        <div class="pricing-tier">
-          <span class="pricing-tier__bar pricing-tier__bar--teal"></span>
-          <div>
-            <span class="pricing-tier__price">12 000 – 14 000 zł</span>
-            <span class="pricing-tier__label">netto</span>
-          </div>
-        </div>
-        <button class="btn btn-teal btn-full drawer-trigger" data-service="Brand Sprint Mini">Umów rozmowę</button>
-      </div>
-
-      <div class="process-timeline">
-        <div class="process-timeline__inner">
-          <div class="process-step">
-            <span class="process-step__number">1</span>
-            <h5>Rozmowa wstępna</h5>
-            <p>Bezpłatne spotkanie: poznajemy firmę, jej kategorię i moment, w którym się znajduje.</p>
-          </div>
-          <div class="process-step">
-            <span class="process-step__number">2</span>
-            <h5>Pre-work</h5>
-            <p>Karta pracy do samodzielnej analizy konkurencji przed pierwszym warsztatem.</p>
-          </div>
-          <div class="process-step">
-            <span class="process-step__number">3</span>
-            <h5>Dzień 1 — Diagnoza</h5>
-            <p>Analizujemy pre-work i określamy, w czym firma realnie może pójść pod prąd.</p>
-          </div>
-          <div class="process-step">
-            <span class="process-step__number">4</span>
-            <h5>Dzień 2 — Kierunki</h5>
-            <p>Rozważamy kierunki unikalnej propozycji wartości i wybieramy najjaśniejszy.</p>
-          </div>
-          <div class="process-step">
-            <span class="process-step__number">5</span>
-            <h5>Dzień 3 — Synteza</h5>
-            <p>Finalizujemy Centralną Ideę i Zasady Nadrzędne. Spinamy w spójny zapis dla zespołu.</p>
-          </div>
-          <div class="process-step">
-            <span class="process-step__number">6</span>
-            <h5>Deliverables + support</h5>
-            <p>5 slajdów do wysłania w firmie + 30 dni supportu (1h konsultacji).</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {# --- CARD 2: Strategia Nowego Popytu --- #}
-    <div class="pricing-card reveal reveal-delay-1">
-      <div class="pricing-card__left">
         <h3>Strategia Nowego Popytu</h3>
-        <p>Pełny proces strategiczny dla firm, które chcą przestać walczyć o ten sam popyt co konkurencja — i przejąć przestrzeń rynku, której kategoria jeszcze nie potrafi zobaczyć.</p>
+        <p class="pricing-card__what"><strong>Co:</strong> Rozszerzony proces strategiczny — od diagnozy, przez badania, po kompleksową tożsamość marki.</p>
+        <p class="pricing-card__who"><strong>Dla kogo:</strong> Dla średnich i&nbsp;dużych firm, B2B i&nbsp;B2C, które potrzebują na nowo zdefiniować grupę docelową, propozycję wartości i&nbsp;unikalną pozycję na tle konkurencji. Niezbędny udział osób zarządzających marketingiem i&nbsp;sprzedażą.</p>
         <button class="process-toggle" aria-expanded="false">
           <span class="process-toggle__text">Zobacz jak wygląda proces</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          {{ chevronSvg | safe }}
         </button>
       </div>
 
       <div class="pricing-card__middle">
         <h4>Co otrzymujesz:</h4>
         <ul>
-          <li>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            <div>
-              <strong>Mapa Konwencji Kategorii</strong>
-              <span>Analiza dominujących narracji w branży — pokazuje, dlaczego firmy zaczynają wyglądać tak samo i gdzie leży wspólne założenie, które wszyscy bezkrytycznie przyjęli.</span>
-            </div>
-          </li>
-          <li>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            <div>
-              <strong>Mapa Ukrytych Motywacji</strong>
-              <span>Badania jakościowe z klientami — nie pytamy o opinie o produkcie, tylko o kontekst decyzji: co ludzie naprawdę próbują osiągnąć.</span>
-            </div>
-          </li>
-          <li>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            <div>
-              <strong>Strategia Nowego Popytu</strong>
-              <span>Gotowy kierunek strategiczny na jednej kartce A4: gdzie logika kategorii rozjeżdża się z rzeczywistością klientów i jak to wykorzystać.</span>
-            </div>
-          </li>
-          <li>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            <div>
-              <strong>Strategia komunikacji</strong>
-              <span>Przełożenie strategii na konkretne kierunki działania — co mówić, do kogo i w jakich kontekstach.</span>
-            </div>
-          </li>
+          <li>{{ checkSvg | safe }}<div><strong>Mapa Konwencji Kategorii</strong><span>Analiza dominujących narracji w&nbsp;branży — pokazuje, dlaczego firmy zaczynają wyglądać tak samo i&nbsp;gdzie leży wspólne założenie, które wszyscy bezkrytycznie przyjęli.</span></div></li>
+          <li>{{ checkSvg | safe }}<div><strong>Mapa Ukrytych Motywacji</strong><span>Badania jakościowe z&nbsp;klientami — nie pytamy o&nbsp;opinie o&nbsp;produkcie, tylko o&nbsp;kontekst decyzji: co ludzie naprawdę próbują osiągnąć.</span></div></li>
+          <li>{{ checkSvg | safe }}<div><strong>Strategia Nowego Popytu</strong><span>Gotowy kierunek strategiczny: pozycjonowanie marki w&nbsp;1 zdaniu, definicja nowej grupy docelowej, propozycja wartości, brand voice, centralna idea marki, rekomendacja 3&nbsp;głównych działań wdrożeniowych.</span></div></li>
+          <li>{{ checkSvg | safe }}<div><strong>Strategia komunikacji</strong><span>90-dniowy plan komunikacji w&nbsp;wybranych kanałach: gotowe tematy, formaty i&nbsp;rekomendacje taktyczne.</span></div></li>
         </ul>
       </div>
 
@@ -308,46 +194,62 @@ description: Pomagam firmom budować unikalne marki, które pozwalają bronić s
 
       <div class="process-timeline">
         <div class="process-timeline__inner">
-          <div class="process-step">
-            <span class="process-step__number">1</span>
-            <h5>Rozmowa wstępna</h5>
-            <p>Bezpłatne spotkanie: poznajemy firmę, jej kategorię i moment, w którym się znajduje.</p>
+          <div class="process-step"><span class="process-step__number">1</span><h5>Rozmowa wstępna</h5><p>Bezpłatne spotkanie: poznajemy firmę, jej kategorię i&nbsp;moment, w&nbsp;którym się znajduje.</p></div>
+          <div class="process-step"><span class="process-step__number">2</span><h5>Analiza kategorii</h5><p>Mapujemy konwencje komunikacyjne branży i&nbsp;dominujący sposób opisywania problemu klienta.</p></div>
+          <div class="process-step"><span class="process-step__number">3</span><h5>Badania klientów</h5><p>Wywiady jakościowe: szukamy motywacji, których kategoria jeszcze nie adresuje.</p></div>
+          <div class="process-step"><span class="process-step__number">4</span><h5>Safari badawcze</h5><p>Zanurzenie w&nbsp;rzeczywistości firmy i&nbsp;jej klientów: obserwacja, towarzyszenie, doświadczanie punktów styku.</p></div>
+          <div class="process-step"><span class="process-step__number">5</span><h5>Warsztat diagnostyczny</h5><p>Przedstawiam raport z&nbsp;badań zespołowi. Konfrontujemy wnioski z&nbsp;intuicjami wewnętrznymi.</p></div>
+          <div class="process-step"><span class="process-step__number">6</span><h5>Synteza i strategia</h5><p>Na podstawie warsztatu powstaje pełna Strategia Nowego Popytu.</p></div>
+          <div class="process-step"><span class="process-step__number">7</span><h5>Prezentacja dla zespołu</h5><p>Prezentacja strategii dla szerszego grona — żeby cały zespół rozumiał kierunek i&nbsp;go adoptował.</p></div>
+          <div class="process-step"><span class="process-step__number">8</span><h5>Wsparcie wdrożeniowe</h5><p>Opcjonalny audyt po 3 i&nbsp;6 miesiącach od przekazania strategii.</p></div>
+        </div>
+      </div>
+    </div>
+
+    {# --- CARD 2: Brand Sprint Mini --- #}
+    <div class="pricing-card reveal reveal-delay-1">
+      <div class="pricing-card__left">
+        <h3>Brand Sprint Mini</h3>
+        <p class="pricing-card__what"><strong>Co:</strong> Intensywny, 2-tygodniowy proces, na który składa się: pre-work, 3&nbsp;dni mini-warsztatów i&nbsp;10 dni pracy stratega nad finalizacją strategii.</p>
+        <p class="pricing-card__who"><strong>Dla kogo:</strong> Dla małych firm, głównie B2B, które mają wiedzę o&nbsp;swoich klientach oraz dobre zrozumienie konkurencji i&nbsp;chcą szybko przejść do komunikacji. Niezbędny udział osoby zarządzającej firmą.</p>
+        <button class="process-toggle" aria-expanded="false">
+          <span class="process-toggle__text">Zobacz jak wygląda proces</span>
+          {{ chevronSvg | safe }}
+        </button>
+      </div>
+
+      <div class="pricing-card__middle">
+        <h4>Co otrzymujesz:</h4>
+        <ul>
+          <li>{{ checkSvg | safe }}<div><strong>Narracja strategiczna</strong><span>Unikalna opowieść marki — do budowania ofert, komunikacji, sprzedaży, treści social media, rekrutacji etc.</span></div></li>
+          <li>{{ checkSvg | safe }}<div><strong>Pozycjonowanie</strong><span>Krótki pitch sprzedażowy.</span></div></li>
+          <li>{{ checkSvg | safe }}<div><strong>Strategia komunikacji na 90 dni</strong><span>Plan komunikacji z&nbsp;konkretnymi kierunkami i&nbsp;kanałami.</span></div></li>
+          <li>{{ checkSvg | safe }}<div><strong>10–15 tematów publikacji</strong><span>Z briefami i&nbsp;rozpiską gotową do wdrożenia.</span></div></li>
+          <li>{{ checkSvg | safe }}<div><strong>30 dni supportu</strong><span>Wsparcie po zakończeniu procesu.</span></div></li>
+        </ul>
+      </div>
+
+      <div class="pricing-card__right">
+        <h4>Cena:</h4>
+        <p class="pricing-card__note">(w zależności od wielkości firmy)</p>
+        <div class="pricing-tier">
+          <span class="pricing-tier__bar pricing-tier__bar--teal"></span>
+          <div>
+            <span class="pricing-tier__price">12 000 – 14 000 zł</span>
+            <span class="pricing-tier__label">netto</span>
           </div>
-          <div class="process-step">
-            <span class="process-step__number">2</span>
-            <h5>Analiza kategorii</h5>
-            <p>Mapujemy konwencje komunikacyjne branży i dominujący sposób opisywania problemu klienta.</p>
-          </div>
-          <div class="process-step">
-            <span class="process-step__number">3</span>
-            <h5>Badania klientów</h5>
-            <p>Wywiady jakościowe: szukamy motywacji, których kategoria jeszcze nie adresuje.</p>
-          </div>
-          <div class="process-step">
-            <span class="process-step__number">4</span>
-            <h5>Safari badawcze</h5>
-            <p>Zanurzenie w rzeczywistości firmy i jej klientów: obserwacja, towarzyszenie, doświadczanie punktów styku.</p>
-          </div>
-          <div class="process-step">
-            <span class="process-step__number">5</span>
-            <h5>Warsztat diagnostyczny</h5>
-            <p>Przedstawiam raport z badań zespołowi. Konfrontujemy wnioski z intuicjami wewnętrznymi.</p>
-          </div>
-          <div class="process-step">
-            <span class="process-step__number">6</span>
-            <h5>Synteza i strategia</h5>
-            <p>Na podstawie warsztatu powstaje pełna Strategia Nowego Popytu.</p>
-          </div>
-          <div class="process-step">
-            <span class="process-step__number">7</span>
-            <h5>Prezentacja dla zespołu</h5>
-            <p>Prezentacja strategii dla szerszego grona — żeby cały zespół rozumiał kierunek i go adoptował.</p>
-          </div>
-          <div class="process-step">
-            <span class="process-step__number">8</span>
-            <h5>Wsparcie wdrożeniowe</h5>
-            <p>Opcjonalny audyt po 3 i 6 miesiącach od przekazania strategii.</p>
-          </div>
+        </div>
+        <button class="btn btn-teal btn-full drawer-trigger" data-service="Brand Sprint Mini">Umów rozmowę</button>
+      </div>
+
+      <div class="process-timeline">
+        <div class="process-timeline__inner">
+          <div class="process-step"><span class="process-step__number">1</span><h5>Rozmowa wstępna</h5><p>90-minutowe intro: firma, konkurencja, klienci. Powstaje mapa celów, wyzwań, szans i&nbsp;możliwości.</p></div>
+          <div class="process-step"><span class="process-step__number">2</span><h5>Pre-work</h5><p>Karta pracy do samodzielnej analizy kategorii przed pierwszym warsztatem.</p></div>
+          <div class="process-step"><span class="process-step__number">3</span><h5>Dzień 1 — Diagnoza</h5><p>Analizujemy pre-work, mapujemy kategorię, definiujemy klienta i&nbsp;odkrywamy potencjalne kierunki unikalnego pozycjonowania.</p></div>
+          <div class="process-step"><span class="process-step__number">4</span><h5>Dzień 2 — Koncepcja</h5><p>Zderzamy pierwszą wersję narracji strategicznej, pogłębiamy pozycjonowanie.</p></div>
+          <div class="process-step"><span class="process-step__number">5</span><h5>Dzień 3 — Synteza</h5><p>Finalizujemy narrację, pozycjonowanie i&nbsp;zderzamy strategię komunikacji.</p></div>
+          <div class="process-step"><span class="process-step__number">6</span><h5>Dzień 14 — Prezentacja</h5><p>Dostarczam finalnie oszlifowany dokument ze strategią i&nbsp;planem komunikacji marki.</p></div>
         </div>
       </div>
     </div>
@@ -356,37 +258,20 @@ description: Pomagam firmom budować unikalne marki, które pozwalają bronić s
     <div class="pricing-card reveal reveal-delay-2">
       <div class="pricing-card__left">
         <h3>Pakiety Konsultacji Strategicznych</h3>
-        <p>Elastyczne wsparcie strategiczne w formie dedykowanych sesji 1:1. Pracujemy nad konkretnymi wyzwaniami Twojej marki — od pozycjonowania, przez komunikację, po planowanie kampanii.</p>
+        <p class="pricing-card__what"><strong>Co:</strong> Elastyczne wsparcie strategiczne w&nbsp;formie dedykowanych sesji 1:1.</p>
+        <p class="pricing-card__who"><strong>Dla kogo:</strong> Dla marek osobistych, małych firm i&nbsp;startupów, które nie są gotowe na pełen proces strategiczny, ale potrzebują punktowego wsparcia w&nbsp;konkretnych zadaniach (kierunek komunikacji, treści na stronę, opiniowanie decyzji, poprawa konwersji, lejek marketingowy etc.).</p>
         <button class="process-toggle" aria-expanded="false">
           <span class="process-toggle__text">Zobacz jak wygląda proces</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          {{ chevronSvg | safe }}
         </button>
       </div>
 
       <div class="pricing-card__middle">
         <h4>Co otrzymujesz:</h4>
         <ul>
-          <li>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            <div>
-              <strong>Sesje konsultacyjne 1:1 (online lub stacjonarnie)</strong>
-              <span>Praca nad Twoimi realnymi wyzwaniami strategicznymi — bez szablonów, z pełnym fokusem na Twojej marce.</span>
-            </div>
-          </li>
-          <li>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            <div>
-              <strong>Notatki i rekomendacje po każdej sesji</strong>
-              <span>Po każdym spotkaniu otrzymujesz podsumowanie z kluczowymi wnioskami i konkretnymi krokami do wdrożenia.</span>
-            </div>
-          </li>
-          <li>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            <div>
-              <strong>Wsparcie asynchroniczne między sesjami</strong>
-              <span>Możliwość zadawania pytań i konsultowania materiałów między sesjami via e-mail.</span>
-            </div>
-          </li>
+          <li>{{ checkSvg | safe }}<div><strong>Sesje konsultacyjne 1:1 (online lub stacjonarnie)</strong><span>Praca nad Twoimi realnymi wyzwaniami strategicznymi — bez szablonów, z&nbsp;pełnym fokusem na Twojej marce.</span></div></li>
+          <li>{{ checkSvg | safe }}<div><strong>Notatki i rekomendacje po każdej sesji</strong><span>Po każdym spotkaniu otrzymujesz podsumowanie z&nbsp;kluczowymi wnioskami i&nbsp;konkretnymi krokami do wdrożenia.</span></div></li>
+          <li>{{ checkSvg | safe }}<div><strong>Wsparcie asynchroniczne między sesjami</strong><span>Możliwość zadawania pytań i&nbsp;konsultowania materiałów między sesjami via e-mail.</span></div></li>
         </ul>
       </div>
 
@@ -413,26 +298,10 @@ description: Pomagam firmom budować unikalne marki, które pozwalają bronić s
 
       <div class="process-timeline">
         <div class="process-timeline__inner">
-          <div class="process-step">
-            <span class="process-step__number">1</span>
-            <h5>Brief wstępny</h5>
-            <p>Krótka rozmowa o Twoich wyzwaniach i ustalenie priorytetów do pracy.</p>
-          </div>
-          <div class="process-step">
-            <span class="process-step__number">2</span>
-            <h5>Sesje strategiczne</h5>
-            <p>Regularne spotkania 1:1 poświęcone Twoim konkretnym zagadnieniom.</p>
-          </div>
-          <div class="process-step">
-            <span class="process-step__number">3</span>
-            <h5>Notatki & Action Items</h5>
-            <p>Po każdej sesji otrzymujesz podsumowanie z krokami do wdrożenia.</p>
-          </div>
-          <div class="process-step">
-            <span class="process-step__number">4</span>
-            <h5>Wsparcie ciągłe</h5>
-            <p>Między sesjami — konsultacje mailowe i przegląd materiałów.</p>
-          </div>
+          <div class="process-step"><span class="process-step__number">1</span><h5>Brief wstępny</h5><p>Krótka rozmowa o&nbsp;Twoich wyzwaniach i&nbsp;ustalenie priorytetów do pracy.</p></div>
+          <div class="process-step"><span class="process-step__number">2</span><h5>Sesje strategiczne</h5><p>Regularne spotkania 1:1 poświęcone Twoim konkretnym zagadnieniom.</p></div>
+          <div class="process-step"><span class="process-step__number">3</span><h5>Notatki & Action Items</h5><p>Po każdej sesji otrzymujesz podsumowanie z&nbsp;krokami do wdrożenia.</p></div>
+          <div class="process-step"><span class="process-step__number">4</span><h5>Wsparcie ciągłe</h5><p>Między sesjami — konsultacje mailowe i&nbsp;przegląd materiałów.</p></div>
         </div>
       </div>
     </div>
