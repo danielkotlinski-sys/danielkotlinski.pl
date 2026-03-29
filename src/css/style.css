@@ -1026,7 +1026,7 @@ p {
   background-color: var(--white);
   border-radius: 16px;
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
-  overflow: hidden;
+  overflow: clip;
   margin-bottom: 32px;
 }
 
@@ -1979,7 +1979,6 @@ p {
 
   .pricing-card {
     grid-template-columns: 1fr;
-    overflow: visible;
   }
 
   .pricing-card__left {
