@@ -1215,36 +1215,30 @@ p {
 }
 
 .process-timeline.is-open {
-  max-height: 400px;
+  max-height: 1200px;
   opacity: 1;
-  padding: 32px 40px;
-  border-top-width: 1px;
+  padding: 24px 0;
+  border-top-width: 0;
 }
 
 .process-timeline__inner {
   display: flex;
+  flex-direction: column;
   gap: 0;
   position: relative;
 }
 
 .process-timeline__inner::before {
-  content: '';
-  position: absolute;
-  top: 18px;
-  left: 18px;
-  right: 18px;
-  height: 2px;
-  background: linear-gradient(90deg, var(--accent-teal), var(--accent-orange));
-  opacity: 0.2;
-  z-index: 0;
+  display: none;
 }
 
 .process-step {
-  flex: 1;
-  text-align: center;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
   position: relative;
   z-index: 1;
-  padding: 0 8px;
+  padding: 12px 0;
 }
 
 .process-step__number {
@@ -1286,27 +1280,7 @@ p {
   }
 
   .process-timeline__inner {
-    flex-direction: row;
-    gap: 16px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    padding: 0 24px 16px;
-  }
-
-  .process-timeline__inner::before {
-    display: none;
-  }
-
-  .process-step {
-    flex: 0 0 200px;
-    scroll-snap-align: start;
-    text-align: center;
     padding: 0;
-  }
-
-  .process-step__number {
-    margin-bottom: 10px;
   }
 }
 
