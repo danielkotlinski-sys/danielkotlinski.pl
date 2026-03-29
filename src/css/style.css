@@ -415,6 +415,16 @@ p {
   margin-top: 8px;
 }
 
+.zgniotu-explainer__link {
+  color: var(--accent-orange);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.zgniotu-explainer__link strong {
+  color: var(--accent-orange);
+}
+
 /* ===== O MNIE (ABOUT) ===== */
 .about {
   padding: var(--section-padding);
@@ -1194,7 +1204,6 @@ p {
 
 /* Process timeline (collapsible) */
 .process-timeline {
-  grid-column: 1 / -1;
   overflow: hidden;
   max-height: 0;
   opacity: 0;
