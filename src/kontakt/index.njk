@@ -44,7 +44,7 @@ description: Skontaktuj się ze mną w sprawie strategii marki i komunikacji.
 
     {# Right column: form in white card #}
     <div class="contact-form-card reveal reveal-delay-1">
-      <form class="contact-form" action="https://formspree.io/f/mjgpyajv" method="POST">
+      <form class="contact-form" id="contactForm" action="https://formspree.io/f/mjgpyajv" method="POST">
         <div class="contact-form__group">
           <label for="firstName">Imię</label>
           <input type="text" id="firstName" name="firstName" required placeholder="Twoje imię">
@@ -67,6 +67,10 @@ description: Skontaktuj się ze mną w sprawie strategii marki i komunikacji.
         </div>
         <button type="submit" class="btn btn-orange btn-full">Wyślij zapytanie</button>
       </form>
+      <div class="contact-form-success" id="contactFormSuccess" hidden>
+        <h3>Dziękuję za wiadomość!</h3>
+        <p>Odezwę się najszybciej jak to możliwe — zwykle w ciągu 24h.</p>
+      </div>
     </div>
   </div>
 </section>

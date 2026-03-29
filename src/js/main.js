@@ -138,6 +138,38 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && lmPopup && lmPopup.classList.contains('is-open')) closePopup();
 });
 
+// ===== CONTACT FORM AJAX SUBMIT =====
+const contactForm = document.getElementById('contactForm');
+const contactFormSuccess = document.getElementById('contactFormSuccess');
+
+if (contactForm && contactFormSuccess) {
+  contactForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const btn = contactForm.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.textContent = 'Wysyłanie...';
+
+    fetch(contactForm.action, {
+      method: 'POST',
+      body: new FormData(contactForm),
+      headers: { 'Accept': 'application/json' }
+    }).then(function(response) {
+      if (response.ok) {
+        contactForm.hidden = true;
+        contactFormSuccess.hidden = false;
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'Wyślij zapytanie';
+        alert('Coś poszło nie tak. Spróbuj ponownie.');
+      }
+    }).catch(function() {
+      btn.disabled = false;
+      btn.textContent = 'Wyślij zapytanie';
+      alert('Błąd połączenia. Spróbuj ponownie.');
+    });
+  });
+}
+
 // ===== SMOOTH SCROLL FOR ANCHOR LINKS =====
 document.querySelectorAll('a[href^="/#"]').forEach(anchor => {
   anchor.addEventListener('click', function (e) {
