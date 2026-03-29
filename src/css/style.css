@@ -1301,6 +1301,7 @@ p {
 
   .process-timeline__inner {
     flex-direction: row;
+    flex-wrap: nowrap;
     gap: 16px;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
@@ -1308,12 +1309,18 @@ p {
     padding: 0 24px 16px;
   }
 
+  .process-timeline__inner::after {
+    content: '';
+    flex: 0 0 8px;
+  }
+
   .process-timeline__inner::before {
     display: none;
   }
 
   .process-step {
-    flex: 0 0 200px;
+    flex: 0 0 70vw;
+    min-width: 0;
     scroll-snap-align: start;
     text-align: center;
     padding: 0;
@@ -2103,6 +2110,33 @@ p {
     flex-direction: column;
     gap: 12px;
     text-align: center;
+  }
+
+  .pricing-card__left,
+  .pricing-card__middle,
+  .pricing-card__right {
+    padding: 24px;
+  }
+
+  .pricing-card__left h3 {
+    font-size: 22px;
+  }
+
+  .pricing-card__left p {
+    font-size: 13px;
+  }
+
+  .pricing-card__middle h4,
+  .pricing-card__right h4 {
+    font-size: 14px;
+  }
+
+  .pricing-card__middle li strong {
+    font-size: 13px;
+  }
+
+  .pricing-card__middle li span {
+    font-size: 12px;
   }
 
   .contact-main__grid {

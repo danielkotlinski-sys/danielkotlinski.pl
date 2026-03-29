@@ -66,6 +66,12 @@ document.querySelectorAll('.process-toggle').forEach(btn => {
     btn.setAttribute('aria-expanded', !isOpen);
     btn.querySelector('.process-toggle__text').textContent = isOpen ? 'Zobacz jak wygląda proces' : 'Ukryj proces';
     timeline.classList.toggle('is-open', !isOpen);
+
+    // Reset scroll to start when opening
+    if (!isOpen) {
+      var inner = timeline.querySelector('.process-timeline__inner');
+      if (inner) inner.scrollLeft = 0;
+    }
   });
 });
 
