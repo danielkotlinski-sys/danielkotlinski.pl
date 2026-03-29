@@ -592,14 +592,13 @@ p {
 }
 
 .lead-magnet__box {
-  display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: 60px;
-  align-items: center;
-  background: linear-gradient(135deg, var(--white) 0%, #f5f2f0 100%);
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
   border-radius: 20px;
-  padding: 60px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.06);
+  padding: 60px 48px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
 }
 
 .lead-magnet__badge {
@@ -607,26 +606,27 @@ p {
   font-size: 13px;
   font-weight: 600;
   color: var(--accent-orange);
-  border: 1.5px solid var(--accent-orange);
+  border: 1.5px solid rgba(255, 72, 0, 0.5);
   border-radius: 100px;
   padding: 6px 16px;
   margin-bottom: 20px;
 }
 
-.lead-magnet__content h2 {
-  font-size: 36px;
+.lead-magnet__box h2 {
+  font-size: 34px;
   line-height: 1.2;
   margin-bottom: 16px;
+  color: var(--white);
 }
 
-.lead-magnet__content h2 em {
+.lead-magnet__box h2 em {
   color: var(--accent-orange);
   font-style: italic;
 }
 
-.lead-magnet__content p {
+.lead-magnet__box p {
   font-size: 16px;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.7);
   line-height: 1.6;
   margin-bottom: 24px;
 }
@@ -636,12 +636,13 @@ p {
   gap: 10px;
   margin-bottom: 28px;
   flex-wrap: wrap;
+  justify-content: center;
 }
 
 .lead-magnet__tags span {
   font-size: 13px;
-  color: var(--text-gray);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 100px;
   padding: 6px 14px;
   font-style: italic;
@@ -652,49 +653,6 @@ p {
   padding: 16px 40px;
 }
 
-/* Days visual */
-.lead-magnet__days {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.lead-magnet__day {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 14px 20px;
-  background: var(--white);
-  border-radius: 12px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.lead-magnet__day:hover {
-  transform: translateX(6px);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-}
-
-.lead-magnet__day-num {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background-color: var(--accent-teal);
-  color: var(--white);
-  font-family: var(--font-heading);
-  font-size: 16px;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.lead-magnet__day-title {
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--text-dark);
-}
 
 /* ===== LEAD MAGNET POPUP ===== */
 .popup-overlay {
@@ -2056,13 +2014,11 @@ p {
   }
 
   .lead-magnet__box {
-    grid-template-columns: 1fr;
-    padding: 32px;
-    gap: 32px;
+    padding: 36px 24px;
   }
 
-  .lead-magnet__content h2 {
-    font-size: 28px;
+  .lead-magnet__box h2 {
+    font-size: 26px;
   }
 
   .popup {
