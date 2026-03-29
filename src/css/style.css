@@ -1270,14 +1270,28 @@ p {
 }
 
 @media (max-width: 809px) {
+  .pricing-card__left {
+    order: 1;
+  }
+
   .process-timeline {
+    order: 2;
     padding: 0;
+  }
+
+  .pricing-card__middle {
+    order: 3;
+  }
+
+  .pricing-card__right {
+    order: 4;
   }
 
   .process-timeline.is-open {
     max-height: none;
     padding: 24px 0;
     overflow: visible;
+    border-top-width: 1px;
   }
 
   .process-timeline__inner {
