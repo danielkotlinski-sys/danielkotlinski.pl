@@ -19,16 +19,28 @@ description: Dołącz do newslettera o strategii marki i komunikacji.
       <img src="{{ '/img/daniel-newsletter.jpg' | url }}" alt="Daniel Kotlinski" loading="lazy">
     </div>
     <div class="newsletter-signup__form-card reveal reveal-delay-1">
-      <form class="newsletter-form" action="https://formspree.io/f/YOUR_NEWSLETTER_FORM_ID" method="POST">
-        <div class="contact-form__group">
-          <input type="text" id="firstName" name="firstName" required placeholder="Twoje imię">
+      <div class="newsletter-form-container">
+        <form class="newsletter-form" action="https://app.loops.so/api/newsletter-form/cml0sehqr1j1x0iyatwsyfgmr" method="POST">
+          <div class="contact-form__group">
+            <input type="text" name="firstName" required placeholder="Twoje imię" class="newsletter-form-input">
+          </div>
+          <div class="contact-form__group">
+            <input type="email" name="newsletter-form-input" required placeholder="Twój e-mail" class="newsletter-form-input">
+          </div>
+          <input type="hidden" name="userGroup" value="DKpl">
+          <input type="hidden" name="mailingLists" value="cmmkxgdpz0aue0i1u51inf1gx">
+          <p class="newsletter-form__legal">Zapisując się, akceptujesz <a href="{{ '/polityka-prywatnosci/' | url }}">Politykę Prywatności</a> i <a href="{{ '/regulamin/' | url }}">Regulamin</a>. Możesz wypisać się ZAWSZE.</p>
+          <button type="submit" class="btn btn-orange btn-full newsletter-form-button">Zapisz mnie!</button>
+          <button type="button" class="btn btn-orange btn-full newsletter-loading-button" style="display:none">Wysyłanie...</button>
+        </form>
+        <div class="newsletter-success" style="display:none;text-align:center;padding:20px 0">
+          <p style="color:var(--accent-teal);font-size:16px;font-weight:600">Dziękuję! Sprawdź swoją skrzynkę.</p>
         </div>
-        <div class="contact-form__group">
-          <input type="email" id="email" name="email" required placeholder="Twój e-mail">
+        <div class="newsletter-error" style="display:none;text-align:center;padding:20px 0">
+          <p class="newsletter-error-message" style="color:#b91c1c;font-size:14px">Coś poszło nie tak, spróbuj ponownie</p>
         </div>
-        <p class="newsletter-form__legal">Zapisując się, akceptujesz <a href="{{ '/polityka-prywatnosci/' | url }}">Politykę Prywatności</a> i <a href="{{ '/regulamin/' | url }}">Regulamin</a>. Możesz wypisać się ZAWSZE.</p>
-        <button type="submit" class="btn btn-orange btn-full">Zapisz mnie!</button>
-      </form>
+        <button class="newsletter-back-button" type="button" style="color:#6b7280;font-size:14px;margin:10px auto;text-align:center;display:none;background:transparent;border:none;cursor:pointer">&larr; Wróć</button>
+      </div>
     </div>
   </div>
 </section>
@@ -90,3 +102,72 @@ description: Dołącz do newslettera o strategii marki i komunikacji.
     </div>
   </div>
 </section>
+
+<script>
+function submitHandler(event) {
+  event.preventDefault();
+  var container = event.target.parentNode;
+  var form = container.querySelector(".newsletter-form");
+  var formInputs = container.querySelectorAll(".newsletter-form-input");
+  var success = container.querySelector(".newsletter-success");
+  var errorContainer = container.querySelector(".newsletter-error");
+  var errorMessage = container.querySelector(".newsletter-error-message");
+  var backButton = container.querySelector(".newsletter-back-button");
+  var submitButton = container.querySelector(".newsletter-form-button");
+  var loadingButton = container.querySelector(".newsletter-loading-button");
+
+  var time = new Date();
+  var timestamp = time.valueOf();
+  var previousTimestamp = localStorage.getItem("loops-form-timestamp");
+  if (previousTimestamp && Number(previousTimestamp) + 60000 > timestamp) {
+    errorContainer.style.display = "flex";
+    errorMessage.innerText = "Za dużo prób, spróbuj za chwilę";
+    submitButton.style.display = "none";
+    formInputs.forEach(function(i){i.style.display="none"});
+    backButton.style.display = "block";
+    return;
+  }
+  localStorage.setItem("loops-form-timestamp", timestamp);
+  submitButton.style.display = "none";
+  loadingButton.style.display = "flex";
+
+  var formData = new FormData(form);
+  var formBody = new URLSearchParams(formData).toString();
+
+  fetch(event.target.action, {
+    method: "POST",
+    body: formBody,
+    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+  })
+    .then(function(res) { return res.ok ? res.json() : Promise.reject(res); })
+    .then(function() {
+      success.style.display = "flex";
+      form.reset();
+    })
+    .catch(function(err) {
+      errorContainer.style.display = "flex";
+      if (err.message) errorMessage.innerText = err.message;
+    })
+    .finally(function() {
+      formInputs.forEach(function(i){i.style.display="none"});
+      loadingButton.style.display = "none";
+      backButton.style.display = "block";
+    });
+}
+function resetFormHandler(event) {
+  var container = event.target.parentNode;
+  var formInputs = container.querySelectorAll(".newsletter-form-input");
+  container.querySelector(".newsletter-success").style.display = "none";
+  container.querySelector(".newsletter-error").style.display = "none";
+  container.querySelector(".newsletter-back-button").style.display = "none";
+  formInputs.forEach(function(i){i.style.display="flex"});
+  container.querySelector(".newsletter-form-button").style.display = "flex";
+}
+var fc = document.getElementsByClassName("newsletter-form-container");
+for (var i = 0; i < fc.length; i++) {
+  if (fc[i].classList.contains('newsletter-handlers-added')) continue;
+  fc[i].querySelector(".newsletter-form").addEventListener("submit", submitHandler);
+  fc[i].querySelector(".newsletter-back-button").addEventListener("click", resetFormHandler);
+  fc[i].classList.add("newsletter-handlers-added");
+}
+</script>
