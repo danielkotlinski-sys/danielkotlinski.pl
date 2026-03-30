@@ -34,98 +34,94 @@ exports.handler = async (event) => {
 
   try {
     // Step 1: Get access token via refresh token
+    const tokenBody = 'client_id=' + encodeURIComponent(clientId)
+      + '&client_secret=' + encodeURIComponent(clientSecret)
+      + '&refresh_token=' + encodeURIComponent(refreshToken)
+      + '&grant_type=refresh_token';
+
     const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        client_id: clientId,
-        client_secret: clientSecret,
-        refresh_token: refreshToken,
-        grant_type: 'refresh_token',
-      }),
+      body: tokenBody,
     });
     const tokenData = await tokenRes.json();
 
     if (!tokenData.access_token) {
       return {
         statusCode: 401, headers,
-        body: JSON.stringify({ error: 'Failed to refresh Google access token', platform: 'google' })
+        body: JSON.stringify({ error: 'Failed to refresh Google access token: ' + JSON.stringify(tokenData), platform: 'google' })
       };
     }
 
     // Step 2: Query campaign performance via Google Ads API (REST)
     const params = event.queryStringParameters || {};
-    const dateFrom = (params.from || getDefaultFrom()).replace(/-/g, '');
-    const dateTo = (params.to || getDefaultTo()).replace(/-/g, '');
+    const dateFrom = params.from || getDefaultFrom();
+    const dateTo = params.to || getDefaultTo();
 
-    // Use GAQL (Google Ads Query Language)
-    const query = `
-      SELECT
-        campaign.name,
-        segments.month,
-        metrics.cost_micros,
-        metrics.impressions,
-        metrics.clicks,
-        metrics.ctr,
-        metrics.average_cpc,
-        metrics.average_cpm,
-        metrics.conversions,
-        metrics.conversions_value
-      FROM campaign
-      WHERE segments.date BETWEEN '${dateFrom.substring(0,4)}-${dateFrom.substring(4,6)}-${dateFrom.substring(6,8)}'
-        AND '${dateTo.substring(0,4)}-${dateTo.substring(4,6)}-${dateTo.substring(6,8)}'
-        AND campaign.status != 'REMOVED'
-      ORDER BY segments.month DESC
-    `;
+    const query = 'SELECT campaign.name, segments.month, metrics.cost_micros, metrics.impressions, metrics.clicks, metrics.ctr, metrics.average_cpc, metrics.average_cpm, metrics.conversions, metrics.conversions_value FROM campaign WHERE segments.date BETWEEN "' + dateFrom + '" AND "' + dateTo + '" AND campaign.status != "REMOVED" ORDER BY segments.month DESC';
 
     const cleanCustomerId = customerId.replace(/-/g, '');
-    const searchUrl = `https://googleads.googleapis.com/v18/customers/${cleanCustomerId}/googleAds:searchStream`;
+    const searchUrl = 'https://googleads.googleapis.com/v18/customers/' + cleanCustomerId + '/googleAds:searchStream';
 
     const searchRes = await fetch(searchUrl, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${tokenData.access_token}`,
+        'Authorization': 'Bearer ' + tokenData.access_token,
         'developer-token': devToken,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ query }),
+      body: JSON.stringify({ query: query }),
     });
 
-    const searchData = await searchRes.json();
+    const searchText = await searchRes.text();
+    var searchData;
+    try {
+      searchData = JSON.parse(searchText);
+    } catch (e) {
+      return {
+        statusCode: 500, headers,
+        body: JSON.stringify({ error: 'Google API returned invalid JSON: ' + searchText.substring(0, 200), platform: 'google' })
+      };
+    }
 
     if (searchData.error) {
       return {
         statusCode: 400, headers,
-        body: JSON.stringify({ error: searchData.error.message, platform: 'google' })
+        body: JSON.stringify({ error: searchData.error.message || JSON.stringify(searchData.error), platform: 'google' })
       };
     }
 
-    // Normalize data
+    // Normalize data — searchStream returns an array of batches
     const entries = [];
-    const results = searchData[0]?.results || searchData.results || [];
+    var batches = Array.isArray(searchData) ? searchData : [searchData];
 
-    results.forEach((row) => {
-      const m = row.metrics || {};
-      const spendZl = (parseInt(m.cost_micros) || 0) / 1000000;
+    batches.forEach(function (batch) {
+      var results = (batch && batch.results) ? batch.results : [];
+      results.forEach(function (row) {
+        var m = row.metrics || {};
+        var seg = row.segments || {};
+        var camp = row.campaign || {};
+        var spendZl = (parseInt(m.costMicros || m.cost_micros || '0') || 0) / 1000000;
 
-      entries.push({
-        platform: 'google',
-        month: row.segments?.month || '',
-        campaign: row.campaign?.name || '',
-        spend: spendZl,
-        impressions: parseInt(m.impressions) || 0,
-        clicks: parseInt(m.clicks) || 0,
-        ctr: (parseFloat(m.ctr) || 0) * 100,
-        cpc: (parseInt(m.average_cpc) || 0) / 1000000,
-        cpm: (parseInt(m.average_cpm) || 0) / 1000000,
-        conversions: parseFloat(m.conversions) || 0,
-        revenue: parseFloat(m.conversions_value) || 0,
+        entries.push({
+          platform: 'google',
+          month: seg.month || '',
+          campaign: camp.name || '',
+          spend: spendZl,
+          impressions: parseInt(m.impressions || '0') || 0,
+          clicks: parseInt(m.clicks || '0') || 0,
+          ctr: (parseFloat(m.ctr || '0') || 0) * 100,
+          cpc: (parseInt(m.averageCpc || m.average_cpc || '0') || 0) / 1000000,
+          cpm: (parseInt(m.averageCpm || m.average_cpm || '0') || 0) / 1000000,
+          conversions: parseFloat(m.conversions || '0') || 0,
+          revenue: parseFloat(m.conversionsValue || m.conversions_value || '0') || 0,
+        });
       });
     });
 
     return {
       statusCode: 200, headers,
-      body: JSON.stringify({ platform: 'google', entries, fetched: new Date().toISOString() })
+      body: JSON.stringify({ platform: 'google', entries: entries, fetched: new Date().toISOString() })
     };
   } catch (err) {
     return {
@@ -136,7 +132,7 @@ exports.handler = async (event) => {
 };
 
 function getDefaultFrom() {
-  const d = new Date();
+  var d = new Date();
   d.setMonth(d.getMonth() - 6);
   return d.toISOString().split('T')[0];
 }
