@@ -55,7 +55,7 @@
       <p class="drawer__service-label">Wybrany pakiet:</p>
       <p class="drawer__service-name" id="drawer-service-name"></p>
 
-      <form class="drawer__form" action="https://formspree.io/f/mjgpyajv" method="POST">
+      <form class="drawer__form" id="drawer-form" action="https://formspree.io/f/mjgpyajv" method="POST">
         <input type="hidden" name="service" id="drawer-service-input">
         <div class="drawer__field">
           <label for="drawer-name">Imię</label>
@@ -75,6 +75,10 @@
         </div>
         <button type="submit" class="btn btn-orange btn-full">Wyślij zapytanie</button>
       </form>
+      <div class="drawer__success" id="drawer-form-success" hidden>
+        <h3>Dziękuję!</h3>
+        <p>Odezwę się najszybciej jak to możliwe — zwykle w ciągu 24h.</p>
+      </div>
       <p class="drawer__note">Odpowiadam w ciągu 24h. Pierwsza rozmowa jest bezpłatna.</p>
     </div>
   </aside>

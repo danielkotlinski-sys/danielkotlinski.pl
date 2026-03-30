@@ -86,6 +86,14 @@ function openDrawer(service) {
   if (!drawer) return;
   serviceName.textContent = service;
   serviceInput.value = service;
+  // Reset form state if previously submitted
+  if (drawerForm && drawerFormSuccess) {
+    drawerForm.hidden = false;
+    drawerForm.reset();
+    var btn = drawerForm.querySelector('button[type="submit"]');
+    if (btn) { btn.disabled = false; btn.textContent = 'Wyślij zapytanie'; }
+    drawerFormSuccess.hidden = true;
+  }
   drawer.classList.add('is-open');
   drawer.setAttribute('aria-hidden', 'false');
   overlay.classList.add('is-active');
@@ -163,6 +171,38 @@ if (contactForm && contactFormSuccess) {
       if (response.ok) {
         contactForm.hidden = true;
         contactFormSuccess.hidden = false;
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'Wyślij zapytanie';
+        alert('Coś poszło nie tak. Spróbuj ponownie.');
+      }
+    }).catch(function() {
+      btn.disabled = false;
+      btn.textContent = 'Wyślij zapytanie';
+      alert('Błąd połączenia. Spróbuj ponownie.');
+    });
+  });
+}
+
+// ===== DRAWER FORM AJAX SUBMIT =====
+const drawerForm = document.getElementById('drawer-form');
+const drawerFormSuccess = document.getElementById('drawer-form-success');
+
+if (drawerForm && drawerFormSuccess) {
+  drawerForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const btn = drawerForm.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.textContent = 'Wysyłanie...';
+
+    fetch(drawerForm.action, {
+      method: 'POST',
+      body: new FormData(drawerForm),
+      headers: { 'Accept': 'application/json' }
+    }).then(function(response) {
+      if (response.ok) {
+        drawerForm.hidden = true;
+        drawerFormSuccess.hidden = false;
       } else {
         btn.disabled = false;
         btn.textContent = 'Wyślij zapytanie';
