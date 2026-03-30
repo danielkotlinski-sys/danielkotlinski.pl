@@ -1,0 +1,40 @@
+[build]
+  command = "npm run build"
+  publish = "_site"
+
+[functions]
+  directory = "netlify/functions"
+
+# Redirect /api/* to Netlify Functions
+[[redirects]]
+  from = "/api/facebook"
+  to = "/.netlify/functions/api-facebook"
+  status = 200
+
+[[redirects]]
+  from = "/api/google"
+  to = "/.netlify/functions/api-google"
+  status = 200
+
+[[redirects]]
+  from = "/api/linkedin"
+  to = "/.netlify/functions/api-linkedin"
+  status = 200
+
+# Security headers for dashboard
+[[headers]]
+  for = "/dashboard/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer"
+    Cache-Control = "no-store, no-cache, must-revalidate, private"
+
+# Security headers for API
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Cache-Control = "no-store, private"

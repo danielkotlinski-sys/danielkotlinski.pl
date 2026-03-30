@@ -1,8 +1,22 @@
-/* ===== AD SPENDING DASHBOARD ===== */
+/* ===== AD SPENDING DASHBOARD — Auth + API ===== */
 (function () {
   'use strict';
 
-  var STORAGE_KEY = 'adDashboardData';
+  // ===== CONFIG =====
+  // SHA-256 hash of the dashboard password.
+  // To change: run in browser console:
+  //   crypto.subtle.digest('SHA-256', new TextEncoder().encode('YOUR_PASSWORD'))
+  //     .then(h => console.log(Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('')))
+  // Then paste the hash below.
+  var PASSWORD_HASH = 'SET_YOUR_PASSWORD_HASH_HERE';
+
+  var API_BASE = '/api';
+  var SESSION_KEY = 'dashSession';
+  var CACHE_KEY = 'dashCache';
+  var MAX_LOGIN_ATTEMPTS = 5;
+  var LOCKOUT_MS = 15 * 60 * 1000; // 15 min lockout
+  var SESSION_DURATION_MS = 4 * 60 * 60 * 1000; // 4h session
+  var ATTEMPTS_KEY = 'dashLoginAttempts';
 
   var PLATFORM_LABELS = {
     facebook: 'Facebook Ads',
@@ -16,18 +30,149 @@
     linkedin: { bg: 'rgba(10,102,194,0.15)', border: '#0A66C2' }
   };
 
-  // ===== DATA PERSISTENCE =====
-  function loadData() {
+  // ===== AUTH =====
+  async function hashPassword(password) {
+    var encoded = new TextEncoder().encode(password);
+    var buffer = await crypto.subtle.digest('SHA-256', encoded);
+    return Array.from(new Uint8Array(buffer))
+      .map(function (b) { return b.toString(16).padStart(2, '0'); })
+      .join('');
+  }
+
+  function getLoginAttempts() {
     try {
-      var raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : [];
+      var data = JSON.parse(localStorage.getItem(ATTEMPTS_KEY) || '{}');
+      // Reset if lockout expired
+      if (data.lockedUntil && Date.now() > data.lockedUntil) {
+        localStorage.removeItem(ATTEMPTS_KEY);
+        return { count: 0, lockedUntil: null };
+      }
+      return data;
     } catch (e) {
-      return [];
+      return { count: 0, lockedUntil: null };
     }
   }
 
-  function saveData(entries) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+  function recordFailedAttempt() {
+    var data = getLoginAttempts();
+    data.count = (data.count || 0) + 1;
+    if (data.count >= MAX_LOGIN_ATTEMPTS) {
+      data.lockedUntil = Date.now() + LOCKOUT_MS;
+    }
+    localStorage.setItem(ATTEMPTS_KEY, JSON.stringify(data));
+    return data;
+  }
+
+  function resetLoginAttempts() {
+    localStorage.removeItem(ATTEMPTS_KEY);
+  }
+
+  function createSession(passwordHash) {
+    var session = {
+      token: passwordHash,
+      created: Date.now(),
+      expires: Date.now() + SESSION_DURATION_MS
+    };
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    return session;
+  }
+
+  function getSession() {
+    try {
+      var session = JSON.parse(sessionStorage.getItem(SESSION_KEY));
+      if (!session) return null;
+      if (Date.now() > session.expires) {
+        sessionStorage.removeItem(SESSION_KEY);
+        return null;
+      }
+      return session;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function destroySession() {
+    sessionStorage.removeItem(SESSION_KEY);
+  }
+
+  function getDashboardSecret() {
+    var session = getSession();
+    return session ? session.token : null;
+  }
+
+  // ===== API FETCHING =====
+  function getCache() {
+    try {
+      var raw = localStorage.getItem(CACHE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function setCache(data) {
+    data.cachedAt = Date.now();
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+  }
+
+  async function fetchPlatform(platform, params) {
+    var url = API_BASE + '/' + platform;
+    if (params) {
+      var qs = new URLSearchParams(params).toString();
+      if (qs) url += '?' + qs;
+    }
+
+    var response = await fetch(url, {
+      headers: { 'X-Dashboard-Token': getDashboardSecret() || '' }
+    });
+
+    var data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || 'API error ' + response.status);
+    }
+    return data;
+  }
+
+  async function fetchAllPlatforms(params) {
+    var statusEl = document.getElementById('api-status');
+    var results = { facebook: null, google: null, linkedin: null };
+    var allEntries = [];
+
+    var platforms = ['facebook', 'google', 'linkedin'];
+
+    // Show loading state
+    statusEl.innerHTML = platforms.map(function (p) {
+      return '<span class="api-badge api-badge--loading">' + PLATFORM_LABELS[p] + ': ładowanie...</span>';
+    }).join('');
+
+    var fetches = platforms.map(function (platform) {
+      return fetchPlatform(platform, params)
+        .then(function (data) {
+          results[platform] = { ok: true, data: data };
+          allEntries = allEntries.concat(data.entries || []);
+        })
+        .catch(function (err) {
+          results[platform] = { ok: false, error: err.message };
+        });
+    });
+
+    await Promise.all(fetches);
+
+    // Update status badges
+    statusEl.innerHTML = platforms.map(function (p) {
+      var r = results[p];
+      if (r.ok) {
+        var count = (r.data.entries || []).length;
+        return '<span class="api-badge api-badge--ok">' + PLATFORM_LABELS[p] + ': ' + count + ' wpisów</span>';
+      } else {
+        return '<span class="api-badge api-badge--error">' + PLATFORM_LABELS[p] + ': ' + escapeHtml(r.error) + '</span>';
+      }
+    }).join('');
+
+    // Cache results
+    setCache({ entries: allEntries, results: results });
+
+    return allEntries;
   }
 
   // ===== UTILITY =====
@@ -43,29 +188,31 @@
     return b > 0 ? a / b : 0;
   }
 
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
   // ===== SUMMARY CARDS =====
   function updateSummary(entries) {
-    var totalSpend = 0;
-    var totalClicks = 0;
-    var totalImpressions = 0;
-    var totalConversions = 0;
-    var totalRevenue = 0;
+    var totalSpend = 0, totalClicks = 0, totalImpressions = 0;
+    var totalConversions = 0, totalRevenue = 0;
 
     entries.forEach(function (e) {
-      totalSpend += e.spend;
-      totalClicks += e.clicks;
-      totalImpressions += e.impressions;
-      totalConversions += e.conversions;
+      totalSpend += e.spend || 0;
+      totalClicks += e.clicks || 0;
+      totalImpressions += e.impressions || 0;
+      totalConversions += e.conversions || 0;
       totalRevenue += e.revenue || 0;
     });
 
     document.getElementById('total-spend').textContent = fmt(totalSpend) + ' zł';
     document.getElementById('total-spend-period').textContent =
-      entries.length > 0 ? entries.length + ' wpisów' : 'Brak danych';
-
+      entries.length > 0 ? entries.length + ' kampanii' : 'Brak danych';
     document.getElementById('avg-cpc').textContent = fmt(safeDiv(totalSpend, totalClicks)) + ' zł';
     document.getElementById('avg-ctr').textContent = fmt(safeDiv(totalClicks, totalImpressions) * 100) + '%';
-    document.getElementById('total-conversions').textContent = totalConversions;
+    document.getElementById('total-conversions').textContent = Math.round(totalConversions);
     document.getElementById('avg-cpa-label').textContent =
       'CPA: ' + fmt(safeDiv(totalSpend, totalConversions)) + ' zł';
     document.getElementById('avg-roas').textContent =
@@ -76,7 +223,7 @@
   function updatePlatformTable(entries) {
     var tbody = document.getElementById('platform-table-body');
     if (entries.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="10" class="dash-table__empty">Dodaj dane, aby zobaczyć porównanie</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="10" class="dash-table__empty">Brak danych</td></tr>';
       return;
     }
 
@@ -86,10 +233,10 @@
         platforms[e.platform] = { spend: 0, impressions: 0, clicks: 0, conversions: 0, revenue: 0 };
       }
       var p = platforms[e.platform];
-      p.spend += e.spend;
-      p.impressions += e.impressions;
-      p.clicks += e.clicks;
-      p.conversions += e.conversions;
+      p.spend += e.spend || 0;
+      p.impressions += e.impressions || 0;
+      p.clicks += e.clicks || 0;
+      p.conversions += e.conversions || 0;
       p.revenue += e.revenue || 0;
     });
 
@@ -103,7 +250,7 @@
       var roas = safeDiv(p.revenue, p.spend);
 
       html += '<tr>'
-        + '<td><span class="platform-badge platform-badge--' + key + '">' + PLATFORM_LABELS[key] + '</span></td>'
+        + '<td><span class="platform-badge platform-badge--' + escapeHtml(key) + '">' + escapeHtml(PLATFORM_LABELS[key] || key) + '</span></td>'
         + '<td>' + fmt(p.spend) + ' zł</td>'
         + '<td>' + fmt(p.impressions, 0) + '</td>'
         + '<td>' + fmt(p.clicks, 0) + '</td>'
@@ -119,28 +266,28 @@
     tbody.innerHTML = html;
   }
 
-  // ===== LOG TABLE =====
+  // ===== CAMPAIGNS TABLE =====
   function updateLogTable(entries) {
     var tbody = document.getElementById('log-table-body');
     if (entries.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="11" class="dash-table__empty">Brak wpisów</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="10" class="dash-table__empty">Brak danych z API</td></tr>';
       return;
     }
 
     var sorted = entries.slice().sort(function (a, b) {
-      return b.month.localeCompare(a.month) || a.platform.localeCompare(b.platform);
+      return (b.month || '').localeCompare(a.month || '') || (a.platform || '').localeCompare(b.platform || '');
     });
 
     var html = '';
-    sorted.forEach(function (e, i) {
+    sorted.forEach(function (e) {
       var ctr = safeDiv(e.clicks, e.impressions) * 100;
       var cpc = safeDiv(e.spend, e.clicks);
       var roas = safeDiv(e.revenue || 0, e.spend);
 
       html += '<tr>'
-        + '<td>' + e.month + '</td>'
-        + '<td><span class="platform-badge platform-badge--' + e.platform + '">' + PLATFORM_LABELS[e.platform] + '</span></td>'
-        + '<td>' + (e.campaign || '—') + '</td>'
+        + '<td>' + escapeHtml(e.month || '') + '</td>'
+        + '<td><span class="platform-badge platform-badge--' + escapeHtml(e.platform) + '">' + escapeHtml(PLATFORM_LABELS[e.platform] || e.platform) + '</span></td>'
+        + '<td>' + escapeHtml(e.campaign || '—') + '</td>'
         + '<td>' + fmt(e.spend) + ' zł</td>'
         + '<td>' + fmt(e.impressions, 0) + '</td>'
         + '<td>' + fmt(e.clicks, 0) + '</td>'
@@ -148,7 +295,6 @@
         + '<td>' + fmt(cpc) + ' zł</td>'
         + '<td>' + fmt(e.conversions, 0) + '</td>'
         + '<td>' + fmt(roas, 1) + 'x</td>'
-        + '<td><button class="btn-delete" data-index="' + entries.indexOf(e) + '" title="Usuń">&times;</button></td>'
         + '</tr>';
     });
 
@@ -160,33 +306,19 @@
 
   function getMonths(entries) {
     var monthSet = {};
-    entries.forEach(function (e) { monthSet[e.month] = true; });
+    entries.forEach(function (e) { if (e.month) monthSet[e.month] = true; });
     return Object.keys(monthSet).sort();
   }
 
-  function aggregateByMonthPlatform(entries, field) {
-    var months = getMonths(entries);
-    var platforms = ['facebook', 'google', 'linkedin'];
-    var result = {};
-
-    platforms.forEach(function (p) {
-      result[p] = months.map(function (m) {
-        var items = entries.filter(function (e) { return e.month === m && e.platform === p; });
-        var total = 0;
-        items.forEach(function (e) { total += e[field] || 0; });
-        return total;
-      });
-    });
-
-    return { months: months, data: result };
-  }
-
-  function buildDatasets(agg) {
+  function buildDatasets(entries, months, valueFunc) {
     var platforms = ['facebook', 'google', 'linkedin'];
     return platforms.map(function (p) {
+      var values = months.map(function (m) {
+        return valueFunc(entries.filter(function (e) { return e.month === m && e.platform === p; }));
+      });
       return {
         label: PLATFORM_LABELS[p],
-        data: agg.data[p],
+        data: values,
         backgroundColor: PLATFORM_COLORS[p].bg,
         borderColor: PLATFORM_COLORS[p].border,
         borderWidth: 2,
@@ -197,10 +329,7 @@
   }
 
   function createOrUpdateChart(id, type, labels, datasets, yLabel) {
-    if (chartInstances[id]) {
-      chartInstances[id].destroy();
-    }
-
+    if (chartInstances[id]) chartInstances[id].destroy();
     var ctx = document.getElementById(id);
     if (!ctx) return;
 
@@ -215,171 +344,69 @@
           legend: { position: 'bottom', labels: { usePointStyle: true, padding: 16 } }
         },
         scales: {
-          y: {
-            beginAtZero: true,
-            title: { display: !!yLabel, text: yLabel || '' },
-            grid: { color: 'rgba(0,0,0,0.05)' }
-          },
-          x: {
-            grid: { display: false }
-          }
+          y: { beginAtZero: true, title: { display: !!yLabel, text: yLabel || '' }, grid: { color: 'rgba(0,0,0,0.05)' } },
+          x: { grid: { display: false } }
         }
       }
     });
   }
 
   function updateCharts(entries) {
+    var chartIds = ['chart-spend', 'chart-cpc', 'chart-ctr', 'chart-conversions'];
     if (entries.length === 0) {
-      ['chart-spend', 'chart-cpc', 'chart-ctr', 'chart-conversions'].forEach(function (id) {
+      chartIds.forEach(function (id) {
         if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
       });
       return;
     }
 
     var months = getMonths(entries);
-    var platforms = ['facebook', 'google', 'linkedin'];
 
-    // Spend chart
-    var spendAgg = aggregateByMonthPlatform(entries, 'spend');
-    createOrUpdateChart('chart-spend', 'bar', months, buildDatasets(spendAgg), 'Wydatki (zł)');
-
-    // CPC chart - computed
-    var cpcDatasets = platforms.map(function (p) {
-      var values = months.map(function (m) {
-        var items = entries.filter(function (e) { return e.month === m && e.platform === p; });
-        var spend = 0; var clicks = 0;
-        items.forEach(function (e) { spend += e.spend; clicks += e.clicks; });
-        return safeDiv(spend, clicks);
-      });
-      return {
-        label: PLATFORM_LABELS[p],
-        data: values,
-        backgroundColor: PLATFORM_COLORS[p].bg,
-        borderColor: PLATFORM_COLORS[p].border,
-        borderWidth: 2,
-        tension: 0.3,
-        fill: false
-      };
+    // Spend
+    var spendDS = buildDatasets(entries, months, function (items) {
+      var t = 0; items.forEach(function (e) { t += e.spend || 0; }); return t;
     });
-    createOrUpdateChart('chart-cpc', 'line', months, cpcDatasets, 'CPC (zł)');
+    createOrUpdateChart('chart-spend', 'bar', months, spendDS, 'Wydatki (zł)');
 
-    // CTR chart - computed
-    var ctrDatasets = platforms.map(function (p) {
-      var values = months.map(function (m) {
-        var items = entries.filter(function (e) { return e.month === m && e.platform === p; });
-        var clicks = 0; var impressions = 0;
-        items.forEach(function (e) { clicks += e.clicks; impressions += e.impressions; });
-        return safeDiv(clicks, impressions) * 100;
-      });
-      return {
-        label: PLATFORM_LABELS[p],
-        data: values,
-        backgroundColor: PLATFORM_COLORS[p].bg,
-        borderColor: PLATFORM_COLORS[p].border,
-        borderWidth: 2,
-        tension: 0.3,
-        fill: false
-      };
+    // CPC
+    var cpcDS = buildDatasets(entries, months, function (items) {
+      var s = 0, c = 0;
+      items.forEach(function (e) { s += e.spend || 0; c += e.clicks || 0; });
+      return safeDiv(s, c);
     });
-    createOrUpdateChart('chart-ctr', 'line', months, ctrDatasets, 'CTR (%)');
+    cpcDS.forEach(function (ds) { ds.fill = false; });
+    createOrUpdateChart('chart-cpc', 'line', months, cpcDS, 'CPC (zł)');
 
-    // Conversions chart
-    var convAgg = aggregateByMonthPlatform(entries, 'conversions');
-    createOrUpdateChart('chart-conversions', 'bar', months, buildDatasets(convAgg), 'Konwersje');
+    // CTR
+    var ctrDS = buildDatasets(entries, months, function (items) {
+      var cl = 0, im = 0;
+      items.forEach(function (e) { cl += e.clicks || 0; im += e.impressions || 0; });
+      return safeDiv(cl, im) * 100;
+    });
+    ctrDS.forEach(function (ds) { ds.fill = false; });
+    createOrUpdateChart('chart-ctr', 'line', months, ctrDS, 'CTR (%)');
+
+    // Conversions
+    var convDS = buildDatasets(entries, months, function (items) {
+      var t = 0; items.forEach(function (e) { t += e.conversions || 0; }); return t;
+    });
+    createOrUpdateChart('chart-conversions', 'bar', months, convDS, 'Konwersje');
   }
 
-  // ===== REFRESH ALL =====
-  function refreshDashboard() {
-    var entries = loadData();
+  // ===== REFRESH =====
+  function refreshDashboard(entries) {
     updateSummary(entries);
     updatePlatformTable(entries);
     updateLogTable(entries);
     updateCharts(entries);
   }
 
-  // ===== FORM HANDLING =====
-  function initForm() {
-    var form = document.getElementById('campaign-form');
-    if (!form) return;
-
-    // Set default month to current
-    var now = new Date();
-    var monthInput = document.getElementById('f-month');
-    monthInput.value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
-
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-
-      var entry = {
-        id: Date.now(),
-        platform: document.getElementById('f-platform').value,
-        month: document.getElementById('f-month').value,
-        campaign: document.getElementById('f-campaign').value,
-        spend: parseFloat(document.getElementById('f-spend').value) || 0,
-        impressions: parseInt(document.getElementById('f-impressions').value) || 0,
-        clicks: parseInt(document.getElementById('f-clicks').value) || 0,
-        conversions: parseInt(document.getElementById('f-conversions').value) || 0,
-        revenue: parseFloat(document.getElementById('f-revenue').value) || 0
-      };
-
-      var entries = loadData();
-      entries.push(entry);
-      saveData(entries);
-
-      // Reset form but keep platform and month
-      var savedPlatform = entry.platform;
-      var savedMonth = entry.month;
-      form.reset();
-      document.getElementById('f-platform').value = savedPlatform;
-      document.getElementById('f-month').value = savedMonth;
-
-      refreshDashboard();
-
-      // Scroll to summary
-      document.getElementById('dash-summary').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  }
-
-  // ===== DELETE ENTRY =====
-  function initDeleteHandlers() {
-    document.getElementById('log-table-body').addEventListener('click', function (e) {
-      var btn = e.target.closest('.btn-delete');
-      if (!btn) return;
-
-      var index = parseInt(btn.getAttribute('data-index'));
-      var entries = loadData();
-      if (index >= 0 && index < entries.length) {
-        entries.splice(index, 1);
-        saveData(entries);
-        refreshDashboard();
-      }
-    });
-  }
-
-  // ===== CLEAR ALL =====
-  function initClearAll() {
-    var btn = document.getElementById('btn-clear-all');
-    if (!btn) return;
-
-    btn.addEventListener('click', function () {
-      if (confirm('Na pewno chcesz usunąć wszystkie dane? Tej operacji nie można cofnąć.')) {
-        saveData([]);
-        refreshDashboard();
-      }
-    });
-  }
-
   // ===== CSV EXPORT =====
   function initExport() {
-    var btn = document.getElementById('btn-export-csv');
-    if (!btn) return;
-
-    btn.addEventListener('click', function () {
-      var entries = loadData();
-      if (entries.length === 0) {
-        alert('Brak danych do eksportu.');
-        return;
-      }
+    document.getElementById('btn-export-csv').addEventListener('click', function () {
+      var cache = getCache();
+      var entries = cache ? cache.entries : [];
+      if (entries.length === 0) { alert('Brak danych do eksportu.'); return; }
 
       var headers = ['Miesiąc', 'Platforma', 'Kampania', 'Wydatki', 'Wyświetlenia', 'Kliknięcia', 'CTR%', 'CPC', 'CPM', 'Konwersje', 'CPA', 'Przychód', 'ROAS'];
       var rows = entries.map(function (e) {
@@ -389,9 +416,10 @@
         var cpa = safeDiv(e.spend, e.conversions);
         var roas = safeDiv(e.revenue || 0, e.spend);
         return [
-          e.month, PLATFORM_LABELS[e.platform], e.campaign, e.spend.toFixed(2),
-          e.impressions, e.clicks, ctr.toFixed(2), cpc.toFixed(2), cpm.toFixed(2),
-          e.conversions, cpa.toFixed(2), (e.revenue || 0).toFixed(2), roas.toFixed(2)
+          e.month, PLATFORM_LABELS[e.platform] || e.platform, e.campaign,
+          (e.spend || 0).toFixed(2), e.impressions || 0, e.clicks || 0,
+          ctr.toFixed(2), cpc.toFixed(2), cpm.toFixed(2),
+          e.conversions || 0, cpa.toFixed(2), (e.revenue || 0).toFixed(2), roas.toFixed(2)
         ].join(';');
       });
 
@@ -406,12 +434,119 @@
     });
   }
 
-  // ===== INIT =====
+  // ===== MAIN INIT =====
   document.addEventListener('DOMContentLoaded', function () {
-    initForm();
-    initDeleteHandlers();
-    initClearAll();
-    initExport();
-    refreshDashboard();
+    var loginScreen = document.getElementById('dash-login');
+    var app = document.getElementById('dash-app');
+    var loginForm = document.getElementById('login-form');
+    var loginError = document.getElementById('login-error');
+    var passwordInput = document.getElementById('login-password');
+
+    // Check existing session
+    var session = getSession();
+    if (session) {
+      showDashboard();
+      return;
+    }
+
+    // LOGIN
+    loginForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      // Check lockout
+      var attempts = getLoginAttempts();
+      if (attempts.lockedUntil && Date.now() < attempts.lockedUntil) {
+        var mins = Math.ceil((attempts.lockedUntil - Date.now()) / 60000);
+        loginError.textContent = 'Konto zablokowane. Spróbuj za ' + mins + ' min.';
+        return;
+      }
+
+      var password = passwordInput.value;
+      if (!password) return;
+
+      var hash = await hashPassword(password);
+
+      if (hash === PASSWORD_HASH) {
+        resetLoginAttempts();
+        createSession(hash);
+        showDashboard();
+      } else {
+        var result = recordFailedAttempt();
+        passwordInput.value = '';
+        if (result.lockedUntil) {
+          loginError.textContent = 'Zbyt wiele prób. Konto zablokowane na 15 minut.';
+        } else {
+          var remaining = MAX_LOGIN_ATTEMPTS - result.count;
+          loginError.textContent = 'Nieprawidłowe hasło. Pozostało prób: ' + remaining;
+        }
+      }
+    });
+
+    function showDashboard() {
+      loginScreen.style.display = 'none';
+      app.style.display = 'block';
+      initDashboard();
+    }
+
+    function initDashboard() {
+      initExport();
+
+      // Logout
+      document.getElementById('btn-logout').addEventListener('click', function () {
+        destroySession();
+        location.reload();
+      });
+
+      // Set default filter dates (last 6 months)
+      var now = new Date();
+      var sixMonthsAgo = new Date(now);
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+      document.getElementById('filter-from').value = sixMonthsAgo.toISOString().substring(0, 7);
+      document.getElementById('filter-to').value = now.toISOString().substring(0, 7);
+
+      // Load cached data first, then fetch fresh
+      var cache = getCache();
+      if (cache && cache.entries) {
+        refreshDashboard(cache.entries);
+      }
+
+      // Fetch fresh data
+      loadFromAPI();
+
+      // Refresh button
+      document.getElementById('btn-refresh-api').addEventListener('click', function () {
+        loadFromAPI();
+      });
+
+      // Filter button
+      document.getElementById('btn-filter').addEventListener('click', function () {
+        loadFromAPI();
+      });
+    }
+
+    async function loadFromAPI() {
+      var fromVal = document.getElementById('filter-from').value;
+      var toVal = document.getElementById('filter-to').value;
+
+      var params = {};
+      if (fromVal) params.from = fromVal + '-01';
+      if (toVal) {
+        // Set to last day of selected month
+        var parts = toVal.split('-');
+        var lastDay = new Date(parseInt(parts[0]), parseInt(parts[1]), 0).getDate();
+        params.to = toVal + '-' + String(lastDay).padStart(2, '0');
+      }
+
+      try {
+        var entries = await fetchAllPlatforms(params);
+        refreshDashboard(entries);
+      } catch (err) {
+        // If API fails, show cached data
+        var cache = getCache();
+        if (cache && cache.entries) {
+          refreshDashboard(cache.entries);
+        }
+      }
+    }
   });
 })();
