@@ -1944,6 +1944,68 @@ p {
   font-style: italic;
 }
 
+/* ===== PRIVACY POLICY PAGE ===== */
+.policy-hero {
+  padding: var(--section-padding);
+  padding-bottom: 40px;
+}
+
+.policy-hero h1 {
+  max-width: 700px;
+}
+
+.policy-content {
+  padding: 0 0 80px;
+}
+
+.policy-content__body {
+  max-width: 800px;
+}
+
+.policy-content__body h2 {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  margin-top: 48px;
+  margin-bottom: 20px;
+}
+
+.policy-content__body h2:first-child {
+  margin-top: 0;
+}
+
+.policy-content__body ol {
+  padding-left: 24px;
+  margin-bottom: 16px;
+}
+
+.policy-content__body ul {
+  padding-left: 24px;
+  margin-bottom: 12px;
+}
+
+.policy-content__body li {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text-gray);
+  margin-bottom: 10px;
+}
+
+.policy-content__body a {
+  color: var(--accent-orange);
+  text-decoration: underline;
+}
+
+.policy-content__body a:hover {
+  color: var(--text-primary);
+}
+
+.policy-content__body p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text-gray);
+  margin-bottom: 12px;
+}
+
 /* ===== SCROLL REVEAL ANIMATIONS ===== */
 .reveal {
   opacity: 0;
