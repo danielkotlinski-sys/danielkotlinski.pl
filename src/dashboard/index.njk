@@ -1,0 +1,188 @@
+---
+layout: base.njk
+title: "Panel Wydatków Reklamowych | Daniel Kotlinski"
+description: "Centralny panel do zarządzania wydatkami i efektywnością reklam na LinkedIn, Facebook i Google Ads."
+eleventyExcludeFromCollections: true
+---
+
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="{{ '/css/dashboard.css' | url }}">
+
+{# ===== LOGIN SCREEN (visible by default) ===== #}
+<div class="dash-login" id="dash-login">
+  <div class="dash-login__box">
+    <div class="dash-login__icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1"/></svg>
+    </div>
+    <h1>Panel Wydatków Reklamowych</h1>
+    <p>Dostęp wymaga autoryzacji</p>
+    <form id="login-form" autocomplete="off">
+      <div class="dash-login__field">
+        <input type="password" id="login-password" placeholder="Wprowadź hasło" required autocomplete="off">
+      </div>
+      <button type="submit" class="btn btn-orange btn-full">Zaloguj się</button>
+      <p class="dash-login__error" id="login-error"></p>
+    </form>
+    <p class="dash-login__footer">Tylko dla autoryzowanych użytkowników</p>
+  </div>
+</div>
+
+{# ===== DASHBOARD (hidden until auth) ===== #}
+<div class="dash-app" id="dash-app" style="display:none;">
+
+  <section class="dash-hero">
+    <div class="container">
+      <div class="dash-hero__row">
+        <div>
+          <h1>Panel Wydatków Reklamowych</h1>
+          <p class="dash-hero__sub">LinkedIn, Facebook i Google Ads</p>
+        </div>
+        <div class="dash-hero__actions">
+          <button class="btn btn-outline btn-sm" id="btn-refresh-api">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Odśwież dane
+          </button>
+          <button class="btn btn-outline btn-sm" id="btn-logout">Wyloguj</button>
+        </div>
+      </div>
+      <div class="dash-api-status" id="api-status"></div>
+
+      {# Date range filter #}
+      <div class="dash-filters">
+        <div class="dash-filter">
+          <label for="filter-from">Od:</label>
+          <input type="month" id="filter-from">
+        </div>
+        <div class="dash-filter">
+          <label for="filter-to">Do:</label>
+          <input type="month" id="filter-to">
+        </div>
+        <button class="btn btn-teal btn-sm" id="btn-filter">Filtruj</button>
+      </div>
+    </div>
+  </section>
+
+  {# ===== SUMMARY CARDS ===== #}
+  <section class="dash-section">
+    <div class="container">
+      <div class="dash-summary" id="dash-summary">
+        <div class="dash-card dash-card--total">
+          <span class="dash-card__label">Łączne wydatki</span>
+          <span class="dash-card__value" id="total-spend">0 zł</span>
+          <span class="dash-card__sub" id="total-spend-period">Ładowanie...</span>
+        </div>
+        <div class="dash-card dash-card--cpc">
+          <span class="dash-card__label">Średni CPC</span>
+          <span class="dash-card__value" id="avg-cpc">0 zł</span>
+          <span class="dash-card__sub">Koszt za kliknięcie</span>
+        </div>
+        <div class="dash-card dash-card--ctr">
+          <span class="dash-card__label">Średni CTR</span>
+          <span class="dash-card__value" id="avg-ctr">0%</span>
+          <span class="dash-card__sub">Click-through rate</span>
+        </div>
+        <div class="dash-card dash-card--conv">
+          <span class="dash-card__label">Łączne konwersje</span>
+          <span class="dash-card__value" id="total-conversions">0</span>
+          <span class="dash-card__sub" id="avg-cpa-label">CPA: 0 zł</span>
+        </div>
+        <div class="dash-card dash-card--roas">
+          <span class="dash-card__label">Średni ROAS</span>
+          <span class="dash-card__value" id="avg-roas">0x</span>
+          <span class="dash-card__sub">Zwrot z wydatków</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# ===== CHARTS ===== #}
+  <section class="dash-section">
+    <div class="container">
+      <div class="dash-charts">
+        <div class="dash-chart-box">
+          <h3>Wydatki miesięczne wg platformy</h3>
+          <canvas id="chart-spend"></canvas>
+        </div>
+        <div class="dash-chart-box">
+          <h3>CPC wg platformy</h3>
+          <canvas id="chart-cpc"></canvas>
+        </div>
+        <div class="dash-chart-box">
+          <h3>CTR wg platformy</h3>
+          <canvas id="chart-ctr"></canvas>
+        </div>
+        <div class="dash-chart-box">
+          <h3>Konwersje wg platformy</h3>
+          <canvas id="chart-conversions"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# ===== PLATFORM COMPARISON TABLE ===== #}
+  <section class="dash-section">
+    <div class="container">
+      <h2 class="dash-section__title">Porównanie platform</h2>
+      <div class="dash-table-wrap">
+        <table class="dash-table" id="platform-table">
+          <thead>
+            <tr>
+              <th>Platforma</th>
+              <th>Wydatki</th>
+              <th>Wyświetlenia</th>
+              <th>Kliknięcia</th>
+              <th>CTR</th>
+              <th>CPC</th>
+              <th>CPM</th>
+              <th>Konwersje</th>
+              <th>CPA</th>
+              <th>ROAS</th>
+            </tr>
+          </thead>
+          <tbody id="platform-table-body">
+            <tr><td colspan="10" class="dash-table__empty">Ładowanie danych z API...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  {# ===== CAMPAIGNS TABLE ===== #}
+  <section class="dash-section">
+    <div class="container">
+      <h2 class="dash-section__title">Kampanie</h2>
+      <div class="dash-table-wrap">
+        <table class="dash-table dash-table--log">
+          <thead>
+            <tr>
+              <th>Okres</th>
+              <th>Platforma</th>
+              <th>Kampania</th>
+              <th>Wydatki</th>
+              <th>Wyświetlenia</th>
+              <th>Kliknięcia</th>
+              <th>CTR</th>
+              <th>CPC</th>
+              <th>Konwersje</th>
+              <th>ROAS</th>
+            </tr>
+          </thead>
+          <tbody id="log-table-body">
+            <tr><td colspan="10" class="dash-table__empty">Ładowanie danych z API...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  {# ===== EXPORT ===== #}
+  <section class="dash-section dash-section--export">
+    <div class="container" style="text-align:center;">
+      <button class="btn btn-teal" id="btn-export-csv">Eksportuj do CSV</button>
+    </div>
+  </section>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="{{ '/js/dashboard.js' | url }}"></script>
