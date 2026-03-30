@@ -61,19 +61,40 @@ exports.handler = async (event) => {
     const query = 'SELECT campaign.name, segments.month, metrics.cost_micros, metrics.impressions, metrics.clicks, metrics.ctr, metrics.average_cpc, metrics.average_cpm, metrics.conversions, metrics.conversions_value FROM campaign WHERE segments.date BETWEEN "' + dateFrom + '" AND "' + dateTo + '" AND campaign.status != "REMOVED" ORDER BY segments.month DESC';
 
     const cleanCustomerId = customerId.replace(/-/g, '');
-    var searchUrl = 'https://googleads.googleapis.com/v17/customers/' + cleanCustomerId + '/googleAds:searchStream';
 
-    const searchRes = await fetch(searchUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + tokenData.access_token,
-        'developer-token': devToken,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ query: query }),
-    });
+    // Try multiple API versions
+    var apiVersions = ['v19', 'v18', 'v17', 'v16'];
+    var searchText;
+    var searchRes;
+    var searchOk = false;
 
-    const searchText = await searchRes.text();
+    for (var i = 0; i < apiVersions.length; i++) {
+      var searchUrl = 'https://googleads.googleapis.com/' + apiVersions[i] + '/customers/' + cleanCustomerId + '/googleAds:search';
+
+      searchRes = await fetch(searchUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + tokenData.access_token,
+          'developer-token': devToken,
+          'login-customer-id': cleanCustomerId,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: query, pageSize: 1000 }),
+      });
+
+      searchText = await searchRes.text();
+      if (searchRes.status !== 404) {
+        searchOk = true;
+        break;
+      }
+    }
+
+    if (!searchOk) {
+      return {
+        statusCode: 404, headers,
+        body: JSON.stringify({ error: 'Google Ads API returned 404 for all versions (v16-v19). Check your GOOGLE_ADS_CUSTOMER_ID and developer token access level.', platform: 'google' })
+      };
+    }
     var searchData;
     try {
       searchData = JSON.parse(searchText);
