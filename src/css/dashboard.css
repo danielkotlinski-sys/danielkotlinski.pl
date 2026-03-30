@@ -117,6 +117,41 @@
   font-size: 0.85rem;
 }
 
+/* Campaign filter checkboxes */
+.dash-filter--wide {
+  flex: 1 1 100%;
+}
+
+.dash-campaign-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.dash-campaign-checks label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 100px;
+  background: var(--bg-white);
+  font-size: 0.85rem;
+  cursor: pointer;
+  border: 1px solid #d0ccc9;
+  transition: all var(--transition);
+}
+
+.dash-campaign-checks label:has(input:checked) {
+  background: #E7F0FF;
+  border-color: #1877F2;
+  color: #1877F2;
+}
+
+.dash-campaign-checks input[type="checkbox"] {
+  accent-color: #1877F2;
+}
+
 /* API status indicator */
 .dash-api-status {
   margin-top: 12px;

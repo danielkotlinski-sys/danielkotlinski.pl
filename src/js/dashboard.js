@@ -10,7 +10,7 @@
   // Then paste the hash below.
   var PASSWORD_HASH = 'e5315108ac1e48effb35994d193b217fa8d7092a4873ef7db91fb884ae0528f9';
 
-  var API_BASE = 'https://danielkotlinskipl.netlify.app/api';
+  var API_BASE = 'https://danielkotlinskipl.netlify.app/.netlify/functions';
   var SESSION_KEY = 'dashSession';
   var CACHE_KEY = 'dashCache';
   var MAX_LOGIN_ATTEMPTS = 5;
@@ -116,7 +116,7 @@
   }
 
   async function fetchPlatform(platform, params) {
-    var url = API_BASE + '/' + platform;
+    var url = API_BASE + '/api-' + platform;
     if (params) {
       var qs = new URLSearchParams(params).toString();
       if (qs) url += '?' + qs;
@@ -172,7 +172,81 @@
     // Cache results
     setCache({ entries: allEntries, results: results });
 
+    // Build campaign filter checkboxes for Facebook
+    buildCampaignFilter(allEntries);
+
+    // Apply campaign filter
+    allEntries = applyCampaignFilter(allEntries);
+
     return allEntries;
+  }
+
+  // ===== CAMPAIGN FILTER =====
+  var selectedFbCampaigns = null; // null = all selected
+
+  function buildCampaignFilter(entries) {
+    var wrap = document.getElementById('campaign-filter-wrap');
+    var container = document.getElementById('fb-campaign-checks');
+    var fbEntries = entries.filter(function (e) { return e.platform === 'facebook'; });
+
+    if (fbEntries.length === 0) {
+      wrap.style.display = 'none';
+      return;
+    }
+
+    // Get unique campaign names
+    var campaigns = {};
+    fbEntries.forEach(function (e) {
+      if (e.campaign) campaigns[e.campaign] = true;
+    });
+    var campaignNames = Object.keys(campaigns).sort();
+
+    if (campaignNames.length === 0) {
+      wrap.style.display = 'none';
+      return;
+    }
+
+    // Preserve previous selections
+    var prev = selectedFbCampaigns;
+
+    var html = '';
+    campaignNames.forEach(function (name) {
+      var checked = !prev || prev.indexOf(name) !== -1 ? 'checked' : '';
+      html += '<label><input type="checkbox" value="' + escapeHtml(name) + '" ' + checked + '> ' + escapeHtml(name) + '</label>';
+    });
+    container.innerHTML = html;
+    wrap.style.display = '';
+
+    // Add change listeners
+    container.querySelectorAll('input').forEach(function (cb) {
+      cb.addEventListener('change', function () {
+        updateSelectedCampaigns();
+        var cache = getCache();
+        if (cache && cache.entries) {
+          var filtered = applyCampaignFilter(cache.entries);
+          refreshDashboard(filtered);
+        }
+      });
+    });
+
+    updateSelectedCampaigns();
+  }
+
+  function updateSelectedCampaigns() {
+    var checks = document.querySelectorAll('#fb-campaign-checks input');
+    var selected = [];
+    checks.forEach(function (cb) {
+      if (cb.checked) selected.push(cb.value);
+    });
+    selectedFbCampaigns = selected;
+  }
+
+  function applyCampaignFilter(entries) {
+    if (!selectedFbCampaigns) return entries;
+    return entries.filter(function (e) {
+      if (e.platform !== 'facebook') return true;
+      return selectedFbCampaigns.indexOf(e.campaign) !== -1;
+    });
   }
 
   // ===== UTILITY =====
@@ -507,7 +581,8 @@
       // Load cached data first, then fetch fresh
       var cache = getCache();
       if (cache && cache.entries) {
-        refreshDashboard(cache.entries);
+        buildCampaignFilter(cache.entries);
+        refreshDashboard(applyCampaignFilter(cache.entries));
       }
 
       // Fetch fresh data
