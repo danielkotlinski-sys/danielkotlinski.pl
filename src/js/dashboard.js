@@ -8,7 +8,7 @@
   //   crypto.subtle.digest('SHA-256', new TextEncoder().encode('YOUR_PASSWORD'))
   //     .then(h => console.log(Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('')))
   // Then paste the hash below.
-  var PASSWORD_HASH = 'SET_YOUR_PASSWORD_HASH_HERE';
+  var PASSWORD_HASH = 'e5315108ac1e48effb35994d193b217fa8d7092a4873ef7db91fb884ae0528f9';
 
   var API_BASE = '/api';
   var SESSION_KEY = 'dashSession';
