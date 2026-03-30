@@ -23,7 +23,7 @@
 
 # Security headers for dashboard
 [[headers]]
-  for = "/dashboard/*"
+  for = "/p/*"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
     X-Frame-Options = "DENY"
