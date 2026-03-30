@@ -1,0 +1,194 @@
+---
+layout: base.njk
+title: "Panel Wydatków Reklamowych | Daniel Kotlinski"
+description: "Centralny panel do zarządzania wydatkami i efektywnością reklam na LinkedIn, Facebook i Google Ads."
+---
+
+<link rel="stylesheet" href="{{ '/css/dashboard.css' | url }}">
+
+<section class="dash-hero">
+  <div class="container">
+    <h1>Panel Wydatków Reklamowych</h1>
+    <p class="dash-hero__sub">Zarządzaj wydatkami i efektywnością reklam na LinkedIn, Facebook i Google Ads</p>
+  </div>
+</section>
+
+{# ===== SUMMARY CARDS ===== #}
+<section class="dash-section">
+  <div class="container">
+    <div class="dash-summary" id="dash-summary">
+      <div class="dash-card dash-card--total">
+        <span class="dash-card__label">Łączne wydatki</span>
+        <span class="dash-card__value" id="total-spend">0 zł</span>
+        <span class="dash-card__sub" id="total-spend-period">Brak danych</span>
+      </div>
+      <div class="dash-card dash-card--cpc">
+        <span class="dash-card__label">Średni CPC</span>
+        <span class="dash-card__value" id="avg-cpc">0 zł</span>
+        <span class="dash-card__sub">Koszt za kliknięcie</span>
+      </div>
+      <div class="dash-card dash-card--ctr">
+        <span class="dash-card__label">Średni CTR</span>
+        <span class="dash-card__value" id="avg-ctr">0%</span>
+        <span class="dash-card__sub">Click-through rate</span>
+      </div>
+      <div class="dash-card dash-card--conv">
+        <span class="dash-card__label">Łączne konwersje</span>
+        <span class="dash-card__value" id="total-conversions">0</span>
+        <span class="dash-card__sub" id="avg-cpa-label">CPA: 0 zł</span>
+      </div>
+      <div class="dash-card dash-card--roas">
+        <span class="dash-card__label">Średni ROAS</span>
+        <span class="dash-card__value" id="avg-roas">0x</span>
+        <span class="dash-card__sub">Zwrot z wydatków</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ===== CHARTS ===== #}
+<section class="dash-section">
+  <div class="container">
+    <div class="dash-charts">
+      <div class="dash-chart-box">
+        <h3>Wydatki miesięczne wg platformy</h3>
+        <canvas id="chart-spend"></canvas>
+      </div>
+      <div class="dash-chart-box">
+        <h3>CPC wg platformy</h3>
+        <canvas id="chart-cpc"></canvas>
+      </div>
+      <div class="dash-chart-box">
+        <h3>CTR wg platformy</h3>
+        <canvas id="chart-ctr"></canvas>
+      </div>
+      <div class="dash-chart-box">
+        <h3>Konwersje wg platformy</h3>
+        <canvas id="chart-conversions"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ===== PLATFORM COMPARISON TABLE ===== #}
+<section class="dash-section">
+  <div class="container">
+    <h2 class="dash-section__title">Porównanie platform</h2>
+    <div class="dash-table-wrap">
+      <table class="dash-table" id="platform-table">
+        <thead>
+          <tr>
+            <th>Platforma</th>
+            <th>Wydatki</th>
+            <th>Wyświetlenia</th>
+            <th>Kliknięcia</th>
+            <th>CTR</th>
+            <th>CPC</th>
+            <th>CPM</th>
+            <th>Konwersje</th>
+            <th>CPA</th>
+            <th>ROAS</th>
+          </tr>
+        </thead>
+        <tbody id="platform-table-body">
+          <tr><td colspan="10" class="dash-table__empty">Dodaj dane, aby zobaczyć porównanie</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+{# ===== DATA ENTRY ===== #}
+<section class="dash-section dash-section--form">
+  <div class="container">
+    <h2 class="dash-section__title">Dodaj dane kampanii</h2>
+    <form class="dash-form" id="campaign-form">
+      <div class="dash-form__row">
+        <div class="dash-form__field">
+          <label for="f-platform">Platforma</label>
+          <select id="f-platform" required>
+            <option value="">Wybierz...</option>
+            <option value="facebook">Facebook Ads</option>
+            <option value="google">Google Ads</option>
+            <option value="linkedin">LinkedIn Ads</option>
+          </select>
+        </div>
+        <div class="dash-form__field">
+          <label for="f-month">Miesiąc</label>
+          <input type="month" id="f-month" required>
+        </div>
+        <div class="dash-form__field">
+          <label for="f-campaign">Nazwa kampanii</label>
+          <input type="text" id="f-campaign" placeholder="np. Brand Awareness Q1" required>
+        </div>
+      </div>
+      <div class="dash-form__row">
+        <div class="dash-form__field">
+          <label for="f-spend">Wydatki (zł)</label>
+          <input type="number" id="f-spend" step="0.01" min="0" placeholder="0.00" required>
+        </div>
+        <div class="dash-form__field">
+          <label for="f-impressions">Wyświetlenia</label>
+          <input type="number" id="f-impressions" min="0" placeholder="0" required>
+        </div>
+        <div class="dash-form__field">
+          <label for="f-clicks">Kliknięcia</label>
+          <input type="number" id="f-clicks" min="0" placeholder="0" required>
+        </div>
+      </div>
+      <div class="dash-form__row">
+        <div class="dash-form__field">
+          <label for="f-conversions">Konwersje</label>
+          <input type="number" id="f-conversions" min="0" placeholder="0" required>
+        </div>
+        <div class="dash-form__field">
+          <label for="f-revenue">Przychód z kampanii (zł)</label>
+          <input type="number" id="f-revenue" step="0.01" min="0" placeholder="0.00">
+        </div>
+      </div>
+      <div class="dash-form__actions">
+        <button type="submit" class="btn btn-orange">Dodaj dane</button>
+        <button type="button" class="btn btn-outline" id="btn-clear-all">Wyczyść wszystkie dane</button>
+      </div>
+    </form>
+  </div>
+</section>
+
+{# ===== DATA LOG ===== #}
+<section class="dash-section">
+  <div class="container">
+    <h2 class="dash-section__title">Historia wpisów</h2>
+    <div class="dash-table-wrap">
+      <table class="dash-table dash-table--log">
+        <thead>
+          <tr>
+            <th>Miesiąc</th>
+            <th>Platforma</th>
+            <th>Kampania</th>
+            <th>Wydatki</th>
+            <th>Wyświetlenia</th>
+            <th>Kliknięcia</th>
+            <th>CTR</th>
+            <th>CPC</th>
+            <th>Konwersje</th>
+            <th>ROAS</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="log-table-body">
+          <tr><td colspan="11" class="dash-table__empty">Brak wpisów</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+{# ===== EXPORT ===== #}
+<section class="dash-section dash-section--export">
+  <div class="container" style="text-align:center;">
+    <button class="btn btn-teal" id="btn-export-csv">Eksportuj do CSV</button>
+  </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="{{ '/js/dashboard.js' | url }}"></script>
