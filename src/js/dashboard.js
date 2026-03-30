@@ -10,7 +10,7 @@
   // Then paste the hash below.
   var PASSWORD_HASH = 'e5315108ac1e48effb35994d193b217fa8d7092a4873ef7db91fb884ae0528f9';
 
-  var API_BASE = '/api';
+  var API_BASE = 'https://danielkotlinskipl.netlify.app/api';
   var SESSION_KEY = 'dashSession';
   var CACHE_KEY = 'dashCache';
   var MAX_LOGIN_ATTEMPTS = 5;
