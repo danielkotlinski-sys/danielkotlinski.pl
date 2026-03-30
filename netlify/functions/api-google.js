@@ -61,7 +61,7 @@ exports.handler = async (event) => {
     const query = 'SELECT campaign.name, segments.month, metrics.cost_micros, metrics.impressions, metrics.clicks, metrics.ctr, metrics.average_cpc, metrics.average_cpm, metrics.conversions, metrics.conversions_value FROM campaign WHERE segments.date BETWEEN "' + dateFrom + '" AND "' + dateTo + '" AND campaign.status != "REMOVED" ORDER BY segments.month DESC';
 
     const cleanCustomerId = customerId.replace(/-/g, '');
-    const searchUrl = 'https://googleads.googleapis.com/v18/customers/' + cleanCustomerId + '/googleAds:searchStream';
+    var searchUrl = 'https://googleads.googleapis.com/v17/customers/' + cleanCustomerId + '/googleAds:searchStream';
 
     const searchRes = await fetch(searchUrl, {
       method: 'POST',
