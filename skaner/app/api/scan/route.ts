@@ -1,6 +1,5 @@
 import { NextRequest } from 'next/server';
 import { runCategoryScanner } from '@/lib/pipeline';
-import { checkRateLimit, setRateLimit } from '@/lib/redis';
 import type { ScanRequest, ProgressEvent } from '@/types/scanner';
 
 export const maxDuration = 300; // 5 minutes
@@ -23,15 +22,6 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: 'Brak wymaganych danych kontaktowych' }, { status: 400 });
   }
 
-  // Rate limiting: 1 scan per 30 days per email
-  const rateCheck = await checkRateLimit(lead.email);
-  if (!rateCheck.allowed) {
-    return Response.json(
-      { error: `Jeden skan na 30 dni. Następny będzie dostępny za ${rateCheck.daysLeft} dni.` },
-      { status: 429 }
-    );
-  }
-
   // SSE stream
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
@@ -48,9 +38,6 @@ export async function POST(request: NextRequest) {
           lead,
           (progressEvent) => sendEvent(progressEvent)
         );
-
-        // Set rate limit only AFTER successful scan
-        await setRateLimit(lead.email);
 
         sendEvent({ type: 'complete', scanId, report });
         await new Promise((resolve) => setTimeout(resolve, 100));
