@@ -306,7 +306,6 @@ export async function runCategoryScanner(
         sampleWebsiteQuotes: [
           analysis.claim.framingProduktu?.dowod,
           analysis.claim.obietnicaZmiany?.dowod,
-          analysis.vocabulary.sugestiaOKliencie,
         ].filter(Boolean) as string[],
       };
     }),

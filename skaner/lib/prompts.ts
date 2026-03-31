@@ -151,6 +151,8 @@ Twoim zadaniem jest zidentyfikować konwencję kategorii —
 milczące, wspólne założenia które kierują komunikacją tych marek,
 nawet jeśli żadna ich wprost nie wypowiada.
 
+Ważne ograniczenie dla całej odpowiedzi: nigdzie nie używaj opisu demograficznego — wieku, płci, wykształcenia, dochodu, zawodu. Opisuj wyłącznie przez postawę, wartości, sposób myślenia o sobie i relację z kategorią. Demografia to skrót który ukrywa mechanizm. Mechanizm jest ważniejszy.
+
 Odpowiedz wyłącznie w JSON:
 
 {
@@ -159,8 +161,13 @@ Odpowiedz wyłącznie w JSON:
     "uzasadnienie": "Skąd to wynika z danych? 2-3 zdania."
   },
   "implikowanyKlientKategorii": {
-    "tosazmosc": "Kogo ta kategoria kolektywnie zakłada jako klienta? Tożsamość, postawa.",
-    "systematyczniePomijani": "Kto jest przez tę kategorię systematycznie pomijany lub nieadresowany?"
+    "tosazmosc": "Kogo ta kategoria kolektywnie zakłada jako klienta? Opisz przez postawę i sposób myślenia o sobie — bez danych demograficznych (bez wieku, płci, wykształcenia).",
+    "glebszaPotrzeba": "Jaka jest głębsza potrzeba lub pragnienie które ta kategoria próbuje zaspokoić? Opisz ją językiem człowieka, nie językiem kategorii. Przykład: teatr zaspokaja pragnienie intensywnego przeżycia, nie 'potrzebę kultury'.",
+    "pominietaGrupa": {
+      "opis": "Kto ma to SAMO głębsze pragnienie które adresuje ta kategoria, ale dziś zaspokaja je gdzie indziej — bo język i konwencja tej kategorii nie mówią do niego? Nie chodzi o inny segment demograficzny ani o ludzi z innym budżetem. Chodzi o ludzi z podobną motywacją, których kategoria odpycha swoją formą, nie treścią. Opisz konkretnie kto to jest i gdzie dziś realizuje to pragnienie.",
+      "proporcja": "Oszacuj proporcję: ilu jest tych pominiętych w stosunku do klientów których kategoria dziś aktywnie obsługuje? Użyj logiki porównawczej — np. 'na każdego aktywnego klienta kategorii przypada szacunkowo X osób które mają podobne pragnienie ale nie identyfikują się z kategorią'. Oprzyj to na logice rynku, nie na zmyślonych liczbach.",
+      "dlaczegoOdpycha": "Co konkretnie w konwencji tej kategorii — w jej języku, w formie oferty, w implikowanej tożsamości klienta — sprawia że ta szersza grupa ludzi nie rozpoznaje kategorii jako odpowiedzi na swoje pragnienie? To nie jest wada tych ludzi. To jest ograniczenie konwencji."
+    }
   },
   "dowodyKonwencji": [
     {
@@ -196,14 +203,19 @@ Odpowiedz wyłącznie w JSON:
 
 {
   "zgodnosc": {
-    "elementy": ["element komunikacji klienta który pokrywa się z konwencją 1", "element 2"],
+    "elementy": [
+      "konkretny element komunikacji klienta który pokrywa się z konwencją — z dowodem"
+    ],
     "ocena": "zgodna | częściowo odchylona | wyraźnie łamiąca"
   },
   "odchylenia": {
-    "elementy": ["gdzie jeśli gdziekolwiek komunikacja klienta wychodzi poza konwencję"],
-    "znaczenieStrategiczne": "Co to oznacza — szansa czy przypadkowa różnica?"
+    "elementy": [
+      "gdzie komunikacja klienta wychodzi poza konwencję — z dowodem"
+    ],
+    "znaczenieStrategiczne": "Czy to odchylenie to świadoma szansa czy przypadkowa różnica? Co z tego wynika?"
   },
-  "pytanieOtwarte": "Jakie jedno pytanie marka powinna sobie zadać patrząc na tę mapę? Nie dawaj odpowiedzi — postaw pytanie które skłania do myślenia."
+  "zagrozenie": "Opisz wprost mechanizm ryzyka dla tej marki jeśli pozostanie w konwencji kategorii. Nie pisz ogólnie o 'trudnym rynku'. Napisz konkretnie: kto wygra walkę o tego samego klienta i dlaczego — budżetem, dystrybucją, skalą, rozpoznawalnością. Ile marek w tej kategorii gra tą samą kartą co klient? Co to oznacza dla jego pozycji za 2-3 lata gdy kategoria dojrzeje dalej? To zdanie musi być niewygodne do przeczytania. 3-4 zdania.",
+  "pytanieOtwarte": "Zadaj jedno pytanie które pokazuje, że jest wyjście — ale wymaga odwagi żeby je zadać. Pytanie nie może dotyczyć komunikacji ani estetyki. Musi dotyczyć tego, do KOGO marka mogłaby mówić gdyby zdefiniowała swoje JOBS TO BE DONE szerzej niż robi to dziś cała kategoria. Format: jedno zdanie, bez wstępu, bez wyjaśnienia. Pytanie kończy się znakiem zapytania."
 }
 `;
 

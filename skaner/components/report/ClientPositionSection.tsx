@@ -53,6 +53,16 @@ export default function ClientPositionSection({
         </p>
       </div>
 
+      {/* Zagrożenie */}
+      <div className="border-2 border-red-200 bg-red-50/50 rounded-xl p-6 mb-6">
+        <h4 className="text-sm font-medium text-red-700 uppercase tracking-wider mb-3">
+          Co się stanie jeśli zostaniesz w konwencji
+        </h4>
+        <p className="text-gray-800 leading-relaxed">
+          {position.zagrozenie}
+        </p>
+      </div>
+
       {/* Pytanie otwarte — hero */}
       <div className="bg-gray-50 border-2 border-gray-200 rounded-xl p-8 text-center">
         <p className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">

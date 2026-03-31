@@ -131,7 +131,12 @@ export interface CategoryConventions {
   };
   implikowanyKlientKategorii: {
     tosazmosc: string;
-    systematyczniePomijani: string;
+    glebszaPotrzeba: string;
+    pominietaGrupa: {
+      opis: string;
+      proporcja: string;
+      dlaczegoOdpycha: string;
+    };
   };
   dowodyKonwencji: Array<{
     wzorzec: string;
@@ -154,6 +159,7 @@ export interface ClientPosition {
     elementy: string[];
     znaczenieStrategiczne: string;
   };
+  zagrozenie: string;
   pytanieOtwarte: string;
 }
 

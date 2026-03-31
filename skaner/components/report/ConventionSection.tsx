@@ -33,22 +33,43 @@ export default function ConventionSection({ conventions }: ConventionSectionProp
       </div>
 
       {/* Implikowany klient kategorii */}
-      <div className="grid md:grid-cols-2 gap-4 mb-6">
-        <div className="border border-gray-200 rounded-xl p-6">
-          <h4 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-2">
-            Implikowany klient kategorii
-          </h4>
-          <p className="text-gray-700 leading-relaxed">
-            {conventions.implikowanyKlientKategorii.tosazmosc}
-          </p>
-        </div>
-        <div className="border border-gray-200 rounded-xl p-6">
-          <h4 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-2">
-            Systematycznie pomijani
-          </h4>
-          <p className="text-gray-700 leading-relaxed">
-            {conventions.implikowanyKlientKategorii.systematyczniePomijani}
-          </p>
+      <div className="border border-gray-200 rounded-xl p-6 mb-4">
+        <h4 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-2">
+          Implikowany klient kategorii
+        </h4>
+        <p className="text-gray-700 leading-relaxed mb-3">
+          {conventions.implikowanyKlientKategorii.tosazmosc}
+        </p>
+        <p className="text-sm text-gray-500 italic">
+          {conventions.implikowanyKlientKategorii.glebszaPotrzeba}
+        </p>
+      </div>
+
+      {/* Pominięta grupa */}
+      <div className="border-2 border-amber-200 bg-amber-50/50 rounded-xl p-6 mb-6">
+        <h4 className="text-sm font-medium text-amber-700 uppercase tracking-wider mb-3">
+          Kogo kategoria odpycha swoją formą
+        </h4>
+        <p className="text-gray-800 leading-relaxed mb-4">
+          {conventions.implikowanyKlientKategorii.pominietaGrupa.opis}
+        </p>
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">
+              Skala
+            </p>
+            <p className="text-sm text-gray-700">
+              {conventions.implikowanyKlientKategorii.pominietaGrupa.proporcja}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">
+              Co ich odpycha
+            </p>
+            <p className="text-sm text-gray-700">
+              {conventions.implikowanyKlientKategorii.pominietaGrupa.dlaczegoOdpycha}
+            </p>
+          </div>
         </div>
       </div>
 
