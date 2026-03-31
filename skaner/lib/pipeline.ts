@@ -5,7 +5,9 @@ import type {
   BrandData,
   AtomicAnalysis,
   BrandProfile,
+  BrandVisualConventions,
   CategoryConventions,
+  CategoryVisualConventions,
   ClientPosition,
   PostAnalysis,
   SocialSynthesis,
@@ -25,6 +27,8 @@ import {
   PROMPT_4_SOCIAL_SYNTHESIS,
   PROMPT_5_EXTERNAL,
   PROMPT_6_BRAND_PROFILE,
+  PROMPT_VISUAL_BRAND,
+  PROMPT_VISUAL_CATEGORY,
   PROMPT_7_CONVENTIONS,
   PROMPT_8_CLIENT_POSITION,
   fillPrompt,
@@ -241,6 +245,30 @@ export async function runCategoryScanner(
       brandProfiles[brand.name] = parseJsonResponse<BrandProfile>(raw);
     })
   );
+  // Visual conventions per brand (parallel with brand profiles)
+  const brandVisuals: Record<string, BrandVisualConventions> = {};
+  await Promise.all(
+    allBrands.map(async (brand) => {
+      const analysis = atomicAnalyses[brand.name];
+      if (analysis.socialSynthesis) {
+        const data = brandData[brand.name];
+        const postAnalyses = data.posts.length > 0
+          ? JSON.stringify(analysis.socialSynthesis, null, 2)
+          : null;
+        if (postAnalyses) {
+          const raw = await runPrompt(
+            fillPrompt(PROMPT_VISUAL_BRAND, {
+              N: String(data.posts.length),
+              BRAND_NAME: brand.name,
+              CATEGORY: input.category,
+              POST_ANALYSES: postAnalyses,
+            })
+          );
+          brandVisuals[brand.name] = parseJsonResponse<BrandVisualConventions>(raw);
+        }
+      }
+    })
+  );
   emitStep('synthesize_brands', 'done');
 
   // === PHASE 4: CATEGORY SYNTHESIS ===
@@ -262,6 +290,23 @@ export async function runCategoryScanner(
     'claude-opus-4-5'
   );
   const categoryConventions = parseJsonResponse<CategoryConventions>(conventionsRaw);
+
+  // Visual conventions synthesis (category-level)
+  let categoryVisualConventions: CategoryVisualConventions | undefined;
+  const brandsWithVisuals = Object.keys(brandVisuals);
+  if (brandsWithVisuals.length >= 2) {
+    const allVisualText = brandsWithVisuals
+      .map((name) => `=== ${name} ===\n${JSON.stringify(brandVisuals[name], null, 2)}`)
+      .join('\n\n');
+    const visualRaw = await runPrompt(
+      fillPrompt(PROMPT_VISUAL_CATEGORY, {
+        N: String(brandsWithVisuals.length),
+        CATEGORY: input.category,
+        ALL_VISUAL_PROFILES: allVisualText,
+      })
+    );
+    categoryVisualConventions = parseJsonResponse<CategoryVisualConventions>(visualRaw);
+  }
   emitStep('synthesize_category', 'done');
 
   // Client position
@@ -307,9 +352,11 @@ export async function runCategoryScanner(
           analysis.claim.framingProduktu?.dowod,
           analysis.claim.obietnicaZmiany?.dowod,
         ].filter(Boolean) as string[],
+        konwencjaWizualna: brandVisuals[brand.name] || undefined,
       };
     }),
     konwencjaKategorii: categoryConventions,
+    konwencjaWizualnaKategorii: categoryVisualConventions,
     pozycjaKlienta: clientPosition,
     notaKoncowa: NOTA_KONCOWA,
   };

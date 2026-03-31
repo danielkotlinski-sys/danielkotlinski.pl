@@ -27,6 +27,9 @@ const DEV_DEFAULTS = {
   ],
 };
 
+const inputStyles = "w-full px-4 py-3 bg-white border border-beige-dark/50 rounded-card text-text-primary placeholder:text-text-gray focus:outline-none focus:border-dk-teal focus:ring-1 focus:ring-dk-teal/20 transition-colors";
+const labelStyles = "block text-sm font-medium text-text-muted mb-1.5";
+
 export default function InputForm({ onSubmit }: InputFormProps) {
   const [brandName, setBrandName] = useState('');
   const [brandUrl, setBrandUrl] = useState('');
@@ -75,16 +78,13 @@ export default function InputForm({ onSubmit }: InputFormProps) {
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
-
     if (!brandName.trim()) newErrors.brandName = 'Nazwa marki jest wymagana';
     if (!brandUrl.trim()) newErrors.brandUrl = 'URL strony jest wymagany';
     if (category.length < 20) newErrors.category = 'Opis kategorii musi mieć min. 20 znaków';
-
     const validCompetitors = competitors.filter((c) => c.name.trim() && c.url.trim());
     if (validCompetitors.length < 2) {
       newErrors.competitors = 'Minimum 2 konkurentów z nazwą i URL';
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -92,9 +92,7 @@ export default function InputForm({ onSubmit }: InputFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-
     const validCompetitors = competitors.filter((c) => c.name.trim() && c.url.trim());
-
     onSubmit({
       clientBrand: {
         name: brandName,
@@ -114,75 +112,64 @@ export default function InputForm({ onSubmit }: InputFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl mx-auto">
-      <div className="mb-10">
-        <h1 className="text-3xl font-semibold text-gray-900 mb-2">
+      {/* Hero */}
+      <div className="mb-12">
+        <h1 className="font-heading text-4xl md:text-5xl text-text-primary mb-3 text-balance">
           Skaner Kategorii
         </h1>
-        <p className="text-lg text-gray-500">
+        <p className="text-lg text-text-secondary leading-relaxed">
           Bezpłatna analiza konwencji komunikacyjnych w Twojej branży
         </p>
       </div>
 
       {/* Client brand */}
-      <section className="mb-8">
-        <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">
+      <section className="bg-white rounded-card p-6 md:p-8 mb-6">
+        <h2 className="font-heading text-2xl text-text-primary mb-6">
           Twoja marka
         </h2>
-        <div className="space-y-4">
+        <div className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nazwa marki
-            </label>
+            <label className={labelStyles}>Nazwa marki</label>
             <input
               type="text"
               value={brandName}
               onChange={(e) => setBrandName(e.target.value)}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+              className={inputStyles}
               placeholder="np. Twoja Marka"
             />
-            {errors.brandName && (
-              <p className="text-red-500 text-sm mt-1">{errors.brandName}</p>
-            )}
+            {errors.brandName && <p className="text-dk-orange text-sm mt-1.5">{errors.brandName}</p>}
           </div>
-
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Adres strony
-            </label>
+            <label className={labelStyles}>Adres strony</label>
             <input
               type="url"
               value={brandUrl}
               onChange={(e) => setBrandUrl(e.target.value)}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+              className={inputStyles}
               placeholder="https://twojastrona.pl"
             />
-            {errors.brandUrl && (
-              <p className="text-red-500 text-sm mt-1">{errors.brandUrl}</p>
-            )}
+            {errors.brandUrl && <p className="text-dk-orange text-sm mt-1.5">{errors.brandUrl}</p>}
           </div>
-
           <div className="flex gap-3">
             <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={labelStyles}>
                 Social media
-                <span className="text-gray-400 font-normal ml-1">(opcjonalnie)</span>
+                <span className="text-text-gray font-normal ml-1">(opcjonalnie)</span>
               </label>
               <input
                 type="text"
                 value={socialHandle}
                 onChange={(e) => setSocialHandle(e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                className={inputStyles}
                 placeholder="@handle"
               />
             </div>
             <div className="w-40">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Platforma
-              </label>
+              <label className={labelStyles}>Platforma</label>
               <select
                 value={socialPlatform}
                 onChange={(e) => setSocialPlatform(e.target.value as typeof socialPlatform)}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent bg-white"
+                className={inputStyles + ' bg-white'}
               >
                 <option value="instagram">Instagram</option>
                 <option value="facebook">Facebook</option>
@@ -190,80 +177,65 @@ export default function InputForm({ onSubmit }: InputFormProps) {
               </select>
             </div>
           </div>
-          <p className="text-xs text-gray-400">
-            Social media to opcja — bez nich analiza opiera się na stronie WWW i dyskursie zewnętrznym
+          <p className="text-xs text-text-gray">
+            Bez social media analiza opiera się na stronie WWW i dyskursie zewnętrznym
           </p>
         </div>
       </section>
 
       {/* Category */}
-      <section className="mb-8">
-        <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">
+      <section className="bg-white rounded-card p-6 md:p-8 mb-6">
+        <h2 className="font-heading text-2xl text-text-primary mb-6">
           Kategoria
         </h2>
-        <div className="space-y-4">
+        <div className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Opisz kategorię w 1-2 zdaniach
-            </label>
+            <label className={labelStyles}>Opisz kategorię w 1-2 zdaniach</label>
             <textarea
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               rows={3}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none"
+              className={inputStyles + ' resize-none'}
               placeholder="np. Agencje brandingowe pracujące z firmami technologicznymi w Polsce"
             />
-            {errors.category && (
-              <p className="text-red-500 text-sm mt-1">{errors.category}</p>
-            )}
+            {errors.category && <p className="text-dk-orange text-sm mt-1.5">{errors.category}</p>}
           </div>
-
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              Typ kategorii
-            </label>
-            <div className="flex gap-4">
-              <button
-                type="button"
-                onClick={() => setCategoryType('b2c')}
-                className={`px-5 py-2 rounded-lg border text-sm font-medium transition-colors ${
-                  categoryType === 'b2c'
-                    ? 'border-gray-900 bg-gray-900 text-white'
-                    : 'border-gray-200 text-gray-600 hover:border-gray-300'
-                }`}
-              >
-                B2C
-              </button>
-              <button
-                type="button"
-                onClick={() => setCategoryType('b2b')}
-                className={`px-5 py-2 rounded-lg border text-sm font-medium transition-colors ${
-                  categoryType === 'b2b'
-                    ? 'border-gray-900 bg-gray-900 text-white'
-                    : 'border-gray-200 text-gray-600 hover:border-gray-300'
-                }`}
-              >
-                B2B
-              </button>
+            <label className={labelStyles}>Typ kategorii</label>
+            <div className="flex gap-3 mt-1">
+              {(['b2c', 'b2b'] as const).map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setCategoryType(type)}
+                  className={`px-6 py-2.5 rounded-pill text-sm font-medium transition-all duration-300 ${
+                    categoryType === type
+                      ? 'bg-dk-teal text-white'
+                      : 'bg-beige-light text-text-muted hover:bg-beige-dark/50'
+                  }`}
+                >
+                  {type.toUpperCase()}
+                </button>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
       {/* Competitors */}
-      <section className="mb-10">
-        <h2 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">
-          Konkurenci
-          <span className="text-gray-300 font-normal ml-2">minimum 2, maksimum 4</span>
-        </h2>
-        {errors.competitors && (
-          <p className="text-red-500 text-sm mb-3">{errors.competitors}</p>
-        )}
+      <section className="bg-white rounded-card p-6 md:p-8 mb-8">
+        <div className="flex items-baseline justify-between mb-6">
+          <h2 className="font-heading text-2xl text-text-primary">
+            Konkurenci
+          </h2>
+          <span className="text-sm text-text-gray">min. 2, maks. 4</span>
+        </div>
+        {errors.competitors && <p className="text-dk-orange text-sm mb-4">{errors.competitors}</p>}
 
         <div className="space-y-4">
           {competitors.map((competitor, index) => (
             <div key={index} className="flex gap-3 items-start">
-              <span className="text-sm text-gray-300 font-medium mt-3 w-5">
+              <span className="text-sm text-text-gray font-medium mt-3.5 w-5 shrink-0">
                 {index + 1}.
               </span>
               <div className="flex-1 grid grid-cols-3 gap-3">
@@ -271,21 +243,21 @@ export default function InputForm({ onSubmit }: InputFormProps) {
                   type="text"
                   value={competitor.name}
                   onChange={(e) => updateCompetitor(index, 'name', e.target.value)}
-                  className="px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  className={inputStyles}
                   placeholder="Nazwa"
                 />
                 <input
                   type="text"
                   value={competitor.url}
                   onChange={(e) => updateCompetitor(index, 'url', e.target.value)}
-                  className="px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  className={inputStyles}
                   placeholder="URL"
                 />
                 <input
                   type="text"
                   value={competitor.socialHandle}
                   onChange={(e) => updateCompetitor(index, 'socialHandle', e.target.value)}
-                  className="px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  className={inputStyles}
                   placeholder="@handle (opcja)"
                 />
               </div>
@@ -293,25 +265,20 @@ export default function InputForm({ onSubmit }: InputFormProps) {
                 <button
                   type="button"
                   onClick={() => removeCompetitor(index)}
-                  className="mt-2.5 text-gray-300 hover:text-gray-500 transition-colors"
+                  className="mt-3 text-text-gray/50 hover:text-dk-orange transition-colors"
                 >
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                    <path
-                      fillRule="evenodd"
-                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                   </svg>
                 </button>
               )}
             </div>
           ))}
-
           {competitors.length < 4 && (
             <button
               type="button"
               onClick={addCompetitor}
-              className="text-sm text-gray-400 hover:text-gray-600 transition-colors ml-8"
+              className="text-sm text-dk-teal hover:text-dk-teal-hover transition-colors ml-8"
             >
               + Dodaj kolejnego konkurenta
             </button>
@@ -323,7 +290,7 @@ export default function InputForm({ onSubmit }: InputFormProps) {
       <div className="space-y-3">
         <button
           type="submit"
-          className="w-full py-3.5 bg-gray-900 text-white rounded-lg font-medium text-lg hover:bg-gray-800 transition-colors"
+          className="w-full py-4 bg-dk-orange text-white rounded-pill font-medium text-lg hover:bg-dk-orange-hover hover:-translate-y-0.5 transition-all duration-300"
         >
           Uruchom Skan
         </button>
@@ -331,7 +298,7 @@ export default function InputForm({ onSubmit }: InputFormProps) {
           <button
             type="button"
             onClick={fillTestData}
-            className="w-full py-2 text-sm text-gray-400 hover:text-gray-600 border border-dashed border-gray-200 rounded-lg transition-colors"
+            className="w-full py-2.5 text-sm text-text-gray hover:text-text-muted border border-dashed border-beige-dark rounded-card transition-colors"
           >
             Wypełnij danymi testowymi (dev)
           </button>

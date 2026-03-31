@@ -9,69 +9,67 @@ interface ClientPositionSectionProps {
 
 export default function ClientPositionSection({
   position,
-  brandName,
 }: ClientPositionSectionProps) {
   return (
-    <section className="mb-12">
-      <h2 className="text-2xl font-semibold text-gray-900 mb-6">
-        Twoja marka: {brandName}
-      </h2>
-
-      {/* Zgodność z konwencją */}
-      <div className="border border-gray-200 rounded-xl p-6 mb-4">
-        <h4 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">
+    <div className="space-y-6">
+      {/* Convention alignment */}
+      <div className="bg-white rounded-card p-6 md:p-8">
+        <p className="text-xs text-dk-teal uppercase tracking-widest font-medium mb-4">
           Zgodność z konwencją
-        </h4>
-        <span className="inline-block text-sm px-3 py-1 bg-gray-100 text-gray-700 rounded-full font-medium mb-3">
+        </p>
+        <span className="inline-block text-xs px-3 py-1 bg-beige-light text-text-muted rounded-pill font-medium mb-4">
           {position.zgodnosc.ocena}
         </span>
-        <ul className="space-y-1.5">
+        <ul className="space-y-2.5">
           {position.zgodnosc.elementy.map((el, i) => (
-            <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
-              <span className="text-gray-300 mt-0.5 shrink-0">&#8226;</span>
+            <li key={i} className="flex items-start gap-3 text-sm text-text-muted leading-relaxed">
+              <span className="w-1.5 h-1.5 rounded-full bg-dk-teal mt-2 shrink-0" />
               {el}
             </li>
           ))}
         </ul>
       </div>
 
-      {/* Odchylenia */}
-      <div className="border border-gray-200 rounded-xl p-6 mb-6">
-        <h4 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">
+      {/* Deviations */}
+      <div className="bg-white rounded-card p-6 md:p-8">
+        <p className="text-xs text-dk-teal uppercase tracking-widest font-medium mb-4">
           Gdzie wychodzisz poza konwencję
-        </h4>
-        <ul className="space-y-1.5 mb-3">
+        </p>
+        <ul className="space-y-2.5 mb-4">
           {position.odchylenia.elementy.map((el, i) => (
-            <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
-              <span className="text-gray-300 mt-0.5 shrink-0">&#8226;</span>
+            <li key={i} className="flex items-start gap-3 text-sm text-text-muted leading-relaxed">
+              <span className="w-1.5 h-1.5 rounded-full bg-dk-orange mt-2 shrink-0" />
               {el}
             </li>
           ))}
         </ul>
-        <p className="text-sm text-gray-500 italic">
-          {position.odchylenia.znaczenieStrategiczne}
-        </p>
+        <div className="bg-beige-light rounded-xl p-4">
+          <p className="text-xs text-text-gray uppercase tracking-wider mb-1.5">Znaczenie strategiczne</p>
+          <p className="text-sm text-text-muted italic leading-relaxed">
+            {position.odchylenia.znaczenieStrategiczne}
+          </p>
+        </div>
       </div>
 
-      {/* Zagrożenie */}
-      <div className="border-2 border-red-200 bg-red-50/50 rounded-xl p-6 mb-6">
-        <h4 className="text-sm font-medium text-red-700 uppercase tracking-wider mb-3">
+      {/* Threat */}
+      <div className="bg-white rounded-card p-6 md:p-8 border-l-4 border-red-400">
+        <p className="text-xs text-red-600 uppercase tracking-widest font-medium mb-3">
           Co się stanie jeśli zostaniesz w konwencji
-        </h4>
-        <p className="text-gray-800 leading-relaxed">
+        </p>
+        <p className="text-text-muted leading-[1.8] text-[15px]">
           {position.zagrozenie}
         </p>
       </div>
 
-      {/* Pytanie otwarte — hero */}
-      <div className="bg-gray-50 border-2 border-gray-200 rounded-xl p-8 text-center">
-        <p className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">
+      {/* Open question — hero */}
+      <div className="bg-dk-teal/5 border border-dk-teal/20 rounded-card p-8 md:p-12 text-center">
+        <p className="text-xs text-dk-teal uppercase tracking-widest font-medium mb-6">
           Pytanie otwarte
         </p>
-        <p className="text-xl md:text-2xl font-medium text-gray-900 leading-relaxed">
+        <p className="font-heading text-2xl md:text-3xl text-text-primary leading-snug">
           {position.pytanieOtwarte}
         </p>
       </div>
-    </section>
+    </div>
   );
 }

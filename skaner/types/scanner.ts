@@ -163,6 +163,33 @@ export interface ClientPosition {
   pytanieOtwarte: string;
 }
 
+// === Visual Conventions Types ===
+
+export interface BrandVisualConventions {
+  dominujacyStyl: {
+    opis: string;
+    powtarzalnosc: string;
+  };
+  kolorystyka: string;
+  composycja: string;
+  obecnoscCzlowieka: {
+    czy: boolean;
+    jakPokazany: string;
+  };
+  napiecia: string;
+}
+
+export interface CategoryVisualConventions {
+  wspolneWzorce: Array<{
+    wzorzec: string;
+    marki: string[];
+    znaczenie: string;
+  }>;
+  wspolneUnikanie: string[];
+  implikowanySwiatklienta: string;
+  ktoWizualnieWykluczony: string;
+}
+
 // === Report Types ===
 
 export interface ScannerReport {
@@ -191,8 +218,10 @@ export interface ScannerReport {
     }>;
     samplePostScreenshots: string[];
     sampleWebsiteQuotes: string[];
+    konwencjaWizualna?: BrandVisualConventions;
   }>;
   konwencjaKategorii: CategoryConventions;
+  konwencjaWizualnaKategorii?: CategoryVisualConventions;
   pozycjaKlienta: ClientPosition;
   notaKoncowa: string;
 }

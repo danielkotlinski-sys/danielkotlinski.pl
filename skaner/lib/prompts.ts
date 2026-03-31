@@ -141,6 +141,51 @@ Ważne: każde twierdzenie musi wynikać z obserwacji w dostarczonych danych.
 Nie generalizuj ponad to co dane pokazują.
 `;
 
+export const PROMPT_VISUAL_BRAND = `
+Jesteś analitykiem wizualnym. Poniżej masz analizy {{N}} postów marki {{BRAND_NAME}} w kategorii {{CATEGORY}}.
+
+{{POST_ANALYSES}}
+
+Twoim zadaniem jest opisać konwencję wizualną tej marki w social media. Odpowiedz wyłącznie w JSON:
+
+{
+  "dominujacyStyl": {
+    "opis": "Jaki jest dominujący styl wizualny? Opisz paletę, nastrój, temperaturę barw, poziom 'produkcji' (surowe vs wypolerowane). 2-3 zdania.",
+    "powtarzalnosc": "Jak konsekwentny jest ten styl? Czy wszystkie posty mają tę samą estetykę czy są niespójne?"
+  },
+  "kolorystyka": "Jakie kolory dominują? Ciepłe/zimne? Pastelowe/nasycone? Konkretnie.",
+  "composycja": "Jak zbudowane są kadry? Co jest w centrum? Dużo pustej przestrzeni czy gęsto? Perspektywa bliska czy daleka?",
+  "obecnoscCzlowieka": {
+    "czy": true,
+    "jakPokazany": "Jeśli ludzie się pojawiają — jak? Twarz widoczna? Całe ciało? Fragment? W akcji czy pozowanie? Kto to jest — modelka, klientka, ekspertka?"
+  },
+  "napiecia": "Co jest wizualnie nieoczywiste lub zaskakujące w tej marce? Co łamie oczekiwania wizualne kategorii? Jeśli nic — napisz że marka trzyma się wizualnego mainstreamu kategorii."
+}
+`;
+
+export const PROMPT_VISUAL_CATEGORY = `
+Poniżej masz analizy konwencji wizualnych {{N}} marek w kategorii: {{CATEGORY}}.
+
+{{ALL_VISUAL_PROFILES}}
+
+Twoim zadaniem jest opisać WIZUALNĄ konwencję kategorii — to co łączy te marki pod względem estetyki, nie komunikatu tekstowego. Odpowiedz wyłącznie w JSON:
+
+{
+  "wspolneWzorce": [
+    {
+      "wzorzec": "Konkretny wzorzec wizualny który się powtarza w minimum 3 markach",
+      "marki": ["marka A", "marka B", "marka C"],
+      "znaczenie": "Co ten wzorzec mówi o tym, jak kategoria chce być postrzegana?"
+    }
+  ],
+  "wspolneUnikanie": ["Czego ŻADNA marka wizualnie nie pokazuje — mimo że mogłaby? Podaj 2-3 obserwacje."],
+  "implikowanySwiatklienta": "Jaki świat wizualny ta kategoria wspólnie buduje? W jakim otoczeniu, nastroju, estetyce żyje implikowany klient kategorii? 2-3 zdania.",
+  "ktoWizualnieWykluczony": "Kto NIE zobaczy siebie w tych wizualizacjach? Jaki typ osoby (przez postawę i styl życia, nie demografię) nie rozpozna swojego świata w tym co kategoria pokazuje?"
+}
+
+Podaj 2-4 wzorce w wspolneWzorce.
+`;
+
 export const PROMPT_7_CONVENTIONS = `
 Jesteś analitykiem strategii kategorii. Poniżej masz profile {{N}} marek
 działających w kategorii: {{CATEGORY}}.

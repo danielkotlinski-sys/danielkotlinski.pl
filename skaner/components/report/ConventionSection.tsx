@@ -7,125 +7,117 @@ interface ConventionSectionProps {
 }
 
 export default function ConventionSection({ conventions }: ConventionSectionProps) {
-  const ocenaColors: Record<string, string> = {
-    'zgodna z konwencją': 'bg-gray-100 text-gray-600',
+  const ocenaStyles: Record<string, string> = {
+    'zgodna z konwencją': 'bg-beige-light text-text-muted',
     'częściowo odchylona': 'bg-amber-50 text-amber-700',
     'wyraźnie łamiąca': 'bg-red-50 text-red-700',
   };
 
   return (
-    <section className="mb-12">
-      <h2 className="text-2xl font-semibold text-gray-900 mb-6">
-        Konwencja kategorii
-      </h2>
-
-      {/* Mechanizm kategorii — hero */}
-      <div className="bg-gray-900 text-white rounded-xl p-8 mb-6">
-        <p className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">
+    <div className="space-y-6">
+      {/* Hero: category mechanism */}
+      <div className="bg-text-dark text-white rounded-card p-8 md:p-10">
+        <p className="text-xs text-dk-teal uppercase tracking-widest font-medium mb-4">
           Mechanizm kategorii
         </p>
-        <p className="text-xl leading-relaxed font-medium mb-4">
+        <p className="font-heading text-2xl md:text-3xl leading-snug mb-6">
           {conventions.mechanizmKategorii.regula}
         </p>
-        <p className="text-sm text-gray-400 leading-relaxed">
+        <p className="text-sm text-white/60 leading-relaxed">
           {conventions.mechanizmKategorii.uzasadnienie}
         </p>
       </div>
 
-      {/* Implikowany klient kategorii */}
-      <div className="border border-gray-200 rounded-xl p-6 mb-4">
-        <h4 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-2">
+      {/* Implied category client */}
+      <div className="bg-white rounded-card p-6 md:p-8">
+        <p className="text-xs text-dk-teal uppercase tracking-widest font-medium mb-3">
           Implikowany klient kategorii
-        </h4>
-        <p className="text-gray-700 leading-relaxed mb-3">
+        </p>
+        <p className="text-text-muted leading-[1.8] text-[15px] mb-4">
           {conventions.implikowanyKlientKategorii.tosazmosc}
         </p>
-        <p className="text-sm text-gray-500 italic">
-          {conventions.implikowanyKlientKategorii.glebszaPotrzeba}
-        </p>
+        <div className="bg-beige-light rounded-xl p-5">
+          <p className="text-xs text-text-gray uppercase tracking-wider mb-1.5">Głębsza potrzeba</p>
+          <p className="text-sm text-text-muted italic leading-relaxed">
+            {conventions.implikowanyKlientKategorii.glebszaPotrzeba}
+          </p>
+        </div>
       </div>
 
-      {/* Pominięta grupa */}
-      <div className="border-2 border-amber-200 bg-amber-50/50 rounded-xl p-6 mb-6">
-        <h4 className="text-sm font-medium text-amber-700 uppercase tracking-wider mb-3">
+      {/* Excluded group */}
+      <div className="bg-white rounded-card p-6 md:p-8 border-l-4 border-amber-400">
+        <p className="text-xs text-amber-600 uppercase tracking-widest font-medium mb-3">
           Kogo kategoria odpycha swoją formą
-        </h4>
-        <p className="text-gray-800 leading-relaxed mb-4">
+        </p>
+        <p className="text-text-muted leading-[1.8] text-[15px] mb-5">
           {conventions.implikowanyKlientKategorii.pominietaGrupa.opis}
         </p>
         <div className="grid md:grid-cols-2 gap-4">
-          <div>
-            <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">
-              Skala
-            </p>
-            <p className="text-sm text-gray-700">
+          <div className="bg-amber-50/50 rounded-xl p-4">
+            <p className="text-xs text-amber-600 uppercase tracking-wider mb-1.5">Skala</p>
+            <p className="text-sm text-text-muted leading-relaxed">
               {conventions.implikowanyKlientKategorii.pominietaGrupa.proporcja}
             </p>
           </div>
-          <div>
-            <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">
-              Co ich odpycha
-            </p>
-            <p className="text-sm text-gray-700">
+          <div className="bg-amber-50/50 rounded-xl p-4">
+            <p className="text-xs text-amber-600 uppercase tracking-wider mb-1.5">Co ich odpycha</p>
+            <p className="text-sm text-text-muted leading-relaxed">
               {conventions.implikowanyKlientKategorii.pominietaGrupa.dlaczegoOdpycha}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Dowody konwencji */}
-      <div className="mb-6">
-        <h4 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">
+      {/* Convention evidence */}
+      <div className="bg-white rounded-card p-6 md:p-8">
+        <p className="text-xs text-dk-teal uppercase tracking-widest font-medium mb-5">
           Dowody konwencji
-        </h4>
-        <div className="space-y-3">
+        </p>
+        <div className="space-y-5">
           {conventions.dowodyKonwencji.map((dowod, i) => (
-            <div key={i} className="bg-gray-50 rounded-lg p-4">
-              <p className="text-sm font-medium text-gray-900 mb-2">
+            <div key={i} className="pb-5 border-b border-beige last:border-0 last:pb-0">
+              <p className="text-[15px] font-medium text-text-primary mb-2">
                 {dowod.wzorzec}
               </p>
               <div className="flex flex-wrap gap-1.5 mb-2">
                 {dowod.marki.map((marka, j) => (
-                  <span
-                    key={j}
-                    className="text-xs px-2 py-0.5 bg-gray-200 text-gray-600 rounded"
-                  >
+                  <span key={j} className="text-[10px] px-2 py-0.5 bg-beige text-text-gray rounded-pill">
                     {marka}
                   </span>
                 ))}
               </div>
-              <p className="text-xs text-gray-500">{dowod.znaczenie}</p>
+              <p className="text-xs text-text-secondary">{dowod.znaczenie}</p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Mapa wyróżnialności */}
-      <div>
-        <h4 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">
+      {/* Distinctiveness map */}
+      <div className="bg-white rounded-card p-6 md:p-8">
+        <p className="text-xs text-dk-teal uppercase tracking-widest font-medium mb-5">
           Mapa wyróżnialności
-        </h4>
-        <div className="space-y-2">
+        </p>
+        <div className="space-y-3">
           {conventions.mapaWyroznialnosci.map((item, i) => (
             <div
               key={i}
-              className="flex items-center gap-4 p-3 rounded-lg border border-gray-100"
+              className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 py-3 border-b border-beige last:border-0"
             >
-              <span className="font-medium text-gray-900 w-36 shrink-0">
+              <span className="font-heading text-lg text-text-primary md:w-40 shrink-0">
                 {item.marka}
               </span>
               <span
-                className={`text-xs px-2.5 py-1 rounded-full font-medium shrink-0 ${
-                  ocenaColors[item.ocena] || 'bg-gray-100 text-gray-600'
+                className={`text-xs px-3 py-1 rounded-pill font-medium shrink-0 w-fit ${
+                  ocenaStyles[item.ocena] || 'bg-beige-light text-text-muted'
                 }`}
               >
                 {item.ocena}
               </span>
-              <span className="text-sm text-gray-500">{item.uzasadnienie}</span>
+              <span className="text-sm text-text-secondary">{item.uzasadnienie}</span>
             </div>
           ))}
         </div>
       </div>
-    </section>
+    </div>
   );
 }

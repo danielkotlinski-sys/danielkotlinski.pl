@@ -12,129 +12,133 @@ export default function BrandProfileCard({ profile }: BrandProfileCardProps) {
   const dowody = profile.kluczoweDowody || [];
 
   return (
-    <div className="border border-gray-200 rounded-xl p-6 mb-4">
-      <div className="flex items-center gap-3 mb-5">
-        <h3 className="text-xl font-semibold text-gray-900">
+    <div className="bg-white rounded-card overflow-hidden">
+      {/* Brand header */}
+      <div className="px-6 md:px-8 pt-6 md:pt-8 pb-4 flex items-center gap-3">
+        <h3 className="font-heading text-2xl text-text-primary">
           {profile.brandName}
         </h3>
         {profile.isClient && (
-          <span className="text-xs px-2 py-0.5 bg-gray-900 text-white rounded-full">
+          <span className="text-xs px-3 py-1 bg-dk-teal text-white rounded-pill">
             Twoja marka
           </span>
         )}
       </div>
 
-      {/* Logika sprzedaży */}
-      {logika && (
-        <div className="mb-5">
-          <h4 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-2">
-            Logika sprzedaży
-          </h4>
-          <p className="text-gray-700 leading-relaxed">
-            {logika.tresc}
-          </p>
-          {logika.kluczoweMechanizmy?.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-3">
-              {logika.kluczoweMechanizmy.map((m, i) => (
-                <span
-                  key={i}
-                  className="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 rounded-md"
-                >
-                  {m}
-                </span>
+      {/* Content grid */}
+      <div className="px-6 md:px-8 pb-6 md:pb-8">
+        {/* Sales logic */}
+        {logika && (
+          <div className="mb-6 pb-6 border-b border-beige">
+            <p className="text-xs text-dk-teal uppercase tracking-widest font-medium mb-3">
+              Logika sprzedaży
+            </p>
+            <p className="text-text-muted leading-[1.8] text-[15px]">
+              {logika.tresc}
+            </p>
+            {logika.kluczoweMechanizmy?.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-4">
+                {logika.kluczoweMechanizmy.map((m, i) => (
+                  <span
+                    key={i}
+                    className="text-xs px-3 py-1.5 bg-beige-light text-text-muted rounded-pill"
+                  >
+                    {m}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Implied client */}
+        {klient && (
+          <div className="mb-6 pb-6 border-b border-beige">
+            <p className="text-xs text-dk-teal uppercase tracking-widest font-medium mb-3">
+              Marka rozumie klienta jako
+            </p>
+            <p className="text-text-muted leading-[1.8] text-[15px] mb-3">
+              {klient.tosazmosc}
+            </p>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="bg-beige-light rounded-xl p-4">
+                <p className="text-xs text-text-gray uppercase tracking-wider mb-1.5">Co ważne</p>
+                <p className="text-sm text-text-muted leading-relaxed">{klient.coWazne}</p>
+              </div>
+              {klient.ktoWykluczony && (
+                <div className="bg-beige-light rounded-xl p-4">
+                  <p className="text-xs text-text-gray uppercase tracking-wider mb-1.5">Kto wykluczony</p>
+                  <p className="text-sm text-text-muted leading-relaxed">{klient.ktoWykluczony}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Evidence */}
+        {dowody.length > 0 && (
+          <div className="mb-6 pb-6 border-b border-beige">
+            <p className="text-xs text-dk-teal uppercase tracking-widest font-medium mb-3">
+              Kluczowe dowody
+            </p>
+            <div className="space-y-3">
+              {dowody.map((dowod, i) => (
+                <div key={i} className="flex gap-3 items-start">
+                  <span className="w-1.5 h-1.5 rounded-full bg-dk-teal mt-2 shrink-0" />
+                  <div>
+                    <p className="text-sm text-text-muted leading-relaxed">{dowod.obserwacja}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-[10px] px-2 py-0.5 bg-beige text-text-gray rounded-pill uppercase tracking-wider">
+                        {dowod.zrodlo}
+                      </span>
+                      <span className="text-xs text-text-gray italic">{dowod.znaczenie}</span>
+                    </div>
+                  </div>
+                </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Post screenshots + website quotes side by side */}
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Screenshots */}
+          {profile.samplePostScreenshots?.length > 0 && (
+            <div>
+              <p className="text-xs text-text-gray uppercase tracking-wider mb-3">Posty</p>
+              <div className="grid grid-cols-2 gap-2">
+                {profile.samplePostScreenshots.map((screenshot, i) => (
+                  <div key={i} className="rounded-xl overflow-hidden bg-beige-light">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`data:image/${screenshot.startsWith('/9j/') ? 'jpeg' : 'png'};base64,${screenshot}`}
+                      alt={`Post ${i + 1} - ${profile.brandName}`}
+                      className="w-full h-auto"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Website quotes */}
+          {profile.sampleWebsiteQuotes?.length > 0 && (
+            <div>
+              <p className="text-xs text-text-gray uppercase tracking-wider mb-3">Cytaty ze strony</p>
+              <div className="space-y-3">
+                {profile.sampleWebsiteQuotes.map((quote, i) => (
+                  <blockquote
+                    key={i}
+                    className="border-l-2 border-dk-teal/30 pl-4 text-sm text-text-secondary italic leading-relaxed"
+                  >
+                    {quote}
+                  </blockquote>
+                ))}
+              </div>
             </div>
           )}
         </div>
-      )}
-
-      {/* Implikowany klient */}
-      {klient && (
-        <div className="mb-5">
-          <h4 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-2">
-            Implikowany klient
-          </h4>
-          <p className="text-gray-700 leading-relaxed mb-2">
-            {klient.tosazmosc}
-          </p>
-          <p className="text-gray-600 text-sm">
-            <span className="font-medium">Co ważne:</span>{' '}
-            {klient.coWazne}
-          </p>
-        </div>
-      )}
-
-      {/* Kto wykluczony */}
-      {klient?.ktoWykluczony && (
-        <div className="mb-5">
-          <h4 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-2">
-            Kto wykluczony
-          </h4>
-          <p className="text-gray-600 text-sm">
-            {klient.ktoWykluczony}
-          </p>
-        </div>
-      )}
-
-      {/* Kluczowe dowody */}
-      {dowody.length > 0 && (
-        <div className="mb-5">
-          <h4 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">
-            Kluczowe dowody
-          </h4>
-          <div className="space-y-3">
-            {dowody.map((dowod, i) => (
-              <div key={i} className="bg-gray-50 rounded-lg p-4">
-                <p className="text-sm text-gray-700 mb-1">{dowod.obserwacja}</p>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs px-1.5 py-0.5 bg-gray-200 text-gray-500 rounded">
-                    {dowod.zrodlo}
-                  </span>
-                  <span className="text-xs text-gray-400">{dowod.znaczenie}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Sample post screenshots */}
-      {profile.samplePostScreenshots?.length > 0 && (
-        <div>
-          <h4 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">
-            Przykładowe posty
-          </h4>
-          <div className="flex gap-3">
-            {profile.samplePostScreenshots.map((screenshot, i) => (
-              <div key={i} className="w-1/2 rounded-lg overflow-hidden border border-gray-100">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                  src={`data:image/${screenshot.startsWith('/9j/') ? 'jpeg' : 'png'};base64,${screenshot}`}
-                  alt={`Post ${i + 1} - ${profile.brandName}`}
-                  className="w-full h-auto"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Website quotes */}
-      {profile.sampleWebsiteQuotes.length > 0 && (
-        <div className="mt-4">
-          <h4 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-2">
-            Cytaty ze strony
-          </h4>
-          {profile.sampleWebsiteQuotes.map((quote, i) => (
-            <blockquote
-              key={i}
-              className="border-l-2 border-gray-200 pl-3 text-sm text-gray-500 italic mb-2"
-            >
-              {quote}
-            </blockquote>
-          ))}
-        </div>
-      )}
+      </div>
     </div>
   );
 }

@@ -47,7 +47,8 @@ async function getRedis(): Promise<Redis | null> {
   return redis;
 }
 
-const REPORT_TTL = 30 * 24 * 60 * 60; // 30 days
+const REPORT_TTL = 365 * 24 * 60 * 60; // 1 year — reports available indefinitely
+const RATE_LIMIT_TTL = 30 * 24 * 60 * 60; // 30 days between scans per email
 
 function memSet(key: string, value: string, ttlSeconds: number) {
   memoryStore.set(key, {
@@ -76,6 +77,33 @@ export async function saveReport(
     await r.set(`report:${scanId}`, json, 'EX', REPORT_TTL);
   } else {
     memSet(`report:${scanId}`, json, REPORT_TTL);
+  }
+}
+
+export async function checkRateLimit(email: string): Promise<{ allowed: boolean; daysLeft?: number }> {
+  const key = `ratelimit:${email.toLowerCase().trim()}`;
+  const r = await getRedis();
+  const existing = r ? await r.get(key) : memGet(key);
+
+  if (existing) {
+    const scanDate = new Date(existing);
+    const daysSince = Math.floor((Date.now() - scanDate.getTime()) / (1000 * 60 * 60 * 24));
+    const daysLeft = 30 - daysSince;
+    if (daysLeft > 0) {
+      return { allowed: false, daysLeft };
+    }
+  }
+  return { allowed: true };
+}
+
+export async function setRateLimit(email: string): Promise<void> {
+  const key = `ratelimit:${email.toLowerCase().trim()}`;
+  const now = new Date().toISOString();
+  const r = await getRedis();
+  if (r) {
+    await r.set(key, now, 'EX', RATE_LIMIT_TTL);
+  } else {
+    memSet(key, now, RATE_LIMIT_TTL);
   }
 }
 

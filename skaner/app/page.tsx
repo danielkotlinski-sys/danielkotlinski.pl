@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import Navigation from '@/components/Navigation';
 import InputForm from '@/components/InputForm';
 import LeadGateModal from '@/components/LeadGateModal';
 import ProgressTracker from '@/components/ProgressTracker';
@@ -32,12 +33,10 @@ export default function SkanerPage() {
   const handleComplete = useCallback(
     (scanId: string, reportFromStream?: unknown) => {
       if (reportFromStream) {
-        // Report received directly from SSE stream
         setReport(reportFromStream as ScannerReport);
         setScreen('report');
         window.history.pushState(null, '', `/raport/${scanId}`);
       } else {
-        // Fallback: try fetching from API
         fetch(`/api/scan/${scanId}/result`)
           .then((r) => (r.ok ? r.json() : Promise.reject()))
           .then((data) => {
@@ -57,54 +56,60 @@ export default function SkanerPage() {
 
   if (error) {
     return (
-      <main className="min-h-screen py-16 px-6">
-        <div className="max-w-lg mx-auto text-center">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-            Wystąpił błąd
-          </h2>
-          <p className="text-gray-500 mb-6">{error}</p>
-          <button
-            onClick={() => {
-              setError(null);
-              setScreen('input');
-            }}
-            className="px-6 py-2.5 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
-          >
-            Spróbuj ponownie
-          </button>
-        </div>
-      </main>
+      <>
+        <Navigation />
+        <main className="min-h-screen py-24 px-6">
+          <div className="max-w-lg mx-auto text-center">
+            <h2 className="font-heading text-3xl text-text-primary mb-4">
+              Wystąpił błąd
+            </h2>
+            <p className="text-text-secondary mb-8">{error}</p>
+            <button
+              onClick={() => {
+                setError(null);
+                setScreen('input');
+              }}
+              className="px-8 py-3 bg-dk-orange text-white rounded-pill font-medium hover:bg-dk-orange-hover hover:-translate-y-0.5 transition-all duration-300"
+            >
+              Spróbuj ponownie
+            </button>
+          </div>
+        </main>
+      </>
     );
   }
 
   return (
-    <main className="min-h-screen py-16 px-6">
-      {screen === 'input' && <InputForm onSubmit={handleInputSubmit} />}
+    <>
+      <Navigation />
+      <main className={`min-h-screen ${screen === 'report' ? 'py-12' : 'py-24'} px-6`}>
+        {screen === 'input' && <InputForm onSubmit={handleInputSubmit} />}
 
-      {screen === 'gate' && (
-        <LeadGateModal
-          onSubmit={handleLeadSubmit}
-          onBack={() => setScreen('input')}
-        />
-      )}
+        {screen === 'gate' && (
+          <LeadGateModal
+            onSubmit={handleLeadSubmit}
+            onBack={() => setScreen('input')}
+          />
+        )}
 
-      {screen === 'progress' && scannerInput && leadInfo && (
-        <ProgressTracker
-          scanRequestBody={scanRequestBody}
-          category={scannerInput.category}
-          brands={[
-            scannerInput.clientBrand.name,
-            ...scannerInput.competitors.map((c) => c.name),
-          ]}
-          email={leadInfo.email}
-          onComplete={handleComplete}
-          onError={handleError}
-        />
-      )}
+        {screen === 'progress' && scannerInput && leadInfo && (
+          <ProgressTracker
+            scanRequestBody={scanRequestBody}
+            category={scannerInput.category}
+            brands={[
+              scannerInput.clientBrand.name,
+              ...scannerInput.competitors.map((c) => c.name),
+            ]}
+            email={leadInfo.email}
+            onComplete={handleComplete}
+            onError={handleError}
+          />
+        )}
 
-      {screen === 'report' && report && (
-        <ReportContainer report={report} firstName={leadInfo?.firstName} />
-      )}
-    </main>
+        {screen === 'report' && report && (
+          <ReportContainer report={report} firstName={leadInfo?.firstName} />
+        )}
+      </main>
+    </>
   );
 }
