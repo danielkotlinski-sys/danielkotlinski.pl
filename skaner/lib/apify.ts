@@ -11,6 +11,12 @@ const ACTOR_IDS: Record<string, string> = {
   linkedin: 'apify/linkedin-company-posts-scraper',
 };
 
+const PROFILE_URLS: Record<string, (handle: string) => string> = {
+  instagram: (h) => `https://www.instagram.com/${h}/`,
+  facebook: (h) => `https://www.facebook.com/${h}/`,
+  linkedin: (h) => `https://www.linkedin.com/company/${h}/`,
+};
+
 interface RawPost {
   url?: string;
   shortCode?: string;
@@ -18,6 +24,8 @@ interface RawPost {
   text?: string;
   timestamp?: string;
   displayUrl?: string;
+  postUrl?: string;
+  likesCount?: number;
 }
 
 export async function scrapeSocialPosts(
@@ -28,28 +36,31 @@ export async function scrapeSocialPosts(
   const actorId = ACTOR_IDS[platform];
   if (!actorId) return [];
 
+  const profileUrl = PROFILE_URLS[platform](handle);
+
+  // Use directUrls — this is what the actor expects
   const input: Record<string, unknown> = {
+    directUrls: [profileUrl],
     resultsLimit: limit,
+    resultsType: 'posts',
   };
 
-  if (platform === 'facebook') {
-    input.pageUrl = `https://www.facebook.com/${handle}`;
-  } else {
-    input.username = handle;
-  }
-
   try {
+    console.log(`Apify: scraping ${platform} for ${handle} via ${profileUrl}`);
+
     const run = await client.actor(actorId).call(input, {
       waitSecs: 120,
     });
 
     const { items } = await client.dataset(run.defaultDatasetId).listItems();
+    console.log(`Apify: got ${items.length} items for ${handle}`);
 
     const posts: ScrapedPost[] = [];
 
     for (const item of items as RawPost[]) {
       const postUrl =
         item.url ||
+        item.postUrl ||
         (platform === 'instagram' && item.shortCode
           ? `https://www.instagram.com/p/${item.shortCode}/`
           : '');
