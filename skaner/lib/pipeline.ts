@@ -189,6 +189,7 @@ export async function runCategoryScanner(
 
   await Promise.all(
     allBrands.map(async (brand) => {
+      try {
       const data = brandData[brand.name];
 
       // Category map context for claim analysis
@@ -274,6 +275,16 @@ export async function runCategoryScanner(
         externalAnalysis: parseJsonResponse(externalRaw),
         homepageVisual,
       };
+      } catch (err) {
+        console.error(`Atomic analysis failed for ${brand.name}:`, err);
+        // Create minimal fallback so pipeline continues
+        atomicAnalyses[brand.name] = {
+          claim: { framingProduktu: { opis: 'Analiza niedostępna', dowod: '' }, obietnicaZmiany: { stanPrzed: '', stanPo: '', dowod: '' }, punktWejsciaKomunikacji: { typ: 'produkt', opis: 'Brak danych', dowod: '' } },
+          vocabulary: { slownictwoMarki: [], sugestiaOKliencie: 'Brak danych' },
+          socialSynthesis: null,
+          externalAnalysis: { zewnetrzneSlownictwo: [], zgodnosc: { ocena: 'częściowa rozbieżność', opis: 'Analiza niedostępna' } },
+        };
+      }
     })
   );
   emitStep('analyze_atomic', 'done');

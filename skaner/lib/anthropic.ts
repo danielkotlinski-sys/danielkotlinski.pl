@@ -99,16 +99,28 @@ export function parseJsonResponse<T>(text: string): T {
 
   try {
     return JSON.parse(cleaned);
-  } catch {
-    // Last resort: try even more aggressive cleanup
-    // Remove all lines that look like comments
+  } catch (firstError) {
+    // Aggressive cleanup: remove comment lines, fix trailing commas
     cleaned = cleaned
       .split('\n')
       .filter((line) => !line.trim().startsWith('//'))
       .join('\n');
-    // Remove trailing commas again after line removal
     cleaned = cleaned.replace(/,\s*([\]}])/g, '$1');
 
-    return JSON.parse(cleaned);
+    try {
+      return JSON.parse(cleaned);
+    } catch {
+      // Last resort: try to fix unescaped quotes inside string values
+      // Replace problematic characters that break JSON
+      cleaned = cleaned.replace(/[\x00-\x1F]/g, ' '); // control chars
+      cleaned = cleaned.replace(/,\s*([\]}])/g, '$1'); // trailing commas again
+
+      try {
+        return JSON.parse(cleaned);
+      } catch {
+        console.error('JSON parse failed after all cleanup attempts. First 500 chars:', cleaned.slice(0, 500));
+        throw firstError;
+      }
+    }
   }
 }
