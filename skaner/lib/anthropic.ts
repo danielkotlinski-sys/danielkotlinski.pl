@@ -10,13 +10,22 @@ export async function runPrompt(
 ): Promise<string> {
   const response = await anthropic.messages.create({
     model,
-    max_tokens: 1024,
+    max_tokens: 4096,
     temperature: 0,
-    messages: [{ role: 'user', content: prompt }],
+    messages: [
+      {
+        role: 'user',
+        content: prompt + '\n\nOdpowiedz WYŁĄCZNIE poprawnym JSON. Bez komentarzy, bez tekstu przed ani po JSON.',
+      },
+      {
+        role: 'assistant',
+        content: '{',
+      },
+    ],
   });
 
   const block = response.content[0];
-  if (block.type === 'text') return block.text;
+  if (block.type === 'text') return '{' + block.text;
   return '';
 }
 
@@ -27,7 +36,7 @@ export async function analyzePostVision(
 ): Promise<string> {
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-5',
-    max_tokens: 512,
+    max_tokens: 1024,
     temperature: 0,
     messages: [
       {
@@ -43,24 +52,35 @@ export async function analyzePostVision(
           },
           {
             type: 'text',
-            text: `${prompt}\n\nCaption posta: "${caption}"`,
+            text: `${prompt}\n\nCaption posta: "${caption}"\n\nOdpowiedz WYŁĄCZNIE poprawnym JSON. Bez komentarzy, bez tekstu przed ani po JSON.`,
           },
         ],
+      },
+      {
+        role: 'assistant',
+        content: '{',
       },
     ],
   });
 
   const block = response.content[0];
-  if (block.type === 'text') return block.text;
+  if (block.type === 'text') return '{' + block.text;
   return '';
 }
 
 export function parseJsonResponse<T>(text: string): T {
-  // Strip markdown code fences if present
-  const cleaned = text
-    .replace(/^```json\s*/m, '')
-    .replace(/^```\s*/m, '')
-    .replace(/```\s*$/m, '')
+  // Strip markdown code fences
+  let cleaned = text
+    .replace(/^```json\s*/gm, '')
+    .replace(/^```\s*/gm, '')
+    .replace(/```\s*$/gm, '')
     .trim();
+
+  // Remove trailing commas before } or ]
+  cleaned = cleaned.replace(/,\s*([\]}])/g, '$1');
+
+  // Remove single-line comments
+  cleaned = cleaned.replace(/\/\/[^\n]*/g, '');
+
   return JSON.parse(cleaned);
 }
