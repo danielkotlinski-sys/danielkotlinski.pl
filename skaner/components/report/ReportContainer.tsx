@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import type { ScannerReport } from '@/types/scanner';
 import BrandProfileCard from './BrandProfileCard';
+import CategoryMapSection from './CategoryMapSection';
 import ConventionSection from './ConventionSection';
+import ComparativeGapsSection from './ComparativeGapsSection';
 import ClientPositionSection from './ClientPositionSection';
 import VisualConventionsSection from './VisualConventionsSection';
 import GateSection from './GateSection';
@@ -16,7 +18,9 @@ interface ReportContainerProps {
 const TOC_ITEMS = [
   { id: 'profiles', label: 'Profile marek' },
   { id: 'visual', label: 'Konwencje wizualne' },
+  { id: 'map', label: 'Mapa kategorii' },
   { id: 'convention', label: 'Konwencja kategorii' },
+  { id: 'gaps', label: 'Luki komunikacyjne' },
   { id: 'position', label: 'Twoja pozycja' },
   { id: 'cta', label: 'Co dalej' },
 ];
@@ -118,10 +122,23 @@ export default function ReportContainer({ report, firstName }: ReportContainerPr
         <VisualConventionsSection report={report} />
       </section>
 
-      {/* Section 3: Category conventions */}
+      {/* Section 3: Category map */}
+      {report.mapaKategorii && (
+        <section id="map" className="mb-20">
+          <div className="mb-8">
+            <p className="text-xs text-dk-teal uppercase tracking-widest font-medium mb-2">Część 3</p>
+            <h2 className="font-heading text-3xl md:text-4xl text-text-primary">
+              Mapa kategorii
+            </h2>
+          </div>
+          <CategoryMapSection map={report.mapaKategorii} />
+        </section>
+      )}
+
+      {/* Section 4: Category conventions */}
       <section id="convention" className="mb-20">
         <div className="mb-8">
-          <p className="text-xs text-dk-teal uppercase tracking-widest font-medium mb-2">Część 3</p>
+          <p className="text-xs text-dk-teal uppercase tracking-widest font-medium mb-2">Część {report.mapaKategorii ? 4 : 3}</p>
           <h2 className="font-heading text-3xl md:text-4xl text-text-primary">
             Konwencja kategorii
           </h2>
@@ -129,10 +146,23 @@ export default function ReportContainer({ report, firstName }: ReportContainerPr
         <ConventionSection conventions={report.konwencjaKategorii} />
       </section>
 
-      {/* Section 4: Client position */}
+      {/* Section 5: Communication gaps */}
+      {report.lukiKomunikacyjne && (
+        <section id="gaps" className="mb-20">
+          <div className="mb-8">
+            <p className="text-xs text-dk-teal uppercase tracking-widest font-medium mb-2">Część {report.mapaKategorii ? 5 : 4}</p>
+            <h2 className="font-heading text-3xl md:text-4xl text-text-primary">
+              Luki komunikacyjne
+            </h2>
+          </div>
+          <ComparativeGapsSection gaps={report.lukiKomunikacyjne} />
+        </section>
+      )}
+
+      {/* Section: Client position */}
       <section id="position" className="mb-20">
         <div className="mb-8">
-          <p className="text-xs text-dk-teal uppercase tracking-widest font-medium mb-2">Część 4</p>
+          <p className="text-xs text-dk-teal uppercase tracking-widest font-medium mb-2">Część {(report.mapaKategorii ? 4 : 3) + (report.lukiKomunikacyjne ? 2 : 1)}</p>
           <h2 className="font-heading text-3xl md:text-4xl text-text-primary">
             Twoja marka: {report.meta.clientBrand}
           </h2>

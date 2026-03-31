@@ -57,6 +57,26 @@ async function fetchPage(url: string): Promise<string> {
   }
 }
 
+export async function fetchHomepageScreenshot(baseUrl: string): Promise<string> {
+  try {
+    const response = await fetch(`https://r.jina.ai/${baseUrl}`, {
+      headers: {
+        'Accept': 'image/png',
+        'X-Return-Format': 'screenshot',
+      },
+    });
+    if (!response.ok) return '';
+    const buffer = await response.arrayBuffer();
+    const base64 = Buffer.from(buffer).toString('base64');
+    if (base64.length < 1000) return ''; // too small = error page
+    console.log(`Jina: screenshot of ${baseUrl} — ${Math.round(base64.length / 1024)}KB`);
+    return base64;
+  } catch {
+    console.log(`Jina: screenshot failed for ${baseUrl}`);
+    return '';
+  }
+}
+
 export async function fetchWebsiteText(baseUrl: string): Promise<string> {
   const normalizedUrl = baseUrl.replace(/\/$/, '');
 

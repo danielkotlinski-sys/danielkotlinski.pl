@@ -19,7 +19,9 @@ const DEV_DEFAULTS = {
   socialHandle: 'veoli_botanica',
   socialPlatform: 'instagram' as const,
   category: 'Polskie marki kosmetyków naturalnych sprzedające online, pozycjonujące się na naturalne składniki i świadomą pielęgnację',
+  categoryPurpose: 'Klient szuka skutecznej pielęgnacji opartej na naturalnych składnikach — chce czuć że robi coś dobrego dla siebie i świadomie wybiera.',
   categoryType: 'b2c' as const,
+  clientDescription: '',
   competitors: [
     { name: 'Resibo', url: 'https://resibo.pl', socialHandle: 'resibobynature' },
     { name: 'Mokosh', url: 'https://mokosh.pl', socialHandle: 'mokoshcosmetics' },
@@ -30,19 +32,33 @@ const DEV_DEFAULTS = {
 const inputStyles = "w-full px-4 py-3 bg-white border border-beige-dark/50 rounded-card text-text-primary placeholder:text-text-gray focus:outline-none focus:border-dk-teal focus:ring-1 focus:ring-dk-teal/20 transition-colors";
 const labelStyles = "block text-sm font-medium text-text-muted mb-1.5";
 
+const RATING_LABELS: Record<number, string> = {
+  1: 'Nie',
+  2: 'Częściowo',
+  3: 'Tak',
+};
+
 export default function InputForm({ onSubmit }: InputFormProps) {
   const [brandName, setBrandName] = useState('');
   const [brandUrl, setBrandUrl] = useState('');
   const [socialHandle, setSocialHandle] = useState('');
   const [socialPlatform, setSocialPlatform] = useState<'instagram' | 'facebook' | 'linkedin'>('instagram');
   const [category, setCategory] = useState('');
+  const [categoryPurpose, setCategoryPurpose] = useState('');
   const [categoryType, setCategoryType] = useState<'b2c' | 'b2b'>('b2c');
+  const [clientDescription, setClientDescription] = useState('');
   const [competitors, setCompetitors] = useState<Competitor[]>([
     { name: '', url: '', socialHandle: '' },
     { name: '', url: '', socialHandle: '' },
   ]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isDev, setIsDev] = useState(false);
+
+  // JTBD suggestion state
+  const [jtbdSuggestions, setJtbdSuggestions] = useState<string[]>([]);
+  const [jtbdRatings, setJtbdRatings] = useState<Record<number, 1 | 2 | 3>>({});
+  const [jtbdLoading, setJtbdLoading] = useState(false);
+  const [jtbdRequested, setJtbdRequested] = useState(false);
 
   useEffect(() => {
     if (window.location.hostname === 'localhost') setIsDev(true);
@@ -54,7 +70,9 @@ export default function InputForm({ onSubmit }: InputFormProps) {
     setSocialHandle(DEV_DEFAULTS.socialHandle);
     setSocialPlatform(DEV_DEFAULTS.socialPlatform);
     setCategory(DEV_DEFAULTS.category);
+    setCategoryPurpose(DEV_DEFAULTS.categoryPurpose);
     setCategoryType(DEV_DEFAULTS.categoryType);
+    setClientDescription(DEV_DEFAULTS.clientDescription);
     setCompetitors(DEV_DEFAULTS.competitors);
   };
 
@@ -76,11 +94,34 @@ export default function InputForm({ onSubmit }: InputFormProps) {
     setCompetitors(updated);
   };
 
+  const requestJtbdSuggestions = async () => {
+    if (!category || category.length < 20) return;
+    setJtbdLoading(true);
+    setJtbdRequested(true);
+    try {
+      const response = await fetch('/api/scan/suggest-jtbd', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ category, categoryType, brandName }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setJtbdSuggestions(data.jobs || []);
+        setJtbdRatings({});
+      }
+    } catch {
+      // silently fail — JTBD is optional
+    } finally {
+      setJtbdLoading(false);
+    }
+  };
+
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
     if (!brandName.trim()) newErrors.brandName = 'Nazwa marki jest wymagana';
     if (!brandUrl.trim()) newErrors.brandUrl = 'URL strony jest wymagany';
     if (category.length < 20) newErrors.category = 'Opis kategorii musi mieć min. 20 znaków';
+    if (!categoryPurpose.trim()) newErrors.categoryPurpose = 'Opisz po co klient przychodzi do tej kategorii';
     const validCompetitors = competitors.filter((c) => c.name.trim() && c.url.trim());
     if (validCompetitors.length < 2) {
       newErrors.competitors = 'Minimum 2 konkurentów z nazwą i URL';
@@ -93,6 +134,14 @@ export default function InputForm({ onSubmit }: InputFormProps) {
     e.preventDefault();
     if (!validate()) return;
     const validCompetitors = competitors.filter((c) => c.name.trim() && c.url.trim());
+
+    const ratedJtbd = jtbdSuggestions.length > 0
+      ? jtbdSuggestions.map((job, i) => ({
+          job,
+          rating: (jtbdRatings[i] || 2) as 1 | 2 | 3,
+        }))
+      : undefined;
+
     onSubmit({
       clientBrand: {
         name: brandName,
@@ -101,7 +150,10 @@ export default function InputForm({ onSubmit }: InputFormProps) {
         socialPlatform,
       },
       category,
+      categoryPurpose,
       categoryType,
+      clientDescription: clientDescription.trim() || undefined,
+      jtbdRatings: ratedJtbd,
       competitors: validCompetitors.map((c) => ({
         name: c.name,
         url: c.url,
@@ -183,6 +235,28 @@ export default function InputForm({ onSubmit }: InputFormProps) {
         </div>
       </section>
 
+      {/* Your client — optional */}
+      <section className="bg-white rounded-card p-6 md:p-8 mb-6">
+        <h2 className="font-heading text-2xl text-text-primary mb-2">
+          Twój klient
+        </h2>
+        <p className="text-sm text-text-gray mb-5">
+          Opcjonalne — ale pozwala porównać kogo opisujesz z kim naprawdę mówi Twoja komunikacja.
+        </p>
+        <div>
+          <label className={labelStyles}>
+            Kim jest Twój klient? Opisz w 1-2 zdaniach.
+          </label>
+          <textarea
+            value={clientDescription}
+            onChange={(e) => setClientDescription(e.target.value)}
+            rows={2}
+            className={inputStyles + ' resize-none'}
+            placeholder="np. Właściciele małych firm technologicznych którzy szukają rebrandingu po pierwszej rundzie finansowania"
+          />
+        </div>
+      </section>
+
       {/* Category */}
       <section className="bg-white rounded-card p-6 md:p-8 mb-6">
         <h2 className="font-heading text-2xl text-text-primary mb-6">
@@ -196,10 +270,83 @@ export default function InputForm({ onSubmit }: InputFormProps) {
               onChange={(e) => setCategory(e.target.value)}
               rows={3}
               className={inputStyles + ' resize-none'}
-              placeholder="np. Agencje brandingowe pracujące z firmami technologicznymi w Polsce"
+              placeholder="np. Teatry dramatyczne w Warszawie z własnym zespołem aktorskim"
             />
             {errors.category && <p className="text-dk-orange text-sm mt-1.5">{errors.category}</p>}
           </div>
+
+          <div>
+            <label className={labelStyles}>Po co klient przychodzi do tej kategorii?</label>
+            <textarea
+              value={categoryPurpose}
+              onChange={(e) => setCategoryPurpose(e.target.value)}
+              rows={2}
+              className={inputStyles + ' resize-none'}
+              placeholder="np. Szuka intensywnego przeżycia — chce zobaczyć coś co poruszy, da do myślenia, wyrwie z codzienności"
+            />
+            {errors.categoryPurpose && <p className="text-dk-orange text-sm mt-1.5">{errors.categoryPurpose}</p>}
+            <p className="text-xs text-text-gray mt-1">To pomaga zrozumieć głębszą potrzebę — nie &ldquo;co kupują&rdquo; ale &ldquo;po co przychodzą&rdquo;.</p>
+          </div>
+
+          {/* JTBD suggestions */}
+          {category.length >= 20 && !jtbdRequested && (
+            <button
+              type="button"
+              onClick={requestJtbdSuggestions}
+              className="text-sm text-dk-teal hover:text-dk-teal-hover transition-colors flex items-center gap-2"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M8 3v10M3 8h10" strokeLinecap="round"/>
+              </svg>
+              Zasugeruj Jobs To Be Done dla tej kategorii
+            </button>
+          )}
+
+          {jtbdLoading && (
+            <div className="flex items-center gap-2 text-sm text-text-gray">
+              <span className="inline-block w-3 h-3 border-2 border-dk-teal border-t-transparent rounded-full animate-spin" />
+              Generuję sugestie...
+            </div>
+          )}
+
+          {jtbdSuggestions.length > 0 && (
+            <div className="bg-beige-light rounded-xl p-5">
+              <p className="text-xs text-dk-teal uppercase tracking-widest font-medium mb-4">
+                Jobs To Be Done — oceń trafność
+              </p>
+              <div className="space-y-4">
+                {jtbdSuggestions.map((job, i) => (
+                  <div key={i}>
+                    <p className="text-sm text-text-muted mb-2 leading-relaxed">{job}</p>
+                    <div className="flex gap-2">
+                      {([1, 2, 3] as const).map((rating) => (
+                        <button
+                          key={rating}
+                          type="button"
+                          onClick={() => setJtbdRatings(prev => ({ ...prev, [i]: rating }))}
+                          className={`px-3 py-1 text-xs rounded-pill transition-all ${
+                            jtbdRatings[i] === rating
+                              ? rating === 3
+                                ? 'bg-dk-teal text-white'
+                                : rating === 2
+                                  ? 'bg-amber-100 text-amber-700 ring-1 ring-amber-300'
+                                  : 'bg-red-50 text-red-600 ring-1 ring-red-200'
+                              : 'bg-white text-text-gray hover:bg-beige'
+                          }`}
+                        >
+                          {RATING_LABELS[rating]}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-text-gray mt-4">
+                Twoje oceny pomogą skalibrować analizę. Możesz pominąć — skaner zadziała bez tego.
+              </p>
+            </div>
+          )}
+
           <div>
             <label className={labelStyles}>Typ kategorii</label>
             <div className="flex gap-3 mt-1">
@@ -225,9 +372,7 @@ export default function InputForm({ onSubmit }: InputFormProps) {
       {/* Competitors */}
       <section className="bg-white rounded-card p-6 md:p-8 mb-8">
         <div className="flex items-baseline justify-between mb-6">
-          <h2 className="font-heading text-2xl text-text-primary">
-            Konkurenci
-          </h2>
+          <h2 className="font-heading text-2xl text-text-primary">Konkurenci</h2>
           <span className="text-sm text-text-gray">min. 2, maks. 4</span>
         </div>
         {errors.competitors && <p className="text-dk-orange text-sm mb-4">{errors.competitors}</p>}

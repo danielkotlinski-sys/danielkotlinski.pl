@@ -158,6 +158,73 @@ Podaj 4-5 dowodów w kluczoweDowody. Minimum 2 muszą pochodzić z dyskursu zewn
 Ważne: każde twierdzenie musi wynikać z danych. Nie generalizuj.
 `;
 
+export const PROMPT_HOMEPAGE_VISUAL = `
+Patrzysz na screenshot strony głównej marki {{BRAND_NAME}} (kategoria: {{CATEGORY}}).
+Opisz ZWIĘŹLE co widzisz — komunikat wizualny, nie treść. Odpowiedz wyłącznie w JSON:
+
+{
+  "heroElement": "Co jest głównym elementem na stronie? Zdjęcie, tekst, video, animacja? Co przedstawia? 1 zdanie.",
+  "kolorystyka": "Dominujące kolory, temperatura, kontrast. 1 zdanie.",
+  "hierarchia": "Co jest pierwsze — produkt, obietnica, dowód społeczny, CTA? Jaka jest logika ścieżki wzroku? 1 zdanie.",
+  "ton": "Jakby strona była osobą — kim by była? Formalny/luźny, ekspert/przyjaciel, premium/dostępny? 1 zdanie."
+}
+`;
+
+export const PROMPT_CATEGORY_MAP = `
+Jesteś analitykiem kategorii. Poniżej masz dane zewnętrzne (profil, media, percepcja, kontekst konkurencyjny) o {{N}} podmiotach w kategorii: {{CATEGORY}}.
+
+Cel kategorii (po co klient przychodzi): {{CATEGORY_PURPOSE}}
+
+{{ALL_EXTERNAL_DATA}}
+
+Zanim przejdziemy do szczegółowej analizy komunikacji, zbuduj MAPĘ KATEGORII — kto jest kim, jakie są obozy, jakie napięcia.
+
+ZASADY:
+- Oprzyj się na FAKTACH z danych zewnętrznych (media, wywiady, recenzje), nie na domysłach.
+- Nie używaj demografii. Opisuj przez pozycjonowanie, charakter, reputację.
+- Pisz zwięźle.
+
+Odpowiedz wyłącznie w JSON:
+
+{
+  "gracze": [
+    {
+      "nazwa": "nazwa podmiotu",
+      "pozycja": "Jaką pozycję zajmuje w kategorii? Lider, challenger, niszowy, tradycyjny, awangardowy? 1 zdanie.",
+      "charakter": "Jak jest postrzegany przez otoczenie (nie jak sam siebie opisuje)? 1 zdanie."
+    }
+  ],
+  "obozy": "Czy w tej kategorii istnieją wyraźne obozy, szkoły, podejścia? Jakie? 1-2 zdania.",
+  "napiecia": "Jakie napięcia lub konflikty definiują tę kategorię? Co jest osią sporów? 1-2 zdania.",
+  "hierarchia": "Kto jest postrzegany jako punkt odniesienia? Kto aspiruje, kto się buntuje? 1-2 zdania."
+}
+`;
+
+export const PROMPT_COMPARATIVE_GAPS = `
+Poniżej profile {{N}} marek w kategorii: {{CATEGORY}}.
+
+{{ALL_BRAND_PROFILES}}
+
+Twoim zadaniem jest znaleźć LUKI KOMUNIKACYJNE — tematy, obietnice, argumenty których BRAKUJE u poszczególnych marek w porównaniu do reszty.
+
+Nie szukaj tego co mówią. Szukaj tego czego NIE mówią — a mogłyby.
+
+Odpowiedz wyłącznie w JSON:
+
+{
+  "tematy": [
+    {
+      "temat": "O czym mówi część kategorii, a kto milczy?",
+      "ktoMowi": ["marka A", "marka B"],
+      "ktoMilczy": ["marka C", "marka D"],
+      "znaczenie": "Co to milczenie może oznaczać strategicznie? 1 zdanie."
+    }
+  ]
+}
+
+Podaj 3-5 luk. Priorytetyzuj te, gdzie milczy marka klienta.
+`;
+
 export const PROMPT_VISUAL_BRAND = `
 Jesteś analitykiem wizualnym. Analizy {{N}} postów marki {{BRAND_NAME}} (kategoria: {{CATEGORY}}):
 

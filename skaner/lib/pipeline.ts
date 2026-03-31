@@ -8,7 +8,10 @@ import type {
   BrandVisualConventions,
   CategoryConventions,
   CategoryVisualConventions,
+  CategoryMap,
+  ComparativeGaps,
   ClientPosition,
+  HomepageVisualAnalysis,
   PostAnalysis,
   SocialSynthesis,
   LeadInfo,
@@ -16,7 +19,7 @@ import type {
   ProgressEvent,
   StepId,
 } from '@/types/scanner';
-import { fetchWebsiteText } from './jina';
+import { fetchWebsiteText, fetchHomepageScreenshot } from './jina';
 import { scrapeSocialPosts } from './apify';
 import { searchExternalDiscourse } from './perplexity';
 import { runPrompt, analyzePostVision, parseJsonResponse } from './anthropic';
@@ -27,6 +30,9 @@ import {
   PROMPT_4_SOCIAL_SYNTHESIS,
   PROMPT_5_EXTERNAL,
   PROMPT_6_BRAND_PROFILE,
+  PROMPT_HOMEPAGE_VISUAL,
+  PROMPT_CATEGORY_MAP,
+  PROMPT_COMPARATIVE_GAPS,
   PROMPT_VISUAL_BRAND,
   PROMPT_VISUAL_CATEGORY,
   PROMPT_7_CONVENTIONS,
@@ -105,16 +111,21 @@ export async function runCategoryScanner(
     });
   };
 
-  // Collect websites
+  // Collect websites + homepage screenshots
   emitStep('collect_websites', 'running');
+  const homepageScreenshots: Record<string, string> = {};
   await Promise.all(
     allBrands.map(async (brand) => {
-      const websiteText = await fetchWebsiteText(brand.url);
+      const [websiteText, screenshot] = await Promise.all([
+        fetchWebsiteText(brand.url),
+        fetchHomepageScreenshot(brand.url),
+      ]);
       brandData[brand.name] = {
         websiteText,
         posts: [],
         externalDiscourse: '',
       };
+      if (screenshot) homepageScreenshots[brand.name] = screenshot;
     })
   );
   emitStep('collect_websites', 'done', `${allBrands.length}/${allBrands.length}`);
@@ -149,6 +160,21 @@ export async function runCategoryScanner(
   );
   emitStep('collect_external', 'done');
 
+  // === PHASE 1.5: CATEGORY MAP ===
+  const allExternalData = allBrands
+    .map((b) => `=== ${b.name} ===\n${brandData[b.name].externalDiscourse}`)
+    .join('\n\n');
+
+  const categoryMapRaw = await runPrompt(
+    fillPrompt(PROMPT_CATEGORY_MAP, {
+      N: String(allBrands.length),
+      CATEGORY: input.category,
+      CATEGORY_PURPOSE: input.categoryPurpose || '',
+      ALL_EXTERNAL_DATA: allExternalData,
+    })
+  );
+  const categoryMap = parseJsonResponse<CategoryMap>(categoryMapRaw);
+
   // === PHASE 2: ATOMIC ANALYSIS ===
   emitStep('analyze_atomic', 'running');
   const atomicAnalyses: Record<string, AtomicAnalysis> = {};
@@ -157,6 +183,11 @@ export async function runCategoryScanner(
     allBrands.map(async (brand) => {
       const data = brandData[brand.name];
 
+      // Category map context for claim analysis
+      const mapContext = categoryMap
+        ? `\n\nKONTEKST KATEGORII (mapa graczy):\n${JSON.stringify(categoryMap, null, 2)}\n\nUżyj tego kontekstu do weryfikacji — nie przypisuj marce cech sprzecznych z jej pozycją w kategorii.`
+        : '';
+
       // Prompts 1 and 2 in parallel
       const [claimRaw, vocabularyRaw] = await Promise.all([
         runPrompt(
@@ -164,7 +195,7 @@ export async function runCategoryScanner(
             BRAND_NAME: brand.name,
             CATEGORY: input.category,
             WEBSITE_TEXT: data.websiteText.slice(0, 12000),
-          })
+          }) + mapContext
         ),
         runPrompt(
           fillPrompt(PROMPT_2_VOCABULARY, {
@@ -214,11 +245,26 @@ export async function runCategoryScanner(
         })
       );
 
+      // Homepage visual analysis (if screenshot available)
+      let homepageVisual: HomepageVisualAnalysis | undefined;
+      if (homepageScreenshots[brand.name]) {
+        const visualRaw = await analyzePostVision(
+          homepageScreenshots[brand.name],
+          '',
+          fillPrompt(PROMPT_HOMEPAGE_VISUAL, {
+            BRAND_NAME: brand.name,
+            CATEGORY: input.category,
+          })
+        );
+        homepageVisual = parseJsonResponse<HomepageVisualAnalysis>(visualRaw);
+      }
+
       atomicAnalyses[brand.name] = {
         claim: parseJsonResponse(claimRaw),
         vocabulary: parseJsonResponse(vocabularyRaw),
         socialSynthesis: socialSynthesisResult,
         externalAnalysis: parseJsonResponse(externalRaw),
+        homepageVisual,
       };
     })
   );
@@ -231,6 +277,9 @@ export async function runCategoryScanner(
   await Promise.all(
     allBrands.map(async (brand) => {
       const analysis = atomicAnalyses[brand.name];
+      const homepageVisualContext = analysis.homepageVisual
+        ? `\n\nANALIZA WIZUALNA STRONY GŁÓWNEJ:\n${JSON.stringify(analysis.homepageVisual, null, 2)}`
+        : '';
       const raw = await runPrompt(
         fillPrompt(PROMPT_6_BRAND_PROFILE, {
           BRAND_NAME: brand.name,
@@ -241,7 +290,7 @@ export async function runCategoryScanner(
             ? JSON.stringify(analysis.socialSynthesis, null, 2)
             : 'Brak danych social media dla tej marki.',
           PROMPT5_RESULT: JSON.stringify(analysis.externalAnalysis, null, 2),
-        }),
+        }) + homepageVisualContext,
         'claude-opus-4-5'
       );
       brandProfiles[brand.name] = parseJsonResponse<BrandProfile>(raw);
@@ -309,10 +358,33 @@ export async function runCategoryScanner(
     );
     categoryVisualConventions = parseJsonResponse<CategoryVisualConventions>(visualRaw);
   }
+  // Comparative gaps (parallel with visual category synthesis)
+  const gapsRaw = await runPrompt(
+    fillPrompt(PROMPT_COMPARATIVE_GAPS, {
+      N: String(allBrands.length),
+      CATEGORY: input.category,
+      ALL_BRAND_PROFILES: allProfilesText,
+    })
+  );
+  const comparativeGaps = parseJsonResponse<ComparativeGaps>(gapsRaw);
+
   emitStep('synthesize_category', 'done');
 
   // Client position
   emitStep('client_position', 'running');
+
+  // Build JTBD + client context
+  let extraContext = '';
+  if (input.jtbdRatings && input.jtbdRatings.length > 0) {
+    const jtbdText = input.jtbdRatings
+      .map((j) => `- "${j.job}" → ocena: ${j.rating}/3`)
+      .join('\n');
+    extraContext += `\n\nJOBS TO BE DONE (ocenione przez klienta):\n${jtbdText}`;
+  }
+  if (input.clientDescription) {
+    extraContext += `\n\nOPIS KLIENTA (od właściciela marki):\n${input.clientDescription}`;
+  }
+
   const clientPositionRaw = await runPrompt(
     fillPrompt(PROMPT_8_CLIENT_POSITION, {
       PROMPT7_RESULT: JSON.stringify(categoryConventions, null, 2),
@@ -322,7 +394,7 @@ export async function runCategoryScanner(
         null,
         2
       ),
-    }),
+    }) + extraContext,
     'claude-opus-4-5'
   );
   const clientPosition = parseJsonResponse<ClientPosition>(clientPositionRaw);
@@ -358,6 +430,8 @@ export async function runCategoryScanner(
         zrodlaZewnetrzne: brandCitations[brand.name] || [],
       };
     }),
+    mapaKategorii: categoryMap || undefined,
+    lukiKomunikacyjne: comparativeGaps || undefined,
     konwencjaKategorii: categoryConventions,
     konwencjaWizualnaKategorii: categoryVisualConventions,
     pozycjaKlienta: clientPosition,

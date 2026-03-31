@@ -8,7 +8,10 @@ export interface ScannerInput {
     socialPlatform: 'instagram' | 'facebook' | 'linkedin';
   };
   category: string;
+  categoryPurpose: string; // "Co łączy te podmioty? Po co klient do nich przychodzi?"
   categoryType: 'b2c' | 'b2b';
+  clientDescription?: string; // "Kim jest Twój klient?" — optional
+  jtbdRatings?: Array<{ job: string; rating: 1 | 2 | 3 }>; // user-rated JTBD suggestions
   competitors: Array<{
     name: string;
     url: string;
@@ -100,11 +103,43 @@ export interface ExternalAnalysis {
   };
 }
 
+export interface HomepageVisualAnalysis {
+  heroElement: string;
+  kolorystyka: string;
+  hierarchia: string;
+  ton: string;
+}
+
 export interface AtomicAnalysis {
   claim: ClaimResult;
   vocabulary: VocabularyResult;
   socialSynthesis: SocialSynthesis | null;
   externalAnalysis: ExternalAnalysis;
+  homepageVisual?: HomepageVisualAnalysis;
+}
+
+// === Category Map ===
+
+export interface CategoryMap {
+  gracze: Array<{
+    nazwa: string;
+    pozycja: string;
+    charakter: string;
+  }>;
+  obozy: string;
+  napiecia: string;
+  hierarchia: string;
+}
+
+// === Comparative Gap ===
+
+export interface ComparativeGaps {
+  tematy: Array<{
+    temat: string;
+    ktoMowi: string[];
+    ktoMilczy: string[];
+    znaczenie: string;
+  }>;
 }
 
 // === Synthesis Types ===
@@ -225,6 +260,8 @@ export interface ScannerReport {
     konwencjaWizualna?: BrandVisualConventions;
     zrodlaZewnetrzne?: string[];
   }>;
+  mapaKategorii?: CategoryMap;
+  lukiKomunikacyjne?: ComparativeGaps;
   konwencjaKategorii: CategoryConventions;
   konwencjaWizualnaKategorii?: CategoryVisualConventions;
   pozycjaKlienta: ClientPosition;
