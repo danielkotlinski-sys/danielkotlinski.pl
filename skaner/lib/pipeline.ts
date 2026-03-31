@@ -373,14 +373,8 @@ export async function runCategoryScanner(
   // Client position
   emitStep('client_position', 'running');
 
-  // Build JTBD + client context
+  // Build extra context for client position
   let extraContext = '';
-  if (input.jtbdRatings && input.jtbdRatings.length > 0) {
-    const jtbdText = input.jtbdRatings
-      .map((j) => `- "${j.job}" → ocena: ${j.rating}/3`)
-      .join('\n');
-    extraContext += `\n\nJOBS TO BE DONE (ocenione przez klienta):\n${jtbdText}`;
-  }
   if (input.clientDescription) {
     extraContext += `\n\nOPIS KLIENTA (od właściciela marki):\n${input.clientDescription}`;
   }

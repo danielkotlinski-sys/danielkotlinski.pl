@@ -11,7 +11,6 @@ export interface ScannerInput {
   categoryPurpose: string; // "Co łączy te podmioty? Po co klient do nich przychodzi?"
   categoryType: 'b2c' | 'b2b';
   clientDescription?: string; // "Kim jest Twój klient?" — optional
-  jtbdRatings?: Array<{ job: string; rating: 1 | 2 | 3 }>; // user-rated JTBD suggestions
   competitors: Array<{
     name: string;
     url: string;
