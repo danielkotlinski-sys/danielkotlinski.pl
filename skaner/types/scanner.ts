@@ -201,6 +201,23 @@ export interface ClientPosition {
   pytanieOtwarte: string;
 }
 
+export interface BlueOceanFinale {
+  odwroconaKonwencja: {
+    zalozenie: string;
+    odwrocenie: string;
+  };
+  pominietaGrupa: {
+    kim: string;
+    skala: string;
+    dlaczegoNieKupuje: string;
+  };
+  prowokacja: string;
+  kierunek: {
+    coZmienilby: string;
+    pierwszyKrok: string;
+  };
+}
+
 // === Visual Conventions Types ===
 
 export interface BrandVisualConventions {
@@ -265,6 +282,7 @@ export interface ScannerReport {
   konwencjaKategorii: CategoryConventions;
   konwencjaWizualnaKategorii?: CategoryVisualConventions;
   pozycjaKlienta: ClientPosition;
+  blueOceanFinale?: BlueOceanFinale;
   notaKoncowa: string;
 }
 

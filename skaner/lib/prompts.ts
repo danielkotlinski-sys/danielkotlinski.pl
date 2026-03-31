@@ -324,6 +324,8 @@ KONWENCJA KATEGORII:
 PROFIL MARKI KLIENTA ({{CLIENT_BRAND_NAME}}):
 {{CLIENT_BRAND_PROFILE}}
 
+Jesteś strategiem marki. Twoje zadanie to umieścić markę klienta na mapie konwencji — ale z perspektywą na przyszłość, nie tylko stanem obecnym.
+
 Pisz ZWIĘŹLE — każdy element listy to 1 zdanie, nie więcej. Odpowiedz wyłącznie w JSON:
 
 {
@@ -337,6 +339,46 @@ Pisz ZWIĘŹLE — każdy element listy to 1 zdanie, nie więcej. Odpowiedz wył
   },
   "zagrozenie": "Mechanizm ryzyka: kto wygra walkę o klienta i dlaczego. Ile marek gra tą samą kartą. Co to oznacza za 2-3 lata. 2-3 zdania, niewygodne do przeczytania.",
   "pytanieOtwarte": "Jedno pytanie o JOBS TO BE DONE szerzej niż kategoria. Bez wstępu. Kończy się znakiem zapytania."
+}
+`;
+
+export const PROMPT_9_BLUE_OCEAN = `
+Jesteś strategiem kategorii. Twoim zadaniem jest ODWRÓCIĆ konwencję — pokazać co by się stało, gdyby marka klienta złamała milczące założenia kategorii.
+
+KONWENCJA KATEGORII:
+{{PROMPT7_RESULT}}
+
+POZYCJA MARKI KLIENTA ({{CLIENT_BRAND_NAME}}):
+{{PROMPT8_RESULT}}
+
+PROFIL MARKI KLIENTA:
+{{CLIENT_BRAND_PROFILE}}
+
+Myśl tak: każda konwencja opiera się na założeniach o kliencie. Ale te założenia opisują tylko tych, którzy JUŻ kupują w kategorii. A co z tymi, którzy mają TO SAMO pragnienie, ale nie odnajdują się w formie, języku, estetyce kategorii?
+
+ZASADY:
+- Nie pisz o demografii. Opisuj przez postawy, pragnienia, bariery.
+- Bądź PROWOKACYJNY. To nie jest bezpieczna rekomendacja — to intelektualna prowokacja.
+- Bądź KONKRETNY. Nie pisz "moglibyście dotrzeć do szerszej grupy" — napisz KTO to jest i DLACZEGO nie kupuje.
+- Pisz zwięźle — każde pole to maks 2-3 zdania.
+
+Odpowiedz wyłącznie w JSON:
+
+{
+  "odwroconaKonwencja": {
+    "zalozenie": "Jakie kluczowe założenie o kliencie przyjmuje CAŁA kategoria? Co wszyscy biorą za pewnik? 1-2 zdania.",
+    "odwrocenie": "Co by się stało, gdyby to założenie było błędne? Jak wyglądałaby komunikacja zbudowana na odwrotnym założeniu? 2-3 zdania."
+  },
+  "pominietaGrupa": {
+    "kim": "Kto ma TO SAMO pragnienie co obecni klienci kategorii, ale nie kupuje bo forma/język/estetyka go odpycha? Opisz przez postawę. 2-3 zdania.",
+    "skala": "Dlaczego ta grupa może być WIĘKSZA niż obecni klienci? Logika rynkowa. 1-2 zdania.",
+    "dlaczegoNieKupuje": "Co konkretnie w konwencji kategorii tworzy barierę? 1-2 zdania."
+  },
+  "prowokacja": "Jedno zdanie-prowokacja: 'A co jeśli...' — pytanie które podważa fundamentalne założenie kategorii i otwiera nowy kierunek. Musi być niewygodne.",
+  "kierunek": {
+    "coZmienilby": "Gdyby marka klienta złamała tę konwencję — CO KONKRETNIE by zmieniła w komunikacji? 2-3 zdania.",
+    "pierwszyKrok": "Jeden konkretny, możliwy do wykonania pierwszy krok. 1 zdanie."
+  }
 }
 `;
 

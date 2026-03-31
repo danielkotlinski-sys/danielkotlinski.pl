@@ -46,15 +46,6 @@ export default function CategoryMapSection({ map }: CategoryMapSectionProps) {
         </div>
       </div>
 
-      {/* Tensions */}
-      <div className="bg-white rounded-card p-6 md:p-8 border-l-4 border-dk-orange">
-        <p className="text-xs text-dk-orange uppercase tracking-widest font-medium mb-3">
-          Napięcia w kategorii
-        </p>
-        <p className="text-text-muted leading-[1.8] text-[15px]">
-          {map.napiecia}
-        </p>
-      </div>
     </div>
   );
 }

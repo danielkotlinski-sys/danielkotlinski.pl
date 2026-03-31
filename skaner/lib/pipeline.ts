@@ -11,6 +11,7 @@ import type {
   CategoryMap,
   ComparativeGaps,
   ClientPosition,
+  BlueOceanFinale,
   HomepageVisualAnalysis,
   PostAnalysis,
   SocialSynthesis,
@@ -37,6 +38,7 @@ import {
   PROMPT_VISUAL_CATEGORY,
   PROMPT_7_CONVENTIONS,
   PROMPT_8_CLIENT_POSITION,
+  PROMPT_9_BLUE_OCEAN,
   fillPrompt,
 } from './prompts';
 import { saveReport } from './redis';
@@ -398,6 +400,28 @@ export async function runCategoryScanner(
     'claude-opus-4-5'
   );
   const clientPosition = parseJsonResponse<ClientPosition>(clientPositionRaw);
+
+  // Blue Ocean Finale — runs after client position
+  let blueOceanFinale: BlueOceanFinale | undefined;
+  try {
+    const blueOceanRaw = await runPrompt(
+      fillPrompt(PROMPT_9_BLUE_OCEAN, {
+        PROMPT7_RESULT: JSON.stringify(categoryConventions, null, 2),
+        PROMPT8_RESULT: JSON.stringify(clientPosition, null, 2),
+        CLIENT_BRAND_NAME: input.clientBrand.name,
+        CLIENT_BRAND_PROFILE: JSON.stringify(
+          brandProfiles[input.clientBrand.name],
+          null,
+          2
+        ),
+      }),
+      'claude-opus-4-5'
+    );
+    blueOceanFinale = parseJsonResponse<BlueOceanFinale>(blueOceanRaw);
+  } catch (err) {
+    console.error('Blue ocean finale failed:', err);
+  }
+
   emitStep('client_position', 'done');
 
   // === BUILD REPORT ===
@@ -435,6 +459,7 @@ export async function runCategoryScanner(
     konwencjaKategorii: categoryConventions,
     konwencjaWizualnaKategorii: categoryVisualConventions,
     pozycjaKlienta: clientPosition,
+    blueOceanFinale,
     notaKoncowa: NOTA_KONCOWA,
   };
 
