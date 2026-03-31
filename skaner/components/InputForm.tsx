@@ -40,7 +40,7 @@ export default function InputForm({ onSubmit }: InputFormProps) {
   ]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const isDev = process.env.NODE_ENV === 'development';
+  const isDev = process.env.NEXT_PUBLIC_VERCEL_ENV !== 'production' && typeof window !== 'undefined' && window.location.hostname === 'localhost';
 
   const fillTestData = () => {
     setBrandName(DEV_DEFAULTS.brandName);
