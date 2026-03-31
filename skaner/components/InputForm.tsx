@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { ScannerInput } from '@/types/scanner';
 
 interface Competitor {
@@ -39,8 +39,11 @@ export default function InputForm({ onSubmit }: InputFormProps) {
     { name: '', url: '', socialHandle: '' },
   ]);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isDev, setIsDev] = useState(false);
 
-  const isDev = process.env.NEXT_PUBLIC_VERCEL_ENV !== 'production' && typeof window !== 'undefined' && window.location.hostname === 'localhost';
+  useEffect(() => {
+    if (window.location.hostname === 'localhost') setIsDev(true);
+  }, []);
 
   const fillTestData = () => {
     setBrandName(DEV_DEFAULTS.brandName);
