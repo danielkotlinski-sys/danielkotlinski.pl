@@ -91,7 +91,8 @@ export async function scrapeSocialPosts(
   const profileUrl = PROFILE_URLS[platform](handle);
 
   // Fetch more posts than needed so we can sample diversely
-  const fetchLimit = Math.max(limit * 4, 30);
+  // Keep low (20) to reduce Instagram rate-limiting when running multiple actors
+  const fetchLimit = Math.max(limit * 2, 20);
 
   const input: Record<string, unknown> = {
     directUrls: [profileUrl],

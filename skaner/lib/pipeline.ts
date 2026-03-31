@@ -131,13 +131,13 @@ export async function runCategoryScanner(
   );
   emitStep('collect_websites', 'done', `${allBrands.length}/${allBrands.length}`);
 
-  // Collect social media
+  // Collect social media (max 2 concurrent to avoid Instagram rate-limiting)
   emitStep('collect_social', 'running');
   let totalPosts = 0;
   let brandsScraped = 0;
   const brandsWithSocial = allBrands.filter((b) => b.socialHandle);
-  await Promise.all(
-    brandsWithSocial.map(async (brand) => {
+  const socialTasks = brandsWithSocial.map(
+    (brand) => async () => {
       const socialStart = Date.now();
       emitStep('collect_social', 'running', `${brand.name}...`);
       const posts = await scrapeSocialPosts(
@@ -151,8 +151,9 @@ export async function runCategoryScanner(
       const dur = ((Date.now() - socialStart) / 1000).toFixed(0);
       console.log(`Pipeline: social done for ${brand.name} — ${posts.length} posts in ${dur}s`);
       emitStep('collect_social', 'running', `${brandsScraped}/${brandsWithSocial.length} marek`);
-    })
+    }
   );
+  await runInBatches(socialTasks, 2);
   emitStep('collect_social', 'done', `${totalPosts} postów`);
 
   // Collect external discourse
