@@ -30,8 +30,7 @@ import {
   fillPrompt,
 } from './prompts';
 import { saveReport } from './redis';
-import { saveLead } from './airtable';
-import { sendReportEmail } from './resend';
+import { saveLead, sendReportEmail } from './loops';
 
 const NOTA_KONCOWA = `Konwencja pokazuje jak kategoria konkuruje dziś. Nie mówi nic o tym, czy ta logika odpowiada na to czego klienci naprawdę szukają — i kogo kategoria przez to systematycznie omija. To jest pytanie które zadaję w płatnym Skanie Kategorii — razem z mapą ukrytych motywacji i konkretnym kierunkiem dla Twojej marki.`;
 
