@@ -20,19 +20,27 @@ export async function POST(request: NextRequest) {
 
     const query = `Marka "${brandName}"${brandUrl ? ` (${brandUrl})` : ''} działa w kategorii: "${category}" (${categoryType || 'b2c'}).
 
-Podaj DOKŁADNIE 3 najbliższych konkurentów tej marki w tej kategorii. Dla każdego podaj:
+Znajdź DOKŁADNIE 3 bezpośrednich konkurentów tej marki. Dla każdego podaj:
 1. Oficjalną nazwę marki
 2. Adres strony WWW (sprawdzony, działający URL)
-3. Nazwę profilu na ${platformLabel} (sam handle, bez @ i bez URL — np. "resibobynature" a nie "@resibobynature" ani "instagram.com/resibobynature")
+3. Nazwę profilu na ${platformLabel} (sam handle, bez @ i bez URL)
 
-WAŻNE:
-- Podaj TYLKO marki które naprawdę istnieją i są bezpośrednimi konkurentami w tej kategorii.
-- URL musi być prawdziwy — nie zgaduj, podaj tylko jeśli jesteś pewien.
-- Jeśli nie znasz profilu na ${platformLabel}, zostaw pusty string.
-- Nie podawaj samej marki "${brandName}" jako konkurenta.
+KRYTERIA KONKURENTA — muszą być spełnione WSZYSTKIE:
+- Ten sam model biznesowy i mechanizm sprzedaży co "${brandName}" (np. jeśli "${brandName}" to marka cateringu dietetycznego — podaj inne marki cateringów, NIE marketplace'y, porównywarki ani platformy agregujące).
+- Ten sam typ klienta docelowego (${categoryType}).
+- Bezpośrednio rywalizują o tego samego klienta w tej samej kategorii.
+- To muszą być MARKI/FIRMY, nie platformy, katalogi, rankingi ani agregatory.
 
-Odpowiedz WYŁĄCZNIE w JSON, bez żadnego innego tekstu:
-{"competitors": [{"name": "Nazwa", "url": "https://strona.pl", "socialHandle": "handle_lub_pusty"}, ...]}`;
+NIE podawaj:
+- Marketplace'ów, porównywarek, agregatów (np. Dietly, Ceneo, Booking).
+- Marek z pokrewnej ale INNEJ kategorii.
+- Samej marki "${brandName}".
+
+Jeśli nie znasz profilu na ${platformLabel} — zostaw pusty string.
+URL musi być prawdziwy — nie zgaduj.
+
+Odpowiedz WYŁĄCZNIE w JSON:
+{"competitors": [{"name": "Nazwa", "url": "https://strona.pl", "socialHandle": "handle_lub_pusty"}, {"name": "...", "url": "...", "socialHandle": "..."}, {"name": "...", "url": "...", "socialHandle": "..."}]}`;
 
     const response = await fetch('https://api.perplexity.ai/chat/completions', {
       method: 'POST',
