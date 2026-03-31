@@ -31,7 +31,10 @@ interface RawPost {
 
 async function downloadImageAsBase64(imageUrl: string): Promise<string> {
   try {
-    const response = await fetch(imageUrl);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    const response = await fetch(imageUrl, { signal: controller.signal });
+    clearTimeout(timeout);
     if (!response.ok) return '';
     const buffer = await response.arrayBuffer();
     return Buffer.from(buffer).toString('base64');
@@ -97,14 +100,16 @@ export async function scrapeSocialPosts(
   };
 
   try {
+    const startTime = Date.now();
     console.log(`Apify: scraping ${platform} for ${handle} — requesting ${fetchLimit} posts`);
 
     const run = await client.actor(actorId).call(input, {
-      waitSecs: 120,
+      waitSecs: 90,
     });
 
+    const runDuration = ((Date.now() - startTime) / 1000).toFixed(1);
     const { items } = await client.dataset(run.defaultDatasetId).listItems();
-    console.log(`Apify: got ${items.length} items for ${handle}`);
+    console.log(`Apify: got ${items.length} items for ${handle} (actor ran ${runDuration}s)`);
 
     // Parse all posts (sorted newest first — Apify default)
     const allPosts: ScrapedPost[] = [];
@@ -130,20 +135,25 @@ export async function scrapeSocialPosts(
     // Select diverse sample
     const selected = selectDiverseSample(allPosts, limit);
 
-    // Download images only for selected posts (saves bandwidth + time)
-    for (const post of selected) {
-      const rawItem = (items as RawPost[]).find(
-        (item) =>
-          (item.url || item.postUrl || '') === post.url ||
-          (platform === 'instagram' && item.shortCode && post.url.includes(item.shortCode))
-      );
-      if (rawItem) {
-        const imageUrl = rawItem.displayUrl || rawItem.imageUrl || (rawItem.images?.[0]) || '';
-        if (imageUrl) {
-          post.screenshotBase64 = await downloadImageAsBase64(imageUrl);
+    // Download images for selected posts (parallel, with 10s timeout each)
+    console.log(`Apify: downloading images for ${selected.length} posts (${handle})...`);
+    const imageStart = Date.now();
+    await Promise.all(
+      selected.map(async (post) => {
+        const rawItem = (items as RawPost[]).find(
+          (item) =>
+            (item.url || item.postUrl || '') === post.url ||
+            (platform === 'instagram' && item.shortCode && post.url.includes(item.shortCode))
+        );
+        if (rawItem) {
+          const imageUrl = rawItem.displayUrl || rawItem.imageUrl || (rawItem.images?.[0]) || '';
+          if (imageUrl) {
+            post.screenshotBase64 = await downloadImageAsBase64(imageUrl);
+          }
         }
-      }
-    }
+      })
+    );
+    console.log(`Apify: images done for ${handle} in ${((Date.now() - imageStart) / 1000).toFixed(1)}s`);
 
     console.log(`Apify: ${selected.length} posts selected, ${selected.filter(p => p.screenshotBase64).length} with images for ${handle}`);
     return selected;

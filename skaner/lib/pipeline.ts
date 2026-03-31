@@ -64,6 +64,7 @@ export async function runCategoryScanner(
   lead: LeadInfo,
   onProgress: ProgressCallback
 ): Promise<{ scanId: string; report: ScannerReport }> {
+  const pipelineStart = Date.now();
   const scanId = uuidv4();
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://skaner.danielkotlinski.pl';
   const reportUrl = `${baseUrl}/raport/${scanId}`;
@@ -133,17 +134,23 @@ export async function runCategoryScanner(
   // Collect social media
   emitStep('collect_social', 'running');
   let totalPosts = 0;
+  let brandsScraped = 0;
+  const brandsWithSocial = allBrands.filter((b) => b.socialHandle);
   await Promise.all(
-    allBrands.map(async (brand) => {
-      if (brand.socialHandle) {
-        const posts = await scrapeSocialPosts(
-          brand.socialHandle,
-          brand.socialPlatform,
-          8
-        );
-        brandData[brand.name].posts = posts;
-        totalPosts += posts.length;
-      }
+    brandsWithSocial.map(async (brand) => {
+      const socialStart = Date.now();
+      emitStep('collect_social', 'running', `${brand.name}...`);
+      const posts = await scrapeSocialPosts(
+        brand.socialHandle,
+        brand.socialPlatform,
+        8
+      );
+      brandData[brand.name].posts = posts;
+      totalPosts += posts.length;
+      brandsScraped++;
+      const dur = ((Date.now() - socialStart) / 1000).toFixed(0);
+      console.log(`Pipeline: social done for ${brand.name} — ${posts.length} posts in ${dur}s`);
+      emitStep('collect_social', 'running', `${brandsScraped}/${brandsWithSocial.length} marek`);
     })
   );
   emitStep('collect_social', 'done', `${totalPosts} postów`);
@@ -444,6 +451,9 @@ export async function runCategoryScanner(
     openQuestion: clientPosition.pytanieOtwarte,
     reportUrl,
   }).catch((err) => console.error('Email send error:', err));
+
+  const totalDuration = ((Date.now() - pipelineStart) / 1000).toFixed(0);
+  console.log(`Pipeline: DONE — ${allBrands.length} brands, ${totalPosts} posts, ${totalDuration}s total`);
 
   return { scanId, report };
 }
