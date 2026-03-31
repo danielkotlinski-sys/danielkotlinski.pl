@@ -26,19 +26,20 @@ export async function POST(request: NextRequest) {
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
-      const sendEvent = (event: ProgressEvent | { type: string; scanId?: string; error?: string }) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const sendEvent = (event: ProgressEvent | { type: string; scanId?: string; report?: any; error?: string }) => {
         const data = JSON.stringify(event);
         controller.enqueue(encoder.encode(`data: ${data}\n\n`));
       };
 
       try {
-        const { scanId } = await runCategoryScanner(
+        const { scanId, report } = await runCategoryScanner(
           input,
           lead,
           (progressEvent) => sendEvent(progressEvent)
         );
 
-        sendEvent({ type: 'complete', scanId });
+        sendEvent({ type: 'complete', scanId, report });
         // Small delay to ensure the client receives the complete event
         await new Promise((resolve) => setTimeout(resolve, 100));
         controller.close();

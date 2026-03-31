@@ -18,7 +18,7 @@ interface ProgressTrackerProps {
   category: string;
   brands: string[];
   email: string;
-  onComplete: (scanId: string) => void;
+  onComplete: (scanId: string, report?: unknown) => void;
   onError: (error: string) => void;
 }
 
@@ -82,7 +82,7 @@ export default function ProgressTracker({
 
               if (event.type === 'complete') {
                 setProgress(100);
-                onComplete(event.scanId);
+                onComplete(event.scanId, event.report);
                 return;
               }
 

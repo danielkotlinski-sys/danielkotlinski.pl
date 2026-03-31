@@ -30,19 +30,22 @@ export default function SkanerPage() {
   };
 
   const handleComplete = useCallback(
-    async (scanId: string) => {
-      try {
-        const response = await fetch(`/api/scan/${scanId}/result`);
-        if (response.ok) {
-          const reportData = await response.json();
-          setReport(reportData);
-          setScreen('report');
-          window.history.pushState(null, '', `/raport/${scanId}`);
-        } else {
-          setError('Nie udało się pobrać raportu');
-        }
-      } catch {
-        setError('Nie udało się pobrać raportu');
+    (scanId: string, reportFromStream?: unknown) => {
+      if (reportFromStream) {
+        // Report received directly from SSE stream
+        setReport(reportFromStream as ScannerReport);
+        setScreen('report');
+        window.history.pushState(null, '', `/raport/${scanId}`);
+      } else {
+        // Fallback: try fetching from API
+        fetch(`/api/scan/${scanId}/result`)
+          .then((r) => (r.ok ? r.json() : Promise.reject()))
+          .then((data) => {
+            setReport(data);
+            setScreen('report');
+            window.history.pushState(null, '', `/raport/${scanId}`);
+          })
+          .catch(() => setError('Nie udało się pobrać raportu'));
       }
     },
     []
