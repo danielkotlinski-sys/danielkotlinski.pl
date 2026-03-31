@@ -75,24 +75,26 @@ export default function BrandProfileCard({ profile }: BrandProfileCardProps) {
           </div>
         )}
 
-        {/* Evidence */}
+        {/* Evidence with citations */}
         {dowody.length > 0 && (
           <div className="mb-6 pb-6 border-b border-beige">
             <p className="text-xs text-dk-teal uppercase tracking-widest font-medium mb-3">
               Kluczowe dowody
             </p>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {dowody.map((dowod, i) => (
-                <div key={i} className="flex gap-3 items-start">
-                  <span className="w-1.5 h-1.5 rounded-full bg-dk-teal mt-2 shrink-0" />
-                  <div>
-                    <p className="text-sm text-text-muted leading-relaxed">{dowod.obserwacja}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[10px] px-2 py-0.5 bg-beige text-text-gray rounded-pill uppercase tracking-wider">
-                        {dowod.zrodlo}
-                      </span>
-                      <span className="text-xs text-text-gray italic">{dowod.znaczenie}</span>
-                    </div>
+                <div key={i} className="bg-beige-light/50 rounded-xl p-4">
+                  <p className="text-sm text-text-muted leading-relaxed mb-1">{dowod.obserwacja}</p>
+                  {dowod.cytat && (
+                    <blockquote className="border-l-2 border-dk-teal/30 pl-3 text-sm text-text-secondary italic my-2">
+                      {dowod.cytat}
+                    </blockquote>
+                  )}
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="text-[10px] px-2 py-0.5 bg-beige text-text-gray rounded-pill uppercase tracking-wider">
+                      {dowod.zrodlo}
+                    </span>
+                    <span className="text-xs text-text-gray">{dowod.znaczenie}</span>
                   </div>
                 </div>
               ))}
@@ -138,6 +140,31 @@ export default function BrandProfileCard({ profile }: BrandProfileCardProps) {
             </div>
           )}
         </div>
+
+        {/* External sources */}
+        {profile.zrodlaZewnetrzne && profile.zrodlaZewnetrzne.length > 0 && (
+          <div className="mt-5 pt-5 border-t border-beige">
+            <p className="text-xs text-text-gray uppercase tracking-wider mb-2">Źródła zewnętrzne</p>
+            <div className="flex flex-wrap gap-x-4 gap-y-1">
+              {profile.zrodlaZewnetrzne.slice(0, 6).map((url, i) => {
+                let domain = url;
+                try { domain = new URL(url).hostname.replace('www.', ''); } catch { /* keep raw */ }
+                return (
+                  <a
+                    key={i}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-dk-teal hover:text-dk-teal-hover transition-colors truncate max-w-[200px]"
+                    title={url}
+                  >
+                    {domain}
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

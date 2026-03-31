@@ -1,24 +1,27 @@
 export const PROMPT_1_CLAIM = `
-Jesteś analitykiem komunikacji. Przeczytaj poniższy tekst ze strony marki {{BRAND_NAME}}
-działającej w kategorii: {{CATEGORY}}.
+Jesteś analitykiem komunikacji. Przeczytaj tekst ze strony marki {{BRAND_NAME}} (kategoria: {{CATEGORY}}).
 
-Odpowiedz wyłącznie w JSON według schematu poniżej.
-Każdą odpowiedź poprzyj cytatem lub parafrazą konkretnego fragmentu tekstu jako dowodem.
+WAŻNE ZASADY:
+- Każdą tezę oprzyj DOSŁOWNYM cytatem ze strony (w cudzysłowie).
+- Jeśli tekst strony to głównie cookies/regulamin/opis jednego produktu — napisz to wprost. Nie ekstrapoluj jednego przykładu na całość marki.
+- Pisz zwięźle. Każde pole to 1-2 zdania, nie więcej.
+
+Odpowiedz wyłącznie w JSON:
 
 {
   "framingProduktu": {
-    "opis": "Jak marka nazywa to co sprzedaje — nie nazwę kategorii ogólną, ale swój własny framing. Co to jest według niej?",
-    "dowod": "cytat lub parafraza z tekstu"
+    "opis": "Jak marka nazywa to co sprzedaje? Jej własny framing, nie nazwa kategorii. 1 zdanie.",
+    "dowod": "dosłowny cytat ze strony w cudzysłowie"
   },
   "obietnicaZmiany": {
-    "stanPrzed": "Co zakłada się o sytuacji klienta przed zakupem?",
-    "stanPo": "Co zmienia się według komunikacji po zakupie lub kontakcie z marką?",
-    "dowod": "cytat lub parafraza z tekstu"
+    "stanPrzed": "Co zakłada o sytuacji klienta przed. 1 zdanie.",
+    "stanPo": "Co zmienia się po. 1 zdanie.",
+    "dowod": "dosłowny cytat ze strony w cudzysłowie"
   },
   "punktWejsciaKomunikacji": {
     "typ": "produkt | wartości | styl życia | wynik | tożsamość",
-    "opis": "Przez co marka otwiera rozmowę z klientem?",
-    "dowod": "konkretny element który to potwierdza"
+    "opis": "Przez co marka otwiera rozmowę z klientem? 1 zdanie.",
+    "dowod": "dosłowny cytat lub element strony"
   }
 }
 
@@ -27,20 +30,19 @@ Tekst strony:
 `;
 
 export const PROMPT_2_VOCABULARY = `
-Jesteś analitykiem semiotycznym. Na podstawie poniższego tekstu ze strony marki {{BRAND_NAME}}:
+Analiza semiotyczna strony marki {{BRAND_NAME}} (kategoria: {{CATEGORY}}).
+
+Podaj 8-12 słów/fraz CHARAKTERYSTYCZNYCH dla tej marki (nie ogólnych dla kategorii).
+Przy każdym słowie podaj kontekst — zdanie ze strony w którym się pojawia.
 
 Odpowiedz wyłącznie w JSON:
 
 {
   "slownictwoMarki": [
-    "słowo lub krótka fraza 1",
-    "słowo lub krótka fraza 2"
+    {"fraza": "słowo lub krótka fraza", "kontekst": "zdanie ze strony w którym się pojawia"}
   ],
-  "sugestiaOKliencie": "Co te słowa wspólnie sugerują o tym, jak marka rozumie swojego klienta i jego sytuację? 2-3 zdania."
+  "sugestiaOKliencie": "Co te słowa wspólnie sugerują o kliencie? 1-2 zdania, zwięźle."
 }
-
-Nie chodzi o słowa kluczowe SEO. Chodzi o słowa które tworzą świat znaczeń tej marki.
-Podaj 8-12 elementów charakterystycznych dla tej marki, nie ogólnych dla kategorii.
 
 Tekst strony:
 {{WEBSITE_TEXT}}
@@ -51,57 +53,66 @@ Odpowiedz wyłącznie w JSON:
 
 {
   "elementWizualny": {
-    "co": "Co jest głównym elementem wizualnym?",
+    "co": "Główny element wizualny — 3-5 słów.",
     "rola": "produkt | człowiek | kontekst użycia | abstrakcja | tekst",
-    "szczegol": "jeden konkretny szczegół który jest charakterystyczny"
+    "szczegol": "Jeden konkretny, charakterystyczny szczegół."
   },
-  "zakladanyMoment": "Jaki moment z życia odbiorcy ten post zakłada lub sugeruje? Opisz sytuację.",
-  "zamierzonePoczucie": "Jedno zdanie: co marka chce żeby odbiorca poczuł widząc ten post?"
+  "zakladanyMoment": "Jaki moment z życia odbiorcy? 1 zdanie.",
+  "zamierzonePoczucie": "Co marka chce żeby odbiorca poczuł? 1 zdanie."
 }
 `;
 
 export const PROMPT_4_SOCIAL_SYNTHESIS = `
-Poniżej masz analizy {{N}} postów marki {{BRAND_NAME}} w kategorii {{CATEGORY}}.
+Analizy {{N}} postów marki {{BRAND_NAME}} (kategoria: {{CATEGORY}}):
 
 {{POST_ANALYSES}}
 
-Odpowiedz wyłącznie w JSON:
+Odpowiedz wyłącznie w JSON. Pisz zwięźle — każde pole to maks 2 zdania:
 
 {
   "dominujacyMoment": {
-    "opis": "W jakiej sytuacji, nastroju, kontekście ta marka konsekwentnie się pojawia w życiu klienta?",
-    "powtarzalnoscWzorca": "W ilu postach z {{N}} ten wzorzec się pojawia? Podaj liczbę."
+    "opis": "W jakiej sytuacji/nastroju marka konsekwentnie się pojawia?",
+    "powtarzalnoscWzorca": "W ilu z {{N}} postów ten wzorzec się pojawia?"
   },
   "coMarkaPokazuje": {
-    "pokazuje": ["konkretna obserwacja 1", "konkretna obserwacja 2", "konkretna obserwacja 3"],
-    "unika": ["czego konsekwentnie nie ma 1", "czego konsekwentnie nie ma 2"]
+    "pokazuje": ["obserwacja 1", "obserwacja 2", "obserwacja 3"],
+    "unika": ["czego nie ma 1", "czego nie ma 2"]
   },
-  "zakladanaOsoba": "Jak wygląda osoba której życie jest zakładane w tych postach? Opisz przez postawę i wartości — bez danych demograficznych."
+  "zakladanaOsoba": "Kogo zakładają te posty? Opisz przez postawę — bez demografii. 1-2 zdania."
 }
 `;
 
 export const PROMPT_5_EXTERNAL = `
-Poniżej fragmenty tekstów zewnętrznych o marce {{BRAND_NAME}} z kategorii {{CATEGORY}}.
-Mogą to być recenzje, artykuły, komentarze, opisy medialne.
+Poniżej dane zewnętrzne o marce {{BRAND_NAME}} (kategoria: {{CATEGORY}}).
+Zawierają: profil marki, dyskurs medialny (wywiady, artykuły prasowe), percepcję odbiorców, kontekst konkurencyjny.
 
 {{EXTERNAL_TEXTS}}
+
+WAŻNE: Te dane zewnętrzne to najważniejsze źródło weryfikacji. Wyciągnij z nich MAKSIMUM:
+- Kim jest ta marka według mediów i opinii publicznej?
+- Jak jest NAPRAWDĘ postrzegana (nie jak chce być)?
+- Czy jej autonarracja zgadza się z tym co mówią inni?
 
 Odpowiedz wyłącznie w JSON:
 
 {
+  "profilZewnetrzny": "Kim jest ta marka według źródeł zewnętrznych? Jaka jest jej reputacja, pozycja, charakter? 2-3 zdania z konkretnymi faktami.",
+  "kluczoweCytaty": [
+    {"cytat": "dosłowny cytat z artykułu/recenzji/wywiadu", "zrodlo": "skąd pochodzi (np. 'wywiad w Gazecie Wyborczej', 'recenzja na Google')"},
+    {"cytat": "kolejny cytat", "zrodlo": "źródło"}
+  ],
   "zewnetrzneSlownictwo": ["słowo/fraza 1", "słowo/fraza 2"],
   "zgodnosc": {
     "ocena": "pokrywa się | częściowa rozbieżność | wyraźna rozbieżność",
-    "opis": "Czy zewnętrzny obraz marki pokrywa się z tym jak opisuje siebie? Na czym polega różnica?"
+    "opis": "Czy zewnętrzny obraz pokrywa się z autonarracją? Konkretnie na czym polega różnica. 1-2 zdania."
   }
 }
 
-Jeśli danych zewnętrznych jest mało lub są mało informatywne, napisz to wprost w polu 'opis'.
+Podaj minimum 3 cytaty w kluczoweCytaty. Jeśli danych jest mało — napisz to wprost.
 `;
 
 export const PROMPT_6_BRAND_PROFILE = `
-Jesteś doświadczonym analitykiem strategii marek.
-Poniżej masz wyniki analizy marki {{BRAND_NAME}} w kategorii {{CATEGORY}}.
+Jesteś analitykiem strategii marek. Napisz profil marki {{BRAND_NAME}} (kategoria: {{CATEGORY}}).
 
 ANALIZA STRONY — CLAIM I OBIETNICA:
 {{PROMPT1_RESULT}}
@@ -112,155 +123,153 @@ ANALIZA STRONY — SŁOWNICTWO:
 ANALIZA SOCIAL MEDIA:
 {{PROMPT4_RESULT}}
 
-DYSKURS ZEWNĘTRZNY:
+DYSKURS ZEWNĘTRZNY (wywiady, media, recenzje, kontekst konkurencyjny):
 {{PROMPT5_RESULT}}
 
-Na podstawie tych danych napisz profil marki. Odpowiedz wyłącznie w JSON:
+ZASADY:
+1. Dyskurs zewnętrzny to WERYFIKACJA — jeśli strona mówi jedno a media/opinie drugie, napisz to wprost.
+2. Każdy dowód musi zawierać DOSŁOWNY cytat z konkretnego źródła.
+3. Pisz ZWIĘŹLE — nie powtarzaj tych samych myśli innymi słowami.
+4. Nie ekstrapoluj jednego przykładu na całość. Jeśli dane są ograniczone — zaznacz to.
+
+Odpowiedz wyłącznie w JSON:
 
 {
   "logikaSprzedazy": {
-    "tresc": "Jaki jest mechanizm tej oferty — co marka zakłada że klient chce, jak twierdzi że to daje, dlaczego klient ma jej wierzyć? Zidentyfikuj ukrytą logikę, nie opisuj powierzchni. 4-6 zdań.",
+    "tresc": "Mechanizm oferty — co marka zakłada, jak to daje, dlaczego wierzyć. Ukryta logika, nie powierzchnia. 2-3 zdania.",
     "kluczoweMechanizmy": ["mechanizm 1", "mechanizm 2"]
   },
   "implikowanyKlient": {
-    "tosazmosc": "Kim staje się lub chce być osoba która wybiera tę markę? 2-3 zdania.",
-    "coWazne": "Co ta komunikacja zakłada że jest dla tej osoby ważne?",
-    "ktoWykluczony": "Kogo ta komunikacja naturalnie wyklucza? Konkretnie."
+    "tosazmosc": "Kim jest/chce być osoba która wybiera tę markę? 1-2 zdania.",
+    "coWazne": "Co komunikacja zakłada że jest dla tej osoby ważne? 1 zdanie.",
+    "ktoWykluczony": "Kogo naturalnie wyklucza? 1 zdanie, konkretnie."
   },
   "kluczoweDowody": [
     {
-      "obserwacja": "Co konkretnie zaobserwowano w danych",
-      "zrodlo": "strona | social | zewnętrzne",
-      "znaczenie": "Co to sugeruje o logice marki"
+      "obserwacja": "Co zaobserwowano — 1 zdanie",
+      "cytat": "dosłowny cytat z danych źródłowych, w cudzysłowie",
+      "zrodlo": "strona | social | zewnętrzne | media",
+      "znaczenie": "Co to sugeruje — 1 zdanie"
     }
   ]
 }
 
-Podaj dokładnie 3 dowody w tablicy kluczoweDowody.
-Ważne: każde twierdzenie musi wynikać z obserwacji w dostarczonych danych.
-Nie generalizuj ponad to co dane pokazują.
+Podaj 4-5 dowodów w kluczoweDowody. Minimum 2 muszą pochodzić z dyskursu zewnętrznego/mediów.
+Ważne: każde twierdzenie musi wynikać z danych. Nie generalizuj.
 `;
 
 export const PROMPT_VISUAL_BRAND = `
-Jesteś analitykiem wizualnym. Poniżej masz analizy {{N}} postów marki {{BRAND_NAME}} w kategorii {{CATEGORY}}.
+Jesteś analitykiem wizualnym. Analizy {{N}} postów marki {{BRAND_NAME}} (kategoria: {{CATEGORY}}):
 
 {{POST_ANALYSES}}
 
-Twoim zadaniem jest opisać konwencję wizualną tej marki w social media. Odpowiedz wyłącznie w JSON:
+Opisz konwencję wizualną ZWIĘŹLE — każde pole to maks 2 zdania. Odpowiedz wyłącznie w JSON:
 
 {
   "dominujacyStyl": {
-    "opis": "Jaki jest dominujący styl wizualny? Opisz paletę, nastrój, temperaturę barw, poziom 'produkcji' (surowe vs wypolerowane). 2-3 zdania.",
-    "powtarzalnosc": "Jak konsekwentny jest ten styl? Czy wszystkie posty mają tę samą estetykę czy są niespójne?"
+    "opis": "Styl wizualny: paleta, nastrój, temperatura barw, poziom produkcji.",
+    "powtarzalnosc": "Jak konsekwentny jest styl?"
   },
-  "kolorystyka": "Jakie kolory dominują? Ciepłe/zimne? Pastelowe/nasycone? Konkretnie.",
-  "composycja": "Jak zbudowane są kadry? Co jest w centrum? Dużo pustej przestrzeni czy gęsto? Perspektywa bliska czy daleka?",
+  "kolorystyka": "Kolory dominujące. Konkretnie.",
+  "composycja": "Kadry: centrum, przestrzeń, perspektywa.",
   "obecnoscCzlowieka": {
     "czy": true,
-    "jakPokazany": "Jeśli ludzie się pojawiają — jak? Twarz widoczna? Całe ciało? Fragment? W akcji czy pozowanie? Kto to jest — modelka, klientka, ekspertka?"
+    "jakPokazany": "Jak pokazani ludzie? Twarz/ciało/fragment? Modelka/klientka?"
   },
-  "napiecia": "Co jest wizualnie nieoczywiste lub zaskakujące w tej marce? Co łamie oczekiwania wizualne kategorii? Jeśli nic — napisz że marka trzyma się wizualnego mainstreamu kategorii."
+  "napiecia": "Co łamie oczekiwania wizualne kategorii? Jeśli nic — napisz wprost."
 }
 `;
 
 export const PROMPT_VISUAL_CATEGORY = `
-Poniżej masz analizy konwencji wizualnych {{N}} marek w kategorii: {{CATEGORY}}.
+Analizy konwencji wizualnych {{N}} marek w kategorii: {{CATEGORY}}.
 
 {{ALL_VISUAL_PROFILES}}
 
-Twoim zadaniem jest opisać WIZUALNĄ konwencję kategorii — to co łączy te marki pod względem estetyki, nie komunikatu tekstowego. Odpowiedz wyłącznie w JSON:
+Opisz WIZUALNĄ konwencję kategorii. Pisz zwięźle. Odpowiedz wyłącznie w JSON:
 
 {
   "wspolneWzorce": [
     {
-      "wzorzec": "Konkretny wzorzec wizualny który się powtarza w minimum 3 markach",
+      "wzorzec": "Wzorzec wizualny powtarzający się w min. 3 markach",
       "marki": ["marka A", "marka B", "marka C"],
-      "znaczenie": "Co ten wzorzec mówi o tym, jak kategoria chce być postrzegana?"
+      "znaczenie": "Co to mówi o kategorii? 1 zdanie."
     }
   ],
-  "wspolneUnikanie": ["Czego ŻADNA marka wizualnie nie pokazuje — mimo że mogłaby? Podaj 2-3 obserwacje."],
-  "implikowanySwiatklienta": "Jaki świat wizualny ta kategoria wspólnie buduje? W jakim otoczeniu, nastroju, estetyce żyje implikowany klient kategorii? 2-3 zdania.",
-  "ktoWizualnieWykluczony": "Kto NIE zobaczy siebie w tych wizualizacjach? Jaki typ osoby (przez postawę i styl życia, nie demografię) nie rozpozna swojego świata w tym co kategoria pokazuje?"
+  "wspolneUnikanie": ["Czego żadna marka nie pokazuje 1", "nie pokazuje 2"],
+  "implikowanySwiatklienta": "Jaki świat wizualny buduje kategoria? 1-2 zdania.",
+  "ktoWizualnieWykluczony": "Kto nie zobaczy siebie? Przez postawę, nie demografię. 1-2 zdania."
 }
 
-Podaj 2-4 wzorce w wspolneWzorce.
+Podaj 2-4 wzorce.
 `;
 
 export const PROMPT_7_CONVENTIONS = `
-Jesteś analitykiem strategii kategorii. Poniżej masz profile {{N}} marek
-działających w kategorii: {{CATEGORY}}.
+Jesteś analitykiem strategii kategorii. Profile {{N}} marek w kategorii: {{CATEGORY}}.
 
 {{ALL_BRAND_PROFILES}}
 
-Twoim zadaniem jest zidentyfikować konwencję kategorii —
-milczące, wspólne założenia które kierują komunikacją tych marek,
-nawet jeśli żadna ich wprost nie wypowiada.
+Zidentyfikuj konwencję kategorii — milczące, wspólne założenia kierujące komunikacją tych marek.
 
-Ważne ograniczenie dla całej odpowiedzi: nigdzie nie używaj opisu demograficznego — wieku, płci, wykształcenia, dochodu, zawodu. Opisuj wyłącznie przez postawę, wartości, sposób myślenia o sobie i relację z kategorią. Demografia to skrót który ukrywa mechanizm. Mechanizm jest ważniejszy.
+ZASADY:
+- Nigdzie nie używaj opisu demograficznego (wiek, płeć, wykształcenie, dochód). Opisuj przez postawę i relację z kategorią.
+- Pisz ZWIĘŹLE. Każde pole to maks 2-3 zdania.
+- Każdy wzorzec oprzyj o KONKRETNE obserwacje z profili marek.
 
 Odpowiedz wyłącznie w JSON:
 
 {
   "mechanizmKategorii": {
-    "regula": "Jaka jest dominująca logika sprzedaży w tej kategorii? Opisz jako regułę gry — 1-2 zdania które działają jak definicja, nie lista cech.",
-    "uzasadnienie": "Skąd to wynika z danych? 2-3 zdania."
+    "regula": "Dominująca logika sprzedaży jako reguła gry — 1-2 zdania.",
+    "uzasadnienie": "Skąd to wynika z danych? 2 zdania."
   },
   "implikowanyKlientKategorii": {
-    "tosazmosc": "Kogo ta kategoria kolektywnie zakłada jako klienta? Opisz przez postawę i sposób myślenia o sobie — bez danych demograficznych (bez wieku, płci, wykształcenia).",
-    "glebszaPotrzeba": "Jaka jest głębsza potrzeba lub pragnienie które ta kategoria próbuje zaspokoić? Opisz ją językiem człowieka, nie językiem kategorii. Przykład: teatr zaspokaja pragnienie intensywnego przeżycia, nie 'potrzebę kultury'.",
+    "tosazmosc": "Kogo kategoria zakłada jako klienta? Przez postawę. 1-2 zdania.",
+    "glebszaPotrzeba": "Głębsza potrzeba — językiem człowieka, nie kategorii. 1 zdanie.",
     "pominietaGrupa": {
-      "opis": "Kto ma to SAMO głębsze pragnienie które adresuje ta kategoria, ale dziś zaspokaja je gdzie indziej — bo język i konwencja tej kategorii nie mówią do niego? Nie chodzi o inny segment demograficzny ani o ludzi z innym budżetem. Chodzi o ludzi z podobną motywacją, których kategoria odpycha swoją formą, nie treścią. Opisz konkretnie kto to jest i gdzie dziś realizuje to pragnienie.",
-      "proporcja": "Oszacuj proporcję: ilu jest tych pominiętych w stosunku do klientów których kategoria dziś aktywnie obsługuje? Użyj logiki porównawczej — np. 'na każdego aktywnego klienta kategorii przypada szacunkowo X osób które mają podobne pragnienie ale nie identyfikują się z kategorią'. Oprzyj to na logice rynku, nie na zmyślonych liczbach.",
-      "dlaczegoOdpycha": "Co konkretnie w konwencji tej kategorii — w jej języku, w formie oferty, w implikowanej tożsamości klienta — sprawia że ta szersza grupa ludzi nie rozpoznaje kategorii jako odpowiedzi na swoje pragnienie? To nie jest wada tych ludzi. To jest ograniczenie konwencji."
+      "opis": "Kto ma to SAMO pragnienie ale zaspokaja je gdzie indziej? Konkretnie. 2 zdania.",
+      "proporcja": "Proporcja pominiętych do obsługiwanych — logika rynku. 1 zdanie.",
+      "dlaczegoOdpycha": "Co w konwencji odpycha tę grupę? 1-2 zdania."
     }
   },
   "dowodyKonwencji": [
     {
-      "wzorzec": "Konkretny wzorzec który się powtarza",
+      "wzorzec": "Powtarzający się wzorzec",
       "marki": ["marka A", "marka B", "marka C"],
-      "znaczenie": "Co ten wzorzec sugeruje o konwencji?"
+      "znaczenie": "Co sugeruje o konwencji? 1 zdanie."
     }
   ],
   "mapaWyroznialnosci": [
     {
       "marka": "nazwa",
       "ocena": "zgodna z konwencją | częściowo odchylona | wyraźnie łamiąca",
-      "uzasadnienie": "Jedno zdanie z konkretnym dowodem."
+      "uzasadnienie": "1 zdanie z dowodem."
     }
   ]
 }
 
-Podaj 3-4 wzorce w dowodyKonwencji. Wzorzec kwalifikuje się jako konwencja
-tylko jeśli pojawia się w minimum 3 z {{N}} analizowanych marek.
-Podaj ocenę per każda marka w mapaWyroznialnosci.
+3-4 wzorce (min. 3 marki per wzorzec). Ocena per każda marka.
 `;
 
 export const PROMPT_8_CLIENT_POSITION = `
-Na podstawie mapy konwencji kategorii i profilu marki klienta:
-
 KONWENCJA KATEGORII:
 {{PROMPT7_RESULT}}
 
 PROFIL MARKI KLIENTA ({{CLIENT_BRAND_NAME}}):
 {{CLIENT_BRAND_PROFILE}}
 
-Odpowiedz wyłącznie w JSON:
+Pisz ZWIĘŹLE — każdy element listy to 1 zdanie, nie więcej. Odpowiedz wyłącznie w JSON:
 
 {
   "zgodnosc": {
-    "elementy": [
-      "konkretny element komunikacji klienta który pokrywa się z konwencją — z dowodem"
-    ],
+    "elementy": ["element zgodny z konwencją + dowód — 1 zdanie"],
     "ocena": "zgodna | częściowo odchylona | wyraźnie łamiąca"
   },
   "odchylenia": {
-    "elementy": [
-      "gdzie komunikacja klienta wychodzi poza konwencję — z dowodem"
-    ],
-    "znaczenieStrategiczne": "Czy to odchylenie to świadoma szansa czy przypadkowa różnica? Co z tego wynika?"
+    "elementy": ["odchylenie + dowód — 1 zdanie"],
+    "znaczenieStrategiczne": "Świadoma szansa czy przypadek? 1-2 zdania."
   },
-  "zagrozenie": "Opisz wprost mechanizm ryzyka dla tej marki jeśli pozostanie w konwencji kategorii. Nie pisz ogólnie o 'trudnym rynku'. Napisz konkretnie: kto wygra walkę o tego samego klienta i dlaczego — budżetem, dystrybucją, skalą, rozpoznawalnością. Ile marek w tej kategorii gra tą samą kartą co klient? Co to oznacza dla jego pozycji za 2-3 lata gdy kategoria dojrzeje dalej? To zdanie musi być niewygodne do przeczytania. 3-4 zdania.",
-  "pytanieOtwarte": "Zadaj jedno pytanie które pokazuje, że jest wyjście — ale wymaga odwagi żeby je zadać. Pytanie nie może dotyczyć komunikacji ani estetyki. Musi dotyczyć tego, do KOGO marka mogłaby mówić gdyby zdefiniowała swoje JOBS TO BE DONE szerzej niż robi to dziś cała kategoria. Format: jedno zdanie, bez wstępu, bez wyjaśnienia. Pytanie kończy się znakiem zapytania."
+  "zagrozenie": "Mechanizm ryzyka: kto wygra walkę o klienta i dlaczego. Ile marek gra tą samą kartą. Co to oznacza za 2-3 lata. 2-3 zdania, niewygodne do przeczytania.",
+  "pytanieOtwarte": "Jedno pytanie o JOBS TO BE DONE szerzej niż kategoria. Bez wstępu. Kończy się znakiem zapytania."
 }
 `;
 

@@ -139,10 +139,12 @@ export async function runCategoryScanner(
 
   // Collect external discourse
   emitStep('collect_external', 'running');
+  const brandCitations: Record<string, string[]> = {};
   await Promise.all(
     allBrands.map(async (brand) => {
-      const discourse = await searchExternalDiscourse(brand.name, input.category);
-      brandData[brand.name].externalDiscourse = discourse;
+      const { text, citations } = await searchExternalDiscourse(brand.name, input.category);
+      brandData[brand.name].externalDiscourse = text;
+      brandCitations[brand.name] = citations;
     })
   );
   emitStep('collect_external', 'done');
@@ -161,14 +163,14 @@ export async function runCategoryScanner(
           fillPrompt(PROMPT_1_CLAIM, {
             BRAND_NAME: brand.name,
             CATEGORY: input.category,
-            WEBSITE_TEXT: data.websiteText.slice(0, 8000),
+            WEBSITE_TEXT: data.websiteText.slice(0, 12000),
           })
         ),
         runPrompt(
           fillPrompt(PROMPT_2_VOCABULARY, {
             BRAND_NAME: brand.name,
             CATEGORY: input.category,
-            WEBSITE_TEXT: data.websiteText.slice(0, 8000),
+            WEBSITE_TEXT: data.websiteText.slice(0, 12000),
           })
         ),
       ]);
@@ -353,6 +355,7 @@ export async function runCategoryScanner(
           analysis.claim.obietnicaZmiany?.dowod,
         ].filter(Boolean) as string[],
         konwencjaWizualna: brandVisuals[brand.name] || undefined,
+        zrodlaZewnetrzne: brandCitations[brand.name] || [],
       };
     }),
     konwencjaKategorii: categoryConventions,

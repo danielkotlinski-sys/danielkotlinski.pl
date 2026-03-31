@@ -64,7 +64,7 @@ export interface ClaimResult {
 }
 
 export interface VocabularyResult {
-  slownictwoMarki: string[];
+  slownictwoMarki: Array<{ fraza: string; kontekst: string }> | string[];
   sugestiaOKliencie: string;
 }
 
@@ -91,6 +91,8 @@ export interface SocialSynthesis {
 }
 
 export interface ExternalAnalysis {
+  profilZewnetrzny?: string;
+  kluczoweCytaty?: Array<{ cytat: string; zrodlo: string }>;
   zewnetrzneSlownictwo: string[];
   zgodnosc: {
     ocena: 'pokrywa się' | 'częściowa rozbieżność' | 'wyraźna rozbieżność';
@@ -119,7 +121,8 @@ export interface BrandProfile {
   };
   kluczoweDowody: Array<{
     obserwacja: string;
-    zrodlo: 'strona' | 'social' | 'zewnętrzne';
+    cytat: string;
+    zrodlo: 'strona' | 'social' | 'zewnętrzne' | 'media';
     znaczenie: string;
   }>;
 }
@@ -213,12 +216,14 @@ export interface ScannerReport {
     };
     kluczoweDowody: Array<{
       obserwacja: string;
+      cytat?: string;
       zrodlo: string;
       znaczenie: string;
     }>;
     samplePostScreenshots: string[];
     sampleWebsiteQuotes: string[];
     konwencjaWizualna?: BrandVisualConventions;
+    zrodlaZewnetrzne?: string[];
   }>;
   konwencjaKategorii: CategoryConventions;
   konwencjaWizualnaKategorii?: CategoryVisualConventions;

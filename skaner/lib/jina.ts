@@ -1,23 +1,60 @@
 const SUBPAGES_TO_TRY = [
-  '/oferta', '/produkty', '/uslugi', '/shop',
-  '/o-nas', '/about', '/about-us',
+  '/oferta', '/produkty', '/uslugi', '/shop', '/services',
+  '/o-nas', '/about', '/about-us', '/o-teatrze', '/misja',
+  '/repertuar', '/portfolio', '/projekty', '/klienci',
 ];
+
+// Noise patterns to strip from scraped text
+const NOISE_PATTERNS = [
+  /cookie[s]?.*?(?:akceptuj|zamknij|zgod|more info|dowiedz)[^\n]*/gi,
+  /polityka prywatno[sś]ci[^\n]*/gi,
+  /regulamin[^\n]*/gi,
+  /newsletter.*?zapis[^\n]*/gi,
+  /©\s*\d{4}[^\n]*/gi,
+  /wszystkie prawa zastrzeżone[^\n]*/gi,
+  /RODO[^\n]*/gi,
+  /wyrażam zgodę na przetwarzanie[^\n]*/gi,
+  /subscribe to our[^\n]*/gi,
+  /powered by[^\n]*/gi,
+  /skip to (?:main )?content[^\n]*/gi,
+  /^#{1,3}\s*(?:menu|nawigacja|navigation|footer|stopka)\s*$/gim,
+];
+
+function cleanScrapedText(text: string): string {
+  let cleaned = text;
+  for (const pattern of NOISE_PATTERNS) {
+    cleaned = cleaned.replace(pattern, '');
+  }
+  // Collapse multiple blank lines
+  cleaned = cleaned.replace(/\n{4,}/g, '\n\n\n');
+  // Remove lines that are just links or buttons (short lines with URLs)
+  cleaned = cleaned.replace(/^.{0,5}https?:\/\/[^\n]*$/gm, '');
+  // Remove very short lines (likely navigation items)
+  cleaned = cleaned
+    .split('\n')
+    .filter((line) => line.trim().length > 15 || line.trim().length === 0 || line.startsWith('#'))
+    .join('\n');
+  return cleaned.trim();
+}
 
 async function fetchPage(url: string): Promise<string> {
   const jinaUrl = `https://r.jina.ai/${url}`;
-  const response = await fetch(jinaUrl, {
-    headers: {
-      'Accept': 'text/plain',
-      'X-Return-Format': 'markdown',
-      'X-Remove-Selector': 'nav, footer, .cookie-banner',
-    },
-  });
+  try {
+    const response = await fetch(jinaUrl, {
+      headers: {
+        'Accept': 'text/plain',
+        'X-Return-Format': 'markdown',
+        'X-Remove-Selector': 'nav, footer, .cookie-banner, .cookie-consent, .gdpr, #cookie, .newsletter-popup, .popup-overlay',
+      },
+    });
 
-  if (!response.ok) return '';
-  const text = await response.text();
-  // Filter out very short responses (likely 404 pages or redirects)
-  if (text.length < 200) return '';
-  return text;
+    if (!response.ok) return '';
+    const text = await response.text();
+    if (text.length < 200) return '';
+    return cleanScrapedText(text);
+  } catch {
+    return '';
+  }
 }
 
 export async function fetchWebsiteText(baseUrl: string): Promise<string> {
@@ -33,8 +70,16 @@ export async function fetchWebsiteText(baseUrl: string): Promise<string> {
 
   const subpageTexts = subpageResults
     .map((r) => (r.status === 'fulfilled' ? r.value : ''))
-    .filter((t) => t.length > 0);
+    .filter((t) => t.length > 300); // Higher threshold — skip thin pages
 
-  const parts = [homepage, ...subpageTexts.slice(0, 2)]; // max 2 subpages to keep tokens manageable
-  return parts.filter(Boolean).join('\n\n---\n\n');
+  // Take up to 3 best subpages (longest = most content)
+  const sortedSubpages = subpageTexts
+    .sort((a, b) => b.length - a.length)
+    .slice(0, 3);
+
+  const parts = [homepage, ...sortedSubpages];
+  const combined = parts.filter(Boolean).join('\n\n---\n\n');
+
+  console.log(`Jina: scraped ${normalizedUrl} — ${parts.filter(Boolean).length} pages, ${combined.length} chars`);
+  return combined;
 }
