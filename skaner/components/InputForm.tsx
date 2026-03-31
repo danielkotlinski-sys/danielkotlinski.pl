@@ -82,7 +82,34 @@ export default function InputForm({ onSubmit }: InputFormProps) {
 
   useEffect(() => {
     if (window.location.hostname === 'localhost') setIsDev(true);
+
+    // Restore form data from sessionStorage
+    try {
+      const saved = sessionStorage.getItem('skaner_form');
+      if (saved) {
+        const d = JSON.parse(saved);
+        if (d.brandName) setBrandName(d.brandName);
+        if (d.brandUrl) setBrandUrl(d.brandUrl);
+        if (d.socialHandle) setSocialHandle(d.socialHandle);
+        if (d.socialPlatform) setSocialPlatform(d.socialPlatform);
+        if (d.category) setCategory(d.category);
+        if (d.categoryPurpose) setCategoryPurpose(d.categoryPurpose);
+        if (d.categoryType) setCategoryType(d.categoryType);
+        if (d.clientDescription) setClientDescription(d.clientDescription);
+        if (d.competitors?.length) setCompetitors(d.competitors);
+      }
+    } catch { /* ignore */ }
   }, []);
+
+  // Persist form data to sessionStorage on every change
+  useEffect(() => {
+    try {
+      sessionStorage.setItem('skaner_form', JSON.stringify({
+        brandName, brandUrl, socialHandle, socialPlatform,
+        category, categoryPurpose, categoryType, clientDescription, competitors,
+      }));
+    } catch { /* ignore */ }
+  }, [brandName, brandUrl, socialHandle, socialPlatform, category, categoryPurpose, categoryType, clientDescription, competitors]);
 
   const fillTestData = () => {
     setBrandName(DEV_DEFAULTS.brandName);

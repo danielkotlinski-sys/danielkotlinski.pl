@@ -107,6 +107,16 @@ export async function setRateLimit(email: string): Promise<void> {
   }
 }
 
+export async function clearRateLimit(email: string): Promise<void> {
+  const key = `ratelimit:${email.toLowerCase().trim()}`;
+  const r = await getRedis();
+  if (r) {
+    await r.del(key);
+  } else {
+    memoryStore.delete(key);
+  }
+}
+
 export async function getReport(
   scanId: string
 ): Promise<ScannerReport | null> {

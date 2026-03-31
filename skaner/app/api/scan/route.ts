@@ -43,14 +43,14 @@ export async function POST(request: NextRequest) {
       };
 
       try {
-        // Set rate limit immediately so user can't start another scan
-        await setRateLimit(lead.email);
-
         const { scanId, report } = await runCategoryScanner(
           input,
           lead,
           (progressEvent) => sendEvent(progressEvent)
         );
+
+        // Set rate limit only AFTER successful scan
+        await setRateLimit(lead.email);
 
         sendEvent({ type: 'complete', scanId, report });
         await new Promise((resolve) => setTimeout(resolve, 100));
