@@ -15,7 +15,7 @@ export async function runPrompt(
     messages: [
       {
         role: 'user',
-        content: prompt + '\n\nWAŻNE: Odpowiedz WYŁĄCZNIE poprawnym JSON. Żadnych komentarzy (//), żadnego tekstu przed ani po JSON. Żadnych trailing commas. Tylko czysty, parsable JSON.',
+        content: prompt + '\n\nWAŻNE: Odpowiedz WYŁĄCZNIE poprawnym JSON. Żadnych komentarzy (//), żadnego tekstu przed ani po JSON. Żadnych trailing commas. NIE używaj polskich cudzysłowów „" — jeśli cytujesz, użyj pojedynczych cudzysłowów lub apostrofów. Tylko czysty, parsable JSON.',
       },
       {
         role: 'assistant',
@@ -88,6 +88,11 @@ export function parseJsonResponse<T>(text: string): T {
     cleaned = cleaned.slice(firstBrace, lastBrace + 1);
   }
 
+  // Replace Polish/typographic quotes with safe alternatives BEFORE parsing
+  // „ (U+201E), " (U+201D), " (U+201C) → «» or just remove
+  cleaned = cleaned.replace(/\u201E/g, '«');  // „ → «
+  cleaned = cleaned.replace(/[\u201C\u201D]/g, '»');  // " " → »
+
   // Remove single-line comments (// ...) but not inside strings
   cleaned = cleaned.replace(/(?<!["\w:\/])\/\/[^\n]*/g, '');
 
@@ -97,18 +102,24 @@ export function parseJsonResponse<T>(text: string): T {
   // Remove any remaining markdown artifacts
   cleaned = cleaned.replace(/```/g, '');
 
+  // Remove control characters
+  cleaned = cleaned.replace(/[\x00-\x1F]/g, (ch) => ch === '\n' || ch === '\t' ? ch : ' ');
+
   try {
     return JSON.parse(cleaned);
-  } catch {
-    // Last resort: try even more aggressive cleanup
-    // Remove all lines that look like comments
+  } catch (firstError) {
+    // Aggressive cleanup: remove comment lines, fix trailing commas
     cleaned = cleaned
       .split('\n')
       .filter((line) => !line.trim().startsWith('//'))
       .join('\n');
-    // Remove trailing commas again after line removal
     cleaned = cleaned.replace(/,\s*([\]}])/g, '$1');
 
-    return JSON.parse(cleaned);
+    try {
+      return JSON.parse(cleaned);
+    } catch {
+      console.error('JSON parse failed after all cleanup attempts. First 500 chars:', cleaned.slice(0, 500));
+      throw firstError;
+    }
   }
 }

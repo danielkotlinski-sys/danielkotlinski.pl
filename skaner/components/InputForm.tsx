@@ -32,12 +32,6 @@ const DEV_DEFAULTS = {
 const inputStyles = "w-full px-4 py-3 bg-white border border-beige-dark/50 rounded-card text-text-primary placeholder:text-text-gray focus:outline-none focus:border-dk-teal focus:ring-1 focus:ring-dk-teal/20 transition-colors";
 const labelStyles = "block text-sm font-medium text-text-muted mb-1.5";
 
-const RATING_LABELS: Record<number, string> = {
-  1: 'Nie',
-  2: 'Częściowo',
-  3: 'Tak',
-};
-
 function normalizeHandle(raw: string): string {
   let val = raw.trim();
   // Strip full URLs: https://instagram.com/handle, linkedin.com/company/handle, etc.
@@ -80,14 +74,42 @@ export default function InputForm({ onSubmit }: InputFormProps) {
   const [isDev, setIsDev] = useState(false);
 
   // JTBD suggestion state
-  const [jtbdSuggestions, setJtbdSuggestions] = useState<string[]>([]);
-  const [jtbdRatings, setJtbdRatings] = useState<Record<number, 1 | 2 | 3>>({});
   const [jtbdLoading, setJtbdLoading] = useState(false);
-  const [jtbdRequested, setJtbdRequested] = useState(false);
+
+  // Competitor suggestion state
+  const [competitorsLoading, setCompetitorsLoading] = useState(false);
+  const [competitorsSuggested, setCompetitorsSuggested] = useState(false);
 
   useEffect(() => {
     if (window.location.hostname === 'localhost') setIsDev(true);
+
+    // Restore form data from sessionStorage
+    try {
+      const saved = sessionStorage.getItem('skaner_form');
+      if (saved) {
+        const d = JSON.parse(saved);
+        if (d.brandName) setBrandName(d.brandName);
+        if (d.brandUrl) setBrandUrl(d.brandUrl);
+        if (d.socialHandle) setSocialHandle(d.socialHandle);
+        if (d.socialPlatform) setSocialPlatform(d.socialPlatform);
+        if (d.category) setCategory(d.category);
+        if (d.categoryPurpose) setCategoryPurpose(d.categoryPurpose);
+        if (d.categoryType) setCategoryType(d.categoryType);
+        if (d.clientDescription) setClientDescription(d.clientDescription);
+        if (d.competitors?.length) setCompetitors(d.competitors);
+      }
+    } catch { /* ignore */ }
   }, []);
+
+  // Persist form data to sessionStorage on every change
+  useEffect(() => {
+    try {
+      sessionStorage.setItem('skaner_form', JSON.stringify({
+        brandName, brandUrl, socialHandle, socialPlatform,
+        category, categoryPurpose, categoryType, clientDescription, competitors,
+      }));
+    } catch { /* ignore */ }
+  }, [brandName, brandUrl, socialHandle, socialPlatform, category, categoryPurpose, categoryType, clientDescription, competitors]);
 
   const fillTestData = () => {
     setBrandName(DEV_DEFAULTS.brandName);
@@ -119,10 +141,41 @@ export default function InputForm({ onSubmit }: InputFormProps) {
     setCompetitors(updated);
   };
 
-  const requestJtbdSuggestions = async () => {
-    if (!category || category.length < 20) return;
+  const requestCompetitors = async () => {
+    if (!brandName.trim() || !category || category.length < 10) return;
+    setCompetitorsLoading(true);
+    try {
+      const response = await fetch('/api/scan/suggest-competitors', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          brandName: brandName.trim(),
+          brandUrl: normalizeUrl(brandUrl),
+          category,
+          categoryType,
+          socialPlatform,
+        }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const suggested = (data.competitors || []) as Competitor[];
+        if (suggested.length > 0) {
+          // Fill in competitor slots, padding to at least 2
+          while (suggested.length < 2) suggested.push({ name: '', url: '', socialHandle: '' });
+          setCompetitors(suggested);
+          setCompetitorsSuggested(true);
+        }
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setCompetitorsLoading(false);
+    }
+  };
+
+  const suggestCategoryPurpose = async () => {
+    if (!category || category.length < 10) return;
     setJtbdLoading(true);
-    setJtbdRequested(true);
     try {
       const response = await fetch('/api/scan/suggest-jtbd', {
         method: 'POST',
@@ -131,11 +184,13 @@ export default function InputForm({ onSubmit }: InputFormProps) {
       });
       if (response.ok) {
         const data = await response.json();
-        setJtbdSuggestions(data.jobs || []);
-        setJtbdRatings({});
+        const jobs: string[] = data.jobs || [];
+        if (jobs.length > 0) {
+          setCategoryPurpose(jobs.join('. '));
+        }
       }
     } catch {
-      // silently fail — JTBD is optional
+      // silently fail
     } finally {
       setJtbdLoading(false);
     }
@@ -157,15 +212,15 @@ export default function InputForm({ onSubmit }: InputFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validate()) {
+      // Scroll to first error
+      setTimeout(() => {
+        const firstError = document.querySelector('.text-dk-orange');
+        firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 50);
+      return;
+    }
     const validCompetitors = competitors.filter((c) => c.name.trim() && c.url.trim());
-
-    const ratedJtbd = jtbdSuggestions.length > 0
-      ? jtbdSuggestions.map((job, i) => ({
-          job,
-          rating: (jtbdRatings[i] || 2) as 1 | 2 | 3,
-        }))
-      : undefined;
 
     onSubmit({
       clientBrand: {
@@ -178,7 +233,6 @@ export default function InputForm({ onSubmit }: InputFormProps) {
       categoryPurpose,
       categoryType,
       clientDescription: clientDescription.trim() || undefined,
-      jtbdRatings: ratedJtbd,
       competitors: validCompetitors.map((c) => ({
         name: c.name.trim(),
         url: normalizeUrl(c.url),
@@ -313,67 +367,28 @@ export default function InputForm({ onSubmit }: InputFormProps) {
               placeholder="np. Szuka intensywnego przeżycia — chce zobaczyć coś co poruszy, da do myślenia, wyrwie z codzienności"
             />
             {errors.categoryPurpose && <p className="text-dk-orange text-sm mt-1.5">{errors.categoryPurpose}</p>}
-            <p className="text-xs text-text-gray mt-1">To pomaga zrozumieć głębszą potrzebę — nie &ldquo;co kupują&rdquo; ale &ldquo;po co przychodzą&rdquo;.</p>
+            <div className="flex items-center gap-3 mt-1.5">
+              <p className="text-xs text-text-gray">Nie &ldquo;co kupują&rdquo; ale &ldquo;po co przychodzą&rdquo;.</p>
+              {category.length >= 10 && !jtbdLoading && (
+                <button
+                  type="button"
+                  onClick={suggestCategoryPurpose}
+                  className="text-xs text-dk-teal hover:text-dk-teal/80 transition-colors whitespace-nowrap flex items-center gap-1"
+                >
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M2 6h3m2 0h3M6 2v3m0 2v3" strokeLinecap="round"/>
+                  </svg>
+                  Zasugeruj
+                </button>
+              )}
+              {jtbdLoading && (
+                <span className="flex items-center gap-1.5 text-xs text-text-gray">
+                  <span className="inline-block w-2.5 h-2.5 border-[1.5px] border-dk-teal border-t-transparent rounded-full animate-spin" />
+                  Myślę...
+                </span>
+              )}
+            </div>
           </div>
-
-          {/* JTBD suggestions */}
-          {category.length >= 20 && !jtbdRequested && (
-            <button
-              type="button"
-              onClick={requestJtbdSuggestions}
-              className="text-sm text-dk-teal hover:text-dk-teal-hover transition-colors flex items-center gap-2"
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M8 3v10M3 8h10" strokeLinecap="round"/>
-              </svg>
-              Zasugeruj Jobs To Be Done dla tej kategorii
-            </button>
-          )}
-
-          {jtbdLoading && (
-            <div className="flex items-center gap-2 text-sm text-text-gray">
-              <span className="inline-block w-3 h-3 border-2 border-dk-teal border-t-transparent rounded-full animate-spin" />
-              Generuję sugestie...
-            </div>
-          )}
-
-          {jtbdSuggestions.length > 0 && (
-            <div className="bg-beige-light rounded-xl p-5">
-              <p className="text-xs text-dk-teal uppercase tracking-widest font-medium mb-4">
-                Jobs To Be Done — oceń trafność
-              </p>
-              <div className="space-y-4">
-                {jtbdSuggestions.map((job, i) => (
-                  <div key={i}>
-                    <p className="text-sm text-text-muted mb-2 leading-relaxed">{job}</p>
-                    <div className="flex gap-2">
-                      {([1, 2, 3] as const).map((rating) => (
-                        <button
-                          key={rating}
-                          type="button"
-                          onClick={() => setJtbdRatings(prev => ({ ...prev, [i]: rating }))}
-                          className={`px-3 py-1 text-xs rounded-pill transition-all ${
-                            jtbdRatings[i] === rating
-                              ? rating === 3
-                                ? 'bg-dk-teal text-white'
-                                : rating === 2
-                                  ? 'bg-amber-100 text-amber-700 ring-1 ring-amber-300'
-                                  : 'bg-red-50 text-red-600 ring-1 ring-red-200'
-                              : 'bg-white text-text-gray hover:bg-beige'
-                          }`}
-                        >
-                          {RATING_LABELS[rating]}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <p className="text-xs text-text-gray mt-4">
-                Twoje oceny pomogą skalibrować analizę. Możesz pominąć — skaner zadziała bez tego.
-              </p>
-            </div>
-          )}
 
           <div>
             <label className={labelStyles}>Typ kategorii</label>
@@ -399,10 +414,44 @@ export default function InputForm({ onSubmit }: InputFormProps) {
 
       {/* Competitors */}
       <section className="bg-white rounded-card p-6 md:p-8 mb-8">
-        <div className="flex items-baseline justify-between mb-6">
+        <div className="flex items-baseline justify-between mb-2">
           <h2 className="font-heading text-2xl text-text-primary">Konkurenci</h2>
           <span className="text-sm text-text-gray">min. 2, maks. 4</span>
         </div>
+        <p className="text-sm text-text-gray mb-5">
+          Podaj ręcznie lub pozwól AI zasugerować na podstawie Twojej marki i kategorii.
+        </p>
+
+        {/* Suggest competitors button */}
+        {!competitorsSuggested && !competitorsLoading && brandName.trim() && category.length >= 10 && (
+          <button
+            type="button"
+            onClick={requestCompetitors}
+            className="mb-5 w-full py-3 text-sm font-medium text-dk-teal border border-dk-teal/30 rounded-card hover:bg-dk-teal/5 transition-colors flex items-center justify-center gap-2"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M8 3v10M3 8h10" strokeLinecap="round"/>
+            </svg>
+            Zasugeruj konkurentów
+          </button>
+        )}
+
+        {competitorsLoading && (
+          <div className="mb-5 flex items-center justify-center gap-2 py-3 text-sm text-text-gray">
+            <span className="inline-block w-3 h-3 border-2 border-dk-teal border-t-transparent rounded-full animate-spin" />
+            Szukam konkurentów...
+          </div>
+        )}
+
+        {competitorsSuggested && (
+          <div className="mb-5 flex items-center gap-2 text-xs text-dk-teal">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M2 7.5l3 3 7-7" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Uzupełnione — możesz dowolnie zmienić lub dodać kolejnych
+          </div>
+        )}
+
         {errors.competitors && <p className="text-dk-orange text-sm mb-4">{errors.competitors}</p>}
 
         <div className="space-y-4">

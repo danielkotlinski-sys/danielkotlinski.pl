@@ -66,6 +66,7 @@ export async function runCategoryScanner(
   lead: LeadInfo,
   onProgress: ProgressCallback
 ): Promise<{ scanId: string; report: ScannerReport }> {
+  const pipelineStart = Date.now();
   const scanId = uuidv4();
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://skaner.danielkotlinski.pl';
   const reportUrl = `${baseUrl}/raport/${scanId}`;
@@ -132,22 +133,29 @@ export async function runCategoryScanner(
   );
   emitStep('collect_websites', 'done', `${allBrands.length}/${allBrands.length}`);
 
-  // Collect social media
+  // Collect social media (max 2 concurrent to avoid Instagram rate-limiting)
   emitStep('collect_social', 'running');
   let totalPosts = 0;
-  await Promise.all(
-    allBrands.map(async (brand) => {
-      if (brand.socialHandle) {
-        const posts = await scrapeSocialPosts(
-          brand.socialHandle,
-          brand.socialPlatform,
-          8
-        );
-        brandData[brand.name].posts = posts;
-        totalPosts += posts.length;
-      }
-    })
+  let brandsScraped = 0;
+  const brandsWithSocial = allBrands.filter((b) => b.socialHandle);
+  const socialTasks = brandsWithSocial.map(
+    (brand) => async () => {
+      const socialStart = Date.now();
+      emitStep('collect_social', 'running', `${brand.name}...`);
+      const posts = await scrapeSocialPosts(
+        brand.socialHandle,
+        brand.socialPlatform,
+        8
+      );
+      brandData[brand.name].posts = posts;
+      totalPosts += posts.length;
+      brandsScraped++;
+      const dur = ((Date.now() - socialStart) / 1000).toFixed(0);
+      console.log(`Pipeline: social done for ${brand.name} — ${posts.length} posts in ${dur}s`);
+      emitStep('collect_social', 'running', `${brandsScraped}/${brandsWithSocial.length} marek`);
+    }
   );
+  await runInBatches(socialTasks, 2);
   emitStep('collect_social', 'done', `${totalPosts} postów`);
 
   // Collect external discourse
@@ -183,6 +191,7 @@ export async function runCategoryScanner(
 
   await Promise.all(
     allBrands.map(async (brand) => {
+      try {
       const data = brandData[brand.name];
 
       // Category map context for claim analysis
@@ -268,6 +277,16 @@ export async function runCategoryScanner(
         externalAnalysis: parseJsonResponse(externalRaw),
         homepageVisual,
       };
+      } catch (err) {
+        console.error(`Atomic analysis failed for ${brand.name}:`, err);
+        // Create minimal fallback so pipeline continues
+        atomicAnalyses[brand.name] = {
+          claim: { framingProduktu: { opis: 'Analiza niedostępna', dowod: '' }, obietnicaZmiany: { stanPrzed: '', stanPo: '', dowod: '' }, punktWejsciaKomunikacji: { typ: 'produkt', opis: 'Brak danych', dowod: '' } },
+          vocabulary: { slownictwoMarki: [], sugestiaOKliencie: 'Brak danych' },
+          socialSynthesis: null,
+          externalAnalysis: { zewnetrzneSlownictwo: [], zgodnosc: { ocena: 'częściowa rozbieżność', opis: 'Analiza niedostępna' } },
+        };
+      }
     })
   );
   emitStep('analyze_atomic', 'done');
@@ -375,14 +394,8 @@ export async function runCategoryScanner(
   // Client position
   emitStep('client_position', 'running');
 
-  // Build JTBD + client context
+  // Build extra context for client position
   let extraContext = '';
-  if (input.jtbdRatings && input.jtbdRatings.length > 0) {
-    const jtbdText = input.jtbdRatings
-      .map((j) => `- "${j.job}" → ocena: ${j.rating}/3`)
-      .join('\n');
-    extraContext += `\n\nJOBS TO BE DONE (ocenione przez klienta):\n${jtbdText}`;
-  }
   if (input.clientDescription) {
     extraContext += `\n\nOPIS KLIENTA (od właściciela marki):\n${input.clientDescription}`;
   }
@@ -475,6 +488,9 @@ export async function runCategoryScanner(
     openQuestion: clientPosition.pytanieOtwarte,
     reportUrl,
   }).catch((err) => console.error('Email send error:', err));
+
+  const totalDuration = ((Date.now() - pipelineStart) / 1000).toFixed(0);
+  console.log(`Pipeline: DONE — ${allBrands.length} brands, ${totalPosts} posts, ${totalDuration}s total`);
 
   return { scanId, report };
 }

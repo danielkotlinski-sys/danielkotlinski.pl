@@ -6,7 +6,18 @@ const SUBPAGES_TO_TRY = [
 
 // Noise patterns to strip from scraped text
 const NOISE_PATTERNS = [
-  /cookie[s]?.*?(?:akceptuj|zamknij|zgod|more info|dowiedz)[^\n]*/gi,
+  // Cookie banners and consent — match entire blocks, not just single lines
+  /cookie[s]?\s*(?:policy|polityka|ustawienia|consent|banner|deklaracj|informacj)[^\n]*/gi,
+  /(?:akceptuj|zaakceptuj|accept|zamknij).*?cookie[^\n]*/gi,
+  /(?:ta |niniejsza |nasza )?(?:strona|witryna) (?:korzysta|używa|wykorzystuje) z (?:plików )?cookie[^\n]*/gi,
+  /pliki cookie[^\n]*/gi,
+  /ciasteczk[^\n]*/gi,
+  /cookiebot[^\n]*/gi,
+  /pliki tekstowe.*?(?:przeglądar|strony internet)[^\n]*/gi,
+  /deklaracj[aeę].*?(?:cookie|plik)[^\n]*/gi,
+  /(?:niezbędne|preferencj|statystyk|marketingow)[^\n]*?cookie[^\n]*/gi,
+  /zgod[ayę] na (?:wszystkie|wybrane|pliki)[^\n]*/gi,
+  /zarządzaj? (?:zgodami|preferencjami|cookies)[^\n]*/gi,
   /polityka prywatno[sś]ci[^\n]*/gi,
   /regulamin[^\n]*/gi,
   /newsletter.*?zapis[^\n]*/gi,
@@ -22,6 +33,11 @@ const NOISE_PATTERNS = [
 
 function cleanScrapedText(text: string): string {
   let cleaned = text;
+
+  // Strip entire Cookiebot / cookie declaration blocks (multi-line)
+  cleaned = cleaned.replace(/(?:Deklaracja|Oświadczenie) (?:dot\.|dotycząc[ea]|o) (?:plików )?cookie[\s\S]*?(?=\n#{1,3} |\n---|\Z)/gi, '');
+  cleaned = cleaned.replace(/(?:^|\n)#{1,3}.*?cookie[s]?.*?\n[\s\S]*?(?=\n#{1,3} [^c]|\n---|\Z)/gi, '\n');
+
   for (const pattern of NOISE_PATTERNS) {
     cleaned = cleaned.replace(pattern, '');
   }
@@ -44,7 +60,7 @@ async function fetchPage(url: string): Promise<string> {
       headers: {
         'Accept': 'text/plain',
         'X-Return-Format': 'markdown',
-        'X-Remove-Selector': 'nav, footer, .cookie-banner, .cookie-consent, .gdpr, #cookie, .newsletter-popup, .popup-overlay',
+        'X-Remove-Selector': 'nav, footer, header nav, .cookie-banner, .cookie-consent, .gdpr, #cookie, #cookies, #CookiebotDialog, #cookiebot, .cookieconsent, .cc-banner, .cc-window, [id*="cookie"], [class*="cookie"], [id*="consent"], [class*="consent"], [id*="gdpr"], [class*="gdpr"], .newsletter-popup, .popup-overlay, .modal-overlay',
       },
     });
 
