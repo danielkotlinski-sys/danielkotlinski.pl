@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { runCategoryScanner } from '@/lib/pipeline';
 import type { ScanRequest, ProgressEvent } from '@/types/scanner';
 
-export const maxDuration = 300; // 5 minutes
+export const maxDuration = 600; // 10 minutes
 
 export async function POST(request: NextRequest) {
   const body: ScanRequest = await request.json();
