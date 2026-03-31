@@ -108,7 +108,7 @@ export interface AtomicAnalysis {
 // === Synthesis Types ===
 
 export interface BrandProfile {
-  logikaSprzdazy: {
+  logikaSprzedazy: {
     tresc: string;
     kluczoweMechanizmy: string[];
   };
@@ -175,7 +175,7 @@ export interface ScannerReport {
   brandProfiles: Array<{
     brandName: string;
     isClient: boolean;
-    logikaSprzdazy: {
+    logikaSprzedazy: {
       tresc: string;
       kluczoweMechanizmy: string[];
     };

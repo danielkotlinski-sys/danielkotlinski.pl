@@ -238,7 +238,7 @@ export async function runCategoryScanner(
         }),
         'claude-opus-4-5'
       );
-      brandProfiles[brand.name] = parseJsonResponse(raw);
+      brandProfiles[brand.name] = parseJsonResponse<BrandProfile>(raw);
     })
   );
   emitStep('synthesize_brands', 'done');
@@ -296,7 +296,7 @@ export async function runCategoryScanner(
       return {
         brandName: brand.name,
         isClient: brand.name === input.clientBrand.name,
-        logikaSprzdazy: profile.logikaSprzdazy,
+        logikaSprzedazy: profile.logikaSprzedazy,
         implikowanyKlient: profile.implikowanyKlient,
         kluczoweDowody: profile.kluczoweDowody,
         samplePostScreenshots: data.posts

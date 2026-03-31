@@ -118,7 +118,7 @@ DYSKURS ZEWNĘTRZNY:
 Na podstawie tych danych napisz profil marki. Odpowiedz wyłącznie w JSON:
 
 {
-  "logikaSprzdazy": {
+  "logikaSprzedazy": {
     "tresc": "Jaki jest mechanizm tej oferty — co marka zakłada że klient chce, jak twierdzi że to daje, dlaczego klient ma jej wierzyć? Zidentyfikuj ukrytą logikę, nie opisuj powierzchni. 4-6 zdań.",
     "kluczoweMechanizmy": ["mechanizm 1", "mechanizm 2"]
   },
