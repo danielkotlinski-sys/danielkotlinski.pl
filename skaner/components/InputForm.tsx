@@ -185,7 +185,14 @@ export default function InputForm({ onSubmit }: InputFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validate()) {
+      // Scroll to first error
+      setTimeout(() => {
+        const firstError = document.querySelector('.text-dk-orange');
+        firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 50);
+      return;
+    }
     const validCompetitors = competitors.filter((c) => c.name.trim() && c.url.trim());
 
     onSubmit({
