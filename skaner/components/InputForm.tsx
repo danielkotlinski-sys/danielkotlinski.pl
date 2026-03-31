@@ -85,6 +85,10 @@ export default function InputForm({ onSubmit }: InputFormProps) {
   const [jtbdLoading, setJtbdLoading] = useState(false);
   const [jtbdRequested, setJtbdRequested] = useState(false);
 
+  // Competitor suggestion state
+  const [competitorsLoading, setCompetitorsLoading] = useState(false);
+  const [competitorsSuggested, setCompetitorsSuggested] = useState(false);
+
   useEffect(() => {
     if (window.location.hostname === 'localhost') setIsDev(true);
   }, []);
@@ -117,6 +121,38 @@ export default function InputForm({ onSubmit }: InputFormProps) {
     const updated = [...competitors];
     updated[index] = { ...updated[index], [field]: value };
     setCompetitors(updated);
+  };
+
+  const requestCompetitors = async () => {
+    if (!brandName.trim() || !category || category.length < 10) return;
+    setCompetitorsLoading(true);
+    try {
+      const response = await fetch('/api/scan/suggest-competitors', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          brandName: brandName.trim(),
+          brandUrl: normalizeUrl(brandUrl),
+          category,
+          categoryType,
+          socialPlatform,
+        }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const suggested = (data.competitors || []) as Competitor[];
+        if (suggested.length > 0) {
+          // Fill in competitor slots, padding to at least 2
+          while (suggested.length < 2) suggested.push({ name: '', url: '', socialHandle: '' });
+          setCompetitors(suggested);
+          setCompetitorsSuggested(true);
+        }
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setCompetitorsLoading(false);
+    }
   };
 
   const requestJtbdSuggestions = async () => {
@@ -399,10 +435,44 @@ export default function InputForm({ onSubmit }: InputFormProps) {
 
       {/* Competitors */}
       <section className="bg-white rounded-card p-6 md:p-8 mb-8">
-        <div className="flex items-baseline justify-between mb-6">
+        <div className="flex items-baseline justify-between mb-2">
           <h2 className="font-heading text-2xl text-text-primary">Konkurenci</h2>
           <span className="text-sm text-text-gray">min. 2, maks. 4</span>
         </div>
+        <p className="text-sm text-text-gray mb-5">
+          Podaj ręcznie lub pozwól AI zasugerować na podstawie Twojej marki i kategorii.
+        </p>
+
+        {/* Suggest competitors button */}
+        {!competitorsSuggested && !competitorsLoading && brandName.trim() && category.length >= 10 && (
+          <button
+            type="button"
+            onClick={requestCompetitors}
+            className="mb-5 w-full py-3 text-sm font-medium text-dk-teal border border-dk-teal/30 rounded-card hover:bg-dk-teal/5 transition-colors flex items-center justify-center gap-2"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M8 3v10M3 8h10" strokeLinecap="round"/>
+            </svg>
+            Zasugeruj konkurentów
+          </button>
+        )}
+
+        {competitorsLoading && (
+          <div className="mb-5 flex items-center justify-center gap-2 py-3 text-sm text-text-gray">
+            <span className="inline-block w-3 h-3 border-2 border-dk-teal border-t-transparent rounded-full animate-spin" />
+            Szukam konkurentów...
+          </div>
+        )}
+
+        {competitorsSuggested && (
+          <div className="mb-5 flex items-center gap-2 text-xs text-dk-teal">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M2 7.5l3 3 7-7" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Uzupełnione — możesz dowolnie zmienić lub dodać kolejnych
+          </div>
+        )}
+
         {errors.competitors && <p className="text-dk-orange text-sm mb-4">{errors.competitors}</p>}
 
         <div className="space-y-4">
