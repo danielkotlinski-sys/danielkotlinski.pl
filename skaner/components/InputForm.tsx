@@ -38,6 +38,31 @@ const RATING_LABELS: Record<number, string> = {
   3: 'Tak',
 };
 
+function normalizeHandle(raw: string): string {
+  let val = raw.trim();
+  // Strip full URLs: https://instagram.com/handle, linkedin.com/company/handle, etc.
+  val = val.replace(/^https?:\/\/(www\.)?/i, '');
+  val = val.replace(/^(instagram\.com|facebook\.com|linkedin\.com)\/(company\/|in\/)?/i, '');
+  // Strip leading @ and trailing /
+  val = val.replace(/^@/, '').replace(/\/+$/, '');
+  // If there's still a slash (e.g. leftover path), take the last segment
+  if (val.includes('/')) {
+    const parts = val.split('/').filter(Boolean);
+    val = parts[parts.length - 1] || val;
+  }
+  return val;
+}
+
+function normalizeUrl(raw: string): string {
+  let val = raw.trim();
+  if (!val) return val;
+  // Add https:// if missing protocol
+  if (!/^https?:\/\//i.test(val)) {
+    val = 'https://' + val;
+  }
+  return val;
+}
+
 export default function InputForm({ onSubmit }: InputFormProps) {
   const [brandName, setBrandName] = useState('');
   const [brandUrl, setBrandUrl] = useState('');
@@ -144,9 +169,9 @@ export default function InputForm({ onSubmit }: InputFormProps) {
 
     onSubmit({
       clientBrand: {
-        name: brandName,
-        url: brandUrl,
-        socialHandle: socialHandle.replace('@', ''),
+        name: brandName.trim(),
+        url: normalizeUrl(brandUrl),
+        socialHandle: normalizeHandle(socialHandle),
         socialPlatform,
       },
       category,
@@ -155,9 +180,9 @@ export default function InputForm({ onSubmit }: InputFormProps) {
       clientDescription: clientDescription.trim() || undefined,
       jtbdRatings: ratedJtbd,
       competitors: validCompetitors.map((c) => ({
-        name: c.name,
-        url: c.url,
-        socialHandle: c.socialHandle.replace('@', ''),
+        name: c.name.trim(),
+        url: normalizeUrl(c.url),
+        socialHandle: normalizeHandle(c.socialHandle),
       })),
     });
   };
@@ -194,26 +219,28 @@ export default function InputForm({ onSubmit }: InputFormProps) {
           <div>
             <label className={labelStyles}>Adres strony</label>
             <input
-              type="url"
+              type="text"
               value={brandUrl}
               onChange={(e) => setBrandUrl(e.target.value)}
+              onBlur={(e) => setBrandUrl(normalizeUrl(e.target.value))}
               className={inputStyles}
-              placeholder="https://twojastrona.pl"
+              placeholder="twojastrona.pl"
             />
             {errors.brandUrl && <p className="text-dk-orange text-sm mt-1.5">{errors.brandUrl}</p>}
           </div>
           <div className="flex gap-3">
             <div className="flex-1">
               <label className={labelStyles}>
-                Social media
+                Profil w social media
                 <span className="text-text-gray font-normal ml-1">(opcjonalnie)</span>
               </label>
               <input
                 type="text"
                 value={socialHandle}
                 onChange={(e) => setSocialHandle(e.target.value)}
+                onBlur={(e) => setSocialHandle(normalizeHandle(e.target.value))}
                 className={inputStyles}
-                placeholder="@handle"
+                placeholder="nazwa profilu lub link"
               />
             </div>
             <div className="w-40">
@@ -230,7 +257,8 @@ export default function InputForm({ onSubmit }: InputFormProps) {
             </div>
           </div>
           <p className="text-xs text-text-gray">
-            Bez social media analiza opiera się na stronie WWW i dyskursie zewnętrznym
+            Wklej link do profilu lub wpisz samą nazwę — format nie ma znaczenia, ogarniemy.
+            Bez social media analiza opiera się na stronie WWW i dyskursie zewnętrznym.
           </p>
         </div>
       </section>
@@ -389,21 +417,23 @@ export default function InputForm({ onSubmit }: InputFormProps) {
                   value={competitor.name}
                   onChange={(e) => updateCompetitor(index, 'name', e.target.value)}
                   className={inputStyles}
-                  placeholder="Nazwa"
+                  placeholder="Nazwa marki"
                 />
                 <input
                   type="text"
                   value={competitor.url}
                   onChange={(e) => updateCompetitor(index, 'url', e.target.value)}
+                  onBlur={(e) => updateCompetitor(index, 'url', normalizeUrl(e.target.value))}
                   className={inputStyles}
-                  placeholder="URL"
+                  placeholder="strona.pl"
                 />
                 <input
                   type="text"
                   value={competitor.socialHandle}
                   onChange={(e) => updateCompetitor(index, 'socialHandle', e.target.value)}
+                  onBlur={(e) => updateCompetitor(index, 'socialHandle', normalizeHandle(e.target.value))}
                   className={inputStyles}
-                  placeholder="@handle (opcja)"
+                  placeholder="profil (opcja)"
                 />
               </div>
               {competitors.length > 2 && (
