@@ -13,6 +13,20 @@ interface InputFormProps {
   onSubmit: (input: ScannerInput) => void;
 }
 
+const DEV_DEFAULTS = {
+  brandName: 'Veoli Botanica',
+  brandUrl: 'https://veolibotanica.pl',
+  socialHandle: 'veoli_botanica',
+  socialPlatform: 'instagram' as const,
+  category: 'Polskie marki kosmetyków naturalnych sprzedające online, pozycjonujące się na naturalne składniki i świadomą pielęgnację',
+  categoryType: 'b2c' as const,
+  competitors: [
+    { name: 'Resibo', url: 'https://resibo.pl', socialHandle: 'resibobynature' },
+    { name: 'Mokosh', url: 'https://mokosh.pl', socialHandle: 'mokoshcosmetics' },
+    { name: 'BasicLab', url: 'https://basiclab.pl', socialHandle: 'basiclabdermocosmetics' },
+  ],
+};
+
 export default function InputForm({ onSubmit }: InputFormProps) {
   const [brandName, setBrandName] = useState('');
   const [brandUrl, setBrandUrl] = useState('');
@@ -25,6 +39,18 @@ export default function InputForm({ onSubmit }: InputFormProps) {
     { name: '', url: '', socialHandle: '' },
   ]);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const isDev = process.env.NODE_ENV === 'development';
+
+  const fillTestData = () => {
+    setBrandName(DEV_DEFAULTS.brandName);
+    setBrandUrl(DEV_DEFAULTS.brandUrl);
+    setSocialHandle(DEV_DEFAULTS.socialHandle);
+    setSocialPlatform(DEV_DEFAULTS.socialPlatform);
+    setCategory(DEV_DEFAULTS.category);
+    setCategoryType(DEV_DEFAULTS.categoryType);
+    setCompetitors(DEV_DEFAULTS.competitors);
+  };
 
   const addCompetitor = () => {
     if (competitors.length < 4) {
@@ -291,12 +317,23 @@ export default function InputForm({ onSubmit }: InputFormProps) {
       </section>
 
       {/* Submit */}
-      <button
-        type="submit"
-        className="w-full py-3.5 bg-gray-900 text-white rounded-lg font-medium text-lg hover:bg-gray-800 transition-colors"
-      >
-        Uruchom Skan
-      </button>
+      <div className="space-y-3">
+        <button
+          type="submit"
+          className="w-full py-3.5 bg-gray-900 text-white rounded-lg font-medium text-lg hover:bg-gray-800 transition-colors"
+        >
+          Uruchom Skan
+        </button>
+        {isDev && (
+          <button
+            type="button"
+            onClick={fillTestData}
+            className="w-full py-2 text-sm text-gray-400 hover:text-gray-600 border border-dashed border-gray-200 rounded-lg transition-colors"
+          >
+            Wypełnij danymi testowymi (dev)
+          </button>
+        )}
+      </div>
     </form>
   );
 }
