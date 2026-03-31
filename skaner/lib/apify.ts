@@ -19,13 +19,25 @@ const PROFILE_URLS: Record<string, (handle: string) => string> = {
 
 interface RawPost {
   url?: string;
+  postUrl?: string;
   shortCode?: string;
   caption?: string;
   text?: string;
   timestamp?: string;
   displayUrl?: string;
-  postUrl?: string;
-  likesCount?: number;
+  imageUrl?: string;
+  images?: string[];
+}
+
+async function downloadImageAsBase64(imageUrl: string): Promise<string> {
+  try {
+    const response = await fetch(imageUrl);
+    if (!response.ok) return '';
+    const buffer = await response.arrayBuffer();
+    return Buffer.from(buffer).toString('base64');
+  } catch {
+    return '';
+  }
 }
 
 export async function scrapeSocialPosts(
@@ -38,7 +50,6 @@ export async function scrapeSocialPosts(
 
   const profileUrl = PROFILE_URLS[platform](handle);
 
-  // Use directUrls — this is what the actor expects
   const input: Record<string, unknown> = {
     directUrls: [profileUrl],
     resultsLimit: limit,
@@ -67,41 +78,27 @@ export async function scrapeSocialPosts(
 
       if (!postUrl) continue;
 
-      // Take screenshot of each post
-      const screenshot = await screenshotPost(postUrl);
+      // Get image directly from scraper results (no separate screenshot actor)
+      const imageUrl = item.displayUrl || item.imageUrl || (item.images?.[0]) || '';
+      let screenshotBase64 = '';
+
+      if (imageUrl) {
+        screenshotBase64 = await downloadImageAsBase64(imageUrl);
+      }
 
       posts.push({
         url: postUrl,
         caption: item.caption || item.text || '',
         date: item.timestamp || '',
-        screenshotBase64: screenshot,
+        screenshotBase64,
         platform,
       });
     }
 
+    console.log(`Apify: ${posts.length} posts with ${posts.filter(p => p.screenshotBase64).length} images for ${handle}`);
     return posts;
   } catch (error) {
     console.error(`Apify scraping failed for ${handle} on ${platform}:`, error);
     return [];
-  }
-}
-
-async function screenshotPost(postUrl: string): Promise<string> {
-  try {
-    const run = await client.actor('apify/screenshot-url').call(
-      {
-        url: postUrl,
-        waitUntil: 'networkidle2',
-        width: 600,
-      },
-      { waitSecs: 60 }
-    );
-
-    const { items } = await client.dataset(run.defaultDatasetId).listItems();
-    const result = items[0] as { screenshotBase64?: string; screenshot?: string };
-    return result?.screenshotBase64 || result?.screenshot || '';
-  } catch (error) {
-    console.error(`Screenshot failed for ${postUrl}:`, error);
-    return '';
   }
 }

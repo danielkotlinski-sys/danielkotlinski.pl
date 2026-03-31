@@ -84,6 +84,7 @@ export async function sendReportEmail(
         transactionalId: process.env.LOOPS_TRANSACTIONAL_ID,
         email: to,
         dataVariables: {
+          name: props.firstName,
           firstName: props.firstName,
           brandName: props.brandName,
           categoryMechanism: props.categoryMechanism,

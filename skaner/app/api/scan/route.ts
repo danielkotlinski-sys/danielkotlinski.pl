@@ -40,16 +40,15 @@ export async function POST(request: NextRequest) {
         );
 
         sendEvent({ type: 'complete', scanId, report });
-        // Small delay to ensure the client receives the complete event
         await new Promise((resolve) => setTimeout(resolve, 100));
-        controller.close();
       } catch (error) {
         console.error('Pipeline error:', error);
         sendEvent({
           type: 'error',
           error: error instanceof Error ? error.message : 'Nieznany błąd',
         });
-        controller.close();
+      } finally {
+        try { controller.close(); } catch { /* already closed */ }
       }
     },
   });
