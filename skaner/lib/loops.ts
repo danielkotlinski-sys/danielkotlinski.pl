@@ -18,27 +18,38 @@ export async function saveLead(lead: Lead): Promise<void> {
   }
 
   try {
-    const response = await fetch(`${LOOPS_API_URL}/contacts/create`, {
-      method: 'POST',
+    const contactData = {
+      email: lead.email,
+      firstName: lead.firstName,
+      source: 'skaner-kategorii',
+      subscribed: lead.gdprConsent,
+      firma: lead.company || '',
+      markaKlienta: lead.scanInput.clientBrand.name,
+      kategoria: lead.scanInput.category,
+      typKategorii: lead.scanInput.categoryType,
+      scanId: lead.scanId,
+      reportUrl: lead.reportUrl,
+    };
+
+    // Try update first (works for existing + new contacts)
+    const response = await fetch(`${LOOPS_API_URL}/contacts/update`, {
+      method: 'PUT',
       headers: getHeaders(),
-      body: JSON.stringify({
-        email: lead.email,
-        firstName: lead.firstName,
-        source: 'skaner-kategorii',
-        subscribed: lead.gdprConsent,
-        // Custom properties — need to be created in Loops dashboard first
-        firma: lead.company || '',
-        markaKlienta: lead.scanInput.clientBrand.name,
-        kategoria: lead.scanInput.category,
-        typKategorii: lead.scanInput.categoryType,
-        scanId: lead.scanId,
-        reportUrl: lead.reportUrl,
-      }),
+      body: JSON.stringify(contactData),
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      console.error('Loops contact create failed:', error);
+      // Fallback to create if update fails
+      const createResponse = await fetch(`${LOOPS_API_URL}/contacts/create`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(contactData),
+      });
+
+      if (!createResponse.ok) {
+        const error = await createResponse.text();
+        console.error('Loops contact save failed:', error);
+      }
     }
   } catch (error) {
     console.error('Loops contact create error:', error);

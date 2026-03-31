@@ -15,7 +15,7 @@ export async function runPrompt(
     messages: [
       {
         role: 'user',
-        content: prompt + '\n\nOdpowiedz WYŁĄCZNIE poprawnym JSON. Bez komentarzy, bez tekstu przed ani po JSON.',
+        content: prompt + '\n\nWAŻNE: Odpowiedz WYŁĄCZNIE poprawnym JSON. Żadnych komentarzy (//), żadnego tekstu przed ani po JSON. Żadnych trailing commas. Tylko czysty, parsable JSON.',
       },
       {
         role: 'assistant',
@@ -52,7 +52,7 @@ export async function analyzePostVision(
           },
           {
             type: 'text',
-            text: `${prompt}\n\nCaption posta: "${caption}"\n\nOdpowiedz WYŁĄCZNIE poprawnym JSON. Bez komentarzy, bez tekstu przed ani po JSON.`,
+            text: `${prompt}\n\nCaption posta: "${caption}"\n\nWAŻNE: Odpowiedz WYŁĄCZNIE poprawnym JSON. Żadnych komentarzy (//), żadnego tekstu. Tylko czysty JSON.`,
           },
         ],
       },
@@ -69,18 +69,36 @@ export async function analyzePostVision(
 }
 
 export function parseJsonResponse<T>(text: string): T {
-  // Strip markdown code fences
-  let cleaned = text
-    .replace(/^```json\s*/gm, '')
-    .replace(/^```\s*/gm, '')
-    .replace(/```\s*$/gm, '')
-    .trim();
+  let cleaned = text;
+
+  // Strip everything before first { and after last }
+  const firstBrace = cleaned.indexOf('{');
+  const lastBrace = cleaned.lastIndexOf('}');
+  if (firstBrace !== -1 && lastBrace !== -1) {
+    cleaned = cleaned.slice(firstBrace, lastBrace + 1);
+  }
+
+  // Remove single-line comments (// ...) but not inside strings
+  cleaned = cleaned.replace(/(?<!["\w:\/])\/\/[^\n]*/g, '');
 
   // Remove trailing commas before } or ]
   cleaned = cleaned.replace(/,\s*([\]}])/g, '$1');
 
-  // Remove single-line comments
-  cleaned = cleaned.replace(/\/\/[^\n]*/g, '');
+  // Remove any remaining markdown artifacts
+  cleaned = cleaned.replace(/```/g, '');
 
-  return JSON.parse(cleaned);
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    // Last resort: try even more aggressive cleanup
+    // Remove all lines that look like comments
+    cleaned = cleaned
+      .split('\n')
+      .filter((line) => !line.trim().startsWith('//'))
+      .join('\n');
+    // Remove trailing commas again after line removal
+    cleaned = cleaned.replace(/,\s*([\]}])/g, '$1');
+
+    return JSON.parse(cleaned);
+  }
 }
