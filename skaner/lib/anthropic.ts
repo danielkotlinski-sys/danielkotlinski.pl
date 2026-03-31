@@ -29,11 +29,21 @@ export async function runPrompt(
   return '';
 }
 
+function detectMediaType(base64: string): 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp' {
+  if (base64.startsWith('/9j/')) return 'image/jpeg';
+  if (base64.startsWith('iVBOR')) return 'image/png';
+  if (base64.startsWith('R0lG')) return 'image/gif';
+  if (base64.startsWith('UklG')) return 'image/webp';
+  return 'image/jpeg'; // default
+}
+
 export async function analyzePostVision(
   screenshotBase64: string,
   caption: string,
   prompt: string
 ): Promise<string> {
+  const mediaType = detectMediaType(screenshotBase64);
+
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-5',
     max_tokens: 1024,
@@ -46,7 +56,7 @@ export async function analyzePostVision(
             type: 'image',
             source: {
               type: 'base64',
-              media_type: 'image/png',
+              media_type: mediaType,
               data: screenshotBase64,
             },
           },
