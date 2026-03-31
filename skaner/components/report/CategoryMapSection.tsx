@@ -38,6 +38,11 @@ export default function CategoryMapSection({ map }: CategoryMapSectionProps) {
                   {gracz.pozycja}
                 </span>
               </div>
+              {gracz.skala && gracz.skala !== 'brak danych' && (
+                <p className="text-xs text-text-gray mt-1 mb-1.5">
+                  {gracz.skala}
+                </p>
+              )}
               <p className="text-sm text-text-muted leading-relaxed">
                 {gracz.charakter}
               </p>

@@ -123,6 +123,7 @@ export interface CategoryMap {
   gracze: Array<{
     nazwa: string;
     pozycja: string;
+    skala?: string;
     charakter: string;
   }>;
   obozy: string;

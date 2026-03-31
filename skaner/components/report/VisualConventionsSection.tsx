@@ -129,30 +129,6 @@ export default function VisualConventionsSection({ report }: VisualConventionsSe
             </div>
           </div>
 
-          {/* What the category avoids showing */}
-          <div className="bg-white rounded-card p-6 md:p-8">
-            <p className="text-xs text-dk-teal uppercase tracking-widest font-medium mb-4">
-              Czego kategoria wizualnie unika
-            </p>
-            <ul className="space-y-2.5">
-              {categoryVisuals.wspolneUnikanie.map((item, i) => (
-                <li key={i} className="flex items-start gap-3 text-sm text-text-muted leading-relaxed">
-                  <span className="w-1.5 h-1.5 rounded-full bg-dk-orange mt-2 shrink-0" />
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Who's visually excluded */}
-          <div className="bg-white rounded-card p-6 md:p-8 border-l-4 border-amber-400">
-            <p className="text-xs text-amber-600 uppercase tracking-widest font-medium mb-3">
-              Kto nie zobaczy siebie w tej estetyce
-            </p>
-            <p className="text-text-muted leading-[1.8] text-[15px]">
-              {categoryVisuals.ktoWizualnieWykluczony}
-            </p>
-          </div>
         </>
       )}
     </div>

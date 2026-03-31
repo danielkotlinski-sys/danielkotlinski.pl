@@ -145,7 +145,7 @@ export async function runCategoryScanner(
       const posts = await scrapeSocialPosts(
         brand.socialHandle,
         brand.socialPlatform,
-        8
+        15
       );
       brandData[brand.name].posts = posts;
       totalPosts += posts.length;
@@ -205,14 +205,14 @@ export async function runCategoryScanner(
           fillPrompt(PROMPT_1_CLAIM, {
             BRAND_NAME: brand.name,
             CATEGORY: input.category,
-            WEBSITE_TEXT: data.websiteText.slice(0, 12000),
+            WEBSITE_TEXT: data.websiteText.slice(0, 6000),
           }) + mapContext
         ),
         runPrompt(
           fillPrompt(PROMPT_2_VOCABULARY, {
             BRAND_NAME: brand.name,
             CATEGORY: input.category,
-            WEBSITE_TEXT: data.websiteText.slice(0, 12000),
+            WEBSITE_TEXT: data.websiteText.slice(0, 6000),
           })
         ),
       ]);

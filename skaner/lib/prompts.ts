@@ -3,7 +3,8 @@ Jesteś analitykiem komunikacji. Przeczytaj tekst ze strony marki {{BRAND_NAME}}
 
 WAŻNE ZASADY:
 - Każdą tezę oprzyj DOSŁOWNYM cytatem ze strony (w cudzysłowie).
-- Jeśli tekst strony to głównie cookies/regulamin/opis jednego produktu — napisz to wprost. Nie ekstrapoluj jednego przykładu na całość marki.
+- Jeśli tekst strony to głównie cookies/regulamin/opis jednego produktu/aktualnej kampanii — napisz to wprost. Nie ekstrapoluj jednego przykładu na całość marki.
+- Szukaj FUNDAMENTALNYCH elementów komunikacji (obietnica, framing, punkt wejścia), nie aktualnych promocji czy nowości produktowych.
 - Pisz zwięźle. Każde pole to 1-2 zdania, nie więcej.
 
 Odpowiedz wyłącznie w JSON:
@@ -127,10 +128,12 @@ DYSKURS ZEWNĘTRZNY (wywiady, media, recenzje, kontekst konkurencyjny):
 {{PROMPT5_RESULT}}
 
 ZASADY:
-1. Dyskurs zewnętrzny to WERYFIKACJA — jeśli strona mówi jedno a media/opinie drugie, napisz to wprost.
-2. Każdy dowód musi zawierać DOSŁOWNY cytat z konkretnego źródła.
-3. Pisz ZWIĘŹLE — nie powtarzaj tych samych myśli innymi słowami.
-4. Nie ekstrapoluj jednego przykładu na całość. Jeśli dane są ograniczone — zaznacz to.
+1. Social media i dyskurs zewnętrzny to GŁÓWNE źródła — pokazują jak marka naprawdę komunikuje, nie jak chciałaby. Strona WWW to źródło uzupełniające (często to SEO/konwersje, mało treści komunikacyjnej).
+2. Dyskurs zewnętrzny to WERYFIKACJA — jeśli strona mówi jedno a media/opinie drugie, napisz to wprost.
+3. Każdy dowód musi zawierać DOSŁOWNY cytat z konkretnego źródła.
+4. Pisz ZWIĘŹLE — nie powtarzaj tych samych myśli innymi słowami.
+5. Nie ekstrapoluj jednego przykładu (np. nowego produktu, jednej kampanii) na całość marki. Szukaj POWTARZALNYCH wzorców.
+6. Jeśli dane są ograniczone — zaznacz to.
 
 Odpowiedz wyłącznie w JSON:
 
@@ -180,7 +183,9 @@ Cel kategorii (po co klient przychodzi): {{CATEGORY_PURPOSE}}
 Zanim przejdziemy do szczegółowej analizy komunikacji, zbuduj MAPĘ KATEGORII — kto jest kim, jakie są obozy, jakie napięcia.
 
 ZASADY:
-- Oprzyj się na FAKTACH z danych zewnętrznych (media, wywiady, recenzje), nie na domysłach.
+- Oprzyj się na FAKTACH z danych zewnętrznych (media, wywiady, recenzje, dane finansowe), nie na domysłach.
+- POZYCJA w kategorii musi wynikać z DANYCH O SKALI (przychody, liczba klientów, udział w rynku) — nie z tonu komunikacji. Marka z największym przychodem to lider, nawet jeśli komunikuje się skromnie. Marka z niewielkim przychodem to challenger lub niszowa, nawet jeśli komunikuje się odważnie.
+- Jeśli masz dane finansowe — użyj ich wprost jako dowodu pozycji.
 - Nie używaj demografii. Opisuj przez pozycjonowanie, charakter, reputację.
 - Pisz zwięźle.
 
@@ -190,7 +195,8 @@ Odpowiedz wyłącznie w JSON:
   "gracze": [
     {
       "nazwa": "nazwa podmiotu",
-      "pozycja": "Jaką pozycję zajmuje w kategorii? Lider, challenger, niszowy, tradycyjny, awangardowy? 1 zdanie.",
+      "pozycja": "Jaką pozycję zajmuje w kategorii? Lider, challenger, niszowy? Oprzyj się na danych o skali (przychody, klienci). 1 zdanie.",
+      "skala": "Dostępne dane liczbowe: przychód roczny, liczba pracowników, wolumen, dynamika wzrostu. Jeśli brak — napisz 'brak danych'.",
       "charakter": "Jak jest postrzegany przez otoczenie (nie jak sam siebie opisuje)? 1 zdanie."
     }
   ],

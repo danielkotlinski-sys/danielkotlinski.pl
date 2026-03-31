@@ -60,6 +60,9 @@ export async function searchExternalDiscourse(
 
     // Q4: Competitive context
     `"${brandName}" na tle konkurencji w kategorii "${category}". Czym się różni od innych podmiotów? Jaką zajmuje pozycję? Czy jest lider, challenger, niszowa? Szukaj porównań i rankingów.`,
+
+    // Q5: Business scale — revenue, employees, market share
+    `"${brandName}" przychody, obroty, liczba pracowników, skala działalności, udział w rynku. Szukaj w KRS, rejestr.io, sprawozdaniach finansowych, ranking firm, wywiadach z danymi sprzedażowymi. Podaj konkretne liczby jeśli dostępne — roczny przychód, dynamika wzrostu, liczba klientów, wolumen sprzedaży. Kategoria: "${category}".`,
   ];
 
   const results = await Promise.all(
@@ -75,6 +78,7 @@ export async function searchExternalDiscourse(
     { label: 'DYSKURS MEDIALNY', result: results[1] },
     { label: 'PERCEPCJA ODBIORCÓW', result: results[2] },
     { label: 'KONTEKST KONKURENCYJNY', result: results[3] },
+    { label: 'SKALA DZIAŁALNOŚCI', result: results[4] },
   ];
 
   const text = sections
