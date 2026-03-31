@@ -142,7 +142,7 @@ export default function InputForm({ onSubmit }: InputFormProps) {
   };
 
   const requestCompetitors = async () => {
-    if (!brandName.trim() || !category || category.length < 10) return;
+    if (!brandName.trim() || !category || category.length < 20) return;
     setCompetitorsLoading(true);
     try {
       const response = await fetch('/api/scan/suggest-competitors', {
@@ -174,7 +174,7 @@ export default function InputForm({ onSubmit }: InputFormProps) {
   };
 
   const suggestCategoryPurpose = async () => {
-    if (!category || category.length < 10) return;
+    if (!category || category.length < 20) return;
     setJtbdLoading(true);
     try {
       const response = await fetch('/api/scan/suggest-jtbd', {
