@@ -61,15 +61,6 @@ export default function ClientPositionSection({
         </p>
       </div>
 
-      {/* Open question — hero */}
-      <div className="bg-dk-teal/5 border border-dk-teal/20 rounded-card p-8 md:p-12 text-center">
-        <p className="text-xs text-dk-teal uppercase tracking-widest font-medium mb-6">
-          Pytanie otwarte
-        </p>
-        <p className="font-heading text-2xl md:text-3xl text-text-primary leading-snug">
-          {position.pytanieOtwarte}
-        </p>
-      </div>
     </div>
   );
 }

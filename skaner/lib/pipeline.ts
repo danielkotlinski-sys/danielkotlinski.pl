@@ -44,7 +44,7 @@ import {
 import { saveReport } from './redis';
 import { saveLead, sendReportEmail } from './loops';
 
-const NOTA_KONCOWA = `Konwencja pokazuje jak kategoria konkuruje dziś. Nie mówi nic o tym, czy ta logika odpowiada na to czego klienci naprawdę szukają — i kogo kategoria przez to systematycznie omija. To jest pytanie które zadaję w płatnym Skanie Kategorii — razem z mapą ukrytych motywacji i konkretnym kierunkiem dla Twojej marki.`;
+const NOTA_KONCOWA = `Konwencja to nie prawo natury — to nawyk rynku. Segment, do którego nikt nie mówi, nie zniknął. On kupuje gdzie indziej lub nie kupuje wcale. W pogłębionym Skanie Kategorii identyfikuję konkretne pragnienia tej grupy przez wywiady z klientami i analizę zachowań — i buduję dla Twojej marki narrację, która ich przyciągnie zanim konkurencja się zorientuje.`;
 
 type ProgressCallback = (event: ProgressEvent) => void;
 

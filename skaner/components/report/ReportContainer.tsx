@@ -26,16 +26,16 @@ const SECTION_EXPLAINERS: Record<string, { heading: string; explainer: string }>
     explainer: 'Komunikacja wizualna zdradza więcej niż tekst. Powtarzające się kolory, kadry, nastroje — to nie przypadek. To wizualny język kategorii, który mówi klientowi: jesteś tu u siebie (albo nie).',
   },
   map: {
-    heading: 'Mapa kategorii',
+    heading: 'Krajobraz kategorii',
     explainer: 'Kim są gracze i jakie pozycje zajmują? Zanim szukamy wzorców, potrzebujemy krajobrazu — kto jest liderem, kto challengerem, kto gra w inną grę.',
-  },
-  convention: {
-    heading: 'Konwencja kategorii',
-    explainer: 'Teraz szukamy tego, co niewidoczne. Konwencja to milczące, wspólne założenia, których nikt nie kwestionuje — o kliencie, o tym co ważne, o sposobie sprzedaży. To reguły gry, w którą wszyscy grają, nie wiedząc, że grają.',
   },
   gaps: {
     heading: 'Luki komunikacyjne',
-    explainer: 'Skoro wiemy co mówi kategoria — zobaczmy czego NIE mówi. Luki to tematy i obietnice, które część marek podejmuje, a reszta ignoruje. Każda luka to potencjalna szansa.',
+    explainer: 'Kto mówi o czym — a kto milczy? Milczenie jest strategiczną informacją. Pokazuje jakie tematy kategoria uznaje za zbyt ryzykowne lub zbyt oczywiste żeby je artykułować.',
+  },
+  convention: {
+    heading: 'Konwencja kategorii',
+    explainer: 'Tu wyłania się wzorzec. Wszystkie marki — choć konkurują — grają tę samą grę, według tych samych niepisanych reguł. Oto mechanizm, który trzyma kategorię w pułapce jednomyślności.',
   },
   position: {
     heading: 'Twoja pozycja',
@@ -54,9 +54,9 @@ export default function ReportContainer({ report, firstName }: ReportContainerPr
   const tocItems = [
     { id: 'profiles', label: 'Profile marek' },
     { id: 'visual', label: 'Konwencje wizualne' },
-    ...(report.mapaKategorii ? [{ id: 'map', label: 'Mapa kategorii' }] : []),
-    { id: 'convention', label: 'Konwencja kategorii' },
+    ...(report.mapaKategorii ? [{ id: 'map', label: 'Krajobraz kategorii' }] : []),
     ...(report.lukiKomunikacyjne ? [{ id: 'gaps', label: 'Luki komunikacyjne' }] : []),
+    { id: 'convention', label: 'Konwencja kategorii' },
     { id: 'position', label: 'Twoja pozycja' },
     ...(report.blueOceanFinale ? [{ id: 'finale', label: 'A co jeśli...' }] : []),
     { id: 'cta', label: 'Co dalej' },
@@ -165,19 +165,19 @@ export default function ReportContainer({ report, firstName }: ReportContainerPr
         </section>
       )}
 
-      {/* Section 4: Category conventions — the discovery */}
-      <section id="convention" className="mb-20">
-        <SectionHeader num={nextSection()} sectionId="convention" />
-        <ConventionSection conventions={report.konwencjaKategorii} />
-      </section>
-
-      {/* Section 5: Communication gaps */}
+      {/* Section 4: Communication gaps — what's unsaid */}
       {report.lukiKomunikacyjne && (
         <section id="gaps" className="mb-20">
           <SectionHeader num={nextSection()} sectionId="gaps" />
           <ComparativeGapsSection gaps={report.lukiKomunikacyjne} />
         </section>
       )}
+
+      {/* Section 5: Category conventions — the discovery */}
+      <section id="convention" className="mb-20">
+        <SectionHeader num={nextSection()} sectionId="convention" />
+        <ConventionSection conventions={report.konwencjaKategorii} />
+      </section>
 
       {/* Section 6: Client position — confrontation */}
       <section id="position" className="mb-20">
