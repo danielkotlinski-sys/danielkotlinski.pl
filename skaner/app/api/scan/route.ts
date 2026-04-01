@@ -32,14 +32,25 @@ export async function POST(request: NextRequest) {
         controller.enqueue(encoder.encode(`data: ${data}\n\n`));
       };
 
+      // Keep-alive: send a comment every 25s to prevent Railway proxy timeout
+      const keepAlive = setInterval(() => {
+        try {
+          controller.enqueue(encoder.encode(`: keepalive\n\n`));
+        } catch {
+          // stream already closed
+          clearInterval(keepAlive);
+        }
+      }, 25_000);
+
       try {
-        const { scanId, report } = await runCategoryScanner(
+        const { scanId } = await runCategoryScanner(
           input,
           lead,
           (progressEvent) => sendEvent(progressEvent)
         );
 
-        sendEvent({ type: 'complete', scanId, report });
+        // Don't send full report over SSE — just the scanId for redirect
+        sendEvent({ type: 'complete', scanId });
         await new Promise((resolve) => setTimeout(resolve, 100));
       } catch (error) {
         console.error('Pipeline error:', error);
@@ -48,6 +59,7 @@ export async function POST(request: NextRequest) {
           error: error instanceof Error ? error.message : 'Nieznany błąd',
         });
       } finally {
+        clearInterval(keepAlive);
         try { controller.close(); } catch { /* already closed */ }
       }
     },

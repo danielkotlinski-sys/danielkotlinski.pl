@@ -145,7 +145,7 @@ export async function runCategoryScanner(
       const posts = await scrapeSocialPosts(
         brand.socialHandle,
         brand.socialPlatform,
-        15
+        12
       );
       brandData[brand.name].posts = posts;
       totalPosts += posts.length;

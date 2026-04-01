@@ -86,7 +86,7 @@ export async function searchExternalDiscourse(
     .map((s) => `### ${s.label}\n${s.result.content}`)
     .join('\n\n---\n\n');
 
-  console.log(`Perplexity: ${brandName} — ${results.filter(r => r.content).length}/4 queries returned, ${allCitations.length} citations`);
+  console.log(`Perplexity: ${brandName} — ${results.filter(r => r.content).length}/${queries.length} queries returned, ${allCitations.length} citations`);
 
   return { text, citations: allCitations };
 }
