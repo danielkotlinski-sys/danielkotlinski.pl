@@ -6,6 +6,7 @@ import InputForm from '@/components/InputForm';
 import LeadGateModal from '@/components/LeadGateModal';
 import ProgressTracker from '@/components/ProgressTracker';
 import ReportContainer from '@/components/report/ReportContainer';
+import ReportDisclaimer from '@/components/report/ReportDisclaimer';
 import type { ScannerInput, LeadInfo, ScannerReport, ScanRequest } from '@/types/scanner';
 
 type Screen = 'input' | 'gate' | 'progress' | 'report';
@@ -31,18 +32,18 @@ export default function SkanerPage() {
   };
 
   const handleComplete = useCallback(
-    (scanId: string, reportFromStream?: unknown) => {
+    (completedScanId: string, reportFromStream?: unknown) => {
       if (reportFromStream) {
         setReport(reportFromStream as ScannerReport);
         setScreen('report');
-        window.history.pushState(null, '', `/raport/${scanId}`);
+        window.history.pushState(null, '', `/raport/${completedScanId}`);
       } else {
-        fetch(`/api/scan/${scanId}/result`)
+        fetch(`/api/scan/${completedScanId}/result`)
           .then((r) => (r.ok ? r.json() : Promise.reject()))
           .then((data) => {
             setReport(data);
             setScreen('report');
-            window.history.pushState(null, '', `/raport/${scanId}`);
+            window.history.pushState(null, '', `/raport/${completedScanId}`);
           })
           .catch(() => setError('Nie udało się pobrać raportu'));
       }
@@ -107,7 +108,9 @@ export default function SkanerPage() {
         )}
 
         {screen === 'report' && report && (
-          <ReportContainer report={report} firstName={leadInfo?.firstName} />
+          <ReportDisclaimer>
+            <ReportContainer report={report} firstName={leadInfo?.firstName} />
+          </ReportDisclaimer>
         )}
       </main>
     </>
