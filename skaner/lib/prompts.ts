@@ -202,8 +202,31 @@ Odpowiedz wyłącznie w JSON:
   ],
   "obozy": "Czy w tej kategorii istnieją wyraźne obozy, szkoły, podejścia? Jakie? 1-2 zdania.",
   "napiecia": "Jakie napięcia lub konflikty definiują tę kategorię? Co jest osią sporów? 1-2 zdania.",
-  "hierarchia": "Kto jest postrzegany jako punkt odniesienia? Kto aspiruje, kto się buntuje? 1-2 zdania."
+  "hierarchia": "Kto jest postrzegany jako punkt odniesienia? Kto aspiruje, kto się buntuje? 1-2 zdania.",
+  "mapaPercepcyjna": {
+    "osX": {
+      "lewy": "Biegun lewy osi X — jedno słowo lub krótka fraza (np. 'Tradycja', 'Eksperckość', 'Premium')",
+      "prawy": "Biegun prawy osi X — przeciwieństwo lewego (np. 'Innowacja', 'Przystępność', 'Masowość')"
+    },
+    "osY": {
+      "dolny": "Biegun dolny osi Y — jedno słowo lub krótka fraza (np. 'Funkcjonalność', 'Racjonalność')",
+      "gorny": "Biegun górny osi Y — przeciwieństwo dolnego (np. 'Emocje', 'Styl życia')"
+    },
+    "marki": [
+      {
+        "nazwa": "nazwa marki",
+        "x": "Pozycja na osi X od -10 (lewy biegun) do 10 (prawy biegun). Liczba całkowita.",
+        "y": "Pozycja na osi Y od -10 (dolny biegun) do 10 (górny biegun). Liczba całkowita."
+      }
+    ]
+  }
 }
+
+WAŻNE dla mapy percepcyjnej:
+- Osie muszą odzwierciedlać PRAWDZIWE napięcia komunikacyjne w kategorii — nie generyczne wymiary.
+- Unikaj banalnych osi typu "tanie vs drogie" lub "duże vs małe" — szukaj osi, które pokazują RÓŻNICE w pozycjonowaniu marek.
+- Pozycje marek muszą wynikać z danych, nie z domysłów. Marki MOGĄ się nakładać — to ważna informacja pokazująca tłok w kategorii.
+- Dobierz osie tak, żeby marki się ROZRÓŻNIAŁY — jeśli wszystkie lądują w jednym miejscu, zmień osie.
 `;
 
 export const PROMPT_COMPARATIVE_GAPS = `

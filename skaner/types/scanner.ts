@@ -119,6 +119,16 @@ export interface AtomicAnalysis {
 
 // === Category Map ===
 
+export interface PerceptualMapData {
+  osX: { lewy: string; prawy: string };
+  osY: { dolny: string; gorny: string };
+  marki: Array<{
+    nazwa: string;
+    x: number;
+    y: number;
+  }>;
+}
+
 export interface CategoryMap {
   gracze: Array<{
     nazwa: string;
@@ -129,6 +139,7 @@ export interface CategoryMap {
   obozy: string;
   napiecia: string;
   hierarchia: string;
+  mapaPercepcyjna?: PerceptualMapData;
 }
 
 // === Comparative Gap ===

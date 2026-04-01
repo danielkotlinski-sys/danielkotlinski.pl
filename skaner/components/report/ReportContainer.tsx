@@ -9,6 +9,7 @@ import ComparativeGapsSection from './ComparativeGapsSection';
 import VisualConventionsSection from './VisualConventionsSection';
 import FinaleSection from './FinaleSection';
 import GateSection from './GateSection';
+import PdfDownloadButton from './PdfDownloadButton';
 
 interface ReportContainerProps {
   report: ScannerReport;
@@ -85,7 +86,7 @@ export default function ReportContainer({ report, firstName }: ReportContainerPr
   };
 
   return (
-    <div className="max-w-report mx-auto relative">
+    <div id="report-content" className="max-w-report mx-auto relative">
       {/* Sticky TOC - desktop only */}
       <nav className="hidden lg:block fixed left-8 top-1/2 -translate-y-1/2 z-40">
         <div className="space-y-3">
@@ -132,6 +133,12 @@ export default function ReportContainer({ report, firstName }: ReportContainerPr
           <p className="text-sm text-text-gray mt-8 leading-relaxed max-w-2xl">
             Ten raport to podróż przez odkrycie. Zaczynamy od obserwacji poszczególnych marek, budujemy mapę kategorii, odkrywamy milczącą konwencję — i na końcu zadajemy pytanie, które może zmienić sposób w jaki myślisz o swoim rynku.
           </p>
+          <div className="mt-6">
+            <PdfDownloadButton
+              reportElementId="report-content"
+              fileName={`skan-kategorii-${report.meta.clientBrand.toLowerCase().replace(/\s+/g, '-')}`}
+            />
+          </div>
         </div>
       </header>
 
@@ -155,7 +162,7 @@ export default function ReportContainer({ report, firstName }: ReportContainerPr
       {report.mapaKategorii && (
         <section id="map" className="mb-20">
           <SectionHeader num={nextSection()} sectionId="map" />
-          <CategoryMapSection map={report.mapaKategorii} />
+          <CategoryMapSection map={report.mapaKategorii} clientBrandName={report.meta.clientBrand} />
         </section>
       )}
 

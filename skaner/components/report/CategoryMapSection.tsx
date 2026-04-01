@@ -1,12 +1,14 @@
 'use client';
 
 import type { CategoryMap } from '@/types/scanner';
+import PerceptualMap from './PerceptualMap';
 
 interface CategoryMapSectionProps {
   map: CategoryMap;
+  clientBrandName: string;
 }
 
-export default function CategoryMapSection({ map }: CategoryMapSectionProps) {
+export default function CategoryMapSection({ map, clientBrandName }: CategoryMapSectionProps) {
   return (
     <div className="space-y-6">
       {/* Hero: hierarchy overview */}
@@ -21,6 +23,11 @@ export default function CategoryMapSection({ map }: CategoryMapSectionProps) {
           {map.obozy}
         </p>
       </div>
+
+      {/* Perceptual map */}
+      {map.mapaPercepcyjna && map.mapaPercepcyjna.marki?.length > 0 && (
+        <PerceptualMap data={map.mapaPercepcyjna} clientBrandName={clientBrandName} />
+      )}
 
       {/* Players */}
       <div className="bg-white rounded-card p-6 md:p-8">

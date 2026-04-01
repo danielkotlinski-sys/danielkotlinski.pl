@@ -137,10 +137,10 @@ export default function FinaleSection({ finale, brandName }: FinaleSectionProps)
       {/* CTA */}
       <div className="bg-text-dark text-white rounded-card p-8 md:p-12 text-center">
         <p className="text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-4 text-white/80">
-          Ten raport pokazuje konwencję i jej pęknięcia &mdash; ale nie odpowiada na kluczowe pytanie: jak konkretnie Twoja marka może wyrwać się z rywalizacji na te same parametry, o tego samego klienta, i sięgnąć po unikalny, nowy popyt?
+          To co widzisz to próbka &mdash; automatyczny research oparty wyłącznie o publicznie dostępne dane. Pełny proces strategiczny łączy ten autoresearch z pogłębioną analizą stratega oraz wywiadami z&nbsp;Twoimi klientami, żeby zrozumieć ich prawdziwe motywacje.
         </p>
         <p className="text-sm text-white/50 mb-10 max-w-xl mx-auto">
-          W pełnym procesie strategicznym, pomagam markom wejść głębiej w kategorię, badam ukryte motywacje klientów i formułuję przejrzyste, proste w zrozumieniu i implementacji strategie marek.
+          Dopiero ta kombinacja &mdash; dane + interpretacja + głos klienta &mdash; pozwala zbudować pozycję marki, która wyrwie ją z porównań z konkurencją.
         </p>
         <a
           href="https://danielkotlinski.pl/kontakt"

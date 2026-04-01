@@ -473,7 +473,7 @@ export async function runCategoryScanner(
         implikowanyKlient: profile.implikowanyKlient,
         kluczoweDowody: profile.kluczoweDowody,
         samplePostScreenshots: data.posts
-          .slice(0, 2)
+          .slice(0, 4)
           .map((p) => p.screenshotBase64)
           .filter(Boolean),
         sampleWebsiteQuotes: [
