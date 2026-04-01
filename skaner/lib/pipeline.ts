@@ -222,9 +222,11 @@ export async function runCategoryScanner(
       let socialSynthesisResult: SocialSynthesis | null = null;
 
       if (data.posts.length > 0) {
-        const postTasks = data.posts
-          .filter((p) => p.screenshotBase64)
-          .map(
+        // Analyze up to 8 posts with vision (to stay within timeout)
+        // All 15 captions still feed into social synthesis via post analyses
+        const postsWithImages = data.posts.filter((p) => p.screenshotBase64);
+        const postsForVision = postsWithImages.slice(0, 8);
+        const postTasks = postsForVision.map(
             (post) => () =>
               analyzePostVision(
                 post.screenshotBase64,
@@ -235,14 +237,20 @@ export async function runCategoryScanner(
 
         postAnalyses = await runInBatches(postTasks, 3);
 
-        // Prompt 4: social synthesis
+        // Prompt 4: social synthesis — include captions from non-analyzed posts
+        const extraCaptions = postsWithImages.slice(8)
+          .map((p) => p.caption)
+          .filter(Boolean);
+        const captionContext = extraCaptions.length > 0
+          ? `\n\nDODATKOWE CAPTIONY (${extraCaptions.length} postów bez analizy wizualnej):\n${extraCaptions.map((c, i) => `${i + 1}. ${c.slice(0, 300)}`).join('\n')}`
+          : '';
         const socialRaw = await runPrompt(
           fillPrompt(PROMPT_4_SOCIAL_SYNTHESIS, {
-            N: String(postAnalyses.length),
+            N: String(data.posts.length),
             BRAND_NAME: brand.name,
             CATEGORY: input.category,
             POST_ANALYSES: JSON.stringify(postAnalyses, null, 2),
-          })
+          }) + captionContext
         );
         socialSynthesisResult = parseJsonResponse(socialRaw);
       }
