@@ -41,7 +41,7 @@ import {
   PROMPT_9_BLUE_OCEAN,
   fillPrompt,
 } from './prompts';
-import { saveReport } from './redis';
+import { saveReport, saveScanMeta } from './redis';
 import { saveLead, sendReportEmail } from './loops';
 
 const NOTA_KONCOWA = `Konwencja to nie prawo natury — to nawyk rynku. Segment, do którego nikt nie mówi, nie zniknął. On kupuje gdzie indziej lub nie kupuje wcale. W pogłębionym Skanie Kategorii identyfikuję konkretne pragnienia tej grupy przez wywiady z klientami i analizę zachowań — i buduję dla Twojej marki narrację, która ich przyciągnie zanim konkurencja się zorientuje.`;
@@ -92,6 +92,15 @@ export async function runCategoryScanner(
     reportUrl,
   };
   saveLead(leadRecord).catch((err) => console.error('Lead save error:', err));
+
+  // Save scan metadata to Redis (lead + input for admin panel)
+  saveScanMeta({
+    scanId,
+    createdAt: new Date().toISOString(),
+    lead,
+    input,
+    reportUrl,
+  }).catch((err) => console.error('Scan meta save error:', err));
 
   // === PHASE 1: DATA COLLECTION ===
   const brandData: Record<string, BrandData> = {};

@@ -1,5 +1,13 @@
 import Redis from 'ioredis';
-import type { ScannerReport } from '@/types/scanner';
+import type { ScannerReport, ScannerInput, LeadInfo } from '@/types/scanner';
+
+export interface ScanMeta {
+  scanId: string;
+  createdAt: string;
+  lead: LeadInfo;
+  input: ScannerInput;
+  reportUrl: string;
+}
 
 // In-memory fallback when Redis is not available (local dev)
 const memoryStore = new Map<string, { data: string; expiry: number }>();
@@ -126,4 +134,52 @@ export async function getReport(
     : memGet(`report:${scanId}`);
   if (!data) return null;
   return JSON.parse(data);
+}
+
+// === Scan metadata (lead + input) ===
+
+export async function saveScanMeta(meta: ScanMeta): Promise<void> {
+  const json = JSON.stringify(meta);
+  const r = await getRedis();
+  if (r) {
+    await r.set(`scan:${meta.scanId}`, json, 'EX', REPORT_TTL);
+    // Add to sorted set for listing (score = timestamp)
+    await r.zadd('scans:all', Date.parse(meta.createdAt), meta.scanId);
+  } else {
+    memSet(`scan:${meta.scanId}`, json, REPORT_TTL);
+  }
+}
+
+export async function listScans(limit = 50, offset = 0): Promise<ScanMeta[]> {
+  const r = await getRedis();
+  if (!r) {
+    // Memory fallback — just return what we have
+    const results: ScanMeta[] = [];
+    memoryStore.forEach((entry, key) => {
+      if (key.startsWith('scan:') && Date.now() <= entry.expiry) {
+        results.push(JSON.parse(entry.data));
+      }
+    });
+    return results
+      .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
+      .slice(offset, offset + limit);
+  }
+
+  // Get scanIds from sorted set, newest first
+  const scanIds = await r.zrevrange('scans:all', offset, offset + limit - 1);
+  if (scanIds.length === 0) return [];
+
+  const pipeline = r.pipeline();
+  for (const id of scanIds) {
+    pipeline.get(`scan:${id}`);
+  }
+  const results = await pipeline.exec();
+  if (!results) return [];
+
+  return results
+    .map(([err, data]) => {
+      if (err || !data) return null;
+      try { return JSON.parse(data as string) as ScanMeta; } catch { return null; }
+    })
+    .filter((m): m is ScanMeta => m !== null);
 }
