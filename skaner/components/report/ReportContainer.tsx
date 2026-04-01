@@ -37,8 +37,8 @@ const SECTION_EXPLAINERS: Record<string, { heading: string; explainer: string }>
     explainer: 'Tu wyłania się wzorzec. Wszystkie marki — choć konkurują — grają tę samą grę, według tych samych niepisanych reguł. Oto mechanizm, który trzyma kategorię w pułapce jednomyślności — i miejsce Twojej marki w tym układzie.',
   },
   finale: {
-    heading: 'Odwrócona perspektywa',
-    explainer: 'Konwencja opisuje jak kategoria konkuruje dziś. Ale każda konwencja opiera się na założeniach — a założenia można odwrócić. To jest moment, w którym zaczynamy myśleć nie o tym jak grać lepiej, ale czy gramy w odpowiednią grę.',
+    heading: 'Pęknięcie strategiczne',
+    explainer: 'Konwencja opisuje jak kategoria generuje wartość dziś. Ale każda logika opiera się na założeniach — a założenia mają koszty i ślepe punkty. To jest moment, w którym szukamy nie lepszego wykonania starej gry, ale innej gry.',
   },
 };
 
@@ -52,7 +52,7 @@ export default function ReportContainer({ report, firstName }: ReportContainerPr
     ...(report.mapaKategorii ? [{ id: 'map', label: 'Krajobraz kategorii' }] : []),
     ...(report.lukiKomunikacyjne ? [{ id: 'gaps', label: 'Luki komunikacyjne' }] : []),
     { id: 'convention', label: 'Konwencja i Twoja marka' },
-    ...(report.blueOceanFinale ? [{ id: 'finale', label: 'Odwrócona perspektywa' }] : []),
+    ...(report.blueOceanFinale ? [{ id: 'finale', label: 'Pęknięcie strategiczne' }] : []),
     { id: 'cta', label: 'Co dalej' },
   ];
 
@@ -183,7 +183,6 @@ export default function ReportContainer({ report, firstName }: ReportContainerPr
           <SectionHeader num={nextSection()} sectionId="finale" />
           <FinaleSection
             finale={report.blueOceanFinale}
-            conventions={report.konwencjaKategorii}
             brandName={report.meta.clientBrand}
           />
         </section>

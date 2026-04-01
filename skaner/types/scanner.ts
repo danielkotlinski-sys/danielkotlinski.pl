@@ -197,20 +197,28 @@ export interface ClientPosition {
 }
 
 export interface BlueOceanFinale {
-  odwroconaKonwencja: {
-    zalozenie: string;
-    odwrocenie: string;
+  mechanizmKategorii: string;
+  hipotezaPekniecia: {
+    konwencjaZaklada: string;
+    toMozeBycBledne: string;
+    alternatywnaLogika: string;
   };
-  pominietaGrupa: {
-    kim: string;
-    skala: string;
-    dlaczegoNieKupuje: string;
+  nowyPopyt: {
+    stan: string;
+    sytuacja: string;
+    napiecie: string;
+    dlaczegoNieobslugiwany: string;
   };
-  prowokacja: string;
-  kierunek: {
-    coZmienilby: string;
-    pierwszyKrok: string;
+  ruchStrategiczny: {
+    nazwa: string;
+    definicja: string;
+    coSieZmienia: string;
   };
+  pierwszyKrok: string;
+  odrzuconeKierunki: Array<{
+    kierunek: string;
+    dlaczegoOdrzucony: string;
+  }>;
 }
 
 // === Visual Conventions Types ===

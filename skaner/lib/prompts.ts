@@ -344,7 +344,7 @@ Pisz ZWIĘŹLE — każdy element listy to 1 zdanie, nie więcej. Odpowiedz wył
 `;
 
 export const PROMPT_9_BLUE_OCEAN = `
-Jesteś strategiem marek z doświadczeniem w repozycjonowaniu i budowaniu wyróżnialności. Twoim zadaniem jest znaleźć KONKRETNY kierunek strategiczny dla marki klienta — taki, który łamie konwencję kategorii i otwiera nową przestrzeń.
+Jesteś strategiem kategorii. Twoim zadaniem nie jest wymyślanie kreatywnych pomysłów ani komunikatów reklamowych. Twoim zadaniem jest wykrycie, w jaki sposób dana kategoria wytwarza wartość dziś, jakie założenia ukrywają się pod tą logiką oraz gdzie znajduje się najbardziej płodne pęknięcie, które pozwala marce zdefiniować nowy, szerszy lub alternatywny popyt i zaproponować nowy sposób generowania wartości — nie lepsze wykonanie starej gry.
 
 KONWENCJA KATEGORII:
 {{PROMPT7_RESULT}}
@@ -355,56 +355,121 @@ POZYCJA MARKI KLIENTA ({{CLIENT_BRAND_NAME}}):
 PROFIL MARKI KLIENTA:
 {{CLIENT_BRAND_PROFILE}}
 
-TWÓJ PROCES MYŚLENIA (wykonaj wszystkie kroki zanim napiszesz odpowiedź):
+=== TWÓJ PROCES (wykonaj WSZYSTKIE kroki zanim napiszesz odpowiedź) ===
 
-KROK 1: Zidentyfikuj KILKA możliwych napięć w konwencji. Rozważ te wymiary:
-- OBIETNICA vs DOŚWIADCZENIE: Czy kategoria obiecuje coś, czego nie dostarcza w praktyce?
-- RYTUAŁ ZAKUPOWY: Czy sam proces wyboru/zakupu jest niepotrzebnie skomplikowany, stresujący, lub wykluczający?
-- OKAZJA UŻYCIA: Czy kategoria przywiązała się do jednego kontekstu użycia, ignorując inne momenty, w których produkt mógłby grać rolę?
-- RELACJA Z MARKĄ: Czy kategoria traktuje klienta jako kogoś, kim on nie chce być? (np. pacjent, uczeń, fan, ekspert)
-- FORMA PRODUKTU/KOMUNIKACJI: Czy jest coś w samym formacie (opakowanie, kanał, język, cena), co ogranicza rynek?
-- WARTOŚĆ STATUSOWA: Co kupienie tego produktu mówi o kupującym? Czy kategoria jest świadoma tej warstwy?
-- TABU KATEGORII: O czym nikt w kategorii nie mówi, mimo że klienci o tym myślą?
+ETAP 1. MECHANIZM KATEGORII
+Zsyntetyzuj kategorię do jednego zdania:
+"Kategoria generuje wartość przez [mechanizm], dla klienta który chce [stan/rezultat], dlatego premiuje [typ zachowania/tryb decyzji]."
+Nie kończ na poziomie komunikatu — szukaj logiki gry.
 
-KROK 2: Wybierz JEDNO napięcie, które jest:
-a) Najsilniejsze (dotyka dużej grupy, nie niszy)
-b) Najbardziej praktyczne do zaadresowania przez {{CLIENT_BRAND_NAME}}
-c) NIE jest wariacją na temat "uprość przekaz dla laika" — to zbyt generyczne. Szukaj głębiej.
+ETAP 2. PRZEANALIZUJ 8 OSI PĘKNIĘCIA
+Dla KAŻDEJ osi odpowiedz: jak wygląda konwencja? jakie założenie się kryje? jaki jest koszt? jakie odwrócenie jest możliwe? czy ta oś może otworzyć nowy popyt?
 
-KROK 3: Przetłumacz to napięcie na KONKRETNY ruch strategiczny — nie abstrakcyjną radę, ale coś co można sobie wyobrazić jako kampanię, zmianę produktu, nowy format komunikacji, lub zmianę doświadczenia klienta.
+Oś 1. EPISTEMICZNA — jak kategoria produkuje zaufanie
+Czy zaufanie budowane jest przez liczby, certyfikaty, autorytet, edukację, transparentność, naukowość, testimoniale, rytuał, estetykę, status, wspólnotę? Czy klient musi coś zrozumieć? Czy zaufanie jest udowadniane czy performowane?
+Pęknięcia: klient nie chce wiedzieć więcej, tylko przestać wątpić. Nie ufa liczbom, tylko ludziom podobnym do siebie. Nie potrzebuje autorytetu, tylko rytuału.
 
-ANTY-WZORCE (NIE rób tego):
-- NIE pisz "marka powinna mówić prościej / być bardziej przystępna" — to zawsze prawda i nic nie znaczy.
-- NIE pisz "otworzyć się na mniej świadomego konsumenta" — to banał, nie strategia.
-- NIE pisz o "emocjach zamiast edukacji" — to fałszywa dychotomia.
-- NIE proponuj "autentyczności" ani "odwagi" — to puste słowa.
-- ZAMIAST TEGO: opisz konkretną sytuację, konkretny moment, konkretną zmianę w doświadczeniu klienta.
+Oś 2. ENERGETYCZNA — ile wysiłku wymaga klient
+Ile energii poznawczej, emocjonalnej i organizacyjnej musi wydać? Czy kategoria premiuje sprawczość i samodyscyplinę? Czy wysiłek jest ukrytym kosztem?
+Pęknięcia: wartość nie w skuteczniejszym produkcie, tylko w niższym koszcie psychicznym. Marka wygrywa przez redukcję liczby decyzji.
+UWAGA: to NIE jest to samo co oś epistemiczna — kategoria może być mało ekspercka ale bardzo energochłonna.
 
-ZASADY:
-- Nie pisz o demografii. Opisuj przez postawy, pragnienia, bariery.
-- Bądź PROWOKACYJNY ale KONKRETNY. Prowokacja to nie "bądźcie odważni" — to "zróbcie X, czego nikt w kategorii nie robi, bo wszyscy zakładają Y".
-- Używaj słów "pomija", "wyklucza", "nie widzi" — NIE "odpycha".
-- Pisz zwięźle — każde pole to maks 2-3 zdania.
-- "Pierwszy krok" musi być czymś co da się zrobić w 2 tygodnie, nie "zmień strategię marki".
+Oś 3. CZASOWA — kiedy powstaje wartość
+Czy walka odbywa się tylko przed zakupem? Czy marka znika po transakcji? Czy istnieją niewykorzystane momenty: przed-problem, po-zakupie, między zakupami?
+Pęknięcia: wejście w moment organizacji życia zamiast moment decyzji. Sprzedaż ciągłości zamiast efektu. Subskrypcja jako sens, nie model płatności.
 
-Odpowiedz wyłącznie w JSON:
+Oś 4. TOŻSAMOŚCIOWA — kim klient ma się stać, żeby pasować
+Jakiego człowieka kategoria premiuje: świadomego, zdyscyplinowanego, wyrafinowanego, racjonalnego? Jaka tożsamość jest nagradzana, jaka zawstydzana?
+Pęknięcia: kategoria mówi do kompetentnych, pomija tych co chcą po prostu nie zawalić dnia. Marka przestaje sprzedawać poprawność, zaczyna sprzedawać ulgę lub normalność.
+UWAGA: najlepszy ruch może nie polegać na poszerzeniu rynku, tylko na zmianie symbolicznej funkcji produktu dla tej samej grupy.
+
+Oś 5. PORÓWNAWCZA — według czego klient porównuje opcje
+Jakie jednostki porównania narzuca kategoria: cena, skład, parametry, skuteczność? Czy da się zmienić jednostkę wartości?
+Pęknięcia: z "mg składnika" na "ile dni czuję się stabilnie". Z "cena produktu" na "koszt chaosu którego unikam". Z "jakość wykonania" na "spokój decyzyjny".
+To często najważniejsza oś — prawdziwa strategia polega na zmianie jednostki porównania.
+
+Oś 6. STRUKTURALNA — jak zorganizowana jest oferta i relacja
+Czy wszyscy sprzedają pojedynczy produkt? Relacja transakcyjna czy ciągła? Oferta modułowa czy zamknięta? Wartość w zakupie, dostępie, implementacji czy używaniu?
+Pęknięcia: system zamiast produktu. Rytm zamiast jednorazowej sprzedaży. Selekcja zamiast katalogu. Ograniczony zestaw zamiast wyboru.
+
+Oś 7. SYTUACYJNA — w jakim momencie życia produkt "robi robotę"
+Jaki moment wejścia kategoria uprzywilejowuje? Czy mówi w momencie wyboru, problemu, kryzysu, aspiracji, zmęczenia, nagrody?
+Pęknięcia: produkt nie kupowany bo ktoś "dba o zdrowie", tylko bo zawalił sen trzeci tydzień. Marka mówi o przetrwaniu dnia zamiast aspiracji.
+
+Oś 8. OPERACYJNA — gdzie obietnica nie ma pokrycia
+Gdzie występuje luka między narracją a praktyką? Co kategoria deklaruje ale nie potwierdza? Czy można zbudować przewagę operacyjną zamiast retorycznej?
+Pęknięcia: transparentność jako konwencja komunikacyjna, nie operacyjna. Personalizacja deklarowana ale nie wdrożona. Jakość obiecywana ale nie weryfikowalna.
+
+ETAP 3. OCEŃ OSIE
+Dla każdej osi oceń 1-5 w pięciu kryteriach:
+1. Siła konwencji (im silniejsza jednomyślność, tym większa szansa na pęknięcie)
+2. Głębokość kosztu (realne tarcie, nie tylko stylistyczne znudzenie)
+3. Skala nowego popytu (czy zmiana tu otwiera dużą pulę?)
+4. Trudność imitacji (czy wymaga zmiany struktury, nie tylko copy?)
+5. Potencjał zmiany zasad porównania (czy marka przestaje być oceniana po staremu?)
+Zrób ranking od 1 do 8. Wybierz 1 oś główną i ewentualnie 1 wspierającą.
+
+ETAP 4. ZBUDUJ HIPOTEZĘ PĘKNIĘCIA
+Dla wybranej osi: konwencja zakłada → to może być błędne bo → alternatywna logika → co to otwiera.
+
+ETAP 5. ZDEFINIUJ NOWY POPYT
+Przez: stan, sytuację, napięcie, aspirację/ulgę. NIE przez demografię.
+
+ETAP 6. SFORMUŁUJ RUCH STRATEGICZNY
+Robocza nazwa + jednozdaniowa definicja + co zmienia się względem starej gry.
+
+ETAP 7. WSKAŻ ODRZUCONE KIERUNKI
+2-3 kierunki które wydawały się logiczne ale są słabsze — z uzasadnieniem.
+
+=== TWARDE ZABEZPIECZENIA ===
+
+NIE IDŹ automatycznie ścieżką "wykluczony klient". To że kategoria komunikuje się ekspercko nie oznacza, że najlepszym ruchem jest uproszczenie.
+
+NIE MYL zmiany tonu ze zmianą gry. Jeśli proponujesz cieplejszy język / mniej eksperckości / więcej emocji / prostsze komunikaty — sprawdź czy to zmienia mechanikę generowania wartości, czy tylko łagodzi styl. Jeżeli zmienia się wyłącznie ton, a nie: sposób porównywania ofert, moment wejścia marki, struktura decyzji klienta, rola produktu, forma dowodu — to nie jest ruch strategiczny, tylko kosmetyka.
+
+SZUKAJ zmiany w logice wyboru. Dobry ruch sprawia, że marka przestaje być oceniana według tych samych zasad co reszta.
+
+ODRÓŻNIAJ: konwencję komunikacyjną (jak mówi), konwencję poznawczą (jak buduje zaufanie), konwencję ekonomiczną/operacyjną (jak organizuje wartość). Najcenniejsze ruchy wynikają z dwóch ostatnich.
+
+REGUŁY KONTROLNE:
+- Jeśli rekomendacja brzmi jak "mów prościej / bądź bardziej ludzki / dodaj emocje" → ZATRZYMAJ SIĘ, to zmiana stylistyczna.
+- Jeśli nowy popyt to wyłącznie "ludzie wykluczeni przez język kategorii" → SPRAWDŹ co najmniej 3 inne osie.
+- Jeśli ruch można skopiować przez sam copywriting lub redesign → za słaby.
+- Jeśli marka nadal byłaby porównywana na tych samych parametrach → za słaby.
+- Ruch MUSI zmieniać przynajmniej jedno z: moment wejścia, jednostka wartości, koszt psychiczny, rola produktu, struktura relacji, źródło zaufania.
+
+=== FORMAT ODPOWIEDZI ===
+
+Odpowiedz WYŁĄCZNIE w JSON. Cały proces myślenia (8 osi, scoring, ranking) wykonaj wewnętrznie — w odpowiedzi podaj tylko wynik końcowy:
 
 {
-  "odwroconaKonwencja": {
-    "zalozenie": "Jakie kluczowe założenie o kliencie/rynku przyjmuje CAŁA kategoria? Napisz je jako zdanie, w które wszyscy wierzą. 1-2 zdania.",
-    "odwrocenie": "Co by się stało, gdyby to założenie było błędne? Opisz KONKRETNIE — jaki produkt, jaka komunikacja, jakie doświadczenie klienta by wtedy powstało? 2-3 zdania."
+  "mechanizmKategorii": "Kategoria generuje wartość przez [mechanizm], dla klienta który chce [stan], dlatego premiuje [zachowanie]. 1-2 zdania.",
+  "hipotezaPekniecia": {
+    "konwencjaZaklada": "Jakie kluczowe założenie przyjmuje CAŁA kategoria? Napisz jako zdanie w które wszyscy wierzą. 1-2 zdania.",
+    "toMozeBycBledne": "Dlaczego to założenie ma koszt, limit lub ślepy punkt? Co traci kategoria trzymając się tej logiki? 2-3 zdania.",
+    "alternatywnaLogika": "Jaka inna logika mogłaby działać zamiast obecnej? Opisz KONKRETNIE — jaki produkt, jakie doświadczenie, jaka relacja z klientem by wtedy powstała? 2-3 zdania."
   },
-  "pominietaGrupa": {
-    "kim": "Kto ma potrzebę, którą ta kategoria mogłaby zaspokoić, ale nie kupuje — i NIE dlatego że 'nie rozumie produktu'? Opisz przez postawę i sytuację życiową. 2-3 zdania.",
-    "skala": "Dlaczego ta grupa może być WIĘKSZA niż obecni klienci? Konkretna logika rynkowa. 1-2 zdania.",
-    "dlaczegoNieKupuje": "Co konkretnie — w produkcie, w doświadczeniu zakupowym, w komunikacji, w formacie — tworzy barierę? Nie 'język jest zbyt ekspercki'. Głębiej. 1-2 zdania."
+  "nowyPopyt": {
+    "stan": "W jakim stanie jest człowiek, kiedy ta alternatywna logika staje się atrakcyjna? Opisz przez postawę i sytuację, nie demografię. 1-2 zdania.",
+    "sytuacja": "W jakim momencie życia/dnia/procesu pojawia się ten popyt? Konkretna sytuacja, nie abstrakcja. 1-2 zdania.",
+    "napiecie": "Co boli lub uwiera w starej logice kategorii? Jaki jest realny koszt psychiczny, organizacyjny lub ekonomiczny? 1-2 zdania.",
+    "dlaczegoNieobslugiwany": "Co w aktualnej mechanice rynku sprawia, że ten popyt nie jest obsługiwany? I dlaczego jest szerszy lub bardziej płodny niż obecny rynek? 2-3 zdania."
   },
-  "prowokacja": "Sformułuj jako prowokacyjne pytanie zaczynające się od 'Co gdyby {{CLIENT_BRAND_NAME}}...' — musi zawierać KONKRETNĄ propozycję (nie 'otworzyła się na nowych klientów' ale np. 'sprzedawała kawę jako 3-minutowy rytuał spokoju, nie jako produkt do degustacji'). 1-2 zdania.",
-  "kierunek": {
-    "coZmienilby": "CO KONKRETNIE zmieniłoby się w komunikacji, produkcie lub doświadczeniu klienta {{CLIENT_BRAND_NAME}}? Opisz tak, żeby ktoś mógł to sobie wyobrazić. 2-3 zdania.",
-    "pierwszyKrok": "Jeden konkretny, wykonalny w 2 tygodnie krok. Nie 'przemyśl strategię' — raczej 'nagraj serię stories pokazujących X' lub 'wypuść limitowaną edycję w formacie Y'. 1 zdanie."
-  }
+  "ruchStrategiczny": {
+    "nazwa": "Krótka, robocza nazwa ruchu. Strategiczna, nie poetycka. 2-4 słowa.",
+    "definicja": "Jedno zdanie wyjaśniające jak {{CLIENT_BRAND_NAME}} ma generować wartość INACZEJ niż kategoria.",
+    "coSieZmienia": "Co przestaje być ważne? Co staje się ważne? Według czego marka będzie teraz oceniana? 2-3 zdania."
+  },
+  "pierwszyKrok": "Jeden konkretny test, wykonalny w 2 tygodnie, bez pełnego rebrandingu. Nie 'przemyśl strategię' — raczej 'nagraj serię X' lub 'wypuść limitowaną edycję Y' lub 'zmień sposób prezentacji Z na stronie'. 1-2 zdania.",
+  "odrzuconeKierunki": [
+    {
+      "kierunek": "Opis kierunku który wydawał się logiczny. 1 zdanie.",
+      "dlaczegoOdrzucony": "Dlaczego jest słabszy: czy to tylko zmiana tonu? Zbyt łatwa imitacja? Zbyt wąski popyt? 1-2 zdania."
+    }
+  ]
 }
+
+Podaj 2-3 odrzucone kierunki.
 `;
 
 export function fillPrompt(
