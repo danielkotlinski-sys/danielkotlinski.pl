@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
   try {
     const { brandName, brandUrl, category, categoryType, socialPlatform } = await request.json();
 
-    if (!brandName || !category || category.length < 10) {
+    if (!brandName || !category || category.length < 20) {
       return Response.json({ error: 'Brakuje danych' }, { status: 400 });
     }
 
@@ -86,6 +86,7 @@ Odpowiedz WYŁĄCZNIE w JSON:
         socialHandle: (c.socialHandle || '').replace(/^@/, ''),
       }));
 
+    console.log('[suggest-competitors] Returning:', JSON.stringify(competitors));
     return Response.json({ competitors });
   } catch (error) {
     console.error('Suggest competitors error:', error);

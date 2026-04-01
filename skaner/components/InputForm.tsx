@@ -79,6 +79,7 @@ export default function InputForm({ onSubmit }: InputFormProps) {
   // Competitor suggestion state
   const [competitorsLoading, setCompetitorsLoading] = useState(false);
   const [competitorsSuggested, setCompetitorsSuggested] = useState(false);
+  const [competitorsSuggestFailed, setCompetitorsSuggestFailed] = useState(false);
 
   useEffect(() => {
     if (window.location.hostname === 'localhost') setIsDev(true);
@@ -158,16 +159,21 @@ export default function InputForm({ onSubmit }: InputFormProps) {
       });
       if (response.ok) {
         const data = await response.json();
+        console.log('[suggest] API response:', JSON.stringify(data));
         const suggested = (data.competitors || []) as Competitor[];
         if (suggested.length > 0) {
           // Fill in competitor slots, padding to at least 2
           while (suggested.length < 2) suggested.push({ name: '', url: '', socialHandle: '' });
           setCompetitors(suggested);
           setCompetitorsSuggested(true);
+        } else {
+          setCompetitorsSuggestFailed(true);
         }
+      } else {
+        setCompetitorsSuggestFailed(true);
       }
     } catch {
-      // silently fail
+      setCompetitorsSuggestFailed(true);
     } finally {
       setCompetitorsLoading(false);
     }
@@ -369,7 +375,7 @@ export default function InputForm({ onSubmit }: InputFormProps) {
             {errors.categoryPurpose && <p className="text-dk-orange text-sm mt-1.5">{errors.categoryPurpose}</p>}
             <div className="flex items-center gap-3 mt-1.5">
               <p className="text-xs text-text-gray">Nie &ldquo;co kupują&rdquo; ale &ldquo;po co przychodzą&rdquo;.</p>
-              {category.length >= 10 && !jtbdLoading && (
+              {category.length >= 20 && !jtbdLoading && (
                 <button
                   type="button"
                   onClick={suggestCategoryPurpose}
@@ -423,7 +429,7 @@ export default function InputForm({ onSubmit }: InputFormProps) {
         </p>
 
         {/* Suggest competitors button */}
-        {!competitorsSuggested && !competitorsLoading && brandName.trim() && category.length >= 10 && (
+        {!competitorsSuggested && !competitorsLoading && brandName.trim() && category.length >= 20 && (
           <button
             type="button"
             onClick={requestCompetitors}
@@ -449,6 +455,12 @@ export default function InputForm({ onSubmit }: InputFormProps) {
               <path d="M2 7.5l3 3 7-7" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             Uzupełnione — możesz dowolnie zmienić lub dodać kolejnych
+          </div>
+        )}
+
+        {competitorsSuggestFailed && (
+          <div className="mb-5 flex items-center gap-2 text-xs text-dk-orange">
+            Nie udało się znaleźć konkurentów — wpisz ręcznie
           </div>
         )}
 
