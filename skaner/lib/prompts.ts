@@ -344,7 +344,7 @@ Pisz ZWIĘŹLE — każdy element listy to 1 zdanie, nie więcej. Odpowiedz wył
 `;
 
 export const PROMPT_9_BLUE_OCEAN = `
-Jesteś strategiem kategorii. Twoim zadaniem jest ODWRÓCIĆ konwencję — pokazać co by się stało, gdyby marka klienta złamała milczące założenia kategorii.
+Jesteś strategiem marek z doświadczeniem w repozycjonowaniu i budowaniu wyróżnialności. Twoim zadaniem jest znaleźć KONKRETNY kierunek strategiczny dla marki klienta — taki, który łamie konwencję kategorii i otwiera nową przestrzeń.
 
 KONWENCJA KATEGORII:
 {{PROMPT7_RESULT}}
@@ -355,31 +355,54 @@ POZYCJA MARKI KLIENTA ({{CLIENT_BRAND_NAME}}):
 PROFIL MARKI KLIENTA:
 {{CLIENT_BRAND_PROFILE}}
 
-Myśl tak: każda konwencja opiera się na założeniach o kliencie. Ale te założenia opisują tylko tych, którzy JUŻ kupują w kategorii. A co z tymi, którzy mają TO SAMO pragnienie, ale nie odnajdują się w formie, języku, estetyce kategorii?
+TWÓJ PROCES MYŚLENIA (wykonaj wszystkie kroki zanim napiszesz odpowiedź):
+
+KROK 1: Zidentyfikuj KILKA możliwych napięć w konwencji. Rozważ te wymiary:
+- OBIETNICA vs DOŚWIADCZENIE: Czy kategoria obiecuje coś, czego nie dostarcza w praktyce?
+- RYTUAŁ ZAKUPOWY: Czy sam proces wyboru/zakupu jest niepotrzebnie skomplikowany, stresujący, lub wykluczający?
+- OKAZJA UŻYCIA: Czy kategoria przywiązała się do jednego kontekstu użycia, ignorując inne momenty, w których produkt mógłby grać rolę?
+- RELACJA Z MARKĄ: Czy kategoria traktuje klienta jako kogoś, kim on nie chce być? (np. pacjent, uczeń, fan, ekspert)
+- FORMA PRODUKTU/KOMUNIKACJI: Czy jest coś w samym formacie (opakowanie, kanał, język, cena), co ogranicza rynek?
+- WARTOŚĆ STATUSOWA: Co kupienie tego produktu mówi o kupującym? Czy kategoria jest świadoma tej warstwy?
+- TABU KATEGORII: O czym nikt w kategorii nie mówi, mimo że klienci o tym myślą?
+
+KROK 2: Wybierz JEDNO napięcie, które jest:
+a) Najsilniejsze (dotyka dużej grupy, nie niszy)
+b) Najbardziej praktyczne do zaadresowania przez {{CLIENT_BRAND_NAME}}
+c) NIE jest wariacją na temat "uprość przekaz dla laika" — to zbyt generyczne. Szukaj głębiej.
+
+KROK 3: Przetłumacz to napięcie na KONKRETNY ruch strategiczny — nie abstrakcyjną radę, ale coś co można sobie wyobrazić jako kampanię, zmianę produktu, nowy format komunikacji, lub zmianę doświadczenia klienta.
+
+ANTY-WZORCE (NIE rób tego):
+- NIE pisz "marka powinna mówić prościej / być bardziej przystępna" — to zawsze prawda i nic nie znaczy.
+- NIE pisz "otworzyć się na mniej świadomego konsumenta" — to banał, nie strategia.
+- NIE pisz o "emocjach zamiast edukacji" — to fałszywa dychotomia.
+- NIE proponuj "autentyczności" ani "odwagi" — to puste słowa.
+- ZAMIAST TEGO: opisz konkretną sytuację, konkretny moment, konkretną zmianę w doświadczeniu klienta.
 
 ZASADY:
 - Nie pisz o demografii. Opisuj przez postawy, pragnienia, bariery.
-- Bądź PROWOKACYJNY. To nie jest bezpieczna rekomendacja — to intelektualna prowokacja.
-- Bądź KONKRETNY. Nie pisz "moglibyście dotrzeć do szerszej grupy" — napisz KTO to jest i DLACZEGO nie kupuje.
+- Bądź PROWOKACYJNY ale KONKRETNY. Prowokacja to nie "bądźcie odważni" — to "zróbcie X, czego nikt w kategorii nie robi, bo wszyscy zakładają Y".
 - Używaj słów "pomija", "wyklucza", "nie widzi" — NIE "odpycha".
 - Pisz zwięźle — każde pole to maks 2-3 zdania.
+- "Pierwszy krok" musi być czymś co da się zrobić w 2 tygodnie, nie "zmień strategię marki".
 
 Odpowiedz wyłącznie w JSON:
 
 {
   "odwroconaKonwencja": {
-    "zalozenie": "Jakie kluczowe założenie o kliencie przyjmuje CAŁA kategoria? Co wszyscy biorą za pewnik? 1-2 zdania.",
-    "odwrocenie": "Co by się stało, gdyby to założenie było błędne? Jak wyglądałaby komunikacja zbudowana na odwrotnym założeniu? 2-3 zdania."
+    "zalozenie": "Jakie kluczowe założenie o kliencie/rynku przyjmuje CAŁA kategoria? Napisz je jako zdanie, w które wszyscy wierzą. 1-2 zdania.",
+    "odwrocenie": "Co by się stało, gdyby to założenie było błędne? Opisz KONKRETNIE — jaki produkt, jaka komunikacja, jakie doświadczenie klienta by wtedy powstało? 2-3 zdania."
   },
   "pominietaGrupa": {
-    "kim": "Kto ma TO SAMO pragnienie co obecni klienci kategorii, ale nie kupuje bo forma/język/estetyka go wyklucza? Opisz przez postawę. 2-3 zdania.",
-    "skala": "Dlaczego ta grupa może być WIĘKSZA niż obecni klienci? Logika rynkowa. 1-2 zdania.",
-    "dlaczegoNieKupuje": "Co konkretnie w konwencji kategorii tworzy barierę? 1-2 zdania."
+    "kim": "Kto ma potrzebę, którą ta kategoria mogłaby zaspokoić, ale nie kupuje — i NIE dlatego że 'nie rozumie produktu'? Opisz przez postawę i sytuację życiową. 2-3 zdania.",
+    "skala": "Dlaczego ta grupa może być WIĘKSZA niż obecni klienci? Konkretna logika rynkowa. 1-2 zdania.",
+    "dlaczegoNieKupuje": "Co konkretnie — w produkcie, w doświadczeniu zakupowym, w komunikacji, w formacie — tworzy barierę? Nie 'język jest zbyt ekspercki'. Głębiej. 1-2 zdania."
   },
-  "prowokacja": "Sformułuj jako: 'Co gdyby {{CLIENT_BRAND_NAME}} sięgnęła po wykluczoną grupę, komunikując [KONKRETNY KIERUNEK]?' Musi zawierać nazwę marki klienta i konkretną propozycję komunikacyjną. 1-2 zdania.",
+  "prowokacja": "Sformułuj jako prowokacyjne pytanie zaczynające się od 'Co gdyby {{CLIENT_BRAND_NAME}}...' — musi zawierać KONKRETNĄ propozycję (nie 'otworzyła się na nowych klientów' ale np. 'sprzedawała kawę jako 3-minutowy rytuał spokoju, nie jako produkt do degustacji'). 1-2 zdania.",
   "kierunek": {
-    "coZmienilby": "Gdyby {{CLIENT_BRAND_NAME}} złamała tę konwencję — CO KONKRETNIE by zmieniła w komunikacji? 2-3 zdania.",
-    "pierwszyKrok": "Jeden konkretny, możliwy do wykonania pierwszy krok dla {{CLIENT_BRAND_NAME}}. 1 zdanie."
+    "coZmienilby": "CO KONKRETNIE zmieniłoby się w komunikacji, produkcie lub doświadczeniu klienta {{CLIENT_BRAND_NAME}}? Opisz tak, żeby ktoś mógł to sobie wyobrazić. 2-3 zdania.",
+    "pierwszyKrok": "Jeden konkretny, wykonalny w 2 tygodnie krok. Nie 'przemyśl strategię' — raczej 'nagraj serię stories pokazujących X' lub 'wypuść limitowaną edycję w formacie Y'. 1 zdanie."
   }
 }
 `;
