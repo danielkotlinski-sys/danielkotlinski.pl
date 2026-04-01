@@ -6,7 +6,6 @@ import BrandProfileCard from './BrandProfileCard';
 import CategoryMapSection from './CategoryMapSection';
 import ConventionSection from './ConventionSection';
 import ComparativeGapsSection from './ComparativeGapsSection';
-import ClientPositionSection from './ClientPositionSection';
 import VisualConventionsSection from './VisualConventionsSection';
 import FinaleSection from './FinaleSection';
 import GateSection from './GateSection';
@@ -35,14 +34,10 @@ const SECTION_EXPLAINERS: Record<string, { heading: string; explainer: string }>
   },
   convention: {
     heading: 'Konwencja kategorii',
-    explainer: 'Tu wyłania się wzorzec. Wszystkie marki — choć konkurują — grają tę samą grę, według tych samych niepisanych reguł. Oto mechanizm, który trzyma kategorię w pułapce jednomyślności.',
-  },
-  position: {
-    heading: 'Twoja pozycja',
-    explainer: 'Czas na konfrontację. Gdzie Twoja marka stoi wobec konwencji — i co to oznacza dla przyszłości.',
+    explainer: 'Tu wyłania się wzorzec. Wszystkie marki — choć konkurują — grają tę samą grę, według tych samych niepisanych reguł. Oto mechanizm, który trzyma kategorię w pułapce jednomyślności — i miejsce Twojej marki w tym układzie.',
   },
   finale: {
-    heading: 'A co jeśli...',
+    heading: 'Odwrócona perspektywa',
     explainer: 'Konwencja opisuje jak kategoria konkuruje dziś. Ale każda konwencja opiera się na założeniach — a założenia można odwrócić. To jest moment, w którym zaczynamy myśleć nie o tym jak grać lepiej, ale czy gramy w odpowiednią grę.',
   },
 };
@@ -56,9 +51,8 @@ export default function ReportContainer({ report, firstName }: ReportContainerPr
     { id: 'visual', label: 'Konwencje wizualne' },
     ...(report.mapaKategorii ? [{ id: 'map', label: 'Krajobraz kategorii' }] : []),
     ...(report.lukiKomunikacyjne ? [{ id: 'gaps', label: 'Luki komunikacyjne' }] : []),
-    { id: 'convention', label: 'Konwencja kategorii' },
-    { id: 'position', label: 'Twoja pozycja' },
-    ...(report.blueOceanFinale ? [{ id: 'finale', label: 'A co jeśli...' }] : []),
+    { id: 'convention', label: 'Konwencja i Twoja marka' },
+    ...(report.blueOceanFinale ? [{ id: 'finale', label: 'Odwrócona perspektywa' }] : []),
     { id: 'cta', label: 'Co dalej' },
   ];
 
@@ -173,31 +167,23 @@ export default function ReportContainer({ report, firstName }: ReportContainerPr
         </section>
       )}
 
-      {/* Section 5: Category conventions — the discovery */}
+      {/* Section 5: Category conventions + client position */}
       <section id="convention" className="mb-20">
         <SectionHeader num={nextSection()} sectionId="convention" />
-        <ConventionSection conventions={report.konwencjaKategorii} />
-      </section>
-
-      {/* Section 6: Client position — confrontation */}
-      <section id="position" className="mb-20">
-        <SectionHeader
-          num={nextSection()}
-          sectionId="position"
-          headingOverride={`Twoja marka: ${report.meta.clientBrand}`}
-        />
-        <ClientPositionSection
-          position={report.pozycjaKlienta}
-          brandName={report.meta.clientBrand}
+        <ConventionSection
+          conventions={report.konwencjaKategorii}
+          clientPosition={report.pozycjaKlienta}
+          clientBrandName={report.meta.clientBrand}
         />
       </section>
 
-      {/* Section 7: Blue Ocean Finale — the provocation */}
+      {/* Section 6: Odwrócona perspektywa */}
       {report.blueOceanFinale ? (
         <section id="finale" className="mb-20">
           <SectionHeader num={nextSection()} sectionId="finale" />
           <FinaleSection
             finale={report.blueOceanFinale}
+            conventions={report.konwencjaKategorii}
             brandName={report.meta.clientBrand}
           />
         </section>

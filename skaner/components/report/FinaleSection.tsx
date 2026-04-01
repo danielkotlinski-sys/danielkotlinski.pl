@@ -1,38 +1,42 @@
 'use client';
 
-import type { BlueOceanFinale } from '@/types/scanner';
+import type { BlueOceanFinale, CategoryConventions } from '@/types/scanner';
 
 interface FinaleSectionProps {
   finale: BlueOceanFinale;
+  conventions: CategoryConventions;
   brandName: string;
 }
 
-export default function FinaleSection({ finale, brandName }: FinaleSectionProps) {
+export default function FinaleSection({ finale, conventions, brandName }: FinaleSectionProps) {
   return (
     <div className="space-y-6">
-      {/* Hero: the reversed assumption */}
-      <div className="bg-text-dark text-white rounded-card p-8 md:p-12">
-        <p className="text-xs text-dk-teal uppercase tracking-widest font-medium mb-4">
-          Odwrócona konwencja
-        </p>
-        <p className="text-sm text-white/50 leading-relaxed mb-4">
-          Cała kategoria zakłada:
-        </p>
-        <p className="font-heading text-xl md:text-2xl leading-snug mb-8 text-white/90">
-          {finale.odwroconaKonwencja.zalozenie}
-        </p>
-        <div className="border-t border-white/10 pt-6">
-          <p className="text-sm text-dk-teal font-medium mb-2">A co gdyby to było błędne?</p>
-          <p className="text-white/80 leading-[1.8] text-[15px]">
+      {/* Mechanism reminder + reversal side by side */}
+      <div className="grid md:grid-cols-2 gap-0 rounded-card overflow-hidden">
+        {/* Left: mechanism reminder (no header — it's a callback) */}
+        <div className="bg-text-dark text-white p-8 md:p-10">
+          <p className="text-xs text-white/40 uppercase tracking-widest font-medium mb-4">
+            Konwencja mówi
+          </p>
+          <p className="text-white/70 leading-[1.8] text-[15px]">
+            {conventions.mechanizmKategorii.regula}
+          </p>
+        </div>
+        {/* Right: the reversal — this is the clue */}
+        <div className="bg-dk-orange text-white p-8 md:p-10">
+          <p className="text-xs text-white/70 uppercase tracking-widest font-medium mb-4">
+            A co gdyby to było błędne?
+          </p>
+          <p className="text-white leading-[1.8] text-[15px]">
             {finale.odwroconaKonwencja.odwrocenie}
           </p>
         </div>
       </div>
 
-      {/* The ignored group */}
+      {/* Who the category excludes */}
       <div className="bg-white rounded-card p-6 md:p-8 border-l-4 border-amber-400">
         <p className="text-xs text-amber-600 uppercase tracking-widest font-medium mb-3">
-          Kogo kategoria systematycznie omija
+          Kogo kategoria systematycznie pomija
         </p>
         <p className="text-text-muted leading-[1.8] text-[15px] mb-5">
           {finale.pominietaGrupa.kim}
@@ -53,7 +57,7 @@ export default function FinaleSection({ finale, brandName }: FinaleSectionProps)
         </div>
       </div>
 
-      {/* Provocation — the big question */}
+      {/* Provocation — single moment */}
       <div className="bg-dk-teal/5 border border-dk-teal/20 rounded-card p-8 md:p-12 text-center">
         <p className="font-heading text-2xl md:text-3xl text-text-primary leading-snug">
           {finale.prowokacja}
@@ -79,16 +83,16 @@ export default function FinaleSection({ finale, brandName }: FinaleSectionProps)
       {/* CTA */}
       <div className="bg-text-dark text-white rounded-card p-8 md:p-12 text-center">
         <p className="text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-4 text-white/80">
-          Ten skan pokazuje konwencję i jej pęknięcia. Ale nie odpowiada na kluczowe pytanie: które pragnienia pomijanej grupy są uniwersalne &mdash; i jak zbudować narrację, która je przyciągnie.
+          Ten raport pokazuje konwencję i jej pęknięcia &mdash; ale nie odpowiada na kluczowe pytanie: jak konkretnie Twoja marka może wyrwać się z rywalizacji na te same parametry, o tego samego klienta, i sięgnąć po unikalny, nowy popyt?
         </p>
         <p className="text-sm text-white/50 mb-10 max-w-xl mx-auto">
-          Pogłębiony skan + wywiady z klientami = konkretna strategia komunikacji, która łamie konwencję z premedytacją.
+          W pełnym procesie strategicznym, pomagam markom wejść głębiej w kategorię, badam ukryte motywacje klientów i formułuję przejrzyste, proste w zrozumieniu i implementacji strategie marek.
         </p>
         <a
           href="https://danielkotlinski.pl/kontakt"
           className="inline-flex items-center px-8 py-3.5 bg-dk-orange text-white rounded-pill font-medium text-lg hover:bg-dk-orange-hover hover:-translate-y-0.5 transition-all duration-300"
         >
-          Porozmawiajmy o pogłębionym skanie
+          Porozmawiajmy o strategii Twojej marki
         </a>
       </div>
     </div>

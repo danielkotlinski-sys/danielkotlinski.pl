@@ -297,12 +297,7 @@ Odpowiedz wyłącznie w JSON:
   },
   "implikowanyKlientKategorii": {
     "tosazmosc": "Kogo kategoria zakłada jako klienta? Przez postawę. 1-2 zdania.",
-    "glebszaPotrzeba": "Głębsza potrzeba — językiem człowieka, nie kategorii. 1 zdanie.",
-    "pominietaGrupa": {
-      "opis": "Kto ma to SAMO pragnienie ale zaspokaja je gdzie indziej? Konkretnie. 2 zdania.",
-      "proporcja": "Proporcja pominiętych do obsługiwanych — logika rynku. 1 zdanie.",
-      "dlaczegoOdpycha": "Co w konwencji odpycha tę grupę? 1-2 zdania."
-    }
+    "glebszaPotrzeba": "Głębsza potrzeba — językiem człowieka, nie kategorii. 1 zdanie."
   },
   "dowodyKonwencji": [
     {
@@ -366,6 +361,7 @@ ZASADY:
 - Nie pisz o demografii. Opisuj przez postawy, pragnienia, bariery.
 - Bądź PROWOKACYJNY. To nie jest bezpieczna rekomendacja — to intelektualna prowokacja.
 - Bądź KONKRETNY. Nie pisz "moglibyście dotrzeć do szerszej grupy" — napisz KTO to jest i DLACZEGO nie kupuje.
+- Używaj słów "pomija", "wyklucza", "nie widzi" — NIE "odpycha".
 - Pisz zwięźle — każde pole to maks 2-3 zdania.
 
 Odpowiedz wyłącznie w JSON:
@@ -376,14 +372,14 @@ Odpowiedz wyłącznie w JSON:
     "odwrocenie": "Co by się stało, gdyby to założenie było błędne? Jak wyglądałaby komunikacja zbudowana na odwrotnym założeniu? 2-3 zdania."
   },
   "pominietaGrupa": {
-    "kim": "Kto ma TO SAMO pragnienie co obecni klienci kategorii, ale nie kupuje bo forma/język/estetyka go odpycha? Opisz przez postawę. 2-3 zdania.",
+    "kim": "Kto ma TO SAMO pragnienie co obecni klienci kategorii, ale nie kupuje bo forma/język/estetyka go wyklucza? Opisz przez postawę. 2-3 zdania.",
     "skala": "Dlaczego ta grupa może być WIĘKSZA niż obecni klienci? Logika rynkowa. 1-2 zdania.",
     "dlaczegoNieKupuje": "Co konkretnie w konwencji kategorii tworzy barierę? 1-2 zdania."
   },
-  "prowokacja": "Jedno zdanie-prowokacja: 'A co jeśli...' — pytanie które podważa fundamentalne założenie kategorii i otwiera nowy kierunek. Musi być niewygodne.",
+  "prowokacja": "Sformułuj jako: 'Co gdyby {{CLIENT_BRAND_NAME}} sięgnęła po wykluczoną grupę, komunikując [KONKRETNY KIERUNEK]?' Musi zawierać nazwę marki klienta i konkretną propozycję komunikacyjną. 1-2 zdania.",
   "kierunek": {
-    "coZmienilby": "Gdyby marka klienta złamała tę konwencję — CO KONKRETNIE by zmieniła w komunikacji? 2-3 zdania.",
-    "pierwszyKrok": "Jeden konkretny, możliwy do wykonania pierwszy krok. 1 zdanie."
+    "coZmienilby": "Gdyby {{CLIENT_BRAND_NAME}} złamała tę konwencję — CO KONKRETNIE by zmieniła w komunikacji? 2-3 zdania.",
+    "pierwszyKrok": "Jeden konkretny, możliwy do wykonania pierwszy krok dla {{CLIENT_BRAND_NAME}}. 1 zdanie."
   }
 }
 `;

@@ -170,11 +170,6 @@ export interface CategoryConventions {
   implikowanyKlientKategorii: {
     tosazmosc: string;
     glebszaPotrzeba: string;
-    pominietaGrupa: {
-      opis: string;
-      proporcja: string;
-      dlaczegoOdpycha: string;
-    };
   };
   dowodyKonwencji: Array<{
     wzorzec: string;
