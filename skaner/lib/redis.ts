@@ -55,17 +55,20 @@ async function getRedis(): Promise<Redis | null> {
   return redis;
 }
 
+// Exported for use by auth.ts
+export { getRedis as getRedisRaw };
+
 const REPORT_TTL = 365 * 24 * 60 * 60; // 1 year — reports available indefinitely
 const RATE_LIMIT_TTL = 30 * 24 * 60 * 60; // 30 days between scans per email
 
-function memSet(key: string, value: string, ttlSeconds: number) {
+export function memSet(key: string, value: string, ttlSeconds: number) {
   memoryStore.set(key, {
     data: value,
     expiry: Date.now() + ttlSeconds * 1000,
   });
 }
 
-function memGet(key: string): string | null {
+export function memGet(key: string): string | null {
   const entry = memoryStore.get(key);
   if (!entry) return null;
   if (Date.now() > entry.expiry) {

@@ -1,10 +1,30 @@
 import { NextRequest } from 'next/server';
 import { runCategoryScanner } from '@/lib/pipeline';
+import { getSession, getUser, checkScanLimit, incrementScanCount } from '@/lib/auth';
 import type { ScanRequest, ProgressEvent } from '@/types/scanner';
 
 export const maxDuration = 600; // 10 minutes
 
 export async function POST(request: NextRequest) {
+  // Verify authentication
+  const session = await getSession();
+  if (!session) {
+    return Response.json({ error: 'Musisz być zalogowany' }, { status: 401 });
+  }
+
+  const user = await getUser(session.email);
+  if (!user || !user.approved) {
+    return Response.json({ error: 'Konto nie jest aktywne' }, { status: 403 });
+  }
+
+  // Check scan limit
+  const { allowed, remaining } = await checkScanLimit(session.email);
+  if (!allowed) {
+    return Response.json({
+      error: `Wykorzystałeś limit 3 skanów w tym miesiącu (pozostało: ${remaining}). Limit odnawia się z początkiem kolejnego miesiąca.`,
+    }, { status: 429 });
+  }
+
   const body: ScanRequest = await request.json();
   const { input, lead } = body;
 
@@ -18,8 +38,9 @@ export async function POST(request: NextRequest) {
   if (!input.competitors || input.competitors.length < 2 || input.competitors.length > 4) {
     return Response.json({ error: 'Wymagane 2-4 konkurentów' }, { status: 400 });
   }
-  if (!lead?.firstName || !lead?.email || !lead?.gdprConsent) {
-    return Response.json({ error: 'Brak wymaganych danych kontaktowych' }, { status: 400 });
+  // Lead data comes from auth session — ensure it exists for pipeline compatibility
+  if (!lead?.firstName || !lead?.email) {
+    return Response.json({ error: 'Brak danych użytkownika' }, { status: 400 });
   }
 
   // SSE stream
@@ -48,6 +69,9 @@ export async function POST(request: NextRequest) {
           lead,
           (progressEvent) => sendEvent(progressEvent)
         );
+
+        // Increment scan count for the user
+        await incrementScanCount(session.email);
 
         // Don't send full report over SSE — just the scanId for redirect
         sendEvent({ type: 'complete', scanId });

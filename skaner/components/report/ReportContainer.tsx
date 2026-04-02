@@ -43,6 +43,27 @@ const SECTION_EXPLAINERS: Record<string, { heading: string; explainer: string }>
   },
 };
 
+function ExportButton({ format, label }: { format: string; label: string }) {
+  const handleExport = () => {
+    // Extract scanId from URL path: /raport/[scanId]
+    const match = window.location.pathname.match(/\/raport\/([^/]+)/);
+    if (!match) return;
+    window.open(`/api/scan/${match[1]}/export?format=${format}`, '_blank');
+  };
+
+  return (
+    <button
+      onClick={handleExport}
+      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-text-gray border border-beige-dark/30 rounded-pill hover:bg-white hover:text-text-primary transition-colors"
+    >
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M3 10v3h10v-3M8 2v8M5 7l3 3 3-3" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+      {label}
+    </button>
+  );
+}
+
 export default function ReportContainer({ report, firstName }: ReportContainerProps) {
   const [activeSection, setActiveSection] = useState('profiles');
 
@@ -133,11 +154,13 @@ export default function ReportContainer({ report, firstName }: ReportContainerPr
           <p className="text-sm text-text-gray mt-8 leading-relaxed max-w-2xl">
             Ten raport to podróż przez odkrycie. Zaczynamy od obserwacji poszczególnych marek, budujemy mapę kategorii, odkrywamy milczącą konwencję — i na końcu zadajemy pytanie, które może zmienić sposób w jaki myślisz o swoim rynku.
           </p>
-          <div className="mt-6">
+          <div className="mt-6 flex flex-wrap gap-3">
             <PdfDownloadButton
               reportElementId="report-content"
               fileName={`skan-kategorii-${report.meta.clientBrand.toLowerCase().replace(/\s+/g, '-')}`}
             />
+            <ExportButton format="markdown" label="Markdown" />
+            <ExportButton format="sources" label="Źródła (TXT)" />
           </div>
         </div>
       </header>
