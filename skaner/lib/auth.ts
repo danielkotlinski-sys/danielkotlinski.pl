@@ -3,6 +3,16 @@ import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 // ===================== TYPES =====================
 
+export interface Organization {
+  nip: string;
+  name: string; // company name
+  ownerEmail: string;
+  members: string[]; // all member emails (including owner)
+  scansThisMonth: number;
+  lastScanReset: string;
+  createdAt: string;
+}
+
 export interface User {
   email: string;
   passwordHash: string;
@@ -10,10 +20,12 @@ export interface User {
   phone: string;
   company?: string;
   nip?: string;
+  orgId?: string; // NIP of the organization
+  role?: 'owner' | 'member';
   approved: boolean;
   createdAt: string;
-  scansThisMonth: number;
-  lastScanReset: string; // ISO date — first day of the month when counter was last reset
+  scansThisMonth: number; // kept for backwards compat, org counter is primary
+  lastScanReset: string;
 }
 
 export interface SessionPayload {
@@ -136,23 +148,114 @@ export async function listUsers(): Promise<User[]> {
     .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
 }
 
+// ===================== ORGANIZATION STORAGE (Redis) =====================
+
+export async function saveOrg(org: Organization): Promise<void> {
+  const json = JSON.stringify(org);
+  const { getRedis, memSet } = await getRedisClient();
+  const r = await getRedis();
+  if (r) {
+    await r.set(`org:${org.nip}`, json);
+    await r.sadd('orgs:all', org.nip);
+  } else {
+    memSet(`org:${org.nip}`, json, 365 * 24 * 60 * 60);
+  }
+}
+
+export async function getOrg(nip: string): Promise<Organization | null> {
+  const { getRedis, memGet } = await getRedisClient();
+  const r = await getRedis();
+  const data = r
+    ? await r.get(`org:${nip}`)
+    : memGet(`org:${nip}`);
+  if (!data) return null;
+  return JSON.parse(data) as Organization;
+}
+
+export async function listOrgs(): Promise<Organization[]> {
+  const { getRedis } = await getRedisClient();
+  const r = await getRedis();
+  if (!r) return [];
+
+  const nips = await r.smembers('orgs:all');
+  if (nips.length === 0) return [];
+
+  const pipeline = r.pipeline();
+  for (const nip of nips) {
+    pipeline.get(`org:${nip}`);
+  }
+  const results = await pipeline.exec();
+  if (!results) return [];
+
+  return results
+    .map(([err, data]) => {
+      if (err || !data) return null;
+      try { return JSON.parse(data as string) as Organization; } catch { return null; }
+    })
+    .filter((o): o is Organization => o !== null)
+    .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+}
+
+export async function addMemberToOrg(nip: string, email: string): Promise<boolean> {
+  const org = await getOrg(nip);
+  if (!org) return false;
+  const lowerEmail = email.toLowerCase();
+  if (!org.members.includes(lowerEmail)) {
+    org.members.push(lowerEmail);
+    await saveOrg(org);
+  }
+  return true;
+}
+
+export async function removeMemberFromOrg(nip: string, email: string): Promise<boolean> {
+  const org = await getOrg(nip);
+  if (!org) return false;
+  const lowerEmail = email.toLowerCase();
+  if (lowerEmail === org.ownerEmail) return false; // can't remove owner
+  org.members = org.members.filter((m) => m !== lowerEmail);
+  await saveOrg(org);
+
+  // Clear user's org reference
+  const user = await getUser(email);
+  if (user) {
+    user.orgId = undefined;
+    user.role = undefined;
+    await saveUser(user);
+  }
+  return true;
+}
+
 // ===================== SCAN LIMITS =====================
 
 const MONTHLY_SCAN_LIMIT = 3;
+
+function resetIfNewMonth(entity: { scansThisMonth: number; lastScanReset: string }): boolean {
+  const now = new Date();
+  const resetDate = new Date(entity.lastScanReset);
+  if (now.getMonth() !== resetDate.getMonth() || now.getFullYear() !== resetDate.getFullYear()) {
+    entity.scansThisMonth = 0;
+    entity.lastScanReset = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    return true;
+  }
+  return false;
+}
 
 export async function checkScanLimit(email: string): Promise<{ allowed: boolean; remaining: number }> {
   const user = await getUser(email);
   if (!user) return { allowed: false, remaining: 0 };
 
-  // Reset counter if it's a new month
-  const now = new Date();
-  const resetDate = new Date(user.lastScanReset);
-  if (now.getMonth() !== resetDate.getMonth() || now.getFullYear() !== resetDate.getFullYear()) {
-    user.scansThisMonth = 0;
-    user.lastScanReset = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-    await saveUser(user);
+  // If user belongs to an org, use org-level counter
+  if (user.orgId) {
+    const org = await getOrg(user.orgId);
+    if (org) {
+      if (resetIfNewMonth(org)) await saveOrg(org);
+      const remaining = MONTHLY_SCAN_LIMIT - org.scansThisMonth;
+      return { allowed: remaining > 0, remaining: Math.max(0, remaining) };
+    }
   }
 
+  // Fallback to user-level counter
+  if (resetIfNewMonth(user)) await saveUser(user);
   const remaining = MONTHLY_SCAN_LIMIT - user.scansThisMonth;
   return { allowed: remaining > 0, remaining: Math.max(0, remaining) };
 }
@@ -161,6 +264,21 @@ export async function incrementScanCount(email: string): Promise<void> {
   const user = await getUser(email);
   if (!user) return;
 
+  // If user belongs to an org, increment org counter
+  if (user.orgId) {
+    const org = await getOrg(user.orgId);
+    if (org) {
+      if (resetIfNewMonth(org)) {
+        org.scansThisMonth = 1;
+      } else {
+        org.scansThisMonth++;
+      }
+      await saveOrg(org);
+      return;
+    }
+  }
+
+  // Fallback to user-level counter
   const now = new Date();
   const resetDate = new Date(user.lastScanReset);
   if (now.getMonth() !== resetDate.getMonth() || now.getFullYear() !== resetDate.getFullYear()) {

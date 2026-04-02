@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
-import { getUser, saveUser, hashPassword, notifyNewRegistration } from '@/lib/auth';
-import type { User } from '@/lib/auth';
+import { getUser, saveUser, hashPassword, notifyNewRegistration, getOrg, saveOrg } from '@/lib/auth';
+import type { User, Organization } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,13 +20,22 @@ export async function POST(request: NextRequest) {
     }
 
     const now = new Date();
+    const cleanNip = nip.trim().replace(/[\s-]/g, '');
+    const cleanEmail = email.toLowerCase().trim();
+
+    // Check if an org with this NIP already exists
+    const existingOrg = await getOrg(cleanNip);
+    const isOwner = !existingOrg; // first user with this NIP becomes owner
+
     const user: User = {
-      email: email.toLowerCase().trim(),
+      email: cleanEmail,
       passwordHash: await hashPassword(password),
       firstName: firstName.trim(),
       phone: phone.trim(),
-      company: company?.trim() || undefined,
-      nip: nip?.trim() || undefined,
+      company: company.trim(),
+      nip: cleanNip,
+      orgId: cleanNip,
+      role: isOwner ? 'owner' : 'member',
       approved: false,
       createdAt: now.toISOString(),
       scansThisMonth: 0,
@@ -34,6 +43,25 @@ export async function POST(request: NextRequest) {
     };
 
     await saveUser(user);
+
+    if (isOwner) {
+      // Create new organization
+      const org: Organization = {
+        nip: cleanNip,
+        name: company.trim(),
+        ownerEmail: cleanEmail,
+        members: [cleanEmail],
+        scansThisMonth: 0,
+        lastScanReset: new Date(now.getFullYear(), now.getMonth(), 1).toISOString(),
+        createdAt: now.toISOString(),
+      };
+      await saveOrg(org);
+    } else {
+      // Add to existing org as member (pending admin approval like everyone)
+      existingOrg.members.push(cleanEmail);
+      await saveOrg(existingOrg);
+    }
+
     await notifyNewRegistration(user);
 
     return Response.json({ success: true });

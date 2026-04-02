@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Navigation from '@/components/Navigation';
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
 
@@ -144,5 +144,22 @@ export default function ResetPasswordPage() {
         </div>
       </main>
     </>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={
+      <>
+        <Navigation />
+        <main className="min-h-screen py-24 px-6">
+          <div className="flex justify-center">
+            <span className="inline-block w-6 h-6 border-2 border-dk-teal border-t-transparent rounded-full animate-spin" />
+          </div>
+        </main>
+      </>
+    }>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }

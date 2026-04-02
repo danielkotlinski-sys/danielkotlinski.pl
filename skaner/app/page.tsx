@@ -15,6 +15,8 @@ interface AuthUser {
   email: string;
   firstName: string;
   company?: string;
+  role?: 'owner' | 'member';
+  orgId?: string;
 }
 
 export default function SkanerPage() {
@@ -155,12 +157,22 @@ export default function SkanerPage() {
                   {scansRemaining}/3 skanów
                 </span>
               </div>
-              <button
-                onClick={handleLogout}
-                className="text-xs text-text-gray hover:text-text-primary transition-colors"
-              >
-                Wyloguj
-              </button>
+              <div className="flex items-center gap-3">
+                {user.orgId && (
+                  <a
+                    href="/zespol"
+                    className="text-xs text-dk-teal hover:text-dk-teal/80 transition-colors"
+                  >
+                    Zespół
+                  </a>
+                )}
+                <button
+                  onClick={handleLogout}
+                  className="text-xs text-text-gray hover:text-text-primary transition-colors"
+                >
+                  Wyloguj
+                </button>
+              </div>
             </div>
             <InputForm onSubmit={handleInputSubmit} />
           </div>

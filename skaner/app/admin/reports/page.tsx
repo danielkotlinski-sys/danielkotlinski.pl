@@ -9,17 +9,29 @@ interface UserData {
   phone: string;
   company?: string;
   nip?: string;
+  orgId?: string;
+  role?: 'owner' | 'member';
   approved: boolean;
   createdAt: string;
   scansThisMonth: number;
 }
 
-type Tab = 'scans' | 'users';
+interface OrgData {
+  nip: string;
+  name: string;
+  ownerEmail: string;
+  members: string[];
+  scansThisMonth: number;
+  createdAt: string;
+}
+
+type Tab = 'scans' | 'users' | 'orgs';
 
 export default function AdminReportsPage() {
   const [secret, setSecret] = useState('');
   const [scans, setScans] = useState<ScanMeta[]>([]);
   const [users, setUsers] = useState<UserData[]>([]);
+  const [orgs, setOrgs] = useState<OrgData[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -31,17 +43,19 @@ export default function AdminReportsPage() {
     setLoading(true);
     setError('');
     try {
-      const [scansRes, usersRes] = await Promise.all([
+      const [scansRes, usersRes, orgsRes] = await Promise.all([
         fetch('/api/admin/scans', { headers }),
         fetch('/api/admin/users', { headers }),
+        fetch('/api/admin/orgs', { headers }),
       ]);
       if (!scansRes.ok || !usersRes.ok) {
         setError(scansRes.status === 401 ? 'Nieprawidłowy klucz' : 'Błąd serwera');
         return;
       }
-      const [scansData, usersData] = await Promise.all([scansRes.json(), usersRes.json()]);
+      const [scansData, usersData, orgsData] = await Promise.all([scansRes.json(), usersRes.json(), orgsRes.json()]);
       setScans(scansData.scans || []);
       setUsers(usersData.users || []);
+      setOrgs(orgsData.orgs || []);
       setLoaded(true);
     } catch {
       setError('Błąd połączenia');
@@ -110,6 +124,12 @@ export default function AdminReportsPage() {
           >
             Użytkownicy ({users.length})
           </button>
+          <button
+            onClick={() => setTab('orgs')}
+            className={`font-heading text-2xl transition-colors ${tab === 'orgs' ? 'text-text-primary' : 'text-text-gray/40 hover:text-text-gray'}`}
+          >
+            Organizacje ({orgs.length})
+          </button>
           <div className="flex-1" />
           <button
             onClick={fetchAll}
@@ -143,6 +163,7 @@ export default function AdminReportsPage() {
                       <span>{user.phone}</span>
                       {user.company && <span>{user.company}</span>}
                       {user.nip && <span>NIP: {user.nip}</span>}
+                      {user.role && <span className="text-dk-teal">{user.role === 'owner' ? 'Właściciel' : 'Członek'} org.</span>}
                       <span>{new Date(user.createdAt).toLocaleDateString('pl-PL')}</span>
                       <span>Skanów w tym miesiącu: {user.scansThisMonth}/3</span>
                     </div>
@@ -157,6 +178,41 @@ export default function AdminReportsPage() {
                   >
                     {user.approved ? 'Zablokuj' : 'Zatwierdź'}
                   </button>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* Orgs tab */}
+        {tab === 'orgs' && (
+          <div className="space-y-3">
+            {orgs.length === 0 ? (
+              <p className="text-text-gray">Brak organizacji.</p>
+            ) : (
+              orgs.map((org) => (
+                <div key={org.nip} className="bg-white rounded-card p-5">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="font-heading text-lg text-text-primary">{org.name}</span>
+                    <span className="text-xs text-text-gray">NIP: {org.nip}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-text-gray mb-3">
+                    <span>Właściciel: {org.ownerEmail}</span>
+                    <span>Członków: {org.members.length}</span>
+                    <span>Skanów w tym miesiącu: {org.scansThisMonth}/3</span>
+                    <span>{new Date(org.createdAt).toLocaleDateString('pl-PL')}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {org.members.map((email) => (
+                      <span key={email} className={`text-[11px] px-2 py-0.5 rounded-pill ${
+                        email === org.ownerEmail
+                          ? 'bg-dk-teal/10 text-dk-teal'
+                          : 'bg-beige text-text-muted'
+                      }`}>
+                        {email}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               ))
             )}
