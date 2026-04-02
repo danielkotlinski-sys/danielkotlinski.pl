@@ -7,17 +7,24 @@
 
 const PRICING = {
   // Claude — per million tokens (input / output)
+  // https://docs.anthropic.com/en/docs/about-claude/models
   'claude-sonnet-4-5': { input: 3.0, output: 15.0 },
   'claude-opus-4-5': { input: 15.0, output: 75.0 },
   // Perplexity sonar-pro — per million tokens
   'sonar-pro': { input: 3.0, output: 15.0 },
-  // Jina — per request (approximate)
+  // Jina — per request (approximate based on usage tiers)
   'jina-reader': { perRequest: 0.01 },
   'jina-screenshot': { perRequest: 0.01 },
-  // Apify — per actor run (approximate, varies by actor)
-  'apify-instagram': { perRun: 0.15 },
-  'apify-facebook': { perRun: 0.10 },
-  'apify-linkedin': { perRun: 0.10 },
+  // Apify — Bronze plan: $0.30/CU
+  // Estimates based on typical CU consumption per actor run:
+  // Instagram scraper: ~0.5-1.0 CU (12-20 posts with images)
+  // Facebook posts scraper: ~0.3-0.6 CU
+  // LinkedIn scraper: ~0.3-0.5 CU
+  // Facebook Ads Library scraper: ~0.3-0.8 CU (15-45 ads with filtering)
+  'apify-instagram': { perRun: 0.25 },    // ~0.8 CU × $0.30
+  'apify-facebook': { perRun: 0.15 },     // ~0.5 CU × $0.30
+  'apify-linkedin': { perRun: 0.12 },     // ~0.4 CU × $0.30
+  'apify-facebook-ads': { perRun: 0.20 }, // ~0.6 CU × $0.30
 } as const;
 
 // ===================== TYPES =====================
