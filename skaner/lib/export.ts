@@ -133,26 +133,31 @@ export function reportToMarkdown(report: ScannerReport): string {
     blank();
     add('### Hipoteza pęknięcia');
     add(`**Konwencja zakłada:** ${bo.hipotezaPekniecia.konwencjaZaklada}`);
-    add(`**To może być błędne, bo:** ${bo.hipotezaPekniecia.toMozeBycBledne}`);
-    add(`**Alternatywna logika:** ${bo.hipotezaPekniecia.alternatywnaLogika}`);
     blank();
-    add('### Nowy popyt');
-    add(`- **Stan:** ${bo.nowyPopyt.stan}`);
-    add(`- **Sytuacja:** ${bo.nowyPopyt.sytuacja}`);
-    add(`- **Napięcie:** ${bo.nowyPopyt.napiecie}`);
-    add(`- **Dlaczego nieobsługiwany:** ${bo.nowyPopyt.dlaczegoNieobslugiwany}`);
+    if (bo.hipotezaPekniecia.wariant1) {
+      add('**Perspektywa 1 — to może być błędne, bo:**');
+      add(bo.hipotezaPekniecia.wariant1.toMozeBycBledne);
+      add(`**Alternatywna logika:** ${bo.hipotezaPekniecia.wariant1.alternatywnaLogika}`);
+      blank();
+      add('**Perspektywa 2 — to może być błędne, bo:**');
+      add(bo.hipotezaPekniecia.wariant2.toMozeBycBledne);
+      add(`**Alternatywna logika:** ${bo.hipotezaPekniecia.wariant2.alternatywnaLogika}`);
+    } else {
+      add(`**To może być błędne, bo:** ${bo.hipotezaPekniecia.toMozeBycBledne || ''}`);
+      add(`**Alternatywna logika:** ${bo.hipotezaPekniecia.alternatywnaLogika || ''}`);
+    }
     blank();
-    add(`### Ruch strategiczny: ${bo.ruchStrategiczny.nazwa}`);
-    add(`**Definicja:** ${bo.ruchStrategiczny.definicja}`);
-    add(`**Co się zmienia:** ${bo.ruchStrategiczny.coSieZmienia}`);
-    blank();
-    add(`**Pierwszy krok testowy:** ${bo.pierwszyKrok}`);
-    blank();
-    if (bo.odrzuconeKierunki?.length) {
-      add('### Odrzucone kierunki');
-      for (const k of bo.odrzuconeKierunki) {
-        add(`- **${k.kierunek}** — ${k.dlaczegoOdrzucony}`);
+    if (bo.kierunki?.length) {
+      add('### A co gdyby...?');
+      for (const k of bo.kierunki) {
+        add(`- **${k.technika}:** ${k.aCoGdyby}`);
       }
+      blank();
+    }
+    if (bo.ruchStrategiczny) {
+      add(`### Ruch strategiczny: ${bo.ruchStrategiczny.nazwa}`);
+      add(`**Definicja:** ${bo.ruchStrategiczny.definicja}`);
+      add(`**Co się zmienia:** ${bo.ruchStrategiczny.coSieZmienia}`);
       blank();
     }
   }

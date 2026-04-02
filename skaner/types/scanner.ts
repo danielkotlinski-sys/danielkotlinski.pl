@@ -211,22 +211,36 @@ export interface BlueOceanFinale {
   mechanizmKategorii: string;
   hipotezaPekniecia: {
     konwencjaZaklada: string;
-    toMozeBycBledne: string;
-    alternatywnaLogika: string;
+    wariant1: {
+      toMozeBycBledne: string;
+      alternatywnaLogika: string;
+    };
+    wariant2: {
+      toMozeBycBledne: string;
+      alternatywnaLogika: string;
+    };
+    // Legacy fields (pre-refactor reports)
+    toMozeBycBledne?: string;
+    alternatywnaLogika?: string;
   };
-  nowyPopyt: {
+  kierunki: Array<{
+    technika: string;
+    aCoGdyby: string;
+  }>;
+  // Legacy fields (pre-refactor reports)
+  nowyPopyt?: {
     stan: string;
     sytuacja: string;
     napiecie: string;
     dlaczegoNieobslugiwany: string;
   };
-  ruchStrategiczny: {
+  ruchStrategiczny?: {
     nazwa: string;
     definicja: string;
     coSieZmienia: string;
   };
-  pierwszyKrok: string;
-  odrzuconeKierunki: Array<{
+  pierwszyKrok?: string;
+  odrzuconeKierunki?: Array<{
     kierunek: string;
     dlaczegoOdrzucony: string;
   }>;

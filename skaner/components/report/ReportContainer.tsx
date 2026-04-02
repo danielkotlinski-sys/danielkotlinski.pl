@@ -39,7 +39,7 @@ const SECTION_EXPLAINERS: Record<string, { heading: string; explainer: string }>
   },
   finale: {
     heading: 'Pęknięcie strategiczne',
-    explainer: 'Konwencja opisuje jak kategoria generuje wartość dziś. Ale każda logika opiera się na założeniach — a założenia mają koszty i ślepe punkty. To jest moment, w którym szukamy nie lepszego wykonania starej gry, ale innej gry.',
+    explainer: 'Konwencja opisuje jak kategoria generuje wartość dziś. Ale każda logika opiera się na założeniach — a założenia mają koszty i ślepe punkty. Pytanie brzmi: co się otwiera, kiedy zaczynasz myśleć poza tą logiką?',
   },
 };
 

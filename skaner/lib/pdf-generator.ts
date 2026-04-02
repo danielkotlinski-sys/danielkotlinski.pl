@@ -392,39 +392,46 @@ export async function generateReportPdf(report: ScannerReport): Promise<Blob> {
     drawText(ctx, safe(bo.hipotezaPekniecia?.konwencjaZaklada));
     drawSpacer(ctx, 3);
 
-    drawLabel(ctx, 'To może być błędne, bo');
-    drawText(ctx, safe(bo.hipotezaPekniecia?.toMozeBycBledne));
-    drawSpacer(ctx, 3);
+    if (bo.hipotezaPekniecia?.wariant1) {
+      // New format: 2 variants
+      drawLabel(ctx, 'To może być błędne, bo — perspektywa 1');
+      drawText(ctx, safe(bo.hipotezaPekniecia.wariant1.toMozeBycBledne));
+      drawLabel(ctx, 'Alternatywna logika');
+      drawText(ctx, safe(bo.hipotezaPekniecia.wariant1.alternatywnaLogika));
+      drawSpacer(ctx, 5);
 
-    drawLabel(ctx, 'Alternatywna logika');
-    drawText(ctx, safe(bo.hipotezaPekniecia?.alternatywnaLogika));
+      drawLabel(ctx, 'To może być błędne, bo — perspektywa 2');
+      drawText(ctx, safe(bo.hipotezaPekniecia.wariant2.toMozeBycBledne));
+      drawLabel(ctx, 'Alternatywna logika');
+      drawText(ctx, safe(bo.hipotezaPekniecia.wariant2.alternatywnaLogika));
+    } else {
+      // Legacy format
+      drawLabel(ctx, 'To może być błędne, bo');
+      drawText(ctx, safe(bo.hipotezaPekniecia?.toMozeBycBledne));
+      drawSpacer(ctx, 3);
+      drawLabel(ctx, 'Alternatywna logika');
+      drawText(ctx, safe(bo.hipotezaPekniecia?.alternatywnaLogika));
+    }
     drawSpacer(ctx, 8);
 
-    // New demand
-    drawSubheading(ctx, 'Nowy popyt');
-    drawText(ctx, `Stan: ${safe(bo.nowyPopyt?.stan)}`);
-    drawText(ctx, `Sytuacja: ${safe(bo.nowyPopyt?.sytuacja)}`);
-    drawText(ctx, `Napięcie: ${safe(bo.nowyPopyt?.napiecie)}`);
-    drawText(ctx, `Dlaczego nieobsługiwany: ${safe(bo.nowyPopyt?.dlaczegoNieobslugiwany)}`);
-    drawSpacer(ctx, 8);
-
-    // Strategic move
-    ensureSpace(ctx, 30);
-    drawSubheading(ctx, `Ruch strategiczny: ${safe(bo.ruchStrategiczny?.nazwa)}`);
-    drawText(ctx, safe(bo.ruchStrategiczny?.definicja), { bold: true });
-    drawText(ctx, safe(bo.ruchStrategiczny?.coSieZmienia), { color: C_GRAY });
-    drawSpacer(ctx, 6);
-
-    drawLabel(ctx, 'Pierwszy krok testowy');
-    drawText(ctx, safe(bo.pierwszyKrok), { color: C_TEAL });
-    drawSpacer(ctx, 8);
-
-    // Rejected directions
-    if (bo.odrzuconeKierunki?.length) {
-      drawSubheading(ctx, 'Odrzucone kierunki');
-      for (const k of bo.odrzuconeKierunki) {
-        drawBullet(ctx, `${safe(k.kierunek)} — ${safe(k.dlaczegoOdrzucony)}`, { color: C_GRAY });
+    // "What if" directions
+    if (bo.kierunki?.length) {
+      ensureSpace(ctx, 30);
+      drawSubheading(ctx, 'A co gdyby...?');
+      for (const k of bo.kierunki) {
+        drawLabel(ctx, safe(k.technika));
+        drawText(ctx, safe(k.aCoGdyby));
+        drawSpacer(ctx, 3);
       }
+    }
+
+    // Legacy sections for old reports
+    if (bo.ruchStrategiczny) {
+      drawSpacer(ctx, 8);
+      ensureSpace(ctx, 30);
+      drawSubheading(ctx, `Ruch strategiczny: ${safe(bo.ruchStrategiczny?.nazwa)}`);
+      drawText(ctx, safe(bo.ruchStrategiczny?.definicja), { bold: true });
+      drawText(ctx, safe(bo.ruchStrategiczny?.coSieZmienia), { color: C_GRAY });
     }
   }
 
