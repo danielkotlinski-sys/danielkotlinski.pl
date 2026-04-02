@@ -6,7 +6,7 @@ interface AuthGateProps {
   onAuthenticated: (user: { email: string; firstName: string; company?: string }, scansRemaining: number) => void;
 }
 
-type Mode = 'login' | 'register' | 'pending';
+type Mode = 'login' | 'register' | 'pending' | 'forgot' | 'forgot-sent';
 
 export default function AuthGate({ onAuthenticated }: AuthGateProps) {
   const [mode, setMode] = useState<Mode>('login');
@@ -16,6 +16,9 @@ export default function AuthGate({ onAuthenticated }: AuthGateProps) {
   // Login fields
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  // Forgot password
+  const [forgotEmail, setForgotEmail] = useState('');
 
   // Register fields
   const [regFirstName, setRegFirstName] = useState('');
@@ -140,13 +143,17 @@ export default function AuthGate({ onAuthenticated }: AuthGateProps) {
     <div className="max-w-md mx-auto">
       <div className="bg-white rounded-card p-8 md:p-10">
         <h2 className="font-heading text-3xl text-text-primary mb-2">
-          {mode === 'login' ? 'Zaloguj się' : 'Utwórz konto'}
+          {mode === 'login' ? 'Zaloguj się' : mode === 'forgot' ? 'Reset hasła' : mode === 'forgot-sent' ? '' : 'Utwórz konto'}
         </h2>
-        <p className="text-text-muted text-sm mb-8">
-          {mode === 'login'
-            ? 'Zaloguj się, żeby uruchomić skan kategorii.'
-            : 'Rejestracja wymaga ręcznego zatwierdzenia konta.'}
-        </p>
+        {mode !== 'forgot-sent' && (
+          <p className="text-text-muted text-sm mb-8">
+            {mode === 'login'
+              ? 'Zaloguj się, żeby uruchomić skan kategorii.'
+              : mode === 'forgot'
+                ? 'Podaj email, na który wyślemy link do resetu hasła.'
+                : 'Rejestracja wymaga ręcznego zatwierdzenia konta.'}
+          </p>
+        )}
 
         {error && (
           <div className="bg-red-50 border border-red-200/50 rounded-xl px-4 py-3 mb-6">
@@ -185,7 +192,80 @@ export default function AuthGate({ onAuthenticated }: AuthGateProps) {
             >
               {loading ? 'Logowanie...' : 'Zaloguj się'}
             </button>
+            <div className="text-center mt-3">
+              <button
+                type="button"
+                onClick={() => { setMode('forgot'); setError(''); setForgotEmail(email); }}
+                className="text-xs text-text-gray hover:text-text-primary transition-colors"
+              >
+                Zapomniałem hasła
+              </button>
+            </div>
           </form>
+        ) : mode === 'forgot' ? (
+          <form onSubmit={async (e) => {
+            e.preventDefault();
+            setLoading(true);
+            setError('');
+            try {
+              await fetch('/api/auth/reset-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: forgotEmail }),
+              });
+              setMode('forgot-sent');
+            } catch {
+              setError('Błąd połączenia z serwerem');
+            } finally {
+              setLoading(false);
+            }
+          }} className="space-y-5">
+            <div>
+              <label className={labelStyles}>Email</label>
+              <input
+                type="email"
+                value={forgotEmail}
+                onChange={(e) => setForgotEmail(e.target.value)}
+                className={inputStyles}
+                placeholder="twoj@email.pl"
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3.5 bg-dk-orange text-white rounded-card font-medium text-[15px] hover:bg-dk-orange-hover transition-all disabled:opacity-50"
+            >
+              {loading ? 'Wysyłam...' : 'Wyślij link do resetu'}
+            </button>
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => { setMode('login'); setError(''); }}
+                className="text-sm text-dk-teal hover:text-dk-teal/80 transition-colors"
+              >
+                Wróć do logowania
+              </button>
+            </div>
+          </form>
+        ) : mode === 'forgot-sent' ? (
+          <div className="text-center py-4">
+            <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2">
+                <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <h3 className="font-heading text-xl text-text-primary mb-3">Sprawdź email</h3>
+            <p className="text-text-muted text-sm leading-relaxed mb-6">
+              Jeśli konto z tym adresem istnieje, wysłaliśmy link do resetu hasła. Link jest ważny przez 1 godzinę.
+            </p>
+            <button
+              onClick={() => { setMode('login'); setError(''); }}
+              className="text-sm text-dk-teal hover:text-dk-teal/80 transition-colors"
+            >
+              Wróć do logowania
+            </button>
+          </div>
         ) : (
           <form onSubmit={handleRegister} className="space-y-5">
             <div>
@@ -275,23 +355,25 @@ export default function AuthGate({ onAuthenticated }: AuthGateProps) {
           </form>
         )}
 
-        <div className="mt-6 text-center">
-          {mode === 'login' ? (
-            <button
-              onClick={() => { setMode('register'); setError(''); }}
-              className="text-sm text-dk-teal hover:text-dk-teal/80 transition-colors"
-            >
-              Nie masz konta? Zarejestruj się
-            </button>
-          ) : (
-            <button
-              onClick={() => { setMode('login'); setError(''); }}
-              className="text-sm text-dk-teal hover:text-dk-teal/80 transition-colors"
-            >
-              Masz już konto? Zaloguj się
-            </button>
-          )}
-        </div>
+        {(mode === 'login' || mode === 'register') && (
+          <div className="mt-6 text-center">
+            {mode === 'login' ? (
+              <button
+                onClick={() => { setMode('register'); setError(''); }}
+                className="text-sm text-dk-teal hover:text-dk-teal/80 transition-colors"
+              >
+                Nie masz konta? Zarejestruj się
+              </button>
+            ) : (
+              <button
+                onClick={() => { setMode('login'); setError(''); }}
+                className="text-sm text-dk-teal hover:text-dk-teal/80 transition-colors"
+              >
+                Masz już konto? Zaloguj się
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

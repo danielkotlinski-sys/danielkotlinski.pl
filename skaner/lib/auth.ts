@@ -211,3 +211,108 @@ export async function notifyNewRegistration(user: User): Promise<void> {
     console.error('[auth] Failed to send notification:', err);
   }
 }
+
+export async function notifyAccountApproved(user: User): Promise<void> {
+  const resendApiKey = process.env.RESEND_API_KEY;
+  if (!resendApiKey) return;
+
+  try {
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Skaner Kategorii <skaner@danielkotlinski.pl>',
+        to: user.email,
+        subject: 'Twoje konto w Skanerze Kategorii zostało aktywowane',
+        html: `
+          <p>Cześć ${user.firstName},</p>
+          <p>Twoje konto w Skanerze Kategorii zostało zatwierdzone. Możesz się teraz zalogować i uruchomić pierwszy skan.</p>
+          <p><a href="https://skaner.danielkotlinski.pl" style="display:inline-block;padding:12px 24px;background:#E8734A;color:white;text-decoration:none;border-radius:24px;font-weight:500;">Zaloguj się do Skanera</a></p>
+          <p style="color:#888;font-size:13px;margin-top:24px;">Masz 3 bezpłatne skany miesięcznie. Każdy skan analizuje komunikację 3-5 marek w Twojej kategorii.</p>
+          <p>Daniel Kotliński</p>
+        `,
+      }),
+    });
+    console.log('[auth] Approval notification sent to', user.email);
+  } catch (err) {
+    console.error('[auth] Failed to send approval notification:', err);
+  }
+}
+
+// ===================== PASSWORD RESET =====================
+
+export async function createPasswordResetToken(email: string): Promise<string | null> {
+  const user = await getUser(email);
+  if (!user) return null;
+
+  const token = await new SignJWT({ email: user.email, purpose: 'password-reset' })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setExpirationTime('1h')
+    .setIssuedAt()
+    .sign(JWT_SECRET);
+
+  return token;
+}
+
+export async function verifyPasswordResetToken(token: string): Promise<string | null> {
+  try {
+    const { payload } = await jwtVerify(token, JWT_SECRET);
+    if (payload.purpose !== 'password-reset') return null;
+    return payload.email as string;
+  } catch {
+    return null;
+  }
+}
+
+export async function sendPasswordResetEmail(email: string): Promise<boolean> {
+  const resendApiKey = process.env.RESEND_API_KEY;
+  if (!resendApiKey) {
+    console.log('[auth] No RESEND_API_KEY — cannot send reset email');
+    return false;
+  }
+
+  const token = await createPasswordResetToken(email);
+  if (!token) return false;
+
+  const resetUrl = `https://skaner.danielkotlinski.pl/reset-hasla?token=${token}`;
+
+  try {
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Skaner Kategorii <skaner@danielkotlinski.pl>',
+        to: email,
+        subject: 'Reset hasła — Skaner Kategorii',
+        html: `
+          <p>Ktoś poprosił o reset hasła dla tego adresu email w Skanerze Kategorii.</p>
+          <p><a href="${resetUrl}" style="display:inline-block;padding:12px 24px;background:#E8734A;color:white;text-decoration:none;border-radius:24px;font-weight:500;">Ustaw nowe hasło</a></p>
+          <p style="color:#888;font-size:13px;">Link jest ważny przez 1 godzinę. Jeśli to nie Ty — zignoruj tę wiadomość.</p>
+        `,
+      }),
+    });
+    console.log('[auth] Password reset email sent to', email);
+    return true;
+  } catch (err) {
+    console.error('[auth] Failed to send reset email:', err);
+    return false;
+  }
+}
+
+export async function resetPassword(token: string, newPassword: string): Promise<boolean> {
+  const email = await verifyPasswordResetToken(token);
+  if (!email) return false;
+
+  const user = await getUser(email);
+  if (!user) return false;
+
+  user.passwordHash = await hashPassword(newPassword);
+  await saveUser(user);
+  return true;
+}

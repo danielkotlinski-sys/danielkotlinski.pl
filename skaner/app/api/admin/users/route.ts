@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { listUsers, getUser, saveUser } from '@/lib/auth';
+import { listUsers, getUser, saveUser, notifyAccountApproved } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   const secret = request.headers.get('x-admin-secret');
@@ -27,8 +27,14 @@ export async function PATCH(request: NextRequest) {
     return Response.json({ error: 'User not found' }, { status: 404 });
   }
 
+  const wasApproved = user.approved;
   user.approved = approved;
   await saveUser(user);
+
+  // Send email when approving (not when blocking)
+  if (approved && !wasApproved) {
+    await notifyAccountApproved(user);
+  }
 
   return Response.json({ success: true, user: { email: user.email, approved: user.approved } });
 }
