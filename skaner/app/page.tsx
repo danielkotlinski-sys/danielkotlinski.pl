@@ -157,18 +157,18 @@ export default function SkanerPage() {
                   {scansRemaining}/3 skanów
                 </span>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 {user.orgId && (
                   <a
                     href="/zespol"
-                    className="text-xs text-dk-teal hover:text-dk-teal/80 transition-colors"
+                    className="text-xs px-4 py-1.5 bg-dk-teal text-white rounded-pill font-medium hover:bg-dk-teal-hover transition-all"
                   >
                     Zespół
                   </a>
                 )}
                 <button
                   onClick={handleLogout}
-                  className="text-xs text-text-gray hover:text-text-primary transition-colors"
+                  className="text-xs px-4 py-1.5 bg-white border border-beige-dark/30 text-text-muted rounded-pill font-medium hover:text-text-primary hover:border-beige-dark/50 transition-all"
                 >
                   Wyloguj
                 </button>

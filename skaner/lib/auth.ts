@@ -215,11 +215,12 @@ export async function removeMemberFromOrg(nip: string, email: string): Promise<b
   org.members = org.members.filter((m) => m !== lowerEmail);
   await saveOrg(org);
 
-  // Clear user's org reference
+  // Deactivate removed member and clear org reference
   const user = await getUser(email);
   if (user) {
     user.orgId = undefined;
     user.role = undefined;
+    user.approved = false;
     await saveUser(user);
   }
   return true;
