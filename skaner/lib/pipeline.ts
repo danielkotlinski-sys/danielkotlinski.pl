@@ -22,7 +22,7 @@ import type {
 } from '@/types/scanner';
 import { fetchWebsiteText, fetchHomepageScreenshot } from './jina';
 import { scrapeSocialPosts, scrapeFacebookAds } from './apify';
-import type { BrandAdsData } from '@/types/scanner';
+import type { BrandAdsData, AdsAnalysis } from '@/types/scanner';
 import { searchExternalDiscourse } from './perplexity';
 import { runPrompt, analyzePostVision, parseJsonResponse } from './anthropic';
 import {
@@ -40,6 +40,7 @@ import {
   PROMPT_7_CONVENTIONS,
   PROMPT_8_CLIENT_POSITION,
   PROMPT_9_BLUE_OCEAN,
+  PROMPT_ADS_ANALYSIS,
   fillPrompt,
 } from './prompts';
 import { saveReport, saveScanMeta } from './redis';
@@ -178,7 +179,7 @@ export async function runCategoryScanner(
       console.log('Pipeline: Facebook Ads collection enabled');
       const adsResults = await Promise.all(
         allBrands.map(async (brand) => {
-          const ads = await scrapeFacebookAds(brand.name, 'PL', 8, costs);
+          const ads = await scrapeFacebookAds(brand.name, 'PL', 15, costs);
           return {
             brandName: brand.name,
             ads: ads.map((ad) => ({
@@ -409,6 +410,57 @@ export async function runCategoryScanner(
       }
     })
   );
+  // Ads analysis per brand (if ads data available)
+  const brandAdsAnalyses: Record<string, AdsAnalysis> = {};
+  if (adsData && adsData.length > 0) {
+    await Promise.all(
+      adsData.map(async (brandAds) => {
+        const profile = brandProfiles[brandAds.brandName];
+        if (!profile || brandAds.ads.length === 0) return;
+
+        const adsText = brandAds.ads.map((ad, i) =>
+          `[Reklama ${i + 1}]\nTreść: ${ad.bodyText || '(brak)'}\nTytuł linku: ${ad.linkTitle || '(brak)'}\nOpis: ${ad.linkDescription || '(brak)'}\nData: ${ad.startDate || '(brak)'}\nWydatki: ${ad.spendRange || '(brak)'}\nWyświetlenia: ${ad.impressionsRange || '(brak)'}`
+        ).join('\n\n');
+
+        try {
+          const raw = await runPrompt(
+            fillPrompt(PROMPT_ADS_ANALYSIS, {
+              AD_COUNT: String(brandAds.ads.length),
+              BRAND_NAME: brandAds.brandName,
+              CATEGORY: input.category,
+              ADS_DATA: adsText,
+              ORGANIC_LOGIC: profile.logikaSprzedazy.tresc,
+              ORGANIC_CLIENT: profile.implikowanyKlient.tosazmosc,
+            }),
+            'claude-sonnet-4-5', costs, `ads analysis: ${brandAds.brandName}`
+          );
+          brandAdsAnalyses[brandAds.brandName] = parseJsonResponse<AdsAnalysis>(raw);
+        } catch (err) {
+          console.error(`Ads analysis failed for ${brandAds.brandName}:`, err);
+        }
+      })
+    );
+    console.log(`Pipeline: Ads analysis done for ${Object.keys(brandAdsAnalyses).length} brands`);
+
+    // Feed ads analysis into brand profiles (enrich PROMPT_6 results)
+    for (const [brandName, adsAnalysis] of Object.entries(brandAdsAnalyses)) {
+      const profile = brandProfiles[brandName];
+      if (profile && adsAnalysis.dodatkoveWnioski?.length > 0) {
+        // Add ads-derived evidence to brand profile
+        for (const wniosek of adsAnalysis.dodatkoveWnioski) {
+          profile.kluczoweDowody.push({
+            obserwacja: wniosek,
+            cytat: '',
+            zrodlo: 'reklamy Meta' as 'strona' | 'social' | 'zewnętrzne' | 'media',
+            znaczenie: adsAnalysis.spojnosc.ocena === 'spójna'
+              ? 'Potwierdza kierunek komunikacji organicznej'
+              : 'Ujawnia rozbieżność między wizerunkiem a sprzedażą',
+          });
+        }
+      }
+    }
+  }
+
   emitStep('synthesize_brands', 'done');
 
   // === PHASE 4: CATEGORY SYNTHESIS ===
@@ -534,6 +586,11 @@ export async function runCategoryScanner(
           analysis.claim.obietnicaZmiany?.dowod,
         ].filter(Boolean) as string[],
         konwencjaWizualna: brandVisuals[brand.name] || undefined,
+        adsAnalysis: brandAdsAnalyses[brand.name] || undefined,
+        adsScreenshots: adsData
+          ?.find((a) => a.brandName === brand.name)
+          ?.ads.map((a) => a.imageBase64)
+          .filter(Boolean) as string[] | undefined,
         zrodlaZewnetrzne: brandCitations[brand.name] || [],
       };
     }),

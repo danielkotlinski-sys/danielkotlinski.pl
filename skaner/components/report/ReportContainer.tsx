@@ -9,7 +9,6 @@ import ComparativeGapsSection from './ComparativeGapsSection';
 import VisualConventionsSection from './VisualConventionsSection';
 import FinaleSection from './FinaleSection';
 import GateSection from './GateSection';
-import AdsSection from './AdsSection';
 import PdfDownloadButton from './PdfDownloadButton';
 
 interface ReportContainerProps {
@@ -37,10 +36,6 @@ const SECTION_EXPLAINERS: Record<string, { heading: string; explainer: string }>
   convention: {
     heading: 'Konwencja kategorii',
     explainer: 'Tu wyłania się wzorzec. Wszystkie marki — choć konkurują — grają tę samą grę, według tych samych niepisanych reguł. Oto mechanizm, który trzyma kategorię w pułapce jednomyślności — i miejsce Twojej marki w tym układzie.',
-  },
-  ads: {
-    heading: 'Reklamy Meta',
-    explainer: 'Co marki promują płatnie — i jak to się różni od komunikacji organicznej? Reklamy ujawniają prawdziwe priorytety sprzedażowe, które marka może ukrywać w komunikacji wizerunkowej.',
   },
   finale: {
     heading: 'Pęknięcie strategiczne',
@@ -78,7 +73,6 @@ export default function ReportContainer({ report, firstName }: ReportContainerPr
     { id: 'visual', label: 'Konwencje wizualne' },
     ...(report.mapaKategorii ? [{ id: 'map', label: 'Krajobraz kategorii' }] : []),
     ...(report.lukiKomunikacyjne ? [{ id: 'gaps', label: 'Luki komunikacyjne' }] : []),
-    ...(report.adsData ? [{ id: 'ads', label: 'Reklamy Meta' }] : []),
     { id: 'convention', label: 'Konwencja i Twoja marka' },
     ...(report.blueOceanFinale ? [{ id: 'finale', label: 'Pęknięcie strategiczne' }] : []),
     { id: 'cta', label: 'Co dalej' },
@@ -200,14 +194,6 @@ export default function ReportContainer({ report, firstName }: ReportContainerPr
         <section id="gaps" className="mb-20">
           <SectionHeader num={nextSection()} sectionId="gaps" />
           <ComparativeGapsSection gaps={report.lukiKomunikacyjne} />
-        </section>
-      )}
-
-      {/* Section: Ads (optional) */}
-      {report.adsData && report.adsData.length > 0 && (
-        <section id="ads" className="mb-20">
-          <SectionHeader num={nextSection()} sectionId="ads" />
-          <AdsSection adsData={report.adsData} clientBrandName={report.meta.clientBrand} />
         </section>
       )}
 

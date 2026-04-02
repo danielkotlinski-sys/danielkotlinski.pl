@@ -259,6 +259,19 @@ export interface CategoryVisualConventions {
   ktoWizualnieWykluczony: string;
 }
 
+// === Ads Analysis Types ===
+
+export interface AdsAnalysis {
+  dominujacyPrzekaz: string;
+  konwencjeWizualneReklam: string;
+  spojnosc: {
+    ocena: 'spójna' | 'częściowo rozbieżna' | 'wyraźnie rozbieżna';
+    opis: string;
+  };
+  ukrytePriorytety: string;
+  dodatkoveWnioski: string[];
+}
+
 // === Ad Library Types ===
 
 export interface BrandAdsData {
@@ -309,6 +322,8 @@ export interface ScannerReport {
     samplePostScreenshots: string[];
     sampleWebsiteQuotes: string[];
     konwencjaWizualna?: BrandVisualConventions;
+    adsAnalysis?: AdsAnalysis;
+    adsScreenshots?: string[]; // base64 images from ads (up to 8)
     zrodlaZewnetrzne?: string[];
   }>;
   mapaKategorii?: CategoryMap;

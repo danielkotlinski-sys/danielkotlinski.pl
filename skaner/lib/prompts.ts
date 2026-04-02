@@ -495,6 +495,45 @@ Odpowiedz WYŁĄCZNIE w JSON. Cały proces myślenia (8 osi, scoring, ranking) w
 Podaj 2-3 odrzucone kierunki.
 `;
 
+export const PROMPT_ADS_ANALYSIS = `
+Jesteś analitykiem komunikacji reklamowej. Poniżej masz dane o {{AD_COUNT}} aktywnych reklamach Meta (Facebook/Instagram Ads) marki {{BRAND_NAME}} (kategoria: {{CATEGORY}}).
+
+DANE REKLAM:
+{{ADS_DATA}}
+
+KONTEKST — DOTYCHCZASOWA ANALIZA KOMUNIKACJI ORGANICZNEJ:
+- Strona WWW + social media sugerują następujący profil marki:
+  Logika sprzedaży: {{ORGANIC_LOGIC}}
+  Implikowany klient: {{ORGANIC_CLIENT}}
+
+Twoim zadaniem jest:
+1. Przeanalizować CO marka promuje płatnie — jakie obietnice, argumenty, CTA dominują w reklamach.
+2. Ocenić SPÓJNOŚĆ między komunikacją organiczną (strona + social) a płatną (reklamy Meta).
+3. Wyciągnąć DODATKOWE wnioski — reklamy ujawniają prawdziwe priorytety sprzedażowe, które marka może ukrywać w komunikacji wizerunkowej.
+4. Opisać konwencje wizualne reklam — co się powtarza w kreacjach.
+
+ZASADY:
+- Każdą tezę oprzyj konkretnymi przykładami z reklam (cytuj treści).
+- Pisz zwięźle — każde pole to maks 2-3 zdania.
+- Jeśli reklam jest mało lub są monotematyczne — napisz to wprost.
+
+Odpowiedz wyłącznie w JSON:
+
+{
+  "dominujacyPrzekaz": "Co reklamy najczęściej komunikują? Jaka jest główna obietnica/argument/CTA? 1-2 zdania z przykładami.",
+  "konwencjeWizualneReklam": "Jakie wzorce wizualne się powtarzają w kreacjach? Kolory, formaty, styl zdjęć/grafik. 1-2 zdania.",
+  "spojnosc": {
+    "ocena": "spójna | częściowo rozbieżna | wyraźnie rozbieżna",
+    "opis": "Czy reklamy mówią to samo co strona i social? Gdzie się zgadzają, gdzie się różnią? 2-3 zdania z konkretnymi przykładami."
+  },
+  "ukrytePriorytety": "Co reklamy ujawniają o prawdziwych priorytetach sprzedażowych marki, czego nie widać w komunikacji organicznej? 1-2 zdania.",
+  "dodatkoveWnioski": [
+    "Obserwacja 1 z reklam która poszerza obraz marki — 1 zdanie",
+    "Obserwacja 2 — 1 zdanie"
+  ]
+}
+`;
+
 export function fillPrompt(
   template: string,
   vars: Record<string, string>

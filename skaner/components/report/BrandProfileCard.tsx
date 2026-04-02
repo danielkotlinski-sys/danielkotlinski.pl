@@ -1,15 +1,70 @@
 'use client';
 
+import { useRef } from 'react';
 import type { ScannerReport } from '@/types/scanner';
 
 interface BrandProfileCardProps {
   profile: ScannerReport['brandProfiles'][number];
 }
 
+function AdsSlider({ screenshots, brandName }: { screenshots: string[]; brandName: string }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (dir: 'left' | 'right') => {
+    if (!scrollRef.current) return;
+    const amount = scrollRef.current.clientWidth * 0.7;
+    scrollRef.current.scrollBy({ left: dir === 'left' ? -amount : amount, behavior: 'smooth' });
+  };
+
+  return (
+    <div className="relative group">
+      <div
+        ref={scrollRef}
+        className="flex gap-3 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-2"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        {screenshots.map((img, i) => (
+          <div
+            key={i}
+            className="flex-shrink-0 w-48 md:w-56 snap-start rounded-xl overflow-hidden bg-beige-light border border-beige-dark/10"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`data:image/${img.startsWith('/9j/') ? 'jpeg' : 'png'};base64,${img}`}
+              alt={`Reklama ${i + 1} - ${brandName}`}
+              className="w-full h-auto"
+            />
+          </div>
+        ))}
+      </div>
+      {screenshots.length > 3 && (
+        <>
+          <button
+            onClick={() => scroll('left')}
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 w-8 h-8 bg-white shadow-md rounded-full flex items-center justify-center text-text-gray hover:text-text-primary transition-all opacity-0 group-hover:opacity-100"
+            aria-label="Przewiń w lewo"
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 4l-4 4 4 4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </button>
+          <button
+            onClick={() => scroll('right')}
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 w-8 h-8 bg-white shadow-md rounded-full flex items-center justify-center text-text-gray hover:text-text-primary transition-all opacity-0 group-hover:opacity-100"
+            aria-label="Przewiń w prawo"
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 4l4 4-4 4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function BrandProfileCard({ profile }: BrandProfileCardProps) {
   const logika = profile.logikaSprzedazy;
   const klient = profile.implikowanyKlient;
   const dowody = profile.kluczoweDowody || [];
+  const adsAnalysis = profile.adsAnalysis;
+  const adsScreenshots = profile.adsScreenshots?.filter(Boolean) || [];
 
   return (
     <div className="bg-white rounded-card overflow-hidden">
@@ -99,6 +154,65 @@ export default function BrandProfileCard({ profile }: BrandProfileCardProps) {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Ads analysis section — inside brand profile */}
+        {adsAnalysis && (
+          <div className="mb-6 pb-6 border-b border-beige">
+            <p className="text-xs text-dk-teal uppercase tracking-widest font-medium mb-1">
+              Co mówią nam reklamy w Meta
+            </p>
+            <p className="text-[11px] text-text-gray mb-4">
+              Analiza płatnej komunikacji vs organicznej
+            </p>
+
+            {/* Horizontal ad screenshots slider */}
+            {adsScreenshots.length > 0 && (
+              <div className="mb-5">
+                <AdsSlider screenshots={adsScreenshots} brandName={profile.brandName} />
+              </div>
+            )}
+
+            {/* Dominant message */}
+            <p className="text-text-muted leading-[1.8] text-[15px] mb-4">
+              {adsAnalysis.dominujacyPrzekaz}
+            </p>
+
+            {/* Consistency assessment */}
+            <div className="bg-beige-light rounded-xl p-4 mb-4">
+              <div className="flex items-center gap-2 mb-2">
+                <p className="text-xs text-text-gray uppercase tracking-wider">Spójność paid vs organic</p>
+                <span className={`text-[10px] px-2 py-0.5 rounded-pill font-medium ${
+                  adsAnalysis.spojnosc.ocena === 'spójna'
+                    ? 'bg-green-100 text-green-700'
+                    : adsAnalysis.spojnosc.ocena === 'częściowo rozbieżna'
+                    ? 'bg-amber-100 text-amber-700'
+                    : 'bg-red-100 text-red-700'
+                }`}>
+                  {adsAnalysis.spojnosc.ocena}
+                </span>
+              </div>
+              <p className="text-sm text-text-muted leading-relaxed">
+                {adsAnalysis.spojnosc.opis}
+              </p>
+            </div>
+
+            {/* Hidden priorities */}
+            {adsAnalysis.ukrytePriorytety && (
+              <div className="bg-beige-light/50 rounded-xl p-4 mb-4">
+                <p className="text-xs text-text-gray uppercase tracking-wider mb-1.5">Ukryte priorytety sprzedażowe</p>
+                <p className="text-sm text-text-muted leading-relaxed">{adsAnalysis.ukrytePriorytety}</p>
+              </div>
+            )}
+
+            {/* Visual conventions in ads */}
+            {adsAnalysis.konwencjeWizualneReklam && (
+              <div className="bg-beige-light/50 rounded-xl p-4">
+                <p className="text-xs text-text-gray uppercase tracking-wider mb-1.5">Konwencje wizualne reklam</p>
+                <p className="text-sm text-text-muted leading-relaxed">{adsAnalysis.konwencjeWizualneReklam}</p>
+              </div>
+            )}
           </div>
         )}
 

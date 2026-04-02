@@ -250,10 +250,10 @@ export async function scrapeFacebookAds(
       impressionsUpper: item.impressions?.upper_bound ?? item.bylines?.impressions?.upper_bound,
     }));
 
-    // Download first image for up to 5 ads
+    // Download first image for up to 8 ads
     const adsWithImages = ads.filter((ad) => ad.adImageUrls && ad.adImageUrls.length > 0);
     await Promise.all(
-      adsWithImages.slice(0, 5).map(async (ad) => {
+      adsWithImages.slice(0, 8).map(async (ad) => {
         if (ad.adImageUrls?.[0]) {
           ad.screenshotBase64 = await downloadImageAsBase64(ad.adImageUrls[0]);
         }
