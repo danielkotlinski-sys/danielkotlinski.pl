@@ -156,7 +156,7 @@ export default function ReportContainer({ report, firstName }: ReportContainerPr
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <PdfDownloadButton
-              reportElementId="report-content"
+              report={report}
               fileName={`skan-kategorii-${report.meta.clientBrand.toLowerCase().replace(/\s+/g, '-')}`}
             />
             <ExportButton format="markdown" label="Markdown" />

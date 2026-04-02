@@ -1,74 +1,36 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import type { ScannerReport } from '@/types/scanner';
 
 interface PdfDownloadButtonProps {
-  reportElementId: string;
+  report: ScannerReport;
   fileName: string;
 }
 
-export default function PdfDownloadButton({ reportElementId, fileName }: PdfDownloadButtonProps) {
+export default function PdfDownloadButton({ report, fileName }: PdfDownloadButtonProps) {
   const [generating, setGenerating] = useState(false);
 
   const handleDownload = useCallback(async () => {
     setGenerating(true);
     try {
-      const element = document.getElementById(reportElementId);
-      if (!element) return;
+      const { generateReportPdf } = await import('@/lib/pdf-generator');
+      const blob = await generateReportPdf(report);
 
-      const html2canvas = (await import('html2canvas-pro')).default;
-      const { jsPDF } = await import('jspdf');
-
-      // Capture at 2x scale for quality
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#F5F4EF',
-        logging: false,
-      });
-
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 297; // A4 height in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      // First page
-      pdf.addImage(
-        canvas.toDataURL('image/jpeg', 0.92),
-        'JPEG',
-        0,
-        position,
-        imgWidth,
-        imgHeight
-      );
-      heightLeft -= pageHeight;
-
-      // Additional pages
-      while (heightLeft > 0) {
-        position -= pageHeight;
-        pdf.addPage();
-        pdf.addImage(
-          canvas.toDataURL('image/jpeg', 0.92),
-          'JPEG',
-          0,
-          position,
-          imgWidth,
-          imgHeight
-        );
-        heightLeft -= pageHeight;
-      }
-
-      pdf.save(`${fileName}.pdf`);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${fileName}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     } catch (err) {
       console.error('PDF generation failed:', err);
     } finally {
       setGenerating(false);
     }
-  }, [reportElementId, fileName]);
+  }, [report, fileName]);
 
   return (
     <button
