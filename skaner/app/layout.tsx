@@ -4,6 +4,10 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Skaner Kategorii | danielkotlinski.pl",
   description: "Bezpłatna analiza konwencji komunikacyjnych w Twojej branży. Reverse engineering logiki sprzedaży i implikowanego klienta.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function RootLayout({
