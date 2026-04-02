@@ -21,7 +21,8 @@ import type {
   StepId,
 } from '@/types/scanner';
 import { fetchWebsiteText, fetchHomepageScreenshot } from './jina';
-import { scrapeSocialPosts } from './apify';
+import { scrapeSocialPosts, scrapeFacebookAds } from './apify';
+import type { BrandAdsData } from '@/types/scanner';
 import { searchExternalDiscourse } from './perplexity';
 import { runPrompt, analyzePostVision, parseJsonResponse } from './anthropic';
 import {
@@ -169,6 +170,43 @@ export async function runCategoryScanner(
   );
   await runInBatches(socialTasks, 2);
   emitStep('collect_social', 'done', `${totalPosts} postów`);
+
+  // Collect Facebook Ads (optional — behind feature flag)
+  let adsData: BrandAdsData[] | undefined;
+  if (process.env.FB_ADS_ENABLED === 'true') {
+    try {
+      console.log('Pipeline: Facebook Ads collection enabled');
+      const adsResults = await Promise.all(
+        allBrands.map(async (brand) => {
+          const ads = await scrapeFacebookAds(brand.name, 'PL', 8, costs);
+          return {
+            brandName: brand.name,
+            ads: ads.map((ad) => ({
+              bodyText: ad.adBodyText || '',
+              linkTitle: ad.adLinkTitle || '',
+              linkDescription: ad.adLinkDescription || '',
+              isActive: ad.isActive ?? true,
+              startDate: ad.startDate || '',
+              imageBase64: ad.screenshotBase64,
+              spendRange: ad.spendLower && ad.spendUpper
+                ? `${ad.spendLower}-${ad.spendUpper} ${ad.currency || 'PLN'}`
+                : undefined,
+              impressionsRange: ad.impressionsLower && ad.impressionsUpper
+                ? `${ad.impressionsLower}-${ad.impressionsUpper}`
+                : undefined,
+            })),
+            adCount: ads.length,
+            activeCount: ads.filter((a) => a.isActive).length,
+          };
+        })
+      );
+      adsData = adsResults.filter((r) => r.adCount > 0);
+      console.log(`Pipeline: Facebook Ads — ${adsData.length} brands with ads, ${adsData.reduce((s, b) => s + b.adCount, 0)} total ads`);
+    } catch (err) {
+      console.error('Pipeline: Facebook Ads collection failed (non-fatal):', err);
+      // Continue without ads data — doesn't block the report
+    }
+  }
 
   // Collect external discourse
   emitStep('collect_external', 'running');
@@ -505,6 +543,7 @@ export async function runCategoryScanner(
     konwencjaWizualnaKategorii: categoryVisualConventions,
     pozycjaKlienta: clientPosition,
     blueOceanFinale,
+    adsData: adsData && adsData.length > 0 ? adsData : undefined,
     notaKoncowa: NOTA_KONCOWA,
   };
 

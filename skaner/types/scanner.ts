@@ -259,6 +259,26 @@ export interface CategoryVisualConventions {
   ktoWizualnieWykluczony: string;
 }
 
+// === Ad Library Types ===
+
+export interface BrandAdsData {
+  brandName: string;
+  ads: Array<{
+    bodyText: string;
+    linkTitle: string;
+    linkDescription: string;
+    isActive: boolean;
+    startDate: string;
+    imageBase64?: string;
+    spendRange?: string;
+    impressionsRange?: string;
+  }>;
+  adCount: number;
+  activeCount: number;
+  dominantThemes?: string[];
+  adStyleSummary?: string;
+}
+
 // === Report Types ===
 
 export interface ScannerReport {
@@ -297,6 +317,7 @@ export interface ScannerReport {
   konwencjaWizualnaKategorii?: CategoryVisualConventions;
   pozycjaKlienta: ClientPosition;
   blueOceanFinale?: BlueOceanFinale;
+  adsData?: BrandAdsData[];
   notaKoncowa: string;
 }
 

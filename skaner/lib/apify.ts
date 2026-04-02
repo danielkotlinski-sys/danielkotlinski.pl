@@ -169,3 +169,101 @@ export async function scrapeSocialPosts(
     return [];
   }
 }
+
+// ===================== FACEBOOK AD LIBRARY =====================
+
+export interface FacebookAd {
+  pageId?: string;
+  pageName?: string;
+  adBodyText?: string;
+  adLinkCaption?: string;
+  adLinkTitle?: string;
+  adLinkDescription?: string;
+  adImageUrls?: string[];
+  adVideoUrls?: string[];
+  startDate?: string;
+  endDate?: string;
+  isActive?: boolean;
+  currency?: string;
+  spendLower?: number;
+  spendUpper?: number;
+  impressionsLower?: number;
+  impressionsUpper?: number;
+  screenshotBase64?: string; // first image downloaded
+}
+
+/**
+ * Scrape active Facebook/Meta ads for a brand from the Ad Library.
+ * Uses the Apify actor `curious_coder/facebook-ads-library-scraper`.
+ * @param brandName — brand/page name to search for
+ * @param country — ISO country code (default: PL)
+ * @param limit — max ads to return
+ */
+export async function scrapeFacebookAds(
+  brandName: string,
+  country: string = 'PL',
+  limit: number = 10,
+  costTracker?: ScanCostTracker
+): Promise<FacebookAd[]> {
+  const actorId = 'curious_coder/facebook-ads-library-scraper';
+
+  const searchUrl = `https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=${country}&q=${encodeURIComponent(brandName)}&search_type=keyword_unordered&media_type=all`;
+
+  try {
+    const startTime = Date.now();
+    console.log(`Apify: scraping Facebook Ad Library for "${brandName}" (country: ${country}, limit: ${limit})`);
+
+    const run = await client.actor(actorId).call(
+      {
+        urls: [{ url: searchUrl }],
+        limitPerSource: limit,
+      },
+      { waitSecs: 90 }
+    );
+
+    const runDuration = ((Date.now() - startTime) / 1000).toFixed(1);
+    const { items } = await client.dataset(run.defaultDatasetId).listItems();
+    console.log(`Apify: Facebook Ads — got ${items.length} ads for "${brandName}" in ${runDuration}s`);
+
+    if (costTracker) {
+      costTracker.trackApify('facebook-ads', `ads: ${brandName} (${items.length} ads)`);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const ads: FacebookAd[] = (items as any[]).slice(0, limit).map((item) => ({
+      pageId: item.pageId || item.page_id,
+      pageName: item.pageName || item.page_name || item.pageInfo?.name,
+      adBodyText: item.body?.text || item.ad_creative_bodies?.[0] || item.snapshot?.body?.text || '',
+      adLinkCaption: item.ad_creative_link_captions?.[0] || item.snapshot?.link_url || '',
+      adLinkTitle: item.ad_creative_link_titles?.[0] || item.snapshot?.title || item.title || '',
+      adLinkDescription: item.ad_creative_link_descriptions?.[0] || item.snapshot?.link_description || '',
+      adImageUrls: item.snapshot?.images?.map((img: { original_image_url?: string; url?: string }) => img.original_image_url || img.url).filter(Boolean)
+        || item.ad_creative_link_images || [],
+      adVideoUrls: item.snapshot?.videos?.map((v: { video_hd_url?: string; video_sd_url?: string }) => v.video_hd_url || v.video_sd_url).filter(Boolean) || [],
+      startDate: item.startDate || item.ad_delivery_start_time || '',
+      endDate: item.endDate || item.ad_delivery_stop_time || '',
+      isActive: item.isActive ?? item.ad_delivery_stop_time === undefined,
+      currency: item.currency || item.spend?.currency || '',
+      spendLower: item.spend?.lower_bound ?? item.bylines?.spend?.lower_bound,
+      spendUpper: item.spend?.upper_bound ?? item.bylines?.spend?.upper_bound,
+      impressionsLower: item.impressions?.lower_bound ?? item.bylines?.impressions?.lower_bound,
+      impressionsUpper: item.impressions?.upper_bound ?? item.bylines?.impressions?.upper_bound,
+    }));
+
+    // Download first image for up to 5 ads
+    const adsWithImages = ads.filter((ad) => ad.adImageUrls && ad.adImageUrls.length > 0);
+    await Promise.all(
+      adsWithImages.slice(0, 5).map(async (ad) => {
+        if (ad.adImageUrls?.[0]) {
+          ad.screenshotBase64 = await downloadImageAsBase64(ad.adImageUrls[0]);
+        }
+      })
+    );
+
+    console.log(`Apify: Facebook Ads — ${ads.length} parsed, ${adsWithImages.filter(a => a.screenshotBase64).length} with images`);
+    return ads;
+  } catch (error) {
+    console.error(`Apify: Facebook Ads scraping failed for "${brandName}":`, error);
+    return [];
+  }
+}
