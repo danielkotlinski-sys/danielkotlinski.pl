@@ -367,6 +367,42 @@ export async function notifyAccountApproved(user: User): Promise<void> {
   }
 }
 
+// ===================== SCAN COMPLETE NOTIFICATION =====================
+
+export async function notifyScanComplete(email: string, category: string, brandName: string, reportUrl: string): Promise<void> {
+  const resendApiKey = process.env.RESEND_API_KEY;
+  if (!resendApiKey) return;
+
+  const user = await getUser(email);
+  if (!user) return;
+
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Skaner Kategorii <skaner@danielkotlinski.pl>',
+        to: user.email,
+        subject: `Raport gotowy: ${brandName} w kategorii ${category}`,
+        html: `
+          <p>Cześć ${user.firstName},</p>
+          <p>Twój skan kategorii <strong>${category}</strong> dla marki <strong>${brandName}</strong> jest gotowy.</p>
+          <p><a href="${reportUrl}" style="display:inline-block;padding:12px 24px;background:#E8734A;color:white;text-decoration:none;border-radius:24px;font-weight:500;">Zobacz raport</a></p>
+          <p style="color:#888;font-size:13px;margin-top:24px;">Raport możesz też pobrać w formacie PDF, Markdown lub TXT po zalogowaniu.</p>
+          <p>Daniel Kotliński</p>
+        `,
+      }),
+    });
+    const resBody = await res.text();
+    console.log('[auth] Scan complete email:', res.status, resBody);
+  } catch (err) {
+    console.error('[auth] Failed to send scan complete notification:', err);
+  }
+}
+
 // ===================== PASSWORD RESET =====================
 
 export async function createPasswordResetToken(email: string): Promise<string | null> {

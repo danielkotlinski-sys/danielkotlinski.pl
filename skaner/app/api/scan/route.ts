@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { runCategoryScanner } from '@/lib/pipeline';
-import { getSession, getUser, checkScanLimit, incrementScanCount } from '@/lib/auth';
+import { getSession, getUser, checkScanLimit, incrementScanCount, notifyScanComplete } from '@/lib/auth';
 import type { ScanRequest, ProgressEvent } from '@/types/scanner';
 
 export const maxDuration = 600; // 10 minutes
@@ -72,6 +72,10 @@ export async function POST(request: NextRequest) {
 
         // Increment scan count for the user
         await incrementScanCount(session.email);
+
+        // Notify user by email
+        const reportUrl = `https://skaner.danielkotlinski.pl/raport/${scanId}`;
+        notifyScanComplete(session.email, input.category, input.clientBrand.name, reportUrl).catch(() => {});
 
         // Don't send full report over SSE — just the scanId for redirect
         sendEvent({ type: 'complete', scanId });
