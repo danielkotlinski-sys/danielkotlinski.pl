@@ -218,24 +218,28 @@ export async function scrapeFacebookAds(
     const startTime = Date.now();
     console.log(`Apify: scraping Facebook Ad Library for "${brandName}" (country: ${country}, limit: ${limit})`);
 
+    // Fetch more than needed — keyword search returns ads from unrelated pages
+    const fetchLimit = limit * 3;
+
     const run = await client.actor(actorId).call(
       {
         urls: [{ url: searchUrl }],
-        limitPerSource: limit,
+        limitPerSource: fetchLimit,
       },
       { waitSecs: 90 }
     );
 
     const runDuration = ((Date.now() - startTime) / 1000).toFixed(1);
     const { items } = await client.dataset(run.defaultDatasetId).listItems();
-    console.log(`Apify: Facebook Ads — got ${items.length} ads for "${brandName}" in ${runDuration}s`);
+    console.log(`Apify: Facebook Ads — got ${items.length} raw ads for "${brandName}" in ${runDuration}s`);
 
     if (costTracker) {
-      costTracker.trackApify('facebook-ads', `ads: ${brandName} (${items.length} ads)`);
+      costTracker.trackApify('facebook-ads', `ads: ${brandName} (${items.length} raw)`);
     }
 
+    // Parse all ads first
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const ads: FacebookAd[] = (items as any[]).slice(0, limit).map((item) => ({
+    const allAds: FacebookAd[] = (items as any[]).map((item) => ({
       pageId: item.pageId || item.page_id,
       pageName: item.pageName || item.page_name || item.pageInfo?.name,
       adBodyText: item.body?.text || item.ad_creative_bodies?.[0] || item.snapshot?.body?.text || '',
@@ -255,6 +259,20 @@ export async function scrapeFacebookAds(
       impressionsUpper: item.impressions?.upper_bound ?? item.bylines?.impressions?.upper_bound,
     }));
 
+    // Filter: keep only ads from pages whose name matches the brand
+    // Normalize both names for comparison (lowercase, strip common suffixes)
+    const normalize = (s: string) => s.toLowerCase().replace(/\s*(s\.a\.|sa|sp\.\s*z\s*o\.o\.|sp\s*z\s*o\s*o|bank)\s*/g, '').replace(/[^a-ząćęłńóśźż0-9]/g, '').trim();
+    const brandNorm = normalize(brandName);
+
+    const ads = allAds.filter((ad) => {
+      if (!ad.pageName) return false;
+      const pageNorm = normalize(ad.pageName);
+      // Match if either contains the other (handles "ING Bank Śląski" vs "ING Bank Śląski S.A.")
+      return pageNorm.includes(brandNorm) || brandNorm.includes(pageNorm);
+    }).slice(0, limit);
+
+    console.log(`Apify: Facebook Ads — ${allAds.length} raw → ${ads.length} matched for "${brandName}" (filtered by pageName)`);
+
     // Download first image for up to 8 ads
     const adsWithImages = ads.filter((ad) => ad.adImageUrls && ad.adImageUrls.length > 0);
     await Promise.all(
@@ -265,7 +283,7 @@ export async function scrapeFacebookAds(
       })
     );
 
-    console.log(`Apify: Facebook Ads — ${ads.length} parsed, ${adsWithImages.filter(a => a.screenshotBase64).length} with images`);
+    console.log(`Apify: Facebook Ads — ${ads.length} final, ${adsWithImages.filter(a => a.screenshotBase64).length} with images`);
     return ads;
   } catch (error) {
     console.error(`Apify: Facebook Ads scraping failed for "${brandName}":`, error);
