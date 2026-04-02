@@ -96,11 +96,16 @@ export async function scrapeSocialPosts(
   // Keep low (20) to reduce Instagram rate-limiting when running multiple actors
   const fetchLimit = Math.max(limit * 2, 20);
 
-  const input: Record<string, unknown> = {
-    directUrls: [profileUrl],
-    resultsLimit: fetchLimit,
-    resultsType: 'posts',
-  };
+  const input: Record<string, unknown> = platform === 'facebook'
+    ? {
+        startUrls: [{ url: profileUrl }],
+        resultsLimit: fetchLimit,
+      }
+    : {
+        directUrls: [profileUrl],
+        resultsLimit: fetchLimit,
+        resultsType: 'posts',
+      };
 
   try {
     const startTime = Date.now();
