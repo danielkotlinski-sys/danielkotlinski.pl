@@ -222,23 +222,25 @@ export default function AuthGate({ onAuthenticated }: AuthGateProps) {
               />
             </div>
             <div>
-              <label className={labelStyles}>Firma</label>
+              <label className={labelStyles}>Firma *</label>
               <input
                 type="text"
                 value={regCompany}
                 onChange={(e) => setRegCompany(e.target.value)}
                 className={inputStyles}
-                placeholder="Nazwa firmy (opcjonalnie)"
+                placeholder="Nazwa firmy"
+                required
               />
             </div>
             <div>
-              <label className={labelStyles}>NIP</label>
+              <label className={labelStyles}>NIP *</label>
               <input
                 type="text"
                 value={regNip}
                 onChange={(e) => setRegNip(e.target.value)}
                 className={inputStyles}
-                placeholder="1234567890 (opcjonalnie)"
+                placeholder="1234567890"
+                required
               />
             </div>
             <div>
