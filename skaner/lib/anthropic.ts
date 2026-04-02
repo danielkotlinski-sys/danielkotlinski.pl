@@ -120,10 +120,9 @@ export function parseJsonResponse<T>(text: string): T {
     cleaned = cleaned.slice(firstBrace, lastBrace + 1);
   }
 
-  // Replace Polish/typographic quotes with safe alternatives BEFORE parsing
-  // „ (U+201E), " (U+201D), " (U+201C) → «» or just remove
-  cleaned = cleaned.replace(/\u201E/g, '«');  // „ → «
-  cleaned = cleaned.replace(/[\u201C\u201D]/g, '»');  // " " → »
+  // Replace Polish/typographic quotes with escaped standard quotes
+  // „ (U+201E), " (U+201D), " (U+201C) → single quotes (safe inside JSON strings)
+  cleaned = cleaned.replace(/[\u201E\u201C\u201D\u00AB\u00BB]/g, "'");
 
   // Remove single-line comments (// ...) but not inside strings
   cleaned = cleaned.replace(/(?<!["\w:\/])\/\/[^\n]*/g, '');
