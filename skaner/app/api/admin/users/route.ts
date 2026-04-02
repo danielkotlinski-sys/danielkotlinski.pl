@@ -33,7 +33,10 @@ export async function PATCH(request: NextRequest) {
 
   // Send email when approving (not when blocking)
   if (approved && !wasApproved) {
+    console.log('[admin] User newly approved, sending notification to', user.email);
     await notifyAccountApproved(user);
+  } else {
+    console.log('[admin] Approval state:', { wasApproved, approved, email: user.email });
   }
 
   return Response.json({ success: true, user: { email: user.email, approved: user.approved } });

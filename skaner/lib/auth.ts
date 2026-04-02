@@ -320,7 +320,7 @@ export async function notifyNewRegistration(user: User): Promise<void> {
           <p><strong>NIP:</strong> ${user.nip || '—'}</p>
           <p><strong>Data:</strong> ${new Date().toLocaleString('pl-PL')}</p>
           <br>
-          <p>Zaloguj się do <a href="https://danielkotlinski.pl/skaner/admin/reports">panelu admina</a>, żeby zatwierdzić konto.</p>
+          <p>Zaloguj się do <a href="https://skaner.danielkotlinski.pl/admin/reports">panelu admina</a>, żeby zatwierdzić konto.</p>
         `,
       }),
     });
@@ -332,10 +332,15 @@ export async function notifyNewRegistration(user: User): Promise<void> {
 
 export async function notifyAccountApproved(user: User): Promise<void> {
   const resendApiKey = process.env.RESEND_API_KEY;
-  if (!resendApiKey) return;
+  if (!resendApiKey) {
+    console.log('[auth] No RESEND_API_KEY — cannot send approval email');
+    return;
+  }
+
+  console.log('[auth] Sending approval email to', user.email);
 
   try {
-    await fetch('https://api.resend.com/emails', {
+    const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${resendApiKey}`,
@@ -354,7 +359,8 @@ export async function notifyAccountApproved(user: User): Promise<void> {
         `,
       }),
     });
-    console.log('[auth] Approval notification sent to', user.email);
+    const resBody = await res.text();
+    console.log('[auth] Approval email response:', res.status, resBody);
   } catch (err) {
     console.error('[auth] Failed to send approval notification:', err);
   }
