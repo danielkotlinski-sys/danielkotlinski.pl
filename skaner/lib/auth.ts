@@ -1,8 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
-import type { ScannerInput } from '@/types/scanner';
-
 // ===================== TYPES =====================
 
 export interface User {
