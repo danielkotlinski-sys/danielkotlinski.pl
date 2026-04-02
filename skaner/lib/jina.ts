@@ -1,3 +1,5 @@
+import type { ScanCostTracker } from './costs';
+
 const SUBPAGES_TO_TRY = [
   '/oferta', '/produkty', '/uslugi', '/shop', '/services',
   '/o-nas', '/about', '/about-us', '/o-teatrze', '/misja',
@@ -73,7 +75,7 @@ async function fetchPage(url: string): Promise<string> {
   }
 }
 
-export async function fetchHomepageScreenshot(baseUrl: string): Promise<string> {
+export async function fetchHomepageScreenshot(baseUrl: string, costTracker?: ScanCostTracker): Promise<string> {
   try {
     const response = await fetch(`https://r.jina.ai/${baseUrl}`, {
       headers: {
@@ -86,6 +88,7 @@ export async function fetchHomepageScreenshot(baseUrl: string): Promise<string> 
     const base64 = Buffer.from(buffer).toString('base64');
     if (base64.length < 1000) return ''; // too small = error page
     console.log(`Jina: screenshot of ${baseUrl} — ${Math.round(base64.length / 1024)}KB`);
+    if (costTracker) costTracker.trackJina(`screenshot: ${baseUrl}`, 'screenshot');
     return base64;
   } catch {
     console.log(`Jina: screenshot failed for ${baseUrl}`);
@@ -93,7 +96,7 @@ export async function fetchHomepageScreenshot(baseUrl: string): Promise<string> 
   }
 }
 
-export async function fetchWebsiteText(baseUrl: string): Promise<string> {
+export async function fetchWebsiteText(baseUrl: string, costTracker?: ScanCostTracker): Promise<string> {
   const normalizedUrl = baseUrl.replace(/\/$/, '');
 
   // Fetch homepage first
@@ -116,6 +119,8 @@ export async function fetchWebsiteText(baseUrl: string): Promise<string> {
   const parts = [homepage, ...sortedSubpages];
   const combined = parts.filter(Boolean).join('\n\n---\n\n');
 
-  console.log(`Jina: scraped ${normalizedUrl} — ${parts.filter(Boolean).length} pages, ${combined.length} chars`);
+  const pageCount = parts.filter(Boolean).length;
+  console.log(`Jina: scraped ${normalizedUrl} — ${pageCount} pages, ${combined.length} chars`);
+  if (costTracker) costTracker.trackJina(`text: ${normalizedUrl} (${pageCount} pages)`, 'reader', pageCount);
   return combined;
 }

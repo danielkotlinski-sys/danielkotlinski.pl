@@ -1,5 +1,6 @@
 import { ApifyClient } from 'apify-client';
 import type { ScrapedPost } from '@/types/scanner';
+import type { ScanCostTracker } from './costs';
 
 const client = new ApifyClient({
   token: process.env.APIFY_API_TOKEN,
@@ -83,7 +84,8 @@ function selectDiverseSample(posts: ScrapedPost[], targetCount: number): Scraped
 export async function scrapeSocialPosts(
   handle: string,
   platform: 'instagram' | 'facebook' | 'linkedin',
-  limit: number = 8
+  limit: number = 8,
+  costTracker?: ScanCostTracker
 ): Promise<ScrapedPost[]> {
   const actorId = ACTOR_IDS[platform];
   if (!actorId) return [];
@@ -111,6 +113,10 @@ export async function scrapeSocialPosts(
     const runDuration = ((Date.now() - startTime) / 1000).toFixed(1);
     const { items } = await client.dataset(run.defaultDatasetId).listItems();
     console.log(`Apify: got ${items.length} items for ${handle} (actor ran ${runDuration}s)`);
+
+    if (costTracker) {
+      costTracker.trackApify(platform, `${handle} (${items.length} posts)`);
+    }
 
     // Parse all posts (sorted newest first — Apify default)
     const allPosts: ScrapedPost[] = [];

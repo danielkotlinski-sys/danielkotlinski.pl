@@ -1,3 +1,5 @@
+import type { ScanCostTracker } from './costs';
+
 export interface PerplexityResult {
   content: string;
   citations: string[];
@@ -6,7 +8,9 @@ export interface PerplexityResult {
 
 async function queryPerplexity(
   systemPrompt: string,
-  userQuery: string
+  userQuery: string,
+  costTracker?: ScanCostTracker,
+  operationLabel?: string
 ): Promise<PerplexityResult> {
   try {
     const response = await fetch('https://api.perplexity.ai/chat/completions', {
@@ -34,6 +38,15 @@ async function queryPerplexity(
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || '';
     const citations: string[] = data.citations || [];
+
+    if (costTracker && data.usage) {
+      costTracker.trackPerplexity(
+        operationLabel || 'query',
+        data.usage.prompt_tokens || 0,
+        data.usage.completion_tokens || 0
+      );
+    }
+
     return { content, citations, query: userQuery };
   } catch (error) {
     console.error('Perplexity search failed:', error);
@@ -45,7 +58,8 @@ const SYSTEM_PROMPT = `Jesteś analitykiem badającym markę/instytucję. Podawa
 
 export async function searchExternalDiscourse(
   brandName: string,
-  category: string
+  category: string,
+  costTracker?: ScanCostTracker
 ): Promise<{ text: string; citations: string[] }> {
   // 4 targeted queries for comprehensive research
   const queries = [
@@ -66,7 +80,7 @@ export async function searchExternalDiscourse(
   ];
 
   const results = await Promise.all(
-    queries.map((q) => queryPerplexity(SYSTEM_PROMPT, q))
+    queries.map((q, i) => queryPerplexity(SYSTEM_PROMPT, q, costTracker, `${brandName}: query ${i + 1}`))
   );
 
   // Collect all unique citations

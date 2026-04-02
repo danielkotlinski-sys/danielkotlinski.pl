@@ -25,13 +25,29 @@ interface OrgData {
   createdAt: string;
 }
 
-type Tab = 'scans' | 'users' | 'orgs';
+interface MonthCost {
+  month: string;
+  totalUsd: number;
+  scanCount: number;
+  byProvider: { anthropic: number; perplexity: number; jina: number; apify: number };
+}
+
+interface RecentScanCost {
+  scanId: string;
+  totalUsd: number;
+  byProvider: Record<string, number>;
+  createdAt: string;
+}
+
+type Tab = 'scans' | 'users' | 'orgs' | 'costs';
 
 export default function AdminReportsPage() {
   const [secret, setSecret] = useState('');
   const [scans, setScans] = useState<ScanMeta[]>([]);
   const [users, setUsers] = useState<UserData[]>([]);
   const [orgs, setOrgs] = useState<OrgData[]>([]);
+  const [monthlyCosts, setMonthlyCosts] = useState<MonthCost[]>([]);
+  const [recentScanCosts, setRecentScanCosts] = useState<RecentScanCost[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -43,19 +59,22 @@ export default function AdminReportsPage() {
     setLoading(true);
     setError('');
     try {
-      const [scansRes, usersRes, orgsRes] = await Promise.all([
+      const [scansRes, usersRes, orgsRes, costsRes] = await Promise.all([
         fetch('/api/admin/scans', { headers }),
         fetch('/api/admin/users', { headers }),
         fetch('/api/admin/orgs', { headers }),
+        fetch('/api/admin/costs', { headers }),
       ]);
       if (!scansRes.ok || !usersRes.ok) {
         setError(scansRes.status === 401 ? 'Nieprawidłowy klucz' : 'Błąd serwera');
         return;
       }
-      const [scansData, usersData, orgsData] = await Promise.all([scansRes.json(), usersRes.json(), orgsRes.json()]);
+      const [scansData, usersData, orgsData, costsData] = await Promise.all([scansRes.json(), usersRes.json(), orgsRes.json(), costsRes.json()]);
       setScans(scansData.scans || []);
       setUsers(usersData.users || []);
       setOrgs(orgsData.orgs || []);
+      setMonthlyCosts(costsData.months || []);
+      setRecentScanCosts(costsData.recentScans || []);
       setLoaded(true);
     } catch {
       setError('Błąd połączenia');
@@ -129,6 +148,12 @@ export default function AdminReportsPage() {
             className={`font-heading text-2xl transition-colors ${tab === 'orgs' ? 'text-text-primary' : 'text-text-gray/40 hover:text-text-gray'}`}
           >
             Organizacje ({orgs.length})
+          </button>
+          <button
+            onClick={() => setTab('costs')}
+            className={`font-heading text-2xl transition-colors ${tab === 'costs' ? 'text-text-primary' : 'text-text-gray/40 hover:text-text-gray'}`}
+          >
+            Koszty
           </button>
           <div className="flex-1" />
           <button
@@ -215,6 +240,75 @@ export default function AdminReportsPage() {
                   </div>
                 </div>
               ))
+            )}
+          </div>
+        )}
+
+        {/* Costs tab */}
+        {tab === 'costs' && (
+          <div className="space-y-6">
+            {/* Monthly summary */}
+            {monthlyCosts.length === 0 ? (
+              <p className="text-text-gray">Brak danych o kosztach. Dane pojawią się po pierwszym skanie z włączonym trackingiem.</p>
+            ) : (
+              <>
+                <div className="grid md:grid-cols-3 gap-4">
+                  {monthlyCosts.map((m) => (
+                    <div key={m.month} className="bg-white rounded-card p-5">
+                      <p className="text-xs text-text-gray uppercase tracking-wider mb-2">{m.month}</p>
+                      <p className="font-heading text-2xl text-text-primary">${m.totalUsd.toFixed(2)}</p>
+                      <p className="text-xs text-text-gray mt-1">{m.scanCount} skanów</p>
+                      <div className="mt-3 space-y-1">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-text-muted">Claude</span>
+                          <span className="text-text-primary font-medium">${m.byProvider.anthropic.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-text-muted">Perplexity</span>
+                          <span className="text-text-primary font-medium">${m.byProvider.perplexity.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-text-muted">Apify</span>
+                          <span className="text-text-primary font-medium">${m.byProvider.apify.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-text-muted">Jina</span>
+                          <span className="text-text-primary font-medium">${m.byProvider.jina.toFixed(2)}</span>
+                        </div>
+                      </div>
+                      {m.scanCount > 0 && (
+                        <p className="text-[10px] text-text-gray mt-3 pt-2 border-t border-beige">
+                          Średnio ${(m.totalUsd / m.scanCount).toFixed(2)} / skan
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Recent scans breakdown */}
+                {recentScanCosts.length > 0 && (
+                  <div>
+                    <h3 className="font-heading text-lg text-text-primary mb-3">Ostatnie skany</h3>
+                    <div className="space-y-2">
+                      {recentScanCosts.map((scan) => (
+                        <div key={scan.scanId} className="bg-white rounded-card px-5 py-3 flex items-center gap-4">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm text-text-primary font-medium truncate">{scan.scanId.slice(0, 8)}...</p>
+                            <p className="text-xs text-text-gray">{new Date(scan.createdAt).toLocaleString('pl-PL')}</p>
+                          </div>
+                          <div className="flex items-center gap-3 text-xs text-text-muted shrink-0">
+                            <span title="Claude">C: ${scan.byProvider.anthropic?.toFixed(2)}</span>
+                            <span title="Perplexity">P: ${scan.byProvider.perplexity?.toFixed(2)}</span>
+                            <span title="Apify">A: ${scan.byProvider.apify?.toFixed(2)}</span>
+                            <span title="Jina">J: ${scan.byProvider.jina?.toFixed(2)}</span>
+                          </div>
+                          <span className="font-heading text-lg text-text-primary shrink-0">${scan.totalUsd.toFixed(2)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}

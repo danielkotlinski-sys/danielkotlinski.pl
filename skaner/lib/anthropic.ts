@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
+import type { ScanCostTracker } from './costs';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -6,7 +7,9 @@ const anthropic = new Anthropic({
 
 export async function runPrompt(
   prompt: string,
-  model: 'claude-sonnet-4-5' | 'claude-opus-4-5' = 'claude-sonnet-4-5'
+  model: 'claude-sonnet-4-5' | 'claude-opus-4-5' = 'claude-sonnet-4-5',
+  costTracker?: ScanCostTracker,
+  operationLabel?: string
 ): Promise<string> {
   const response = await anthropic.messages.create({
     model,
@@ -24,6 +27,15 @@ export async function runPrompt(
     ],
   });
 
+  if (costTracker && response.usage) {
+    costTracker.trackAnthropic(
+      model,
+      operationLabel || 'prompt',
+      response.usage.input_tokens,
+      response.usage.output_tokens
+    );
+  }
+
   const block = response.content[0];
   if (block.type === 'text') return '{' + block.text;
   return '';
@@ -40,7 +52,9 @@ function detectMediaType(base64: string): 'image/jpeg' | 'image/png' | 'image/gi
 export async function analyzePostVision(
   screenshotBase64: string,
   caption: string,
-  prompt: string
+  prompt: string,
+  costTracker?: ScanCostTracker,
+  operationLabel?: string
 ): Promise<string> {
   const mediaType = detectMediaType(screenshotBase64);
 
@@ -72,6 +86,15 @@ export async function analyzePostVision(
       },
     ],
   });
+
+  if (costTracker && response.usage) {
+    costTracker.trackAnthropic(
+      'claude-sonnet-4-5',
+      operationLabel || 'vision',
+      response.usage.input_tokens,
+      response.usage.output_tokens
+    );
+  }
 
   const block = response.content[0];
   if (block.type === 'text') return '{' + block.text;

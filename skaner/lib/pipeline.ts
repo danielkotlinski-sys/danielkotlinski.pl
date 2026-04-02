@@ -43,6 +43,7 @@ import {
 } from './prompts';
 import { saveReport, saveScanMeta } from './redis';
 import { saveLead, sendReportEmail } from './loops';
+import { ScanCostTracker } from './costs';
 
 const NOTA_KONCOWA = `Konwencja to nie prawo natury — to nawyk rynku. Segment, do którego nikt nie mówi, nie zniknął. On kupuje gdzie indziej lub nie kupuje wcale. W pogłębionym Skanie Kategorii identyfikuję konkretne pragnienia tej grupy przez wywiady z klientami i analizę zachowań — i buduję dla Twojej marki narrację, która ich przyciągnie zanim konkurencja się zorientuje.`;
 
@@ -68,6 +69,7 @@ export async function runCategoryScanner(
 ): Promise<{ scanId: string; report: ScannerReport }> {
   const pipelineStart = Date.now();
   const scanId = uuidv4();
+  const costs = new ScanCostTracker(scanId);
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://skaner.danielkotlinski.pl';
   const reportUrl = `${baseUrl}/raport/${scanId}`;
 
@@ -129,8 +131,8 @@ export async function runCategoryScanner(
   await Promise.all(
     allBrands.map(async (brand) => {
       const [websiteText, screenshot] = await Promise.all([
-        fetchWebsiteText(brand.url),
-        fetchHomepageScreenshot(brand.url),
+        fetchWebsiteText(brand.url, costs),
+        fetchHomepageScreenshot(brand.url, costs),
       ]);
       brandData[brand.name] = {
         websiteText,
@@ -154,7 +156,8 @@ export async function runCategoryScanner(
       const posts = await scrapeSocialPosts(
         brand.socialHandle,
         brand.socialPlatform,
-        12
+        12,
+        costs
       );
       brandData[brand.name].posts = posts;
       totalPosts += posts.length;
@@ -172,7 +175,7 @@ export async function runCategoryScanner(
   const brandCitations: Record<string, string[]> = {};
   await Promise.all(
     allBrands.map(async (brand) => {
-      const { text, citations } = await searchExternalDiscourse(brand.name, input.category);
+      const { text, citations } = await searchExternalDiscourse(brand.name, input.category, costs);
       brandData[brand.name].externalDiscourse = text;
       brandCitations[brand.name] = citations;
     })
@@ -190,7 +193,10 @@ export async function runCategoryScanner(
       CATEGORY: input.category,
       CATEGORY_PURPOSE: input.categoryPurpose || '',
       ALL_EXTERNAL_DATA: allExternalData,
-    })
+    }),
+    'claude-sonnet-4-5',
+    costs,
+    'category map'
   );
   const categoryMap = parseJsonResponse<CategoryMap>(categoryMapRaw);
 
@@ -215,14 +221,16 @@ export async function runCategoryScanner(
             BRAND_NAME: brand.name,
             CATEGORY: input.category,
             WEBSITE_TEXT: data.websiteText.slice(0, 6000),
-          }) + mapContext
+          }) + mapContext,
+          'claude-sonnet-4-5', costs, `claim: ${brand.name}`
         ),
         runPrompt(
           fillPrompt(PROMPT_2_VOCABULARY, {
             BRAND_NAME: brand.name,
             CATEGORY: input.category,
             WEBSITE_TEXT: data.websiteText.slice(0, 6000),
-          })
+          }),
+          'claude-sonnet-4-5', costs, `vocabulary: ${brand.name}`
         ),
       ]);
 
@@ -240,7 +248,8 @@ export async function runCategoryScanner(
               analyzePostVision(
                 post.screenshotBase64,
                 post.caption,
-                PROMPT_3_POST
+                PROMPT_3_POST,
+                costs, `post vision: ${brand.name}`
               ).then((raw) => parseJsonResponse<PostAnalysis>(raw))
           );
 
@@ -259,7 +268,8 @@ export async function runCategoryScanner(
             BRAND_NAME: brand.name,
             CATEGORY: input.category,
             POST_ANALYSES: JSON.stringify(postAnalyses, null, 2),
-          }) + captionContext
+          }) + captionContext,
+          'claude-sonnet-4-5', costs, `social synthesis: ${brand.name}`
         );
         socialSynthesisResult = parseJsonResponse(socialRaw);
       }
@@ -270,7 +280,8 @@ export async function runCategoryScanner(
           BRAND_NAME: brand.name,
           CATEGORY: input.category,
           EXTERNAL_TEXTS: data.externalDiscourse || 'Brak danych zewnętrznych.',
-        })
+        }),
+        'claude-sonnet-4-5', costs, `external: ${brand.name}`
       );
 
       // Homepage visual analysis (if screenshot available)
@@ -282,7 +293,8 @@ export async function runCategoryScanner(
           fillPrompt(PROMPT_HOMEPAGE_VISUAL, {
             BRAND_NAME: brand.name,
             CATEGORY: input.category,
-          })
+          }),
+          costs, `homepage visual: ${brand.name}`
         );
         homepageVisual = parseJsonResponse<HomepageVisualAnalysis>(visualRaw);
       }
@@ -329,7 +341,7 @@ export async function runCategoryScanner(
             : 'Brak danych social media dla tej marki.',
           PROMPT5_RESULT: JSON.stringify(analysis.externalAnalysis, null, 2),
         }) + homepageVisualContext,
-        'claude-opus-4-5'
+        'claude-opus-4-5', costs, `brand profile: ${brand.name}`
       );
       brandProfiles[brand.name] = parseJsonResponse<BrandProfile>(raw);
     })
@@ -351,7 +363,8 @@ export async function runCategoryScanner(
               BRAND_NAME: brand.name,
               CATEGORY: input.category,
               POST_ANALYSES: postAnalyses,
-            })
+            }),
+            'claude-sonnet-4-5', costs, `visual brand: ${brand.name}`
           );
           brandVisuals[brand.name] = parseJsonResponse<BrandVisualConventions>(raw);
         }
@@ -376,7 +389,7 @@ export async function runCategoryScanner(
       CATEGORY: input.category,
       ALL_BRAND_PROFILES: allProfilesText,
     }),
-    'claude-opus-4-5'
+    'claude-opus-4-5', costs, 'conventions'
   );
   const categoryConventions = parseJsonResponse<CategoryConventions>(conventionsRaw);
 
@@ -392,7 +405,8 @@ export async function runCategoryScanner(
         N: String(brandsWithVisuals.length),
         CATEGORY: input.category,
         ALL_VISUAL_PROFILES: allVisualText,
-      })
+      }),
+      'claude-sonnet-4-5', costs, 'visual category'
     );
     categoryVisualConventions = parseJsonResponse<CategoryVisualConventions>(visualRaw);
   }
@@ -402,7 +416,8 @@ export async function runCategoryScanner(
       N: String(allBrands.length),
       CATEGORY: input.category,
       ALL_BRAND_PROFILES: allProfilesText,
-    })
+    }),
+    'claude-sonnet-4-5', costs, 'comparative gaps'
   );
   const comparativeGaps = parseJsonResponse<ComparativeGaps>(gapsRaw);
 
@@ -427,7 +442,7 @@ export async function runCategoryScanner(
         2
       ),
     }) + extraContext,
-    'claude-opus-4-5'
+    'claude-opus-4-5', costs, 'client position'
   );
   const clientPosition = parseJsonResponse<ClientPosition>(clientPositionRaw);
 
@@ -445,7 +460,7 @@ export async function runCategoryScanner(
           2
         ),
       }),
-      'claude-opus-4-5'
+      'claude-opus-4-5', costs, 'blue ocean / rupture'
     );
     blueOceanFinale = parseJsonResponse<BlueOceanFinale>(blueOceanRaw);
   } catch (err) {
@@ -505,6 +520,9 @@ export async function runCategoryScanner(
     openQuestion: clientPosition.pytanieOtwarte,
     reportUrl,
   }).catch((err) => console.error('Email send error:', err));
+
+  // Save cost breakdown
+  await costs.save();
 
   const totalDuration = ((Date.now() - pipelineStart) / 1000).toFixed(0);
   console.log(`Pipeline: DONE — ${allBrands.length} brands, ${totalPosts} posts, ${totalDuration}s total`);
