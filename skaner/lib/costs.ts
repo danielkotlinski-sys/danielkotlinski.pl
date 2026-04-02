@@ -10,6 +10,7 @@ const PRICING = {
   // https://docs.anthropic.com/en/docs/about-claude/models
   'claude-sonnet-4-5': { input: 3.0, output: 15.0 },
   'claude-opus-4-5': { input: 15.0, output: 75.0 },
+  'claude-haiku-4-5-20251001': { input: 0.80, output: 4.0 },
   // Perplexity sonar-pro — per million tokens
   'sonar-pro': { input: 3.0, output: 15.0 },
   // Jina — per request (approximate based on usage tiers)

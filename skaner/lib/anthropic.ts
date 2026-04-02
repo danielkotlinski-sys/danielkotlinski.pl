@@ -5,14 +5,22 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
+type ClaudeModel = 'claude-sonnet-4-5' | 'claude-opus-4-5' | 'claude-haiku-4-5-20251001';
+
+function resolveModel(requested: ClaudeModel): ClaudeModel {
+  if (process.env.SCAN_MODE === 'test') return 'claude-haiku-4-5-20251001';
+  return requested;
+}
+
 export async function runPrompt(
   prompt: string,
   model: 'claude-sonnet-4-5' | 'claude-opus-4-5' = 'claude-sonnet-4-5',
   costTracker?: ScanCostTracker,
   operationLabel?: string
 ): Promise<string> {
+  const effectiveModel = resolveModel(model);
   const response = await anthropic.messages.create({
-    model,
+    model: effectiveModel,
     max_tokens: 4096,
     temperature: 0,
     messages: [
@@ -29,7 +37,7 @@ export async function runPrompt(
 
   if (costTracker && response.usage) {
     costTracker.trackAnthropic(
-      model,
+      effectiveModel,
       operationLabel || 'prompt',
       response.usage.input_tokens,
       response.usage.output_tokens
@@ -58,8 +66,9 @@ export async function analyzePostVision(
 ): Promise<string> {
   const mediaType = detectMediaType(screenshotBase64);
 
+  const effectiveModel = resolveModel('claude-sonnet-4-5');
   const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-5',
+    model: effectiveModel,
     max_tokens: 1024,
     temperature: 0,
     messages: [
@@ -89,7 +98,7 @@ export async function analyzePostVision(
 
   if (costTracker && response.usage) {
     costTracker.trackAnthropic(
-      'claude-sonnet-4-5',
+      effectiveModel,
       operationLabel || 'vision',
       response.usage.input_tokens,
       response.usage.output_tokens
