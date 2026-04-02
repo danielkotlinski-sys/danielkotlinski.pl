@@ -22,12 +22,19 @@ interface RawPost {
   url?: string;
   postUrl?: string;
   shortCode?: string;
+  // Instagram fields
   caption?: string;
   text?: string;
   timestamp?: string;
   displayUrl?: string;
   imageUrl?: string;
   images?: string[];
+  // Facebook fields (apify/facebook-posts-scraper)
+  postText?: string;
+  postDate?: string;
+  postImages?: Array<{ image?: string; link?: string }>;
+  media?: Array<{ thumbnail?: string; photo_image?: { uri?: string } }>;
+  full_picture?: string;
 }
 
 async function downloadImageAsBase64(imageUrl: string): Promise<string> {
@@ -137,8 +144,8 @@ export async function scrapeSocialPosts(
 
       allPosts.push({
         url: postUrl,
-        caption: item.caption || item.text || '',
-        date: item.timestamp || '',
+        caption: item.caption || item.postText || item.text || '',
+        date: item.timestamp || item.postDate || '',
         screenshotBase64: '', // download images only for selected posts
         platform,
       });
@@ -158,7 +165,13 @@ export async function scrapeSocialPosts(
             (platform === 'instagram' && item.shortCode && post.url.includes(item.shortCode))
         );
         if (rawItem) {
-          const imageUrl = rawItem.displayUrl || rawItem.imageUrl || (rawItem.images?.[0]) || '';
+          const imageUrl =
+            rawItem.displayUrl ||
+            rawItem.imageUrl ||
+            rawItem.images?.[0] ||
+            rawItem.postImages?.[0]?.image ||
+            rawItem.full_picture ||
+            '';
           if (imageUrl) {
             post.screenshotBase64 = await downloadImageAsBase64(imageUrl);
           }
@@ -259,19 +272,36 @@ export async function scrapeFacebookAds(
       impressionsUpper: item.impressions?.upper_bound ?? item.bylines?.impressions?.upper_bound,
     }));
 
+    // Log unique page names for debugging
+    const uniquePages = Array.from(new Set(allAds.map((a) => a.pageName).filter(Boolean)));
+    console.log(`Apify: Facebook Ads — pages found for "${brandName}":`, uniquePages.join(', '));
+
     // Filter: keep only ads from pages whose name matches the brand
-    // Normalize both names for comparison (lowercase, strip common suffixes)
-    const normalize = (s: string) => s.toLowerCase().replace(/\s*(s\.a\.|sa|sp\.\s*z\s*o\.o\.|sp\s*z\s*o\s*o|bank)\s*/g, '').replace(/[^a-ząćęłńóśźż0-9]/g, '').trim();
+    // Normalize for comparison (lowercase, strip suffixes like S.A., sp. z o.o.)
+    const normalize = (s: string) => s.toLowerCase()
+      .replace(/\s*(s\.?\s*a\.?|sp\.?\s*z\.?\s*o\.?\s*o\.?)\.?\s*/g, '')
+      .replace(/[^a-ząćęłńóśźż0-9\s]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
     const brandNorm = normalize(brandName);
 
     const ads = allAds.filter((ad) => {
       if (!ad.pageName) return false;
       const pageNorm = normalize(ad.pageName);
       // Match if either contains the other (handles "ING Bank Śląski" vs "ING Bank Śląski S.A.")
-      return pageNorm.includes(brandNorm) || brandNorm.includes(pageNorm);
+      const match = pageNorm.includes(brandNorm) || brandNorm.includes(pageNorm);
+      if (!match) {
+        // Also try matching just the first word (e.g. "mBank" in "mBank S.A.")
+        const brandFirst = brandNorm.split(' ')[0];
+        const pageFirst = pageNorm.split(' ')[0];
+        if (brandFirst.length >= 3 && (pageNorm.includes(brandFirst) || brandFirst.includes(pageFirst))) {
+          return true;
+        }
+      }
+      return match;
     }).slice(0, limit);
 
-    console.log(`Apify: Facebook Ads — ${allAds.length} raw → ${ads.length} matched for "${brandName}" (filtered by pageName)`);
+    console.log(`Apify: Facebook Ads — ${allAds.length} raw → ${ads.length} matched for "${brandName}" (brandNorm: "${brandNorm}")`);
 
     // Download first image for up to 8 ads
     const adsWithImages = ads.filter((ad) => ad.adImageUrls && ad.adImageUrls.length > 0);
