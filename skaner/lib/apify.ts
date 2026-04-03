@@ -285,23 +285,41 @@ export async function scrapeFacebookAds(
       .trim();
     const brandNorm = normalize(brandName);
 
+    // Build acronym from brand name (e.g. "Nice To Fit You" → "ntfy")
+    const brandAcronym = brandNorm.split(' ').length > 2
+      ? brandNorm.split(' ').map((w) => w[0]).join('')
+      : '';
+    // Build acronym from page name for reverse matching (e.g. page "NTFY" could be acronym of brand "Nice To Fit You")
+    const isAcronymLike = (s: string) => s.replace(/\s/g, '').length <= 6 && /^[a-ząćęłńóśźż]+$/.test(s.replace(/\s/g, ''));
+
     const ads = allAds.filter((ad) => {
       if (!ad.pageName) return false;
       const pageNorm = normalize(ad.pageName);
       // Match if either contains the other (handles "ING Bank Śląski" vs "ING Bank Śląski S.A.")
       const match = pageNorm.includes(brandNorm) || brandNorm.includes(pageNorm);
-      if (!match) {
-        // Also try matching just the first word (e.g. "mBank" in "mBank S.A.")
-        const brandFirst = brandNorm.split(' ')[0];
-        const pageFirst = pageNorm.split(' ')[0];
-        if (brandFirst.length >= 3 && (pageNorm.includes(brandFirst) || brandFirst.includes(pageFirst))) {
-          return true;
-        }
+      if (match) return true;
+
+      // Try matching just the first word (e.g. "mBank" in "mBank S.A.")
+      const brandFirst = brandNorm.split(' ')[0];
+      const pageFirst = pageNorm.split(' ')[0];
+      if (brandFirst.length >= 3 && (pageNorm.includes(brandFirst) || brandFirst.includes(pageFirst))) {
+        return true;
       }
-      return match;
+
+      // Acronym matching: brand "NTFY" matches page "Nice To Fit You" and vice versa
+      if (brandAcronym && pageNorm.replace(/\s/g, '') === brandAcronym) return true;
+      if (isAcronymLike(brandNorm)) {
+        const pageAcronym = pageNorm.split(' ').filter((w) => w.length > 0).map((w) => w[0]).join('');
+        if (pageAcronym === brandNorm.replace(/\s/g, '')) return true;
+      }
+      // Also check if page acronym matches brand name
+      const pageAcronymFull = pageNorm.split(' ').filter((w) => w.length > 0).map((w) => w[0]).join('');
+      if (pageAcronymFull.length >= 2 && brandNorm.replace(/\s/g, '') === pageAcronymFull) return true;
+
+      return false;
     }).slice(0, limit);
 
-    console.log(`Apify: Facebook Ads — ${allAds.length} raw → ${ads.length} matched for "${brandName}" (brandNorm: "${brandNorm}")`);
+    console.log(`Apify: Facebook Ads — ${allAds.length} raw → ${ads.length} matched for "${brandName}" (brandNorm: "${brandNorm}", acronym: "${brandAcronym}")`);
 
     // Download first image for up to 8 ads
     const adsWithImages = ads.filter((ad) => ad.adImageUrls && ad.adImageUrls.length > 0);
@@ -385,6 +403,14 @@ export async function scrapeWebsitePages(
         text: item.text || item.markdown || '',
       }));
 
+    // Truncate individual page texts to avoid bloated payloads (max 5000 chars per page)
+    const MAX_PER_PAGE = 5000;
+    for (const page of crawledPages) {
+      if (page.text.length > MAX_PER_PAGE) {
+        page.text = page.text.slice(0, MAX_PER_PAGE) + '\n[...przycinanie: dalszy tekst strony pominięty]';
+      }
+    }
+
     // Combine text (homepage first, then subpages sorted by length)
     const homepageIndex = crawledPages.findIndex((p) =>
       p.url.replace(/\/$/, '') === normalizedUrl
@@ -394,7 +420,13 @@ export async function scrapeWebsitePages(
       .sort((a, b) => b.text.length - a.text.length)
       .slice(0, 3);
     const orderedPages = homepage ? [homepage, ...subpages] : subpages;
-    const websiteText = orderedPages.map((p) => p.text).join('\n\n---\n\n');
+    let websiteText = orderedPages.map((p) => p.text).join('\n\n---\n\n');
+
+    // Final safety cap — max 15000 chars total across all pages
+    const MAX_TOTAL = 15000;
+    if (websiteText.length > MAX_TOTAL) {
+      websiteText = websiteText.slice(0, MAX_TOTAL) + '\n[...przycinanie: dalszy tekst pominięty]';
+    }
     const pageCount = orderedPages.length;
     console.log(`Apify: website text — ${pageCount} pages, ${websiteText.length} chars for ${normalizedUrl}`);
 

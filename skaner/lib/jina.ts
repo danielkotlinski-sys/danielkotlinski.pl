@@ -119,7 +119,13 @@ export async function fetchWebsiteText(baseUrl: string, costTracker?: ScanCostTr
     .slice(0, 3);
 
   const parts = [homepage, ...sortedSubpages];
-  const combined = parts.filter(Boolean).join('\n\n---\n\n');
+  let combined = parts.filter(Boolean).join('\n\n---\n\n');
+
+  // Truncate to avoid bloated payloads
+  const MAX_TOTAL = 15000;
+  if (combined.length > MAX_TOTAL) {
+    combined = combined.slice(0, MAX_TOTAL) + '\n[...przycinanie: dalszy tekst pominięty]';
+  }
 
   const pageCount = parts.filter(Boolean).length;
   console.log(`Jina: scraped ${normalizedUrl} — ${pageCount} pages, ${combined.length} chars`);

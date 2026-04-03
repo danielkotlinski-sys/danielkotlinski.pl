@@ -566,23 +566,26 @@ Pogrupuj te frazy w 10-15 KLASTRÓW TEMATYCZNYCH. Każdy klaster to TEMAT KOMUNI
 
 Dla każdego klastra:
 1. Nazwa tematu (2-4 słowa, np. "transformacja ciała", "jakość składników")
-2. Frazy wchodzące w skład klastra
-3. Nasycenie per marka (0-100): 100 = temat dominuje komunikację marki, 0 = marka w ogóle tego nie porusza
+2. 3-5 najważniejszych fraz wchodzących w skład klastra (NIE wszystkie — tylko przykładowe)
+3. Nasycenie TYLKO dla tych marek (analiza pogłębiona): {{DEEP_BRANDS}}
+   Nasycenie (0-100): 100 = temat dominuje komunikację marki, 0 = marka w ogóle tego nie porusza
+
+NIE podawaj nasycenia dla pozostałych marek — zostanie obliczone automatycznie.
 
 Dodaj 2-3 PUSTE TEMATY — tematy naturalnie obecne w tej kategorii, o których ŻADNA z analizowanych marek nie mówi (lub mówi marginalnie).
 
 ZASADY:
 - Klastry muszą być RÓŻNE od siebie — nie powtarzaj podobnych tematów.
 - Nasycenie musi wynikać z ILOŚCI i WAGI fraz w danym klastrze, nie z domysłów.
-- Zaznacz specjalnie te 5 marek (analiza pogłębiona): {{DEEP_BRANDS}}
+- Odpowiedź musi być ZWIĘZŁA — podawaj tylko 3-5 fraz per klaster, nie wszystkie.
 
 Odpowiedz wyłącznie w JSON:
 {
   "klastry": [
     {
       "temat": "nazwa tematu",
-      "frazy": ["fraza1", "fraza2"],
-      "nasycenie": {"Marka1": 85, "Marka2": 10, ...}
+      "frazy": ["fraza1", "fraza2", "fraza3"],
+      "nasycenie": {"DeepMarka1": 85, "DeepMarka2": 10}
     }
   ],
   "pustePola": [

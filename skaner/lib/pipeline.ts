@@ -140,11 +140,12 @@ export async function runCategoryScanner(
   // Collect websites + screenshots
   // Primary: Apify website-content-crawler (playwright:firefox for screenshots)
   // Fallback: Jina (text + single homepage screenshot)
+  // Collect websites (max 2 concurrent to avoid Apify memory limit — playwright:firefox is heavy)
   emitStep('collect_websites', 'running');
   const homepageScreenshots: Record<string, string> = {};
   const allWebsiteScreenshots: Array<{ brandName: string; pages: WebsiteScreenshot[] }> = [];
-  await Promise.all(
-    allBrands.map(async (brand) => {
+  const websiteTasks = allBrands.map(
+    (brand) => async () => {
       emitStep('collect_websites', 'running', `${brand.name}...`);
       let websiteText = '';
       let screenshots: WebsiteScreenshot[] = [];
@@ -184,8 +185,9 @@ export async function runCategoryScanner(
       if (screenshots.length > 0) {
         allWebsiteScreenshots.push({ brandName: brand.name, pages: screenshots });
       }
-    })
+    }
   );
+  await runInBatches(websiteTasks, 2);
   emitStep('collect_websites', 'done', `${allBrands.length}/${allBrands.length}`);
 
   // Collect social media (max 2 concurrent to avoid Instagram rate-limiting)
@@ -324,9 +326,10 @@ export async function runCategoryScanner(
       );
       const extracted = parseJsonResponse<{ marki: Record<string, string[]> }>(extractRaw);
 
-      // Step 3: Cluster + saturation scoring
+      // Step 3: Cluster + saturation scoring (LLM scores only deep brands; benchmark scores computed server-side)
       emitStep('benchmark_saturation', 'running', 'Klasteryzacja...');
-      const allPhrasesBlock = Object.entries(extracted.marki || {})
+      const extractedMarki = extracted.marki || {};
+      const allPhrasesBlock = Object.entries(extractedMarki)
         .map(([name, phrases]) => `${name}: ${(phrases || []).join(', ')}`)
         .join('\n');
 
@@ -347,6 +350,33 @@ export async function runCategoryScanner(
         overlap: { sredniOverlap: number; paryNajblizsze: Array<{ marka1: string; marka2: string; overlap: number }> };
         uniqueness: Record<string, { score: number; unikalneFrazy: string[] }>;
       }>(clusterRaw);
+
+      // Compute benchmark brand scores server-side via phrase matching
+      // For each cluster, check how many of a brand's extracted phrases match cluster phrases
+      const computeBenchmarkScores = (
+        klastry: typeof clustered.klastry,
+        allExtracted: Record<string, string[]>,
+        deepNames: Set<string>
+      ) => {
+        const benchmarkNames = Object.keys(allExtracted).filter((n) => !deepNames.has(n));
+        for (const klaster of klastry) {
+          const clusterPhrases = new Set((klaster.frazy || []).map((f) => f.toLowerCase()));
+          for (const brandName of benchmarkNames) {
+            if (klaster.nasycenie[brandName] !== undefined) continue; // already scored by LLM
+            const brandPhrases = allExtracted[brandName] || [];
+            const matches = brandPhrases.filter((p) =>
+              clusterPhrases.has(p.toLowerCase()) ||
+              Array.from(clusterPhrases).some((cp) => p.toLowerCase().includes(cp) || cp.includes(p.toLowerCase()))
+            ).length;
+            // Scale: 0 matches = 0, proportional to brand's total phrases
+            const maxPhrases = Math.max(brandPhrases.length, 1);
+            klaster.nasycenie[brandName] = Math.min(100, Math.round((matches / maxPhrases) * 100 * 2));
+          }
+        }
+      };
+
+      const deepNameSet = new Set(allBrands.map((b) => b.name));
+      computeBenchmarkScores(clustered.klastry || [], extractedMarki, deepNameSet);
 
       // Build saturation data (compute category averages)
       const tematy = (clustered.klastry || []).map((k) => {
