@@ -15,27 +15,6 @@ export function reportToMarkdown(report: ScannerReport): string {
 
   let sectionNum = 0;
 
-  // Website screenshots (URLs only — images in web report)
-  if (report.websiteScreenshots && report.websiteScreenshots.length > 0) {
-    sectionNum++;
-    add('---');
-    add(`## ${sectionNum}. Strony internetowe`);
-    blank();
-    for (const brand of report.websiteScreenshots) {
-      add(`### ${brand.brandName}`);
-      for (const page of brand.pages) {
-        const label = (() => {
-          try {
-            const pathname = new URL(page.url).pathname;
-            return pathname === '/' ? 'Strona główna' : pathname;
-          } catch { return page.url; }
-        })();
-        add(`- ${label}: ${page.url}`);
-      }
-      blank();
-    }
-  }
-
   // Brand profiles
   sectionNum++;
   add('---');
@@ -59,6 +38,26 @@ export function reportToMarkdown(report: ScannerReport): string {
       for (const d of profile.kluczoweDowody) {
         add(`- ${d.obserwacja}${d.cytat ? ` — „${d.cytat}"` : ''} *(${d.zrodlo})*`);
       }
+      blank();
+    }
+    if (profile.websitePages?.length) {
+      add('**Strona internetowa:**');
+      for (const page of profile.websitePages) {
+        const label = (() => {
+          try {
+            const pathname = new URL(page.url).pathname;
+            return pathname === '/' ? 'Strona główna' : pathname;
+          } catch { return page.url; }
+        })();
+        add(`- ${label}: ${page.url}`);
+      }
+      blank();
+    }
+    if (profile.websiteAnalysis) {
+      add('**Analiza strony:**');
+      add(`- Ton komunikacji: ${profile.websiteAnalysis.toneOfVoice}`);
+      add(`- Przekaz: ${profile.websiteAnalysis.przekaz}`);
+      add(`- Konwencja vs wyróżnienie: ${profile.websiteAnalysis.wpisujeSeWKonwencje}`);
       blank();
     }
   }
@@ -307,7 +306,8 @@ export function reportSourcesToTxt(report: ScannerReport): string {
   separator();
   add('PIPELINE ŹRÓDEŁ DANYCH');
   separator();
-  add('  Jina AI → tekst strony WWW + screenshot strony głównej');
+  add('  Apify website-content-crawler → tekst strony WWW + screenshoty podstron');
+  add('  Jina AI → fallback tekst + screenshot strony głównej');
   add('  Apify → posty z social media (obrazy + captiony + daty)');
   add('  Perplexity (sonar-pro) → 5 zapytań/markę: profil, media, percepcja, konkurencja, skala');
   add('  Claude Sonnet → analiza atomowa (prompty 1-5)');

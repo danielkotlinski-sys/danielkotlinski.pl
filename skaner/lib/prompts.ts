@@ -503,6 +503,28 @@ Odpowiedz wyłącznie w JSON:
 }
 `;
 
+export const PROMPT_WEBSITE_ANALYSIS = `
+Patrzysz na screenshoty strony głównej i podstron marki {{BRAND_NAME}} (kategoria: {{CATEGORY}}).
+
+Treść strony (fragment):
+{{WEBSITE_TEXT}}
+
+Twoim zadaniem jest krótka analiza strony internetowej jako narzędzia komunikacji marki — nie jako produktu UX.
+
+ZASADY:
+- Pisz zwięźle — każde pole to 2-3 zdania maksymalnie.
+- Oprzyj się na TYM CO WIDZISZ, nie na domysłach.
+- Pisz jak strateg marki, nie jak UX designer.
+
+Odpowiedz wyłącznie w JSON:
+
+{
+  "toneOfVoice": "Jaki ton komunikacji dominuje na stronie? Formalny/potoczny, ekspert/przyjaciel, premium/dostępny, odważny/bezpieczny? Jak marka mówi do odwiedzającego — jak do klienta, partnera, czy wyznawcy?",
+  "przekaz": "Jaki jest główny przekaz strony? Co marka chce żeby odwiedzający zapamiętał? Jaka jest obietnica w nagłówku vs reszta treści — czy to spójne?",
+  "wpisujeSeWKonwencje": "Czy strona wygląda jak inne strony w tej kategorii, czy wyróżnia się? Jakie elementy są typowe, a co jest nietypowe?"
+}
+`;
+
 export function fillPrompt(
   template: string,
   vars: Record<string, string>

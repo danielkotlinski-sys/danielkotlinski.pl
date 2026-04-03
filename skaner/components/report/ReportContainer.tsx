@@ -7,7 +7,6 @@ import CategoryMapSection from './CategoryMapSection';
 import ConventionSection from './ConventionSection';
 import ComparativeGapsSection from './ComparativeGapsSection';
 import VisualConventionsSection from './VisualConventionsSection';
-import WebsiteScreenshotsSection from './WebsiteScreenshotsSection';
 import FinaleSection from './FinaleSection';
 import GateSection from './GateSection';
 import PdfDownloadButton from './PdfDownloadButton';
@@ -18,10 +17,6 @@ interface ReportContainerProps {
 }
 
 const SECTION_EXPLAINERS: Record<string, { heading: string; explainer: string }> = {
-  websites: {
-    heading: 'Strony internetowe',
-    explainer: 'Strona internetowa to wizytówka marki — pierwsze wrażenie, hierarchia przekazu, ton wizualny. Zanim analizujemy treść, zobaczmy jak marki prezentują się tym, którzy trafiają do nich po raz pierwszy.',
-  },
   profiles: {
     heading: 'Profile marek',
     explainer: 'Zaczynamy od obserwacji. Każda marka opowiada historię o swoim kliencie — przez język, obietnicę, mechanizm sprzedaży. Te historie ujawniają założenia, z których marki nawet nie zdają sobie sprawy.',
@@ -74,7 +69,6 @@ export default function ReportContainer({ report, firstName }: ReportContainerPr
 
   // Build TOC dynamically based on available data
   const tocItems = [
-    ...(report.websiteScreenshots && report.websiteScreenshots.length > 0 ? [{ id: 'websites', label: 'Strony internetowe' }] : []),
     { id: 'profiles', label: 'Profile marek' },
     { id: 'visual', label: 'Konwencje wizualne' },
     ...(report.mapaKategorii ? [{ id: 'map', label: 'Krajobraz kategorii' }] : []),
@@ -171,20 +165,16 @@ export default function ReportContainer({ report, firstName }: ReportContainerPr
         </div>
       </header>
 
-      {/* Section: Website screenshots */}
-      {report.websiteScreenshots && report.websiteScreenshots.length > 0 && (
-        <section id="websites" className="mb-20">
-          <SectionHeader num={nextSection()} sectionId="websites" />
-          <WebsiteScreenshotsSection websiteScreenshots={report.websiteScreenshots} />
-        </section>
-      )}
-
       {/* Section: Brand profiles — observation layer */}
       <section id="profiles" className="mb-20">
         <SectionHeader num={nextSection()} sectionId="profiles" />
         <div className="space-y-6">
           {report.brandProfiles.map((profile) => (
-            <BrandProfileCard key={profile.brandName} profile={profile} />
+            <BrandProfileCard
+              key={profile.brandName}
+              profile={profile}
+              brandAdsData={report.adsData?.find((a) => a.brandName === profile.brandName)}
+            />
           ))}
         </div>
       </section>

@@ -1,13 +1,14 @@
 'use client';
 
 import { useRef } from 'react';
-import type { ScannerReport } from '@/types/scanner';
+import type { ScannerReport, BrandAdsData } from '@/types/scanner';
 
 interface BrandProfileCardProps {
   profile: ScannerReport['brandProfiles'][number];
+  brandAdsData?: BrandAdsData;
 }
 
-function AdsSlider({ screenshots, brandName }: { screenshots: string[]; brandName: string }) {
+function HorizontalSlider({ children, itemCount }: { children: React.ReactNode; itemCount: number }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (dir: 'left' | 'right') => {
@@ -23,21 +24,9 @@ function AdsSlider({ screenshots, brandName }: { screenshots: string[]; brandNam
         className="flex gap-3 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-2"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        {screenshots.map((img, i) => (
-          <div
-            key={i}
-            className="flex-shrink-0 w-48 md:w-56 snap-start rounded-xl overflow-hidden bg-beige-light border border-beige-dark/10"
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`data:image/${img.startsWith('/9j/') ? 'jpeg' : 'png'};base64,${img}`}
-              alt={`Reklama ${i + 1} - ${brandName}`}
-              className="w-full h-auto"
-            />
-          </div>
-        ))}
+        {children}
       </div>
-      {screenshots.length > 3 && (
+      {itemCount > 2 && (
         <>
           <button
             onClick={() => scroll('left')}
@@ -59,12 +48,19 @@ function AdsSlider({ screenshots, brandName }: { screenshots: string[]; brandNam
   );
 }
 
-export default function BrandProfileCard({ profile }: BrandProfileCardProps) {
+function imgSrc(base64: string) {
+  return `data:image/${base64.startsWith('/9j/') ? 'jpeg' : 'png'};base64,${base64}`;
+}
+
+export default function BrandProfileCard({ profile, brandAdsData }: BrandProfileCardProps) {
   const logika = profile.logikaSprzedazy;
   const klient = profile.implikowanyKlient;
   const dowody = profile.kluczoweDowody || [];
   const adsAnalysis = profile.adsAnalysis;
   const adsScreenshots = profile.adsScreenshots?.filter(Boolean) || [];
+  const websitePages = profile.websitePages || [];
+  const websiteAnalysis = profile.websiteAnalysis;
+  const ads = brandAdsData?.ads || [];
 
   return (
     <div className="bg-white rounded-card overflow-hidden">
@@ -157,103 +153,233 @@ export default function BrandProfileCard({ profile }: BrandProfileCardProps) {
           </div>
         )}
 
-        {/* Ads analysis section — inside brand profile */}
-        {adsAnalysis && (
+        {/* Website screenshots + analysis */}
+        {(websitePages.length > 0 || websiteAnalysis) && (
           <div className="mb-6 pb-6 border-b border-beige">
             <p className="text-xs text-dk-teal uppercase tracking-widest font-medium mb-1">
-              Co mówią nam reklamy w Meta
+              Strona internetowa
             </p>
             <p className="text-[11px] text-text-gray mb-4">
-              Analiza płatnej komunikacji vs organicznej
+              Jak marka prezentuje się odwiedzającym stronę
             </p>
 
-            {/* Horizontal ad screenshots slider */}
-            {adsScreenshots.length > 0 && (
+            {/* Website pages horizontal slider */}
+            {websitePages.length > 0 && (
               <div className="mb-5">
-                <AdsSlider screenshots={adsScreenshots} brandName={profile.brandName} />
+                <HorizontalSlider itemCount={websitePages.length}>
+                  {websitePages.map((page, i) => (
+                    <div
+                      key={i}
+                      className="flex-shrink-0 w-72 md:w-80 snap-start rounded-xl overflow-hidden bg-beige-light border border-beige-dark/10"
+                    >
+                      <div className="relative">
+                        {/* Page label */}
+                        <div className="absolute top-2 left-2 z-10 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-lg text-[10px] font-medium text-text-secondary shadow-sm">
+                          {i === 0 ? 'Strona główna' : (() => {
+                            try { return new URL(page.url).pathname; } catch { return page.title || `Podstrona ${i}`; }
+                          })()}
+                        </div>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={imgSrc(page.screenshotBase64)}
+                          alt={`${profile.brandName} — ${page.title || page.url}`}
+                          className="w-full h-auto"
+                          loading="lazy"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </HorizontalSlider>
               </div>
             )}
 
-            {/* Dominant message */}
-            <p className="text-text-muted leading-[1.8] text-[15px] mb-4">
-              {adsAnalysis.dominujacyPrzekaz}
-            </p>
-
-            {/* Consistency assessment */}
-            <div className="bg-beige-light rounded-xl p-4 mb-4">
-              <div className="flex items-center gap-2 mb-2">
-                <p className="text-xs text-text-gray uppercase tracking-wider">Spójność paid vs organic</p>
-                <span className={`text-[10px] px-2 py-0.5 rounded-pill font-medium ${
-                  adsAnalysis.spojnosc.ocena === 'spójna'
-                    ? 'bg-green-100 text-green-700'
-                    : adsAnalysis.spojnosc.ocena === 'częściowo rozbieżna'
-                    ? 'bg-amber-100 text-amber-700'
-                    : 'bg-red-100 text-red-700'
-                }`}>
-                  {adsAnalysis.spojnosc.ocena}
-                </span>
-              </div>
-              <p className="text-sm text-text-muted leading-relaxed">
-                {adsAnalysis.spojnosc.opis}
-              </p>
-            </div>
-
-            {/* Hidden priorities */}
-            {adsAnalysis.ukrytePriorytety && (
-              <div className="bg-beige-light/50 rounded-xl p-4 mb-4">
-                <p className="text-xs text-text-gray uppercase tracking-wider mb-1.5">Ukryte priorytety sprzedażowe</p>
-                <p className="text-sm text-text-muted leading-relaxed">{adsAnalysis.ukrytePriorytety}</p>
-              </div>
-            )}
-
-            {/* Visual conventions in ads */}
-            {adsAnalysis.konwencjeWizualneReklam && (
-              <div className="bg-beige-light/50 rounded-xl p-4">
-                <p className="text-xs text-text-gray uppercase tracking-wider mb-1.5">Konwencje wizualne reklam</p>
-                <p className="text-sm text-text-muted leading-relaxed">{adsAnalysis.konwencjeWizualneReklam}</p>
+            {/* Website AI analysis */}
+            {websiteAnalysis && (
+              <div className="grid md:grid-cols-3 gap-3">
+                <div className="bg-beige-light rounded-xl p-4">
+                  <p className="text-xs text-text-gray uppercase tracking-wider mb-1.5">Ton komunikacji</p>
+                  <p className="text-sm text-text-muted leading-relaxed">{websiteAnalysis.toneOfVoice}</p>
+                </div>
+                <div className="bg-beige-light rounded-xl p-4">
+                  <p className="text-xs text-text-gray uppercase tracking-wider mb-1.5">Główny przekaz</p>
+                  <p className="text-sm text-text-muted leading-relaxed">{websiteAnalysis.przekaz}</p>
+                </div>
+                <div className="bg-beige-light rounded-xl p-4">
+                  <p className="text-xs text-text-gray uppercase tracking-wider mb-1.5">Konwencja vs wyróżnienie</p>
+                  <p className="text-sm text-text-muted leading-relaxed">{websiteAnalysis.wpisujeSeWKonwencje}</p>
+                </div>
               </div>
             )}
           </div>
         )}
 
-        {/* Post screenshots + website quotes side by side */}
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Screenshots */}
-          {profile.samplePostScreenshots?.length > 0 && (
-            <div>
-              <p className="text-xs text-text-gray uppercase tracking-wider mb-3">Posty</p>
-              <div className="grid grid-cols-2 gap-2">
-                {profile.samplePostScreenshots.map((screenshot, i) => (
-                  <div key={i} className="rounded-xl overflow-hidden bg-beige-light">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={`data:image/${screenshot.startsWith('/9j/') ? 'jpeg' : 'png'};base64,${screenshot}`}
-                      alt={`Post ${i + 1} - ${profile.brandName}`}
-                      className="w-full h-auto"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+        {/* Social media posts — horizontal slider */}
+        {profile.samplePostScreenshots?.length > 0 && (
+          <div className="mb-6 pb-6 border-b border-beige">
+            <p className="text-xs text-dk-teal uppercase tracking-widest font-medium mb-1">
+              Posty z social media
+            </p>
+            <p className="text-[11px] text-text-gray mb-4">
+              Jak marka komunikuje się na co dzień
+            </p>
+            <HorizontalSlider itemCount={profile.samplePostScreenshots.length}>
+              {profile.samplePostScreenshots.map((screenshot, i) => (
+                <div
+                  key={i}
+                  className="flex-shrink-0 w-48 md:w-56 snap-start rounded-xl overflow-hidden bg-beige-light border border-beige-dark/10"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={imgSrc(screenshot)}
+                    alt={`Post ${i + 1} - ${profile.brandName}`}
+                    className="w-full h-auto"
+                  />
+                </div>
+              ))}
+            </HorizontalSlider>
+          </div>
+        )}
 
-          {/* Website quotes */}
-          {profile.sampleWebsiteQuotes?.length > 0 && (
-            <div>
-              <p className="text-xs text-text-gray uppercase tracking-wider mb-3">Cytaty ze strony</p>
-              <div className="space-y-3">
-                {profile.sampleWebsiteQuotes.map((quote, i) => (
-                  <blockquote
-                    key={i}
-                    className="border-l-2 border-dk-teal/30 pl-4 text-sm text-text-secondary italic leading-relaxed"
-                  >
-                    {quote}
-                  </blockquote>
-                ))}
+        {/* Ads analysis section — inside brand profile */}
+        {(adsAnalysis || ads.length > 0) && (
+          <div className="mb-6 pb-6 border-b border-beige">
+            <p className="text-xs text-dk-teal uppercase tracking-widest font-medium mb-1">
+              Reklamy w Meta
+            </p>
+            <p className="text-[11px] text-text-gray mb-4">
+              {adsAnalysis ? 'Analiza płatnej komunikacji vs organicznej' : `${ads.length} reklam w Meta Ad Library`}
+            </p>
+
+            {/* Ad screenshots/cards horizontal slider */}
+            {ads.length > 0 ? (
+              <div className="mb-5">
+                <HorizontalSlider itemCount={ads.length}>
+                  {ads.map((ad, i) => (
+                    <div
+                      key={i}
+                      className="flex-shrink-0 w-56 md:w-64 snap-start rounded-xl overflow-hidden bg-beige-light border border-beige-dark/10"
+                    >
+                      {ad.imageBase64 && (
+                        <div className="aspect-video bg-beige-light overflow-hidden">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={imgSrc(ad.imageBase64)}
+                            alt={`Reklama ${i + 1} - ${profile.brandName}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <div className="p-3">
+                        {ad.linkTitle && (
+                          <p className="font-medium text-xs text-text-primary mb-1 line-clamp-2">
+                            {ad.linkTitle}
+                          </p>
+                        )}
+                        {ad.bodyText && (
+                          <p className="text-[11px] text-text-muted line-clamp-3 mb-2">
+                            {ad.bodyText}
+                          </p>
+                        )}
+                        <div className="flex flex-wrap gap-1">
+                          {ad.startDate && (
+                            <span className="text-[9px] px-1.5 py-0.5 bg-beige text-text-gray rounded-pill">
+                              od {new Date(ad.startDate).toLocaleDateString('pl-PL')}
+                            </span>
+                          )}
+                          {ad.spendRange && (
+                            <span className="text-[9px] px-1.5 py-0.5 bg-beige text-text-gray rounded-pill">
+                              {ad.spendRange}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </HorizontalSlider>
               </div>
+            ) : adsScreenshots.length > 0 ? (
+              <div className="mb-5">
+                <HorizontalSlider itemCount={adsScreenshots.length}>
+                  {adsScreenshots.map((img, i) => (
+                    <div
+                      key={i}
+                      className="flex-shrink-0 w-48 md:w-56 snap-start rounded-xl overflow-hidden bg-beige-light border border-beige-dark/10"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={imgSrc(img)}
+                        alt={`Reklama ${i + 1} - ${profile.brandName}`}
+                        className="w-full h-auto"
+                      />
+                    </div>
+                  ))}
+                </HorizontalSlider>
+              </div>
+            ) : null}
+
+            {/* Ads AI analysis */}
+            {adsAnalysis && (
+              <>
+                {/* Dominant message */}
+                <p className="text-text-muted leading-[1.8] text-[15px] mb-4">
+                  {adsAnalysis.dominujacyPrzekaz}
+                </p>
+
+                {/* Consistency assessment */}
+                <div className="bg-beige-light rounded-xl p-4 mb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <p className="text-xs text-text-gray uppercase tracking-wider">Spójność paid vs organic</p>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-pill font-medium ${
+                      adsAnalysis.spojnosc.ocena === 'spójna'
+                        ? 'bg-green-100 text-green-700'
+                        : adsAnalysis.spojnosc.ocena === 'częściowo rozbieżna'
+                        ? 'bg-amber-100 text-amber-700'
+                        : 'bg-red-100 text-red-700'
+                    }`}>
+                      {adsAnalysis.spojnosc.ocena}
+                    </span>
+                  </div>
+                  <p className="text-sm text-text-muted leading-relaxed">
+                    {adsAnalysis.spojnosc.opis}
+                  </p>
+                </div>
+
+                {/* Hidden priorities */}
+                {adsAnalysis.ukrytePriorytety && (
+                  <div className="bg-beige-light/50 rounded-xl p-4 mb-4">
+                    <p className="text-xs text-text-gray uppercase tracking-wider mb-1.5">Ukryte priorytety sprzedażowe</p>
+                    <p className="text-sm text-text-muted leading-relaxed">{adsAnalysis.ukrytePriorytety}</p>
+                  </div>
+                )}
+
+                {/* Visual conventions in ads */}
+                {adsAnalysis.konwencjeWizualneReklam && (
+                  <div className="bg-beige-light/50 rounded-xl p-4">
+                    <p className="text-xs text-text-gray uppercase tracking-wider mb-1.5">Konwencje wizualne reklam</p>
+                    <p className="text-sm text-text-muted leading-relaxed">{adsAnalysis.konwencjeWizualneReklam}</p>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Website quotes */}
+        {profile.sampleWebsiteQuotes?.length > 0 && (
+          <div className="mb-6 pb-6 border-b border-beige">
+            <p className="text-xs text-text-gray uppercase tracking-wider mb-3">Cytaty ze strony</p>
+            <div className="space-y-3">
+              {profile.sampleWebsiteQuotes.map((quote, i) => (
+                <blockquote
+                  key={i}
+                  className="border-l-2 border-dk-teal/30 pl-4 text-sm text-text-secondary italic leading-relaxed"
+                >
+                  {quote}
+                </blockquote>
+              ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* External sources */}
         {profile.zrodlaZewnetrzne && profile.zrodlaZewnetrzne.length > 0 && (

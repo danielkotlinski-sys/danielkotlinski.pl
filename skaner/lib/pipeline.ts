@@ -20,6 +20,7 @@ import type {
   ProgressEvent,
   StepId,
   WebsiteScreenshot,
+  WebsiteAnalysis,
   BrandAdsData,
   AdsAnalysis,
 } from '@/types/scanner';
@@ -43,6 +44,7 @@ import {
   PROMPT_8_CLIENT_POSITION,
   PROMPT_9_BLUE_OCEAN,
   PROMPT_ADS_ANALYSIS,
+  PROMPT_WEBSITE_ANALYSIS,
   fillPrompt,
 } from './prompts';
 import { saveReport, saveScanMeta } from './redis';
@@ -393,6 +395,30 @@ export async function runCategoryScanner(
   );
   emitStep('analyze_atomic', 'done');
 
+  // Website analysis (tone of voice, messaging, conventions) — parallel per brand
+  const websiteAnalyses: Record<string, WebsiteAnalysis> = {};
+  await Promise.all(
+    allBrands.map(async (brand) => {
+      const screenshots = allWebsiteScreenshots.find((s) => s.brandName === brand.name);
+      if (!screenshots || screenshots.pages.length === 0) return;
+      try {
+        const visualRaw = await analyzePostVision(
+          screenshots.pages[0].screenshotBase64,
+          '',
+          fillPrompt(PROMPT_WEBSITE_ANALYSIS, {
+            BRAND_NAME: brand.name,
+            CATEGORY: input.category,
+            WEBSITE_TEXT: brandData[brand.name].websiteText.slice(0, 3000),
+          }),
+          costs, `website analysis: ${brand.name}`
+        );
+        websiteAnalyses[brand.name] = parseJsonResponse<WebsiteAnalysis>(visualRaw);
+      } catch (err) {
+        console.error(`Website analysis failed for ${brand.name}:`, err);
+      }
+    })
+  );
+
   // === PHASE 3: BRAND PROFILES ===
   emitStep('synthesize_brands', 'running');
   const brandProfiles: Record<string, BrandProfile> = {};
@@ -620,6 +646,8 @@ export async function runCategoryScanner(
           analysis.claim.obietnicaZmiany?.dowod,
         ].filter(Boolean) as string[],
         konwencjaWizualna: brandVisuals[brand.name] || undefined,
+        websitePages: allWebsiteScreenshots.find((s) => s.brandName === brand.name)?.pages || undefined,
+        websiteAnalysis: websiteAnalyses[brand.name] || undefined,
         adsAnalysis: brandAdsAnalyses[brand.name] || undefined,
         adsScreenshots: adsData
           ?.find((a) => a.brandName === brand.name)

@@ -115,6 +115,12 @@ export interface HomepageVisualAnalysis {
   ton: string;
 }
 
+export interface WebsiteAnalysis {
+  toneOfVoice: string;
+  przekaz: string;
+  wpisujeSeWKonwencje: string;
+}
+
 export interface AtomicAnalysis {
   claim: ClaimResult;
   vocabulary: VocabularyResult;
@@ -342,6 +348,8 @@ export interface ScannerReport {
     samplePostScreenshots: string[];
     sampleWebsiteQuotes: string[];
     konwencjaWizualna?: BrandVisualConventions;
+    websitePages?: WebsiteScreenshot[]; // screenshots of homepage + subpages
+    websiteAnalysis?: WebsiteAnalysis; // AI analysis of tone, messaging, conventions
     adsAnalysis?: AdsAnalysis;
     adsScreenshots?: string[]; // base64 images from ads (up to 8)
     zrodlaZewnetrzne?: string[];

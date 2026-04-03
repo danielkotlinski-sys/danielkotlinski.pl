@@ -175,51 +175,6 @@ export async function generateReportPdf(report: ScannerReport): Promise<Blob> {
   ctx.y += 6;
   doc.text(`Źródła: strona WWW, social media, dyskurs zewnętrzny`, MARGIN_X, ctx.y);
 
-  // ==================== SECTION: WEBSITE SCREENSHOTS ====================
-  if (report.websiteScreenshots && report.websiteScreenshots.length > 0) {
-    newPage(ctx);
-    sectionNum++;
-    drawSectionTitle(ctx, sectionNum, 'Strony internetowe');
-    drawText(ctx, 'Strona internetowa to wizytówka marki — pierwsze wrażenie, hierarchia przekazu, ton wizualny.', { color: C_GRAY, size: 9 });
-    drawSpacer(ctx, 8);
-
-    for (const brand of report.websiteScreenshots) {
-      ensureSpace(ctx, 30);
-      drawSubheading(ctx, brand.brandName);
-
-      for (const page of brand.pages) {
-        const pageLabel = (() => {
-          try {
-            const pathname = new URL(page.url).pathname;
-            return pathname === '/' ? 'Strona główna' : pathname;
-          } catch { return page.title || page.url; }
-        })();
-        drawText(ctx, pageLabel, { size: 8, color: C_TEAL });
-
-        // Embed screenshot image in PDF
-        try {
-          const imgFormat = page.screenshotBase64.startsWith('/9j/') ? 'JPEG' : 'PNG';
-          const imgW = CONTENT_W * 0.9;
-          // Estimate height: assume ~16:9 viewport ratio
-          const imgH = imgW * 0.6;
-          ensureSpace(ctx, imgH + 8);
-          doc.addImage(
-            `data:image/${imgFormat.toLowerCase()};base64,${page.screenshotBase64}`,
-            imgFormat,
-            MARGIN_X + (CONTENT_W - imgW) / 2,
-            ctx.y,
-            imgW,
-            imgH
-          );
-          ctx.y += imgH + 4;
-        } catch {
-          drawText(ctx, '(screenshot niedostępny)', { size: 8, color: C_GRAY });
-        }
-      }
-      drawHr(ctx);
-    }
-  }
-
   // ==================== SECTION: BRAND PROFILES ====================
   newPage(ctx);
   sectionNum++;
@@ -251,6 +206,15 @@ export async function generateReportPdf(report: ScannerReport): Promise<Blob> {
       for (const d of profile.kluczoweDowody) {
         drawBullet(ctx, `${safe(d.obserwacja)}${d.cytat ? ` — „${d.cytat}"` : ''} (${safe(d.zrodlo)})`, { color: C_BLACK });
       }
+    }
+
+    // Website analysis (if available)
+    if (profile.websiteAnalysis) {
+      drawLabel(ctx, 'Analiza strony internetowej');
+      drawText(ctx, `Ton komunikacji: ${safe(profile.websiteAnalysis.toneOfVoice)}`);
+      drawText(ctx, `Przekaz: ${safe(profile.websiteAnalysis.przekaz)}`);
+      drawText(ctx, `Konwencja vs wyróżnienie: ${safe(profile.websiteAnalysis.wpisujeSeWKonwencje)}`);
+      drawSpacer(ctx, 3);
     }
 
     drawHr(ctx);

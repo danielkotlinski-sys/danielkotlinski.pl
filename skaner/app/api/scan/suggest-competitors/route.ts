@@ -18,26 +18,33 @@ export async function POST(request: NextRequest) {
       socialPlatform === 'linkedin' ? 'LinkedIn' :
       socialPlatform === 'facebook' ? 'Facebook' : 'Instagram';
 
-    const query = `Marka "${brandName}"${brandUrl ? ` (${brandUrl})` : ''} działa w kategorii: "${category}" (${categoryType || 'b2c'}).
+    const query = `Marka "${brandName}"${brandUrl ? ` (strona: ${brandUrl})` : ''} działa w kategorii: "${category}" (${categoryType || 'b2c'}).
+
+WAŻNE — IDENTYFIKACJA MARKI:
+- Szukasz konkurentów DOKŁADNIE tej marki: "${brandName}"${brandUrl ? ` ze strony ${brandUrl}` : ''}.
+- NIE mylić z innymi markami o podobnej nazwie (np. zagranicznymi, z innej branży).${brandUrl ? `\n- Strona ${brandUrl} jest AUTORYTATYWNYM źródłem — sprawdź jaką działalność prowadzi ta konkretna firma i szukaj konkurentów W TEJ SAMEJ branży i na tym samym rynku geograficznym.` : ''}
+- Konkurenci muszą działać na POLSKIM rynku (domena .pl, język polski, klienci w Polsce).
 
 Znajdź DOKŁADNIE 3 bezpośrednich konkurentów tej marki. Dla każdego podaj:
 1. Oficjalną nazwę marki
-2. Adres strony WWW (sprawdzony, działający URL)
+2. Adres strony WWW (sprawdzony, działający URL — domena .pl lub polska wersja strony)
 3. Nazwę profilu na ${platformLabel} (sam handle, bez @ i bez URL)
 
 KRYTERIA KONKURENTA — muszą być spełnione WSZYSTKIE:
 - Ten sam model biznesowy i mechanizm sprzedaży co "${brandName}" (np. jeśli "${brandName}" to marka cateringu dietetycznego — podaj inne marki cateringów, NIE marketplace'y, porównywarki ani platformy agregujące).
 - Ten sam typ klienta docelowego (${categoryType}).
-- Bezpośrednio rywalizują o tego samego klienta w tej samej kategorii.
+- Bezpośrednio rywalizują o tego samego klienta w tej samej kategorii NA POLSKIM RYNKU.
 - To muszą być MARKI/FIRMY, nie platformy, katalogi, rankingi ani agregatory.
 
 NIE podawaj:
 - Marketplace'ów, porównywarek, agregatów (np. Dietly, Ceneo, Booking).
 - Marek z pokrewnej ale INNEJ kategorii.
 - Samej marki "${brandName}".
+- Marek zagranicznych, które nie działają aktywnie w Polsce.
+- Marek o podobnej nazwie ale z INNEJ branży.
 
 Jeśli nie znasz profilu na ${platformLabel} — zostaw pusty string.
-URL musi być prawdziwy — nie zgaduj.
+URL musi być prawdziwy — nie zgaduj. Weryfikuj że strona istnieje i dotyczy firmy z tej samej branży.
 
 Odpowiedz WYŁĄCZNIE w JSON:
 {"competitors": [{"name": "Nazwa", "url": "https://strona.pl", "socialHandle": "handle_lub_pusty"}, {"name": "...", "url": "...", "socialHandle": "..."}, {"name": "...", "url": "...", "socialHandle": "..."}]}`;
