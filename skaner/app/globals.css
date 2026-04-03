@@ -2,8 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Instrument+Serif:ital@0;1&display=swap');
+/* === Fonts === */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
 
+/* ============================================================
+   LEGACY variables (existing pages)
+   ============================================================ */
 :root {
   --bg-primary: #e8e4e1;
   --bg-alt: #ede9e7;
@@ -20,6 +24,42 @@
   --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
+/* ============================================================
+   CATSCAN Design System variables
+   ============================================================ */
+:root {
+  /* Backgrounds */
+  --cs-bg:       #f5f3f0;
+  --cs-bg-alt:   #eae7e3;
+  --cs-bg-card:  #ffffff;
+  --cs-bg-dark:  #1a1a1a;
+  --cs-bg-input: #f9f8f6;
+
+  /* Foreground */
+  --cs-fg:       #0d0d0d;
+  --cs-fg-muted: #6b6b6b;
+  --cs-fg-dim:   #999999;
+  --cs-fg-inv:   #f5f3f0;
+
+  /* Accent */
+  --cs-red:       #c0392b;
+  --cs-red-hover: #a93226;
+  --cs-green:     #27ae60;
+
+  /* Borders */
+  --cs-border:      #d0ccc8;
+  --cs-border-bold: #0d0d0d;
+
+  /* Typography */
+  --cs-font: 'JetBrains Mono', 'Fira Code', 'SF Mono', Menlo, Consolas, monospace;
+
+  /* Sidebar */
+  --cs-sidebar-w: 240px;
+}
+
+/* ============================================================
+   Base body (legacy)
+   ============================================================ */
 body {
   color: var(--text-primary);
   background: var(--bg-primary);
@@ -33,18 +73,134 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 400;
 }
 
+/* ============================================================
+   CATSCAN base layer
+   ============================================================ */
+@layer base {
+  /* Apply CATSCAN styles within .cs scope */
+  .cs {
+    font-family: var(--cs-font);
+    color: var(--cs-fg);
+    background: var(--cs-bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .cs h1, .cs h2, .cs h3, .cs h4, .cs h5, .cs h6 {
+    font-family: var(--cs-font);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  /* Selection */
+  .cs ::selection {
+    background: var(--cs-fg);
+    color: var(--cs-fg-inv);
+  }
+}
+
+/* ============================================================
+   CATSCAN component layer
+   ============================================================ */
+@layer components {
+  /* --- Status Indicators --- */
+  .cs-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--cs-font);
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .cs-status::before {
+    content: '';
+    display: block;
+    width: 6px;
+    height: 6px;
+    background: currentColor;
+  }
+  .cs-status--active  { color: var(--cs-green); }
+  .cs-status--pending { color: var(--cs-red); }
+  .cs-status--idle    { color: var(--cs-fg-dim); }
+
+  /* --- Divider --- */
+  .cs-divider {
+    border: none;
+    border-top: 1px solid var(--cs-border);
+    margin: 0;
+  }
+  .cs-divider--bold {
+    border-top: 2px solid var(--cs-border-bold);
+  }
+
+  /* --- Monospace label --- */
+  .cs-label {
+    font-family: var(--cs-font);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--cs-fg-muted);
+  }
+
+  /* --- Section prefix (e.g. "// SYSTEM_LOGS") --- */
+  .cs-prefix {
+    font-family: var(--cs-font);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--cs-red);
+  }
+
+  /* --- Number display (big stats) --- */
+  .cs-stat {
+    font-family: var(--cs-font);
+    font-weight: 700;
+    font-size: 2.5rem;
+    line-height: 1;
+    color: var(--cs-fg);
+  }
+  .cs-stat-label {
+    font-family: var(--cs-font);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--cs-fg-muted);
+  }
+}
+
+/* ============================================================
+   Utilities
+   ============================================================ */
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+
+  /* Underscore text transform: spaces → underscores */
+  .cs-underscore {
+    word-spacing: -0.3em;
+  }
+
+  /* Uppercase mono helper */
+  .cs-upper {
+    font-family: var(--cs-font);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
 }
 
-/* Smooth scroll */
+/* ============================================================
+   Scrollbar (global)
+   ============================================================ */
 html {
   scroll-behavior: smooth;
 }
 
-/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -54,4 +210,13 @@ html {
 ::-webkit-scrollbar-thumb {
   background: #bbb;
   border-radius: 3px;
+}
+
+/* CATSCAN scrollbar variant */
+.cs ::-webkit-scrollbar-track {
+  background: var(--cs-bg-alt);
+}
+.cs ::-webkit-scrollbar-thumb {
+  background: var(--cs-border);
+  border-radius: 0;
 }
