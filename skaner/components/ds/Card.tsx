@@ -1,6 +1,6 @@
 import { HTMLAttributes, forwardRef } from 'react';
 
-type Variant = 'default' | 'bordered' | 'dark' | 'stat';
+type Variant = 'default' | 'bordered' | 'dark';
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
   variant?: Variant;
@@ -8,10 +8,9 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const variantStyles: Record<Variant, string> = {
-  default:  'bg-cs-bg-card border border-cs-border',
-  bordered: 'bg-cs-bg-card border-2 border-cs-border-bold',
-  dark:     'bg-cs-bg-dark text-cs-fg-inv border border-cs-bg-dark',
-  stat:     'bg-cs-bg-card border border-cs-border',
+  default:  'bg-cs-white border border-cs-border',
+  bordered: 'bg-cs-white border-2 border-cs-black',
+  dark:     'bg-cs-black text-cs-white border-2 border-cs-black',
 };
 
 const paddingStyles: Record<NonNullable<CardProps['padding']>, string> = {
@@ -27,7 +26,6 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
       <div
         ref={ref}
         className={[
-          'rounded-cs-none font-mono',
           variantStyles[variant],
           paddingStyles[padding],
           className,

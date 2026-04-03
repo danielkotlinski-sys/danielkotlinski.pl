@@ -1,6 +1,6 @@
 import { ButtonHTMLAttributes, forwardRef } from 'react';
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
+type Variant = 'primary' | 'secondary' | 'disabled';
 type Size = 'sm' | 'md' | 'lg';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -11,33 +11,30 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<Variant, string> = {
   primary:
-    'bg-cs-fg text-cs-fg-inv border border-cs-fg hover:bg-transparent hover:text-cs-fg',
+    'bg-cs-black text-cs-white border-cs-black hover:bg-cs-white hover:text-cs-black',
   secondary:
-    'bg-cs-bg-card text-cs-fg border border-cs-border-bold hover:bg-cs-bg-alt',
-  ghost:
-    'bg-transparent text-cs-fg border border-transparent hover:border-cs-border',
-  danger:
-    'bg-cs-red text-white border border-cs-red hover:bg-cs-red-hover',
+    'bg-cs-white text-cs-black border-cs-black hover:bg-cs-black hover:text-cs-white',
+  disabled:
+    'bg-cs-white text-cs-silver border-cs-border cursor-not-allowed',
 };
 
 const sizeStyles: Record<Size, string> = {
-  sm: 'text-cs-xs px-3 py-1.5',
-  md: 'text-cs-sm px-5 py-2.5',
-  lg: 'text-cs-base px-8 py-3.5',
+  sm: 'text-[0.5625rem] px-3 py-1.5 tracking-[0.12em]',
+  md: 'text-[0.6875rem] px-5 py-2.5 tracking-[0.1em]',
+  lg: 'text-[0.75rem] px-8 py-3.5 tracking-[0.1em]',
 };
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ variant = 'primary', size = 'md', loading, disabled, className = '', children, ...props }, ref) => {
+    const isDisabled = disabled || variant === 'disabled';
     return (
       <button
         ref={ref}
-        disabled={disabled || loading}
+        disabled={isDisabled || loading}
         className={[
-          'font-mono uppercase tracking-widest font-semibold',
-          'transition-all duration-200 cursor-pointer',
-          'disabled:opacity-40 disabled:cursor-not-allowed',
-          'rounded-cs-none',
-          variantStyles[variant],
+          'font-mono uppercase font-semibold',
+          'border-2 transition-all duration-150',
+          variantStyles[isDisabled ? 'disabled' : variant],
           sizeStyles[size],
           className,
         ].join(' ')}
@@ -45,7 +42,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       >
         {loading ? (
           <span className="inline-flex items-center gap-2">
-            <span className="inline-block w-3 h-3 border border-current border-t-transparent animate-spin" />
+            <span className="inline-block w-2.5 h-2.5 border border-current border-t-transparent animate-spin" />
             {children}
           </span>
         ) : (

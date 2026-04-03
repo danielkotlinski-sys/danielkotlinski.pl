@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* === Fonts === */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Space+Grotesk:wght@300..700&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap');
 
 /* ============================================================
    LEGACY variables (existing pages)
@@ -25,40 +25,31 @@
 }
 
 /* ============================================================
-   CATSCAN Design System variables
+   CATSCAN Design System
    ============================================================ */
 :root {
-  /* Backgrounds */
-  --cs-bg:       #f5f3f0;
-  --cs-bg-alt:   #eae7e3;
-  --cs-bg-card:  #ffffff;
-  --cs-bg-dark:  #1a1a1a;
-  --cs-bg-input: #f9f8f6;
+  /* Palette — 3 colors only */
+  --cs-black:   #000000;
+  --cs-canvas:  #FAF0F5;
+  --cs-white:   #FFFFFF;
 
-  /* Foreground */
-  --cs-fg:       #0d0d0d;
-  --cs-fg-muted: #6b6b6b;
-  --cs-fg-dim:   #999999;
-  --cs-fg-inv:   #f5f3f0;
+  /* Extended neutrals */
+  --cs-ink:     #1a1a1a;
+  --cs-gray:    #6b6b6b;
+  --cs-silver:  #999999;
+  --cs-mist:    #e8e5e1;
+  --cs-border:  #d4d0cc;
 
-  /* Accent */
-  --cs-red:       #c0392b;
-  --cs-red-hover: #a93226;
-  --cs-green:     #27ae60;
+  /* Type stack */
+  --cs-display:   'Space Grotesk', system-ui, sans-serif;
+  --cs-editorial: 'Newsreader', Georgia, serif;
+  --cs-mono:      'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
 
-  /* Borders */
-  --cs-border:      #d0ccc8;
-  --cs-border-bold: #0d0d0d;
-
-  /* Typography */
-  --cs-font: 'JetBrains Mono', 'Fira Code', 'SF Mono', Menlo, Consolas, monospace;
-
-  /* Sidebar */
-  --cs-sidebar-w: 240px;
+  --cs-sidebar-w: 200px;
 }
 
 /* ============================================================
-   Base body (legacy)
+   Legacy body
    ============================================================ */
 body {
   color: var(--text-primary);
@@ -74,149 +65,77 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ============================================================
-   CATSCAN base layer
+   CATSCAN scope
    ============================================================ */
 @layer base {
-  /* Apply CATSCAN styles within .cs scope */
   .cs {
-    font-family: var(--cs-font);
-    color: var(--cs-fg);
-    background: var(--cs-bg);
+    font-family: var(--cs-mono);
+    color: var(--cs-black);
+    background: var(--cs-canvas);
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   }
 
-  .cs h1, .cs h2, .cs h3, .cs h4, .cs h5, .cs h6 {
-    font-family: var(--cs-font);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-  }
-
-  /* Selection */
   .cs ::selection {
-    background: var(--cs-fg);
-    color: var(--cs-fg-inv);
+    background: var(--cs-black);
+    color: var(--cs-canvas);
   }
 }
 
-/* ============================================================
-   CATSCAN component layer
-   ============================================================ */
 @layer components {
-  /* --- Status Indicators --- */
-  .cs-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-family: var(--cs-font);
-    font-size: 0.6875rem;
+  /* Section numbering: "01 // CORE_IDENTITY" */
+  .cs-section-num {
+    font-family: var(--cs-mono);
+    font-size: 0.625rem;
+    font-weight: 400;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-  .cs-status::before {
-    content: '';
-    display: block;
-    width: 6px;
-    height: 6px;
-    background: currentColor;
-  }
-  .cs-status--active  { color: var(--cs-green); }
-  .cs-status--pending { color: var(--cs-red); }
-  .cs-status--idle    { color: var(--cs-fg-dim); }
-
-  /* --- Divider --- */
-  .cs-divider {
-    border: none;
-    border-top: 1px solid var(--cs-border);
-    margin: 0;
-  }
-  .cs-divider--bold {
-    border-top: 2px solid var(--cs-border-bold);
+    letter-spacing: 0.14em;
+    color: var(--cs-gray);
   }
 
-  /* --- Monospace label --- */
+  /* System label */
   .cs-label {
-    font-family: var(--cs-font);
-    font-size: 0.6875rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--cs-fg-muted);
-  }
-
-  /* --- Section prefix (e.g. "// SYSTEM_LOGS") --- */
-  .cs-prefix {
-    font-family: var(--cs-font);
-    font-size: 0.6875rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--cs-red);
-  }
-
-  /* --- Number display (big stats) --- */
-  .cs-stat {
-    font-family: var(--cs-font);
-    font-weight: 700;
-    font-size: 2.5rem;
-    line-height: 1;
-    color: var(--cs-fg);
-  }
-  .cs-stat-label {
-    font-family: var(--cs-font);
-    font-size: 0.6875rem;
+    font-family: var(--cs-mono);
+    font-size: 0.5625rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--cs-fg-muted);
-  }
-}
-
-/* ============================================================
-   Utilities
-   ============================================================ */
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+    letter-spacing: 0.14em;
+    color: var(--cs-gray);
   }
 
-  /* Underscore text transform: spaces → underscores */
-  .cs-underscore {
-    word-spacing: -0.3em;
-  }
-
-  /* Uppercase mono helper */
-  .cs-upper {
-    font-family: var(--cs-font);
+  /* Micro-copy badge */
+  .cs-micro {
+    font-family: var(--cs-mono);
+    font-size: 0.5625rem;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.1em;
+    color: var(--cs-gray);
+    background: var(--cs-canvas);
+    border: 1px solid var(--cs-border);
+    padding: 2px 6px;
+    display: inline-block;
+  }
+
+  /* Section divider */
+  .cs-rule {
+    border: none;
+    border-top: 1px solid var(--cs-black);
+    margin: 0;
+  }
+  .cs-rule--light {
+    border-top-color: var(--cs-border);
   }
 }
 
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+}
+
 /* ============================================================
-   Scrollbar (global)
+   Scrollbar
    ============================================================ */
-html {
-  scroll-behavior: smooth;
-}
-
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: var(--bg-alt);
-}
-::-webkit-scrollbar-thumb {
-  background: #bbb;
-  border-radius: 3px;
-}
-
-/* CATSCAN scrollbar variant */
-.cs ::-webkit-scrollbar-track {
-  background: var(--cs-bg-alt);
-}
-.cs ::-webkit-scrollbar-thumb {
-  background: var(--cs-border);
-  border-radius: 0;
-}
+html { scroll-behavior: smooth; }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--cs-border); }
+.cs ::-webkit-scrollbar-thumb { background: var(--cs-silver); }

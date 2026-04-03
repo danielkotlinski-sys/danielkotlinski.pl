@@ -18,28 +18,26 @@ interface SidebarProps {
   className?: string;
 }
 
-export default function Sidebar({ brand = 'CATSCAN', version, items, footer, className = '' }: SidebarProps) {
+export default function Sidebar({ brand = 'CATSCAN_OS', version, items, footer, className = '' }: SidebarProps) {
   return (
     <aside
       className={[
-        'fixed top-0 left-0 h-screen w-[var(--cs-sidebar-w)]',
-        'bg-cs-bg-card border-r border-cs-border',
+        'fixed top-0 left-0 h-screen w-[200px]',
+        'bg-cs-white border-r border-cs-border',
         'flex flex-col font-mono',
         className,
       ].join(' ')}
     >
-      {/* Brand */}
-      <div className="px-6 pt-6 pb-4">
-        <h1 className="text-cs-xl font-bold uppercase tracking-wider">{brand}</h1>
+      <div className="px-4 pt-5 pb-3">
+        <h1 className="text-[0.8125rem] font-bold uppercase tracking-[0.06em]">{brand}</h1>
         {version && (
-          <span className="text-cs-xs text-cs-fg-dim uppercase tracking-widest">
+          <span className="text-[0.5rem] text-cs-silver uppercase tracking-[0.14em]">
             {version}
           </span>
         )}
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 px-2 py-1 space-y-0.5 overflow-y-auto">
         {items.map((item, i) => {
           const Tag = item.href ? 'a' : 'button';
           return (
@@ -48,23 +46,23 @@ export default function Sidebar({ brand = 'CATSCAN', version, items, footer, cla
               href={item.href}
               onClick={item.onClick}
               className={[
-                'w-full flex items-center gap-3 px-3 py-2.5 text-cs-sm uppercase tracking-wider',
-                'transition-all duration-150 rounded-cs-none',
+                'w-full flex items-center gap-2 px-2 py-[7px]',
+                'text-[0.625rem] uppercase tracking-[0.08em]',
+                'transition-all duration-100',
                 item.active
-                  ? 'bg-cs-fg text-cs-fg-inv font-semibold'
-                  : 'text-cs-fg-muted hover:text-cs-fg hover:bg-cs-bg-alt',
+                  ? 'bg-cs-black text-cs-white font-semibold'
+                  : 'text-cs-gray hover:text-cs-black',
               ].join(' ')}
             >
-              {item.icon && <span className="w-5 h-5 flex items-center justify-center">{item.icon}</span>}
+              {item.icon && <span className="w-[14px] h-[14px] flex items-center justify-center">{item.icon}</span>}
               {item.label}
             </Tag>
           );
         })}
       </nav>
 
-      {/* Footer */}
       {footer && (
-        <div className="px-4 py-4 border-t border-cs-border">
+        <div className="mx-3 mb-4 border border-cs-border p-2.5">
           {footer}
         </div>
       )}

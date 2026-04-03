@@ -21,16 +21,16 @@ export default function Table<T extends Record<string, unknown>>({
   className = '',
 }: TableProps<T>) {
   return (
-    <div className={`border border-cs-border rounded-cs-none overflow-hidden ${className}`}>
-      <table className="w-full font-mono">
+    <div className={`border border-cs-border overflow-hidden ${className}`}>
+      <table className="w-full font-mono border-collapse">
         <thead>
-          <tr className="border-b border-cs-border bg-cs-bg-alt">
+          <tr className="border-b border-cs-border bg-cs-canvas">
             {columns.map((col) => (
               <th
                 key={col.key}
                 className={[
-                  'text-cs-xs font-semibold uppercase tracking-widest',
-                  'text-cs-fg-muted px-5 py-3',
+                  'text-[0.5625rem] font-semibold uppercase tracking-[0.12em]',
+                  'text-cs-gray px-5 py-3',
                   col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left',
                 ].join(' ')}
               >
@@ -46,7 +46,7 @@ export default function Table<T extends Record<string, unknown>>({
               onClick={() => onRowClick?.(row)}
               className={[
                 'border-b border-cs-border last:border-b-0',
-                'bg-cs-bg-card hover:bg-cs-bg-alt transition-colors duration-150',
+                'bg-cs-white hover:bg-cs-canvas transition-colors duration-100',
                 onRowClick ? 'cursor-pointer' : '',
               ].join(' ')}
             >
@@ -54,7 +54,7 @@ export default function Table<T extends Record<string, unknown>>({
                 <td
                   key={col.key}
                   className={[
-                    'text-cs-sm px-5 py-4',
+                    'text-[0.75rem] px-5 py-4',
                     col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left',
                   ].join(' ')}
                 >

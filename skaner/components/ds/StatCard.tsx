@@ -3,28 +3,18 @@ import { ReactNode } from 'react';
 interface StatCardProps {
   label: string;
   value: string | number;
-  change?: string;
   action?: ReactNode;
   className?: string;
 }
 
-export default function StatCard({ label, value, change, action, className = '' }: StatCardProps) {
+export default function StatCard({ label, value, action, className = '' }: StatCardProps) {
   return (
-    <div
-      className={[
-        'bg-cs-bg-card border border-cs-border rounded-cs-none',
-        'p-5 flex flex-col gap-2 font-mono',
-        className,
-      ].join(' ')}
-    >
-      <span className="cs-stat-label">{label}</span>
-      <div className="flex items-end gap-3">
-        <span className="cs-stat">{value}</span>
-        {change && (
-          <span className="text-cs-xs font-medium text-cs-red mb-1">{change}</span>
-        )}
-      </div>
-      {action && <div className="mt-2">{action}</div>}
+    <div className={`bg-cs-white border border-cs-border p-5 flex flex-col gap-2 ${className}`}>
+      <span className="font-mono text-[0.5rem] font-semibold uppercase tracking-[0.14em] text-cs-silver">
+        {label}
+      </span>
+      <span className="font-display text-[2.25rem] font-bold leading-none">{value}</span>
+      {action && <div className="mt-1">{action}</div>}
     </div>
   );
 }
