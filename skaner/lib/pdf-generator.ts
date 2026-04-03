@@ -446,9 +446,9 @@ export async function generateReportPdf(report: ScannerReport): Promise<Blob> {
       drawSpacer(ctx, 5);
 
       drawLabel(ctx, 'To może być błędne, bo — perspektywa 2');
-      drawText(ctx, safe(bo.hipotezaPekniecia.wariant2.toMozeBycBledne));
+      drawText(ctx, safe(bo.hipotezaPekniecia.wariant2?.toMozeBycBledne));
       drawLabel(ctx, 'Alternatywna logika');
-      drawText(ctx, safe(bo.hipotezaPekniecia.wariant2.alternatywnaLogika));
+      drawText(ctx, safe(bo.hipotezaPekniecia.wariant2?.alternatywnaLogika));
     } else {
       // Legacy format
       drawLabel(ctx, 'To może być błędne, bo');

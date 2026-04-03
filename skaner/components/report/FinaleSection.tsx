@@ -57,12 +57,12 @@ export default function FinaleSection({ finale, brandName }: FinaleSectionProps)
                 To może być błędne, bo — perspektywa 2
               </p>
               <p className="text-text-muted leading-[1.8] text-[15px] mb-4">
-                {finale.hipotezaPekniecia.wariant2.toMozeBycBledne}
+                {finale.hipotezaPekniecia.wariant2?.toMozeBycBledne}
               </p>
               <div className="bg-white/60 rounded-xl p-4">
                 <p className="text-xs text-dk-teal uppercase tracking-wider mb-1.5">Alternatywna logika</p>
                 <p className="text-sm text-text-muted leading-relaxed">
-                  {finale.hipotezaPekniecia.wariant2.alternatywnaLogika}
+                  {finale.hipotezaPekniecia.wariant2?.alternatywnaLogika}
                 </p>
               </div>
             </div>

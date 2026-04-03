@@ -19,12 +19,13 @@ import type {
   Lead,
   ProgressEvent,
   StepId,
+  WebsiteScreenshot,
+  BrandAdsData,
+  AdsAnalysis,
 } from '@/types/scanner';
 import { fetchWebsiteText, fetchHomepageScreenshot } from './jina';
 import { scrapeSocialPosts, scrapeFacebookAds, scrapeWebsitePages } from './apify';
 import { crawlWebsite } from './firecrawl';
-import type { WebsiteScreenshot } from '@/types/scanner';
-import type { BrandAdsData, AdsAnalysis } from '@/types/scanner';
 import { searchExternalDiscourse } from './perplexity';
 import { runPrompt, analyzePostVision, parseJsonResponse } from './anthropic';
 import {

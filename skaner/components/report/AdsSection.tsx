@@ -36,7 +36,7 @@ export default function AdsSection({ adsData, clientBrandName }: AdsSectionProps
                   {ad.imageBase64 && (
                     <div className="aspect-video bg-beige-light overflow-hidden">
                       <img
-                        src={`data:image/jpeg;base64,${ad.imageBase64}`}
+                        src={`data:image/${ad.imageBase64?.startsWith('/9j/') ? 'jpeg' : 'png'};base64,${ad.imageBase64}`}
                         alt={`Reklama ${brand.brandName}`}
                         className="w-full h-full object-cover"
                       />

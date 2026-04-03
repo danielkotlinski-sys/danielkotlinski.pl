@@ -170,8 +170,8 @@ export function reportToMarkdown(report: ScannerReport): string {
       add(`**Alternatywna logika:** ${bo.hipotezaPekniecia.wariant1.alternatywnaLogika}`);
       blank();
       add('**Perspektywa 2 — to może być błędne, bo:**');
-      add(bo.hipotezaPekniecia.wariant2.toMozeBycBledne);
-      add(`**Alternatywna logika:** ${bo.hipotezaPekniecia.wariant2.alternatywnaLogika}`);
+      add(bo.hipotezaPekniecia.wariant2?.toMozeBycBledne || '');
+      add(`**Alternatywna logika:** ${bo.hipotezaPekniecia.wariant2?.alternatywnaLogika || ''}`);
     } else {
       add(`**To może być błędne, bo:** ${bo.hipotezaPekniecia.toMozeBycBledne || ''}`);
       add(`**Alternatywna logika:** ${bo.hipotezaPekniecia.alternatywnaLogika || ''}`);
