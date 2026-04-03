@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CATSCAN Design System</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   RESET
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ============================================================
+   TOKENS
+   ============================================================ */
+:root {
+  --bg:       #f5f3f0;
+  --bg-alt:   #eae7e3;
+  --bg-card:  #ffffff;
+  --bg-dark:  #1a1a1a;
+  --bg-input: #f9f8f6;
+
+  --fg:       #0d0d0d;
+  --fg-muted: #6b6b6b;
+  --fg-dim:   #999999;
+  --fg-inv:   #f5f3f0;
+
+  --red:       #c0392b;
+  --red-hover: #a93226;
+  --green:     #27ae60;
+
+  --border:      #d0ccc8;
+  --border-bold: #0d0d0d;
+
+  --font: 'JetBrains Mono', 'Fira Code', 'SF Mono', Menlo, Consolas, monospace;
+  --sidebar-w: 240px;
+}
+
+body {
+  font-family: var(--font);
+  color: var(--fg);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+
+::selection {
+  background: var(--fg);
+  color: var(--fg-inv);
+}
+
+/* ============================================================
+   TYPOGRAPHY
+   ============================================================ */
+.t-hero { font-size: 3.5rem; line-height: 3.75rem; letter-spacing: -0.01em; font-weight: 700; text-transform: uppercase; }
+.t-3xl  { font-size: 2.5rem; line-height: 2.75rem; font-weight: 700; text-transform: uppercase; }
+.t-2xl  { font-size: 2rem;   line-height: 2.25rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.01em; }
+.t-xl   { font-size: 1.5rem; line-height: 1.875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; }
+.t-lg   { font-size: 1.125rem; line-height: 1.5rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; }
+.t-md   { font-size: 0.9375rem; line-height: 1.5rem; letter-spacing: 0.03em; }
+.t-base { font-size: 0.8125rem; line-height: 1.375rem; letter-spacing: 0.04em; }
+.t-sm   { font-size: 0.75rem; line-height: 1.125rem; letter-spacing: 0.06em; }
+.t-xs   { font-size: 0.6875rem; line-height: 1rem; letter-spacing: 0.08em; }
+
+/* ============================================================
+   LABEL / PREFIX / STAT
+   ============================================================ */
+.label {
+  font-size: 0.6875rem; font-weight: 500; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--fg-muted);
+}
+.prefix {
+  font-size: 0.6875rem; font-weight: 500; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--red);
+}
+.stat-value {
+  font-size: 2.5rem; font-weight: 700; line-height: 1; color: var(--fg);
+}
+.stat-label {
+  font-size: 0.6875rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--fg-muted);
+}
+.section-title {
+  font-size: 2rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.01em;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font); font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.1em; border: 1px solid; cursor: pointer;
+  transition: all 0.2s; text-decoration: none;
+}
+.btn:active { transform: scale(0.97); }
+.btn:disabled, .btn.disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* sizes */
+.btn-sm  { font-size: 0.6875rem; padding: 6px 12px; }
+.btn-md  { font-size: 0.75rem;   padding: 10px 20px; }
+.btn-lg  { font-size: 0.8125rem; padding: 14px 32px; }
+
+/* variants */
+.btn-primary   { background: var(--fg); color: var(--fg-inv); border-color: var(--fg); }
+.btn-primary:hover { background: transparent; color: var(--fg); }
+
+.btn-secondary { background: var(--bg-card); color: var(--fg); border-color: var(--border-bold); }
+.btn-secondary:hover { background: var(--bg-alt); }
+
+.btn-ghost     { background: transparent; color: var(--fg); border-color: transparent; }
+.btn-ghost:hover { border-color: var(--border); }
+
+.btn-danger    { background: var(--red); color: #fff; border-color: var(--red); }
+.btn-danger:hover { background: var(--red-hover); border-color: var(--red-hover); }
+
+.btn-inv       { background: transparent; color: var(--fg-inv); border-color: var(--fg-dim); }
+.btn-inv:hover { background: rgba(245,243,240,0.1); }
+
+/* loading spinner */
+.btn .spinner {
+  display: inline-block; width: 12px; height: 12px;
+  border: 1.5px solid currentColor; border-top-color: transparent;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============================================================
+   BADGES
+   ============================================================ */
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font); font-size: 0.6875rem; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 4px 10px; border: 1px solid;
+}
+.badge::before {
+  content: ''; display: block; width: 6px; height: 6px; background: currentColor;
+}
+.badge-default  { background: var(--bg-alt); color: var(--fg); border-color: var(--border); }
+.badge-active   { background: rgba(39,174,96,0.1); color: var(--green); border-color: rgba(39,174,96,0.3); }
+.badge-pending  { background: rgba(192,57,43,0.1); color: var(--red); border-color: rgba(192,57,43,0.3); }
+.badge-complete { background: var(--fg); color: var(--fg-inv); border-color: var(--fg); }
+.badge-error    { background: var(--red); color: #fff; border-color: var(--red); }
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.card {
+  background: var(--bg-card); border: 1px solid var(--border); padding: 24px;
+}
+.card-bordered { border-width: 2px; border-color: var(--border-bold); }
+.card-dark {
+  background: var(--bg-dark); color: var(--fg-inv); border-color: var(--bg-dark);
+}
+.card-p0 { padding: 0; }
+.card-plg { padding: 32px; }
+
+/* ============================================================
+   INPUT
+   ============================================================ */
+.input-wrap { display: flex; flex-direction: column; gap: 6px; }
+.input-field {
+  width: 100%; font-family: var(--font); font-size: 0.8125rem;
+  color: var(--fg); background: var(--bg-input);
+  border: 1px solid var(--border); padding: 12px 16px;
+  letter-spacing: 0.04em;
+  transition: border-color 0.2s;
+}
+.input-field::placeholder {
+  color: var(--fg-dim); text-transform: uppercase; letter-spacing: 0.06em;
+}
+.input-field:focus {
+  outline: none; border-color: var(--border-bold);
+}
+.input-icon-wrap { position: relative; }
+.input-icon-wrap .input-icon {
+  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  color: var(--fg-dim);
+}
+.input-icon-wrap .input-field { padding-left: 40px; }
+
+/* ============================================================
+   TABLE
+   ============================================================ */
+.table-wrap {
+  border: 1px solid var(--border); overflow: hidden;
+}
+table {
+  width: 100%; border-collapse: collapse; font-family: var(--font);
+}
+thead tr {
+  background: var(--bg-alt); border-bottom: 1px solid var(--border);
+}
+th {
+  font-size: 0.6875rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--fg-muted);
+  padding: 12px 20px; text-align: left;
+}
+td {
+  font-size: 0.75rem; padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+tr:last-child td { border-bottom: none; }
+tbody tr { background: var(--bg-card); transition: background 0.15s; cursor: pointer; }
+tbody tr:hover { background: var(--bg-alt); }
+
+.td-primary { font-weight: 600; }
+.td-sub { font-size: 0.6875rem; color: var(--fg-dim); margin-top: 2px; }
+
+/* ============================================================
+   STAT CARD
+   ============================================================ */
+.stat-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  padding: 20px; display: flex; flex-direction: column; gap: 8px;
+}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+.sidebar {
+  width: var(--sidebar-w); background: var(--bg-card);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; height: 100%;
+}
+.sidebar-brand { padding: 24px 24px 16px; }
+.sidebar-brand h1 { font-size: 1.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.sidebar-brand .version { font-size: 0.6875rem; color: var(--fg-dim); text-transform: uppercase; letter-spacing: 0.08em; }
+.sidebar-nav { flex: 1; padding: 8px 12px; }
+.sidebar-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px; font-size: 0.75rem; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--fg-muted);
+  cursor: pointer; border: none; background: none; width: 100%; text-align: left;
+  font-family: var(--font); transition: all 0.15s; text-decoration: none;
+}
+.sidebar-item:hover { color: var(--fg); background: var(--bg-alt); }
+.sidebar-item.active {
+  background: var(--fg); color: var(--fg-inv); font-weight: 600;
+}
+.sidebar-footer { padding: 16px; border-top: 1px solid var(--border); }
+.sidebar-user { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+.sidebar-avatar {
+  width: 28px; height: 28px; background: var(--bg-alt);
+  border: 1px solid var(--border); display: flex; align-items: center; justify-content: center;
+  font-size: 0.6875rem; font-weight: 700;
+}
+.sidebar-user-name { font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; }
+.sidebar-user-status { font-size: 0.6875rem; color: var(--fg-dim); }
+
+/* ============================================================
+   TOP NAV
+   ============================================================ */
+.topnav {
+  width: 100%; background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 32px;
+}
+.topnav-brand { font-size: 1.125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.topnav-links { display: flex; align-items: center; gap: 24px; }
+.topnav-link {
+  font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em;
+  font-weight: 500; color: var(--fg-muted); text-decoration: none;
+  transition: color 0.15s; padding-bottom: 2px;
+}
+.topnav-link:hover { color: var(--fg); }
+.topnav-link.active { color: var(--fg); border-bottom: 2px solid var(--fg); font-weight: 600; }
+
+/* ============================================================
+   ACTIVITY LOG ROW
+   ============================================================ */
+.log-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+.log-row:last-child { border-bottom: none; }
+.log-row:hover { background: var(--bg-alt); }
+.log-node { font-size: 0.75rem; color: var(--fg-muted); width: 100px; }
+.log-op   { font-size: 0.75rem; font-weight: 600; flex: 1; }
+.log-status { font-size: 0.6875rem; color: var(--fg-muted); flex: 1; }
+.log-time { font-size: 0.75rem; font-weight: 500; color: var(--red); }
+
+/* ============================================================
+   SECTION HEADER
+   ============================================================ */
+.section-header { display: flex; flex-direction: column; gap: 4px; }
+.section-header-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.section-subtitle { font-size: 0.75rem; color: var(--fg-muted); margin-top: 4px; }
+
+/* ============================================================
+   COLOR SWATCH
+   ============================================================ */
+.swatch { text-align: center; }
+.swatch-block { width: 100%; height: 48px; }
+.swatch-bordered { border: 1px solid var(--border); }
+.swatch-name { font-size: 0.6875rem; font-weight: 500; margin-top: 6px; }
+.swatch-hex  { font-size: 0.6875rem; color: var(--fg-dim); }
+
+/* ============================================================
+   LAYOUT HELPERS
+   ============================================================ */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.items-end { align-items: flex-end; }
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+.gap-2 { gap: 8px; }
+.gap-3 { gap: 12px; }
+.gap-4 { gap: 16px; }
+.gap-6 { gap: 24px; }
+.grid { display: grid; }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-5 { grid-template-columns: repeat(5, 1fr); }
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.w-full { width: 100%; }
+.max-w-lg { max-width: 480px; }
+.flex-1 { flex: 1; }
+.flex-wrap { flex-wrap: wrap; }
+.shrink-0 { flex-shrink: 0; }
+.text-center { text-align: center; }
+.mb-1 { margin-bottom: 4px; }
+.mb-2 { margin-bottom: 8px; }
+.mb-3 { margin-bottom: 12px; }
+.mb-4 { margin-bottom: 16px; }
+.mb-8 { margin-bottom: 32px; }
+.mt-4 { margin-top: 16px; }
+.mt-3 { margin-top: 12px; }
+.py-8 { padding-top: 32px; padding-bottom: 32px; }
+.px-8 { padding-left: 32px; padding-right: 32px; }
+
+/* ============================================================
+   PAGE STRUCTURE
+   ============================================================ */
+.page { min-height: 100vh; }
+.component-label {
+  font-size: 0.6875rem; font-weight: 500; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--fg-muted);
+  padding: 8px 24px; background: var(--bg-alt); border-bottom: 1px solid var(--border);
+}
+.content-area { padding: 32px 40px; }
+.section { margin-bottom: 64px; }
+.sidebar-demo { width: 240px; flex-shrink: 0; position: relative; }
+.sidebar-frame { height: 600px; border: 1px solid var(--border); position: relative; overflow: hidden; }
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-alt); }
+::-webkit-scrollbar-thumb { background: var(--border); }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<!-- ====== TOP NAV ====== -->
+<div class="section" style="margin-bottom:0">
+  <div class="component-label">Component: TopNav (Landing)</div>
+  <div class="topnav">
+    <span class="topnav-brand">CATSCAN</span>
+    <nav class="topnav-links">
+      <a href="#" class="topnav-link active">Methodology</a>
+      <a href="#" class="topnav-link">Archetypes</a>
+      <a href="#" class="topnav-link">The Oracle</a>
+    </nav>
+    <button class="btn btn-primary btn-sm">Log In</button>
+  </div>
+</div>
+
+<!-- ====== SIDEBAR + CONTENT ====== -->
+<div class="flex" style="margin-top:64px">
+
+  <!-- Sidebar -->
+  <div class="sidebar-demo">
+    <div class="component-label" style="padding:8px 16px">Component: Sidebar</div>
+    <div class="sidebar-frame">
+      <div class="sidebar">
+        <div class="sidebar-brand">
+          <h1>CATSCAN</h1>
+          <span class="version">V1.02 LEDGER</span>
+        </div>
+        <nav class="sidebar-nav">
+          <a href="#" class="sidebar-item">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6"/><rect x="9" y="1" width="6" height="6"/><rect x="1" y="9" width="6" height="6"/><rect x="9" y="9" width="6" height="6"/></svg>
+            Overview
+          </a>
+          <a href="#" class="sidebar-item active">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 5V1h4M11 1h4v4M15 11v4h-4M5 15H1v-4"/><line x1="1" y1="8" x2="15" y2="8"/></svg>
+            My Scans
+          </a>
+          <a href="#" class="sidebar-item">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6"/><rect x="9" y="1" width="6" height="6"/><rect x="1" y="9" width="6" height="6"/><rect x="9" y="9" width="6" height="6"/></svg>
+            Archetypes
+          </a>
+          <a href="#" class="sidebar-item">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="14" height="4"/><path d="M2 5v10h12V5"/><line x1="6" y1="8" x2="10" y2="8"/></svg>
+            Archive
+          </a>
+          <a href="#" class="sidebar-item">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.5 1.5M11.5 11.5L13 13M13 3l-1.5 1.5M4.5 11.5L3 13"/></svg>
+            Settings
+          </a>
+        </nav>
+        <div class="sidebar-footer">
+          <button class="btn btn-primary btn-md w-full">New Scan</button>
+          <div class="sidebar-user">
+            <div class="sidebar-avatar">A</div>
+            <div>
+              <div class="sidebar-user-name">Archivist-01</div>
+              <div class="sidebar-user-status">Node Status: Active</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="flex-1 content-area" style="max-width:960px">
+
+    <!-- STAT CARDS -->
+    <div class="section">
+      <div class="label mb-4">Component: StatCard</div>
+      <div class="grid grid-3 gap-4">
+        <div class="stat-card">
+          <span class="stat-label">Total Active Scans</span>
+          <div class="flex items-end gap-3">
+            <span class="stat-value">12</span>
+            <span class="t-xs" style="color:var(--red);font-weight:500;margin-bottom:4px">+2 Today</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Category Maps</span>
+          <span class="stat-value">148</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Available Credits</span>
+          <span class="stat-value">4.2k</span>
+          <div style="margin-top:8px"><button class="btn btn-secondary btn-sm">Refill</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION HEADER -->
+    <div class="section">
+      <div class="label mb-4">Component: SectionHeader</div>
+      <div class="section-header">
+        <span class="prefix">// SYSTEM_LOGS</span>
+        <div class="section-header-row">
+          <div>
+            <h2 class="section-title">SCANNED_ENTITIES</h2>
+            <p class="section-subtitle">Real-time market architecture analysis</p>
+          </div>
+          <button class="btn btn-primary btn-md">+ Initiate New Magic Scan</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="section">
+      <div class="label mb-4">Component: Table</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Category Identity</th>
+              <th>Target URL</th>
+              <th>Current Status</th>
+              <th>Ledger Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="td-primary">Plant-Based Meat</div>
+                <div class="td-sub">ID: SCAN-882-PBM</div>
+              </td>
+              <td class="t-sm">impossiblefoods.com</td>
+              <td><span class="badge badge-complete">COMPLETE</span></td>
+              <td class="t-sm">OCT 12, 2023</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="td-primary">Neo-Banking</div>
+                <div class="td-sub">ID: SCAN-441-NBK</div>
+              </td>
+              <td class="t-sm">revolut.com</td>
+              <td><span class="badge badge-active">ACTIVE</span></td>
+              <td class="t-sm">OCT 14, 2023</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="td-primary">Web3 Infrastructure</div>
+                <div class="td-sub">ID: SCAN-092-W3I</div>
+              </td>
+              <td class="t-sm">alchemy.com</td>
+              <td><span class="badge badge-pending">PENDING</span></td>
+              <td class="t-sm">OCT 14, 2023</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- BUTTONS -->
+    <div class="section">
+      <div class="label mb-4">Component: Button</div>
+      <div class="flex flex-wrap items-center gap-4">
+        <button class="btn btn-primary btn-md">Primary</button>
+        <button class="btn btn-secondary btn-md">Secondary</button>
+        <button class="btn btn-ghost btn-md">Ghost</button>
+        <button class="btn btn-danger btn-md">Danger</button>
+        <button class="btn btn-primary btn-md"><span class="spinner"></span> Loading</button>
+        <button class="btn btn-primary btn-md disabled" disabled>Disabled</button>
+      </div>
+      <div class="flex flex-wrap items-center gap-4 mt-4">
+        <button class="btn btn-primary btn-sm">Small</button>
+        <button class="btn btn-primary btn-md">Medium</button>
+        <button class="btn btn-primary btn-lg">Large</button>
+      </div>
+    </div>
+
+    <!-- BADGES -->
+    <div class="section">
+      <div class="label mb-4">Component: Badge</div>
+      <div class="flex flex-wrap items-center gap-3">
+        <span class="badge badge-default">Default</span>
+        <span class="badge badge-active">Active_Sequence</span>
+        <span class="badge badge-pending">Pending_Approval</span>
+        <span class="badge badge-complete">Complete</span>
+        <span class="badge badge-error">Error</span>
+      </div>
+    </div>
+
+    <!-- INPUT -->
+    <div class="section">
+      <div class="label mb-4">Component: Input</div>
+      <div class="max-w-lg" style="display:flex;flex-direction:column;gap:16px">
+        <div class="input-wrap">
+          <div class="input-icon-wrap">
+            <span class="input-icon">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><line x1="11" y1="11" x2="15" y2="15"/></svg>
+            </span>
+            <input type="text" class="input-field" placeholder="INPUT_URL_FOR_SYSTEM_ANALYSIS...">
+          </div>
+        </div>
+        <div class="input-wrap">
+          <label class="label">TARGET_DOMAIN</label>
+          <input type="text" class="input-field" placeholder="example.com">
+        </div>
+        <div class="input-wrap">
+          <label class="label">QUERY_LEDGER</label>
+          <input type="text" class="input-field" placeholder="Search...">
+        </div>
+      </div>
+    </div>
+
+    <!-- CARDS -->
+    <div class="section">
+      <div class="label mb-4">Component: Card</div>
+      <div class="grid grid-2 gap-4">
+        <div class="card">
+          <div class="label mb-2">Default Card</div>
+          <p class="t-sm" style="color:var(--fg-muted)">Standard card with light border. Used for content sections.</p>
+        </div>
+        <div class="card card-bordered">
+          <div class="label mb-2">Bordered Card</div>
+          <p class="t-sm" style="color:var(--fg-muted)">Bold border variant. Used for emphasis.</p>
+        </div>
+        <div class="card card-dark">
+          <div class="label mb-2" style="color:var(--fg-dim)">Dark Card</div>
+          <p class="t-sm" style="color:var(--fg-dim)">Inverted dark variant. Used for hero sections and CTAs.</p>
+        </div>
+        <div class="card">
+          <div class="stat-label mb-2">Stat Card Shell</div>
+          <span class="stat-value">42</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIVITY LOG -->
+    <div class="section">
+      <div class="section-header mb-4">
+        <span class="prefix">// SYSTEM_LOGS</span>
+        <h2 class="section-title">CURRENT_ACTIVITY</h2>
+      </div>
+      <div class="card card-p0">
+        <div class="log-row">
+          <span class="log-node">NODE_002</span>
+          <span class="log-op">STRUCTURAL_SCAN</span>
+          <span class="log-status">ACTIVE_SEQUENCE</span>
+          <span class="log-time">09:42:11</span>
+        </div>
+        <div class="log-row">
+          <span class="log-node">NODE_114</span>
+          <span class="log-op">LEDGER_SYNC</span>
+          <span class="log-status">COMPLETE</span>
+          <span class="log-time">08:15:30</span>
+        </div>
+        <div class="log-row">
+          <span class="log-node">NODE_003</span>
+          <span class="log-op">SYNTHESIS_INIT</span>
+          <span class="log-status">PENDING_APPROVAL</span>
+          <span class="log-time">07:22:04</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA BLOCK -->
+    <div class="section">
+      <div class="label mb-4">Composite: CTA Block</div>
+      <div class="card card-dark card-plg">
+        <div class="text-center py-8">
+          <div style="width:12px;height:12px;background:var(--fg-inv);margin:0 auto 16px"></div>
+          <h2 class="t-3xl" style="color:var(--fg-inv);margin-bottom:12px;letter-spacing:0.03em">JOIN_THE_ARCHITECTURAL_ELITE</h2>
+          <p class="t-sm" style="color:var(--fg-dim);margin-bottom:32px;line-height:1.6">
+            Access the secure ledger and begin your synthesis process today.<br>
+            Limited archival nodes available.
+          </p>
+          <div class="flex justify-center gap-4">
+            <button class="btn btn-danger btn-lg">Request_Access</button>
+            <button class="btn btn-inv btn-lg">View_Protocol</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COLORS -->
+    <div class="section">
+      <div class="label mb-4">Design Tokens: Colors</div>
+      <div class="grid grid-5 gap-3">
+        <div class="swatch">
+          <div class="swatch-block swatch-bordered" style="background:#f5f3f0"></div>
+          <div class="swatch-name">cs-bg</div><div class="swatch-hex">#f5f3f0</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-block swatch-bordered" style="background:#eae7e3"></div>
+          <div class="swatch-name">cs-bg-alt</div><div class="swatch-hex">#eae7e3</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-block swatch-bordered" style="background:#ffffff"></div>
+          <div class="swatch-name">cs-bg-card</div><div class="swatch-hex">#ffffff</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-block" style="background:#0d0d0d"></div>
+          <div class="swatch-name">cs-fg</div><div class="swatch-hex">#0d0d0d</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-block" style="background:#c0392b"></div>
+          <div class="swatch-name">cs-red</div><div class="swatch-hex">#c0392b</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-block" style="background:#27ae60"></div>
+          <div class="swatch-name">cs-green</div><div class="swatch-hex">#27ae60</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-block" style="background:#6b6b6b"></div>
+          <div class="swatch-name">cs-fg-muted</div><div class="swatch-hex">#6b6b6b</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-block" style="background:#999999"></div>
+          <div class="swatch-name">cs-fg-dim</div><div class="swatch-hex">#999999</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-block" style="background:#d0ccc8"></div>
+          <div class="swatch-name">cs-border</div><div class="swatch-hex">#d0ccc8</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-block" style="background:#1a1a1a"></div>
+          <div class="swatch-name">cs-bg-dark</div><div class="swatch-hex">#1a1a1a</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TYPOGRAPHY -->
+    <div class="section">
+      <div class="label mb-4">Design Tokens: Typography</div>
+      <div class="flex-col gap-3" style="display:flex;flex-direction:column;gap:12px">
+        <div class="t-hero">cs-hero / 56px</div>
+        <div class="t-3xl">cs-3xl / 40px</div>
+        <div class="t-2xl">cs-2xl / 32px</div>
+        <div class="t-xl">cs-xl / 24px</div>
+        <div class="t-lg">cs-lg / 18px</div>
+        <div class="t-md">cs-md / 15px — body text</div>
+        <div class="t-base">cs-base / 13px — default</div>
+        <div class="t-sm" style="color:var(--fg-muted)">cs-sm / 12px — secondary</div>
+        <div class="t-xs" style="color:var(--fg-dim)">cs-xs / 11px — labels, captions</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+</body>
+</html>
