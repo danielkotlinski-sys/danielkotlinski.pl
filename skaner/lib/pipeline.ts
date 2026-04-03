@@ -22,6 +22,7 @@ import type {
 } from '@/types/scanner';
 import { fetchWebsiteText, fetchHomepageScreenshot } from './jina';
 import { scrapeSocialPosts, scrapeFacebookAds, scrapeWebsitePages } from './apify';
+import { crawlWebsite } from './firecrawl';
 import type { WebsiteScreenshot } from '@/types/scanner';
 import type { BrandAdsData, AdsAnalysis } from '@/types/scanner';
 import { searchExternalDiscourse } from './perplexity';
@@ -128,27 +129,42 @@ export async function runCategoryScanner(
     });
   };
 
-  // Collect websites + screenshots (Apify website-content-crawler with Jina fallback)
+  // Collect websites + screenshots
+  // Priority: Firecrawl → Apify website-content-crawler → Jina (fallback)
   emitStep('collect_websites', 'running');
   const homepageScreenshots: Record<string, string> = {};
   const allWebsiteScreenshots: Array<{ brandName: string; pages: WebsiteScreenshot[] }> = [];
   await Promise.all(
     allBrands.map(async (brand) => {
-      // Primary: Apify website-content-crawler (handles cookies, discovers subpages)
-      const crawlResult = await scrapeWebsitePages(brand.url, 4, costs);
+      let websiteText = '';
+      let screenshots: WebsiteScreenshot[] = [];
 
-      let websiteText = crawlResult.websiteText;
-      let screenshots = crawlResult.screenshots;
+      // 1. Try Firecrawl (cheapest, handles cookies, screenshots)
+      const firecrawlResult = await crawlWebsite(brand.url, 4, costs);
+      websiteText = firecrawlResult.websiteText;
+      screenshots = firecrawlResult.screenshots;
 
-      // Fallback to Jina if Apify returned no text
+      // 2. Fallback to Apify website-content-crawler if Firecrawl failed
       if (!websiteText || websiteText.length < 200) {
-        console.log(`Pipeline: Apify text empty for ${brand.name}, falling back to Jina`);
+        console.log(`Pipeline: Firecrawl empty for ${brand.name}, trying Apify website crawler`);
+        const apifyResult = await scrapeWebsitePages(brand.url, 4, costs);
+        if (apifyResult.websiteText.length > websiteText.length) {
+          websiteText = apifyResult.websiteText;
+        }
+        if (apifyResult.screenshots.length > screenshots.length) {
+          screenshots = apifyResult.screenshots;
+        }
+      }
+
+      // 3. Fallback to Jina for text if both failed
+      if (!websiteText || websiteText.length < 200) {
+        console.log(`Pipeline: Apify also empty for ${brand.name}, falling back to Jina`);
         websiteText = await fetchWebsiteText(brand.url, costs);
       }
 
-      // Fallback to Jina for homepage screenshot if Apify returned none
+      // 4. Fallback to Jina for screenshot if no screenshots at all
       if (screenshots.length === 0) {
-        console.log(`Pipeline: no Apify screenshots for ${brand.name}, falling back to Jina`);
+        console.log(`Pipeline: no screenshots for ${brand.name}, falling back to Jina`);
         const jinaScreenshot = await fetchHomepageScreenshot(brand.url, costs);
         if (jinaScreenshot) {
           screenshots = [{ url: brand.url, title: brand.name, screenshotBase64: jinaScreenshot }];
