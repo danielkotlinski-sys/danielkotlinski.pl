@@ -6,7 +6,7 @@ export interface PerplexityResult {
   query: string;
 }
 
-async function queryPerplexity(
+export async function queryPerplexity(
   systemPrompt: string,
   userQuery: string,
   costTracker?: ScanCostTracker,

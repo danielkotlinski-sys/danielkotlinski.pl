@@ -1,17 +1,22 @@
 'use client';
 
-import type { CategoryConventions, ClientPosition } from '@/types/scanner';
+import type { CategoryConventions, ClientPosition, CommunicationSaturation } from '@/types/scanner';
+import SaturationHeatmap from './SaturationHeatmap';
 
 interface ConventionSectionProps {
   conventions: CategoryConventions;
   clientPosition?: ClientPosition;
   clientBrandName?: string;
+  communicationSaturation?: CommunicationSaturation;
+  deepBrands?: string[];
 }
 
 export default function ConventionSection({
   conventions,
   clientPosition,
   clientBrandName,
+  communicationSaturation,
+  deepBrands,
 }: ConventionSectionProps) {
   const ocenaStyles: Record<string, string> = {
     'zgodna z konwencją': 'bg-beige-light text-text-muted',
@@ -73,6 +78,15 @@ export default function ConventionSection({
           ))}
         </div>
       </div>
+
+      {/* Communication Saturation Benchmark (admin-only feature) */}
+      {communicationSaturation && communicationSaturation.tematy.length > 0 && (
+        <SaturationHeatmap
+          saturation={communicationSaturation}
+          deepBrands={deepBrands || [clientBrandName || '']}
+          clientBrandName={clientBrandName || ''}
+        />
+      )}
 
       {/* Kto gra w konwencji — jak */}
       <div className="bg-white rounded-card p-6 md:p-8">

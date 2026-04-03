@@ -23,10 +23,11 @@ import type {
   WebsiteAnalysis,
   BrandAdsData,
   AdsAnalysis,
+  CommunicationSaturation,
 } from '@/types/scanner';
 import { fetchWebsiteText, fetchHomepageScreenshot } from './jina';
-import { scrapeSocialPosts, scrapeFacebookAds, scrapeWebsitePages } from './apify';
-import { searchExternalDiscourse } from './perplexity';
+import { scrapeSocialPosts, scrapeFacebookAds, scrapeWebsitePages, batchScrapeHomepages } from './apify';
+import { searchExternalDiscourse, queryPerplexity } from './perplexity';
 import { runPrompt, analyzePostVision, parseJsonResponse } from './anthropic';
 import {
   PROMPT_1_CLAIM,
@@ -41,6 +42,10 @@ import {
   PROMPT_VISUAL_BRAND,
   PROMPT_VISUAL_CATEGORY,
   PROMPT_7_CONVENTIONS,
+  PROMPT_SATURATION_DISCOVERY,
+  PROMPT_SATURATION_EXTRACT,
+  PROMPT_SATURATION_CLUSTER,
+  PROMPT_SATURATION_INTERPRET,
   PROMPT_8_CLIENT_POSITION,
   PROMPT_9_BLUE_OCEAN,
   PROMPT_ADS_ANALYSIS,
@@ -116,8 +121,9 @@ export async function runCategoryScanner(
   const emitStep = (stepId: StepId, status: 'running' | 'done' | 'error', detail?: string) => {
     const progressMap: Record<StepId, number> = {
       collect_websites: 10,
-      collect_social: 25,
-      collect_external: 35,
+      collect_social: 22,
+      collect_external: 30,
+      benchmark_saturation: 42,
       analyze_atomic: 55,
       synthesize_brands: 70,
       synthesize_category: 85,
@@ -256,6 +262,122 @@ export async function runCategoryScanner(
     })
   );
   emitStep('collect_external', 'done');
+
+  // === COMMUNICATION SATURATION BENCHMARK (admin-only, behind feature flag) ===
+  let communicationSaturation: CommunicationSaturation | undefined;
+  if (process.env.SATURATION_BENCHMARK === 'true') {
+    try {
+      emitStep('benchmark_saturation', 'running', 'Discovery...');
+
+      // Step 0: Discover 25-30 brands in category via Perplexity
+      const discoveryResult = await queryPerplexity(
+        'Jesteś ekspertem od rynku. Odpowiadasz wyłącznie w poprawnym JSON.',
+        fillPrompt(PROMPT_SATURATION_DISCOVERY, { CATEGORY: input.category }),
+        costs,
+        'saturation: discovery'
+      );
+      const discoveryJson = discoveryResult.content.match(/\{[\s\S]*\}/);
+      const discovered: Array<{ nazwa: string; url: string }> = discoveryJson
+        ? (JSON.parse(discoveryJson[0]).marki || [])
+        : [];
+
+      // Filter out our analyzed brands (already have their data)
+      const analyzedNames = new Set(allBrands.map((b) => b.name.toLowerCase()));
+      const benchmarkBrands = discovered.filter(
+        (d) => !analyzedNames.has(d.nazwa.toLowerCase())
+      ).slice(0, 25);
+
+      console.log(`Saturation: discovered ${discovered.length} brands, ${benchmarkBrands.length} new for benchmark`);
+      emitStep('benchmark_saturation', 'running', `Scraping ${benchmarkBrands.length} stron...`);
+
+      // Step 1: Batch scrape homepages (cheerio — fast & cheap)
+      const benchmarkTexts = await batchScrapeHomepages(
+        benchmarkBrands.map((b) => ({ name: b.nazwa, url: b.url })),
+        costs
+      );
+
+      // Combine with our deep-analyzed brands' website texts
+      const allBrandTexts: Record<string, string> = {};
+      for (const brand of allBrands) {
+        allBrandTexts[brand.name] = brandData[brand.name].websiteText.slice(0, 1500);
+      }
+      for (const [name, text] of Object.entries(benchmarkTexts)) {
+        allBrandTexts[name] = text;
+      }
+
+      const totalBrands = Object.keys(allBrandTexts).length;
+      console.log(`Saturation: ${totalBrands} brands total (${allBrands.length} deep + ${Object.keys(benchmarkTexts).length} benchmark)`);
+      emitStep('benchmark_saturation', 'running', `Ekstrakcja fraz (${totalBrands} marek)...`);
+
+      // Step 2: Extract keywords (batch, one prompt)
+      const allBrandsTextBlock = Object.entries(allBrandTexts)
+        .map(([name, text]) => `=== ${name} ===\n${text}`)
+        .join('\n\n');
+
+      const extractRaw = await runPrompt(
+        fillPrompt(PROMPT_SATURATION_EXTRACT, {
+          N: String(totalBrands),
+          CATEGORY: input.category,
+          ALL_BRANDS_TEXT: allBrandsTextBlock,
+        }),
+        'claude-sonnet-4-5', costs, 'saturation: extract'
+      );
+      const extracted = parseJsonResponse<{ marki: Record<string, string[]> }>(extractRaw);
+
+      // Step 3: Cluster + saturation scoring
+      emitStep('benchmark_saturation', 'running', 'Klasteryzacja...');
+      const allPhrasesBlock = Object.entries(extracted.marki || {})
+        .map(([name, phrases]) => `${name}: ${(phrases || []).join(', ')}`)
+        .join('\n');
+
+      const deepBrandNames = allBrands.map((b) => b.name).join(', ');
+
+      const clusterRaw = await runPrompt(
+        fillPrompt(PROMPT_SATURATION_CLUSTER, {
+          N: String(totalBrands),
+          CATEGORY: input.category,
+          ALL_PHRASES: allPhrasesBlock,
+          DEEP_BRANDS: deepBrandNames,
+        }),
+        'claude-sonnet-4-5', costs, 'saturation: cluster'
+      );
+      const clustered = parseJsonResponse<{
+        klastry: Array<{ temat: string; frazy: string[]; nasycenie: Record<string, number> }>;
+        pustePola: Array<{ temat: string; dlaczegoWazny: string }>;
+        overlap: { sredniOverlap: number; paryNajblizsze: Array<{ marka1: string; marka2: string; overlap: number }> };
+        uniqueness: Record<string, { score: number; unikalneFrazy: string[] }>;
+      }>(clusterRaw);
+
+      // Build saturation data (compute category averages)
+      const tematy = (clustered.klastry || []).map((k) => {
+        const scores = Object.values(k.nasycenie || {});
+        const avg = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+        return {
+          temat: k.temat,
+          klaster: k.frazy || [],
+          nasycenie: k.nasycenie || {},
+          sredniaKategorii: avg,
+        };
+      });
+
+      // Step 4: Interpretation by Opus (connects to convention)
+      // This runs later, after PROMPT_7 conventions are ready — store partial data now
+      communicationSaturation = {
+        benchmarkBrands: [...allBrands.map((b) => b.name), ...Object.keys(benchmarkTexts)],
+        tematy,
+        overlap: clustered.overlap || { sredniOverlap: 0, paryNajblizsze: [] },
+        uniqueness: clustered.uniqueness || {},
+        pustePola: clustered.pustePola || [],
+        weryfikacjaKonwencji: '', // filled after PROMPT_7
+      };
+
+      emitStep('benchmark_saturation', 'done', `${totalBrands} marek, ${tematy.length} tematów`);
+      console.log(`Saturation: done — ${tematy.length} clusters, ${totalBrands} brands`);
+    } catch (err) {
+      console.error('Saturation benchmark failed (non-fatal):', err);
+      emitStep('benchmark_saturation', 'error', 'Benchmark niedostępny');
+    }
+  }
 
   // === PHASE 1.5: CATEGORY MAP ===
   const allExternalData = allBrands
@@ -543,6 +665,38 @@ export async function runCategoryScanner(
   );
   const categoryConventions = parseJsonResponse<CategoryConventions>(conventionsRaw);
 
+  // Saturation benchmark: interpret against conventions (Step 4)
+  if (communicationSaturation && communicationSaturation.tematy.length > 0) {
+    try {
+      const interpretRaw = await runPrompt(
+        fillPrompt(PROMPT_SATURATION_INTERPRET, {
+          CATEGORY: input.category,
+          CONVENTION_DATA: JSON.stringify(categoryConventions, null, 2),
+          N: String(communicationSaturation.benchmarkBrands.length),
+          SATURATION_DATA: JSON.stringify({
+            tematy: communicationSaturation.tematy.map((t) => ({
+              temat: t.temat,
+              sredniaKategorii: t.sredniaKategorii,
+              nasycenie_top5: Object.fromEntries(
+                Object.entries(t.nasycenie)
+                  .sort(([, a], [, b]) => b - a)
+                  .slice(0, 5)
+              ),
+            })),
+            pustePola: communicationSaturation.pustePola,
+            overlap: communicationSaturation.overlap,
+          }, null, 2),
+          CLIENT_BRAND: input.clientBrand.name,
+        }),
+        'claude-opus-4-5', costs, 'saturation: interpret'
+      );
+      communicationSaturation.weryfikacjaKonwencji = interpretRaw;
+    } catch (err) {
+      console.error('Saturation interpretation failed:', err);
+      communicationSaturation.weryfikacjaKonwencji = '';
+    }
+  }
+
   // Visual conventions synthesis (category-level)
   let categoryVisualConventions: CategoryVisualConventions | undefined;
   const brandsWithVisuals = Object.keys(brandVisuals);
@@ -664,6 +818,7 @@ export async function runCategoryScanner(
     pozycjaKlienta: clientPosition,
     blueOceanFinale,
     adsData: adsData && adsData.length > 0 ? adsData : undefined,
+    communicationSaturation,
     notaKoncowa: NOTA_KONCOWA,
   };
 

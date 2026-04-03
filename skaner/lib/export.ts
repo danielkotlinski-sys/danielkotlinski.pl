@@ -131,6 +131,37 @@ export function reportToMarkdown(report: ScannerReport): string {
     blank();
   }
 
+  // Communication Saturation Benchmark
+  if (report.communicationSaturation && report.communicationSaturation.tematy.length > 0) {
+    const sat = report.communicationSaturation;
+    add('### Benchmark komunikacyjny');
+    add(`*Na podstawie analizy ${sat.benchmarkBrands.length} marek w kategorii.*`);
+    blank();
+    add(`**Overlap kategorii:** ${Math.round(sat.overlap.sredniOverlap * 100)}%`);
+    blank();
+    for (const t of sat.tematy) {
+      const topBrands = Object.entries(t.nasycenie)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 5)
+        .map(([name, score]) => `${name}: ${score}`)
+        .join(', ');
+      add(`- **${t.temat}** (śr. ${t.sredniaKategorii}) — ${topBrands}`);
+    }
+    blank();
+    if (sat.pustePola.length > 0) {
+      add('**Puste pola:**');
+      for (const p of sat.pustePola) {
+        add(`- ${p.temat}: ${p.dlaczegoWazny}`);
+      }
+      blank();
+    }
+    if (sat.weryfikacjaKonwencji) {
+      add('**Weryfikacja konwencji:**');
+      add(sat.weryfikacjaKonwencji);
+      blank();
+    }
+  }
+
   // Client position
   add('---');
   sectionNum++;

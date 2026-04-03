@@ -208,6 +208,8 @@ export default function ReportContainer({ report, firstName }: ReportContainerPr
           conventions={report.konwencjaKategorii}
           clientPosition={report.pozycjaKlienta}
           clientBrandName={report.meta.clientBrand}
+          communicationSaturation={report.communicationSaturation}
+          deepBrands={report.meta.brandsAnalyzed}
         />
       </section>
 

@@ -466,3 +466,63 @@ export async function scrapeWebsitePages(
     return { websiteText: '', screenshots: [] };
   }
 }
+
+/**
+ * Batch scrape homepage text for many brands using cheerio (HTTP only, no browser).
+ * Used for communication saturation benchmark — needs only text, no screenshots.
+ * Much cheaper than playwright: ~0.01-0.03 CU per page vs ~0.3 CU.
+ */
+export async function batchScrapeHomepages(
+  urls: Array<{ name: string; url: string }>,
+  costTracker?: ScanCostTracker
+): Promise<Record<string, string>> {
+  const results: Record<string, string> = {};
+
+  try {
+    console.log(`Apify: batch cheerio scrape of ${urls.length} homepages`);
+    const startTime = Date.now();
+
+    const run = await client.actor('apify/website-content-crawler').call(
+      {
+        startUrls: urls.map(({ url }) => ({ url: url.replace(/\/$/, '') })),
+        crawlerType: 'cheerio',
+        maxCrawlDepth: 0,
+        maxCrawlPages: urls.length,
+        removeCookieWarnings: true,
+        maxRequestRetries: 1,
+        requestTimeoutSecs: 30,
+      },
+      { waitSecs: 120 }
+    );
+
+    const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+    const { items } = await client.dataset(run.defaultDatasetId).listItems();
+    console.log(`Apify: batch cheerio done — ${items.length}/${urls.length} pages in ${duration}s`);
+
+    if (costTracker) {
+      costTracker.trackApify('website', `batch benchmark (${items.length} pages, cheerio)`);
+    }
+
+    // Map results back to brand names by URL matching
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    for (const item of items as any[]) {
+      const itemUrl = (item.url || '').replace(/\/$/, '').toLowerCase();
+      const text = item.text || item.markdown || '';
+      if (text.length < 50) continue;
+
+      const matched = urls.find(({ url }) =>
+        itemUrl.includes(url.replace(/https?:\/\//, '').replace(/\/$/, '').toLowerCase())
+      );
+      if (matched) {
+        // Truncate to ~1500 chars for cost efficiency in extraction prompt
+        results[matched.name] = text.slice(0, 1500);
+      }
+    }
+
+    console.log(`Apify: batch cheerio — matched ${Object.keys(results).length}/${urls.length} brands`);
+    return results;
+  } catch (error) {
+    console.error('Apify: batch cheerio scrape failed:', error);
+    return results;
+  }
+}

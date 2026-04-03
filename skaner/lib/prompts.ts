@@ -525,6 +525,104 @@ Odpowiedz wyłącznie w JSON:
 }
 `;
 
+// === COMMUNICATION SATURATION BENCHMARK PROMPTS ===
+
+export const PROMPT_SATURATION_DISCOVERY = `
+Wymień 25-30 marek działających na polskim rynku w kategorii: {{CATEGORY}}.
+
+ZASADY:
+- Marki muszą aktywnie działać w Polsce (mieć polską stronę WWW lub polskojęzyczną wersję).
+- Uwzględnij zarówno liderów, średniaków jak i niszowe marki — pełny przekrój kategorii.
+- NIE uwzględniaj marketplace'ów, porównywarek, agregatorów, platform.
+- NIE uwzględniaj marek z INNEJ kategorii.
+
+Odpowiedz wyłącznie w JSON:
+{"marki": [{"nazwa": "Nazwa Marki", "url": "https://strona.pl"}, ...]}
+`;
+
+export const PROMPT_SATURATION_EXTRACT = `
+Masz teksty stron głównych {{N}} marek w kategorii "{{CATEGORY}}".
+Dla KAŻDEJ marki wyodrębnij 10-15 FRAZ KLUCZOWYCH (1-3 słowa) — obietnice, wartości, argumenty sprzedażowe, hasła.
+
+ZASADY:
+- Szukaj FRAZ KOMUNIKACYJNYCH, nie technicznych terminów.
+- Uwzględnij powtórzenia — jeśli fraza pojawia się kilka razy, to ważne.
+- Ignoruj nawigację, stopki, formularze — szukaj treści marketingowej.
+- Jeśli strona jest pusta lub nieczytelna, napisz "brak danych".
+
+DANE:
+{{ALL_BRANDS_TEXT}}
+
+Odpowiedz wyłącznie w JSON:
+{"marki": {"NazwaMarki": ["fraza1", "fraza2", ...], ...}}
+`;
+
+export const PROMPT_SATURATION_CLUSTER = `
+Masz frazy kluczowe z {{N}} marek w kategorii "{{CATEGORY}}".
+
+{{ALL_PHRASES}}
+
+Pogrupuj te frazy w 10-15 KLASTRÓW TEMATYCZNYCH. Każdy klaster to TEMAT KOMUNIKACYJNY (nie pojedyncze słowo).
+
+Dla każdego klastra:
+1. Nazwa tematu (2-4 słowa, np. "transformacja ciała", "jakość składników")
+2. Frazy wchodzące w skład klastra
+3. Nasycenie per marka (0-100): 100 = temat dominuje komunikację marki, 0 = marka w ogóle tego nie porusza
+
+Dodaj 2-3 PUSTE TEMATY — tematy naturalnie obecne w tej kategorii, o których ŻADNA z analizowanych marek nie mówi (lub mówi marginalnie).
+
+ZASADY:
+- Klastry muszą być RÓŻNE od siebie — nie powtarzaj podobnych tematów.
+- Nasycenie musi wynikać z ILOŚCI i WAGI fraz w danym klastrze, nie z domysłów.
+- Zaznacz specjalnie te 5 marek (analiza pogłębiona): {{DEEP_BRANDS}}
+
+Odpowiedz wyłącznie w JSON:
+{
+  "klastry": [
+    {
+      "temat": "nazwa tematu",
+      "frazy": ["fraza1", "fraza2"],
+      "nasycenie": {"Marka1": 85, "Marka2": 10, ...}
+    }
+  ],
+  "pustePola": [
+    {"temat": "nazwa tematu", "dlaczegoWazny": "dlaczego to istotne 1 zdanie"}
+  ],
+  "overlap": {
+    "sredniOverlap": 0.67,
+    "paryNajblizsze": [{"marka1": "A", "marka2": "B", "overlap": 0.85}]
+  },
+  "uniqueness": {
+    "NazwaMarki": {"score": 35, "unikalneFrazy": ["fraza1", "fraza2"]}
+  }
+}
+`;
+
+export const PROMPT_SATURATION_INTERPRET = `
+Masz dwa źródła o kategorii "{{CATEGORY}}":
+
+1. KONWENCJA NARRACYJNA (analiza pogłębiona 4 marek):
+{{CONVENTION_DATA}}
+
+2. COMMUNICATION SATURATION MAP (analiza {{N}} marek w kategorii):
+{{SATURATION_DATA}}
+
+Marka klienta: {{CLIENT_BRAND}}
+
+Zweryfikuj konwencję narracyjną danymi liczbowymi z szerokiego benchmarku. Napisz 3-5 obserwacji:
+- Czy konwencja potwierdza się na szerokim sample?
+- Czy coś co wydawało się konwencją to tylko cecha kilku marek?
+- Czy szerokie dane ujawniają wzorzec którego nie widać w 4 markach?
+- Gdzie marka klienta plasuje się na tle CAŁEJ kategorii, nie tylko 4 konkurentów?
+
+ZASADY:
+- Każdą obserwację oprzyj konkretnymi liczbami z saturation map.
+- Pisz zwięźle — maks 2-3 zdania per obserwacja.
+- Jeśli konwencja się potwierdza — napisz to wprost z dowodem liczbowym.
+
+Odpowiedz jako tekst (nie JSON) — 3-5 akapitów, każdy = jedna obserwacja.
+`;
+
 export function fillPrompt(
   template: string,
   vars: Record<string, string>

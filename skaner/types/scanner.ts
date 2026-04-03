@@ -318,6 +318,31 @@ export interface BrandAdsData {
   adStyleSummary?: string;
 }
 
+// === Communication Saturation Types ===
+
+export interface CommunicationSaturation {
+  benchmarkBrands: string[];  // all 25-30 brands used for benchmark
+  tematy: Array<{
+    temat: string;
+    klaster: string[];        // keywords in cluster
+    nasycenie: Record<string, number>; // brandName → score 0-100
+    sredniaKategorii: number; // average across all benchmark brands
+  }>;
+  overlap: {
+    sredniOverlap: number;    // 0-1
+    paryNajblizsze: Array<{ marka1: string; marka2: string; overlap: number }>;
+  };
+  uniqueness: Record<string, {
+    score: number;            // 0-100
+    unikalneFrazy: string[];  // top 5 unique phrases
+  }>;
+  pustePola: Array<{
+    temat: string;
+    dlaczegoWazny: string;
+  }>;
+  weryfikacjaKonwencji: string; // Opus interpretation vs PROMPT_7
+}
+
 // === Report Types ===
 
 export interface ScannerReport {
@@ -365,6 +390,7 @@ export interface ScannerReport {
   pozycjaKlienta: ClientPosition;
   blueOceanFinale?: BlueOceanFinale;
   adsData?: BrandAdsData[];
+  communicationSaturation?: CommunicationSaturation;
   notaKoncowa: string;
 }
 
@@ -374,6 +400,7 @@ export type StepId =
   | 'collect_websites'
   | 'collect_social'
   | 'collect_external'
+  | 'benchmark_saturation'
   | 'analyze_atomic'
   | 'synthesize_brands'
   | 'synthesize_category'
