@@ -21,7 +21,8 @@ import type {
   StepId,
 } from '@/types/scanner';
 import { fetchWebsiteText, fetchHomepageScreenshot } from './jina';
-import { scrapeSocialPosts, scrapeFacebookAds } from './apify';
+import { scrapeSocialPosts, scrapeFacebookAds, scrapeWebsitePages } from './apify';
+import type { WebsiteScreenshot } from '@/types/scanner';
 import type { BrandAdsData, AdsAnalysis } from '@/types/scanner';
 import { searchExternalDiscourse } from './perplexity';
 import { runPrompt, analyzePostVision, parseJsonResponse } from './anthropic';
@@ -127,21 +128,48 @@ export async function runCategoryScanner(
     });
   };
 
-  // Collect websites + homepage screenshots
+  // Collect websites + screenshots (Apify website-content-crawler with Jina fallback)
   emitStep('collect_websites', 'running');
   const homepageScreenshots: Record<string, string> = {};
+  const allWebsiteScreenshots: Array<{ brandName: string; pages: WebsiteScreenshot[] }> = [];
   await Promise.all(
     allBrands.map(async (brand) => {
-      const [websiteText, screenshot] = await Promise.all([
-        fetchWebsiteText(brand.url, costs),
-        fetchHomepageScreenshot(brand.url, costs),
-      ]);
+      // Primary: Apify website-content-crawler (handles cookies, discovers subpages)
+      const crawlResult = await scrapeWebsitePages(brand.url, 4, costs);
+
+      let websiteText = crawlResult.websiteText;
+      let screenshots = crawlResult.screenshots;
+
+      // Fallback to Jina if Apify returned no text
+      if (!websiteText || websiteText.length < 200) {
+        console.log(`Pipeline: Apify text empty for ${brand.name}, falling back to Jina`);
+        websiteText = await fetchWebsiteText(brand.url, costs);
+      }
+
+      // Fallback to Jina for homepage screenshot if Apify returned none
+      if (screenshots.length === 0) {
+        console.log(`Pipeline: no Apify screenshots for ${brand.name}, falling back to Jina`);
+        const jinaScreenshot = await fetchHomepageScreenshot(brand.url, costs);
+        if (jinaScreenshot) {
+          screenshots = [{ url: brand.url, title: brand.name, screenshotBase64: jinaScreenshot }];
+        }
+      }
+
       brandData[brand.name] = {
         websiteText,
         posts: [],
         externalDiscourse: '',
       };
-      if (screenshot) homepageScreenshots[brand.name] = screenshot;
+
+      // Use first screenshot for homepage visual analysis
+      if (screenshots.length > 0) {
+        homepageScreenshots[brand.name] = screenshots[0].screenshotBase64;
+      }
+
+      // Store all screenshots for the report section
+      if (screenshots.length > 0) {
+        allWebsiteScreenshots.push({ brandName: brand.name, pages: screenshots });
+      }
     })
   );
   emitStep('collect_websites', 'done', `${allBrands.length}/${allBrands.length}`);
@@ -594,6 +622,7 @@ export async function runCategoryScanner(
         zrodlaZewnetrzne: brandCitations[brand.name] || [],
       };
     }),
+    websiteScreenshots: allWebsiteScreenshots.length > 0 ? allWebsiteScreenshots : undefined,
     mapaKategorii: categoryMap || undefined,
     lukiKomunikacyjne: comparativeGaps || undefined,
     konwencjaKategorii: categoryConventions,

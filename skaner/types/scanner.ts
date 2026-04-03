@@ -46,6 +46,12 @@ export interface BrandData {
   externalDiscourse: string;
 }
 
+export interface WebsiteScreenshot {
+  url: string;
+  title: string;
+  screenshotBase64: string;
+}
+
 // === Analysis Types ===
 
 export interface ClaimResult {
@@ -339,6 +345,10 @@ export interface ScannerReport {
     adsAnalysis?: AdsAnalysis;
     adsScreenshots?: string[]; // base64 images from ads (up to 8)
     zrodlaZewnetrzne?: string[];
+  }>;
+  websiteScreenshots?: Array<{
+    brandName: string;
+    pages: WebsiteScreenshot[];
   }>;
   mapaKategorii?: CategoryMap;
   lukiKomunikacyjne?: ComparativeGaps;

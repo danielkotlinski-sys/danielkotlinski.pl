@@ -13,9 +13,33 @@ export function reportToMarkdown(report: ScannerReport): string {
   add(`**Data generowania:** ${new Date(report.meta.generatedAt).toLocaleDateString('pl-PL')}`);
   blank();
 
+  let sectionNum = 0;
+
+  // Website screenshots (URLs only — images in web report)
+  if (report.websiteScreenshots && report.websiteScreenshots.length > 0) {
+    sectionNum++;
+    add('---');
+    add(`## ${sectionNum}. Strony internetowe`);
+    blank();
+    for (const brand of report.websiteScreenshots) {
+      add(`### ${brand.brandName}`);
+      for (const page of brand.pages) {
+        const label = (() => {
+          try {
+            const pathname = new URL(page.url).pathname;
+            return pathname === '/' ? 'Strona główna' : pathname;
+          } catch { return page.url; }
+        })();
+        add(`- ${label}: ${page.url}`);
+      }
+      blank();
+    }
+  }
+
   // Brand profiles
+  sectionNum++;
   add('---');
-  add('## 1. Profile marek');
+  add(`## ${sectionNum}. Profile marek`);
   blank();
   for (const profile of report.brandProfiles) {
     add(`### ${profile.brandName}${profile.isClient ? ' (marka klienta)' : ''}`);
@@ -42,7 +66,8 @@ export function reportToMarkdown(report: ScannerReport): string {
   // Visual conventions
   if (report.konwencjaWizualnaKategorii) {
     add('---');
-    add('## 2. Konwencje wizualne');
+    sectionNum++;
+    add(`## ${sectionNum}. Konwencje wizualne`);
     blank();
     const viz = report.konwencjaWizualnaKategorii;
     if (viz.wspolneWzorce?.length) {
@@ -59,7 +84,8 @@ export function reportToMarkdown(report: ScannerReport): string {
   // Category map
   if (report.mapaKategorii) {
     add('---');
-    add('## 3. Krajobraz kategorii');
+    sectionNum++;
+    add(`## ${sectionNum}. Krajobraz kategorii`);
     blank();
     add(`**Hierarchia:** ${report.mapaKategorii.hierarchia}`);
     add(`**Obozy:** ${report.mapaKategorii.obozy}`);
@@ -74,7 +100,8 @@ export function reportToMarkdown(report: ScannerReport): string {
   // Communication gaps
   if (report.lukiKomunikacyjne?.tematy?.length) {
     add('---');
-    add('## 4. Luki komunikacyjne');
+    sectionNum++;
+    add(`## ${sectionNum}. Luki komunikacyjne`);
     blank();
     for (const t of report.lukiKomunikacyjne.tematy) {
       add(`### ${t.temat}`);
@@ -87,7 +114,8 @@ export function reportToMarkdown(report: ScannerReport): string {
 
   // Convention
   add('---');
-  add('## 5. Konwencja kategorii');
+  sectionNum++;
+  add(`## ${sectionNum}. Konwencja kategorii`);
   blank();
   const conv = report.konwencjaKategorii;
   add(`**Mechanizm:** ${conv.mechanizmKategorii.regula}`);
@@ -106,7 +134,8 @@ export function reportToMarkdown(report: ScannerReport): string {
 
   // Client position
   add('---');
-  add('## 6. Pozycja marki klienta');
+  sectionNum++;
+  add(`## ${sectionNum}. Pozycja marki klienta`);
   blank();
   const pos = report.pozycjaKlienta;
   add(`**Zgodność z konwencją:** ${pos.zgodnosc.ocena}`);
@@ -126,7 +155,8 @@ export function reportToMarkdown(report: ScannerReport): string {
   // Blue Ocean / Rupture
   if (report.blueOceanFinale) {
     add('---');
-    add('## 7. Pęknięcie strategiczne');
+    sectionNum++;
+    add(`## ${sectionNum}. Pęknięcie strategiczne`);
     blank();
     const bo = report.blueOceanFinale;
     add(`**Mechanizm kategorii:** ${bo.mechanizmKategorii}`);

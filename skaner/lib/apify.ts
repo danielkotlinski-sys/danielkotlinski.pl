@@ -1,5 +1,5 @@
 import { ApifyClient } from 'apify-client';
-import type { ScrapedPost } from '@/types/scanner';
+import type { ScrapedPost, WebsiteScreenshot } from '@/types/scanner';
 import type { ScanCostTracker } from './costs';
 
 const client = new ApifyClient({
@@ -318,5 +318,151 @@ export async function scrapeFacebookAds(
   } catch (error) {
     console.error(`Apify: Facebook Ads scraping failed for "${brandName}":`, error);
     return [];
+  }
+}
+
+// ===================== WEBSITE CRAWLER =====================
+
+interface WebsiteCrawlResult {
+  websiteText: string;
+  screenshots: WebsiteScreenshot[];
+}
+
+/**
+ * Crawl a brand's website using apify/website-content-crawler.
+ * Handles cookie consent automatically, discovers subpages, and takes screenshots.
+ * Returns extracted text + viewport screenshots for homepage + subpages.
+ */
+export async function scrapeWebsitePages(
+  baseUrl: string,
+  maxPages: number = 4,
+  costTracker?: ScanCostTracker
+): Promise<WebsiteCrawlResult> {
+  const normalizedUrl = baseUrl.replace(/\/$/, '');
+
+  try {
+    console.log(`Apify: crawling website ${normalizedUrl} (max ${maxPages} pages)`);
+    const startTime = Date.now();
+
+    const run = await client.actor('apify/website-content-crawler').call(
+      {
+        startUrls: [{ url: normalizedUrl }],
+        crawlerType: 'playwright:adaptive',
+        maxCrawlDepth: 1,
+        maxCrawlPages: maxPages + 2, // buffer for thin/redirect pages
+        saveScreenshots: true,
+        removeCookieWarnings: true,
+        // Exclude files, assets, and irrelevant paths
+        excludeUrlGlobs: [
+          '**/*.pdf', '**/*.zip', '**/*.jpg', '**/*.png', '**/*.svg',
+          '**/wp-admin/**', '**/wp-login**', '**/cart**', '**/koszyk**',
+          '**/login**', '**/logowanie**', '**/regulamin**', '**/polityka**',
+          '**/privacy**', '**/cookie**', '**/rodo**',
+        ],
+        maxRequestRetries: 2,
+      },
+      { waitSecs: 180 }
+    );
+
+    const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+    const { items } = await client.dataset(run.defaultDatasetId).listItems();
+    console.log(`Apify: website crawl done for ${normalizedUrl} — ${items.length} pages in ${duration}s`);
+
+    if (costTracker) {
+      costTracker.trackApify('website', `${normalizedUrl} (${items.length} pages)`);
+    }
+
+    // Extract text from pages
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const crawledPages = (items as any[])
+      .filter((item) => {
+        const text = item.text || item.markdown || '';
+        return text.length > 150; // skip thin/error pages
+      })
+      .map((item) => ({
+        url: item.url || '',
+        title: item.metadata?.title || item.title || '',
+        text: item.text || item.markdown || '',
+      }));
+
+    // Combine text (homepage first, then subpages sorted by length)
+    const homepageIndex = crawledPages.findIndex((p) =>
+      p.url.replace(/\/$/, '') === normalizedUrl
+    );
+    const homepage = homepageIndex >= 0 ? crawledPages.splice(homepageIndex, 1)[0] : null;
+    const subpages = crawledPages
+      .sort((a, b) => b.text.length - a.text.length)
+      .slice(0, 3);
+    const orderedPages = homepage ? [homepage, ...subpages] : subpages;
+    const websiteText = orderedPages.map((p) => p.text).join('\n\n---\n\n');
+    const pageCount = orderedPages.length;
+    console.log(`Apify: website text — ${pageCount} pages, ${websiteText.length} chars for ${normalizedUrl}`);
+
+    // Get screenshots from key-value store
+    const screenshots: WebsiteScreenshot[] = [];
+    try {
+      const kvStoreId = run.defaultKeyValueStoreId;
+      const { items: kvKeys } = await client.keyValueStore(kvStoreId).listKeys();
+      const screenshotKeys = kvKeys.filter(
+        (k: { key: string }) => k.key.toLowerCase().includes('screenshot')
+      );
+
+      console.log(`Apify: found ${screenshotKeys.length} screenshot keys in KV store`);
+
+      // Download screenshots (limit to maxPages)
+      for (const keyInfo of screenshotKeys.slice(0, maxPages)) {
+        try {
+          const record = await client.keyValueStore(kvStoreId).getRecord(keyInfo.key);
+          if (record && record.value) {
+            let base64: string;
+            if (Buffer.isBuffer(record.value)) {
+              base64 = record.value.toString('base64');
+            } else if (typeof record.value === 'string') {
+              base64 = record.value;
+            } else {
+              base64 = Buffer.from(record.value as unknown as ArrayBuffer).toString('base64');
+            }
+
+            if (base64.length > 5000) {
+              // Try to match with a crawled page by index
+              const matchedPage = orderedPages[screenshots.length] || orderedPages[0];
+              screenshots.push({
+                url: matchedPage?.url || normalizedUrl,
+                title: matchedPage?.title || '',
+                screenshotBase64: base64,
+              });
+            }
+          }
+        } catch (e) {
+          console.log(`Apify: failed to get screenshot ${keyInfo.key}:`, e);
+        }
+      }
+    } catch (kvErr) {
+      console.log('Apify: KV store screenshot retrieval failed:', kvErr);
+    }
+
+    // If no screenshots from KV store, try screenshotUrl field from dataset
+    if (screenshots.length === 0) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      for (const item of (items as any[]).slice(0, maxPages)) {
+        const screenshotUrl = item.screenshotUrl || item.screenshot;
+        if (screenshotUrl && typeof screenshotUrl === 'string') {
+          const base64 = await downloadImageAsBase64(screenshotUrl);
+          if (base64.length > 5000) {
+            screenshots.push({
+              url: item.url || '',
+              title: item.metadata?.title || item.title || '',
+              screenshotBase64: base64,
+            });
+          }
+        }
+      }
+    }
+
+    console.log(`Apify: website crawl complete — ${pageCount} pages text, ${screenshots.length} screenshots for ${normalizedUrl}`);
+    return { websiteText, screenshots };
+  } catch (error) {
+    console.error(`Apify: website crawl failed for ${normalizedUrl}:`, error);
+    return { websiteText: '', screenshots: [] };
   }
 }

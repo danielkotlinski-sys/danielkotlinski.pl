@@ -81,6 +81,8 @@ export async function fetchHomepageScreenshot(baseUrl: string, costTracker?: Sca
       headers: {
         'Accept': 'image/png',
         'X-Return-Format': 'screenshot',
+        'X-Remove-Selector': 'nav, footer, header nav, .cookie-banner, .cookie-consent, .gdpr, #cookie, #cookies, #CookiebotDialog, #cookiebot, .cookieconsent, .cc-banner, .cc-window, [id*="cookie"], [class*="cookie"], [id*="consent"], [class*="consent"], [id*="gdpr"], [class*="gdpr"], .newsletter-popup, .popup-overlay, .modal-overlay',
+        'X-Wait-For-Selector': 'main, article, .hero, .content, #content, [role="main"]',
       },
     });
     if (!response.ok) return '';

@@ -26,6 +26,8 @@ const PRICING = {
   'apify-facebook': { perRun: 0.15 },     // ~0.5 CU × $0.30
   'apify-linkedin': { perRun: 0.12 },     // ~0.4 CU × $0.30
   'apify-facebook-ads': { perRun: 0.20 }, // ~0.6 CU × $0.30
+  // Website content crawler: ~0.5-1.0 CU per run (4-5 pages with screenshots)
+  'apify-website': { perRun: 0.25 },     // ~0.8 CU × $0.30
 } as const;
 
 // ===================== TYPES =====================
