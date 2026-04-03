@@ -4,6 +4,28 @@
  */
 
 // ===================== PRICING (per 1M tokens / per unit) =====================
+//
+// COST ESTIMATE PER FULL SCAN (4 brands, Instagram, FB Ads enabled):
+// ─────────────────────────────────────────────────────────────────
+// Apify (Bronze plan $0.30/CU):
+//   website-content-crawler × 4 brands:  ~$1.00  (4 × ~0.8 CU)
+//   instagram-scraper × 4 brands:        ~$1.00  (4 × ~0.8 CU)
+//   facebook-ads-scraper × 4 brands:     ~$0.80  (4 × ~0.6 CU)
+//   Apify subtotal:                      ~$2.80
+//
+// Claude (Sonnet 4.5 + Opus 4.5):
+//   Atomic analysis (6 prompts × 4):     ~$0.30  (Sonnet, ~2k tok in/out each)
+//   Brand profiles (4 × Opus):           ~$0.60  (Opus, ~3k tok in/out each)
+//   Category synthesis (3 × Opus):       ~$0.50  (Opus, ~4k tok in/out)
+//   Vision analysis (~32 posts):         ~$0.20  (Sonnet, images)
+//   Claude subtotal:                     ~$1.60
+//
+// Perplexity (sonar-pro × 4):           ~$0.10
+// Jina (fallback only):                 ~$0.00-0.20
+//
+// TOTAL ESTIMATE:                       ~$4.50-5.00 per scan
+// With SCAN_MODE=test (Haiku):          ~$3.20-3.50 per scan
+// ─────────────────────────────────────────────────────────────────
 
 const PRICING = {
   // Claude — per million tokens (input / output)
@@ -13,21 +35,17 @@ const PRICING = {
   'claude-haiku-4-5-20251001': { input: 0.80, output: 4.0 },
   // Perplexity sonar-pro — per million tokens
   'sonar-pro': { input: 3.0, output: 15.0 },
-  // Jina — per request (approximate based on usage tiers)
+  // Jina — fallback only (used when Apify website crawler fails)
   'jina-reader': { perRequest: 0.01 },
   'jina-screenshot': { perRequest: 0.01 },
   // Apify — Bronze plan: $0.30/CU
-  // Estimates based on typical CU consumption per actor run:
-  // Instagram scraper: ~0.5-1.0 CU (12-20 posts with images)
-  // Facebook posts scraper: ~0.3-0.6 CU
-  // LinkedIn scraper: ~0.3-0.5 CU
-  // Facebook Ads Library scraper: ~0.3-0.8 CU (15-45 ads with filtering)
-  'apify-instagram': { perRun: 0.25 },    // ~0.8 CU × $0.30
+  // Primary scraping engine for websites, social media, and ads.
+  'apify-instagram': { perRun: 0.25 },    // ~0.8 CU × $0.30 (12-20 posts + images)
   'apify-facebook': { perRun: 0.15 },     // ~0.5 CU × $0.30
   'apify-linkedin': { perRun: 0.12 },     // ~0.4 CU × $0.30
-  'apify-facebook-ads': { perRun: 0.20 }, // ~0.6 CU × $0.30
-  // Website content crawler: ~0.5-1.0 CU per run (4-5 pages with screenshots)
-  'apify-website': { perRun: 0.25 },     // ~0.8 CU × $0.30
+  'apify-facebook-ads': { perRun: 0.20 }, // ~0.6 CU × $0.30 (15-45 ads filtered)
+  // website-content-crawler: Playwright + 4-5 pages + screenshots + cookie removal
+  'apify-website': { perRun: 0.25 },      // ~0.8 CU × $0.30
 } as const;
 
 // ===================== TYPES =====================
