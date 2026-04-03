@@ -25,7 +25,6 @@ import type {
 } from '@/types/scanner';
 import { fetchWebsiteText, fetchHomepageScreenshot } from './jina';
 import { scrapeSocialPosts, scrapeFacebookAds, scrapeWebsitePages } from './apify';
-import { crawlWebsite } from './firecrawl';
 import { searchExternalDiscourse } from './perplexity';
 import { runPrompt, analyzePostVision, parseJsonResponse } from './anthropic';
 import {
@@ -131,64 +130,54 @@ export async function runCategoryScanner(
   };
 
   // Collect websites + screenshots
-  // Priority: Firecrawl → Apify website-content-crawler → Jina (fallback)
-  // Firecrawl free tier: 2 concurrent requests — run sequentially to avoid rate limits
+  // Primary: Apify website-content-crawler (playwright:firefox for screenshots)
+  // Fallback: Jina (text + single homepage screenshot)
   emitStep('collect_websites', 'running');
   const homepageScreenshots: Record<string, string> = {};
   const allWebsiteScreenshots: Array<{ brandName: string; pages: WebsiteScreenshot[] }> = [];
-  for (const brand of allBrands) {
-    emitStep('collect_websites', 'running', `${brand.name}...`);
-    let websiteText = '';
-    let screenshots: WebsiteScreenshot[] = [];
+  await Promise.all(
+    allBrands.map(async (brand) => {
+      emitStep('collect_websites', 'running', `${brand.name}...`);
+      let websiteText = '';
+      let screenshots: WebsiteScreenshot[] = [];
 
-    // 1. Try Firecrawl (cheapest, handles cookies, screenshots)
-    const firecrawlResult = await crawlWebsite(brand.url, 4, costs);
-    websiteText = firecrawlResult.websiteText;
-    screenshots = firecrawlResult.screenshots;
-
-    // 2. Fallback to Apify website-content-crawler if Firecrawl failed
-    if (!websiteText || websiteText.length < 200) {
-      console.log(`Pipeline: Firecrawl empty for ${brand.name}, trying Apify website crawler`);
+      // 1. Apify website-content-crawler (handles cookies, discovers subpages, screenshots)
       const apifyResult = await scrapeWebsitePages(brand.url, 4, costs);
-      if (apifyResult.websiteText.length > websiteText.length) {
-        websiteText = apifyResult.websiteText;
+      websiteText = apifyResult.websiteText;
+      screenshots = apifyResult.screenshots;
+
+      // 2. Fallback to Jina for text if Apify failed
+      if (!websiteText || websiteText.length < 200) {
+        console.log(`Pipeline: Apify text empty for ${brand.name}, falling back to Jina`);
+        websiteText = await fetchWebsiteText(brand.url, costs);
       }
-      if (apifyResult.screenshots.length > screenshots.length) {
-        screenshots = apifyResult.screenshots;
+
+      // 3. Fallback to Jina for screenshot if no screenshots
+      if (screenshots.length === 0) {
+        console.log(`Pipeline: no Apify screenshots for ${brand.name}, falling back to Jina`);
+        const jinaScreenshot = await fetchHomepageScreenshot(brand.url, costs);
+        if (jinaScreenshot) {
+          screenshots = [{ url: brand.url, title: brand.name, screenshotBase64: jinaScreenshot }];
+        }
       }
-    }
 
-    // 3. Fallback to Jina for text if both failed
-    if (!websiteText || websiteText.length < 200) {
-      console.log(`Pipeline: Apify also empty for ${brand.name}, falling back to Jina`);
-      websiteText = await fetchWebsiteText(brand.url, costs);
-    }
+      brandData[brand.name] = {
+        websiteText,
+        posts: [],
+        externalDiscourse: '',
+      };
 
-    // 4. Fallback to Jina for screenshot if no screenshots at all
-    if (screenshots.length === 0) {
-      console.log(`Pipeline: no screenshots for ${brand.name}, falling back to Jina`);
-      const jinaScreenshot = await fetchHomepageScreenshot(brand.url, costs);
-      if (jinaScreenshot) {
-        screenshots = [{ url: brand.url, title: brand.name, screenshotBase64: jinaScreenshot }];
+      // Use first screenshot for homepage visual analysis
+      if (screenshots.length > 0) {
+        homepageScreenshots[brand.name] = screenshots[0].screenshotBase64;
       }
-    }
 
-    brandData[brand.name] = {
-      websiteText,
-      posts: [],
-      externalDiscourse: '',
-    };
-
-    // Use first screenshot for homepage visual analysis
-    if (screenshots.length > 0) {
-      homepageScreenshots[brand.name] = screenshots[0].screenshotBase64;
-    }
-
-    // Store all screenshots for the report section
-    if (screenshots.length > 0) {
-      allWebsiteScreenshots.push({ brandName: brand.name, pages: screenshots });
-    }
-  }
+      // Store all screenshots for the report section
+      if (screenshots.length > 0) {
+        allWebsiteScreenshots.push({ brandName: brand.name, pages: screenshots });
+      }
+    })
+  );
   emitStep('collect_websites', 'done', `${allBrands.length}/${allBrands.length}`);
 
   // Collect social media (max 2 concurrent to avoid Instagram rate-limiting)

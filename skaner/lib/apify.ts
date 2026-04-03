@@ -347,7 +347,7 @@ export async function scrapeWebsitePages(
     const run = await client.actor('apify/website-content-crawler').call(
       {
         startUrls: [{ url: normalizedUrl }],
-        crawlerType: 'playwright:adaptive',
+        crawlerType: 'playwright:firefox',  // must use full browser for screenshots (adaptive skips them in HTTP-only mode)
         maxCrawlDepth: 1,
         maxCrawlPages: maxPages + 2, // buffer for thin/redirect pages
         saveScreenshots: true,
