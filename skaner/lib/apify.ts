@@ -456,6 +456,9 @@ export async function scrapeWebsitePages(
             }
 
             if (base64.length > 5000) {
+              if (base64.length > 2 * 1024 * 1024) {
+                console.log(`Apify: large screenshot (${(base64.length / 1024 / 1024).toFixed(1)}MB) for ${normalizedUrl} — full-page capture, will be cropped in UI`);
+              }
               // Try to match with a crawled page by index
               const matchedPage = orderedPages[screenshots.length] || orderedPages[0];
               screenshots.push({

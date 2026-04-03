@@ -183,7 +183,7 @@ export default function BrandProfileCard({ profile, brandAdsData }: BrandProfile
                         <img
                           src={imgSrc(page.screenshotBase64)}
                           alt={`${profile.brandName} — ${page.title || page.url}`}
-                          className="w-full h-auto"
+                          className="w-full h-auto max-h-[500px] object-cover object-top"
                           loading="lazy"
                         />
                       </div>
