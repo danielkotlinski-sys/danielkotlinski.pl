@@ -35,7 +35,16 @@ export async function crawlWebsite(
     return { websiteText: '', screenshots: [] };
   }
 
+  const MAX_RETRIES = 2;
+
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
   try {
+    if (attempt > 0) {
+      const delay = attempt * 30; // 30s, 60s
+      console.log(`Firecrawl: retry ${attempt}/${MAX_RETRIES} for ${normalizedUrl} after ${delay}s`);
+      await new Promise((r) => setTimeout(r, delay * 1000));
+    }
+
     console.log(`Firecrawl: crawling ${normalizedUrl} (max ${maxPages} pages)`);
     const startTime = Date.now();
 
@@ -123,7 +132,15 @@ export async function crawlWebsite(
     console.log(`Firecrawl: ${orderedPages.length} pages text (${websiteText.length} chars), ${screenshots.length} screenshots for ${normalizedUrl}`);
     return { websiteText, screenshots };
   } catch (error) {
+    const isRateLimit = String(error).toLowerCase().includes('rate limit');
+    if (isRateLimit && attempt < MAX_RETRIES) {
+      console.log(`Firecrawl: rate limited for ${normalizedUrl}, will retry...`);
+      continue;
+    }
     console.error(`Firecrawl: crawl failed for ${normalizedUrl}:`, error);
     return { websiteText: '', screenshots: [] };
   }
+  } // end retry loop
+
+  return { websiteText: '', screenshots: [] };
 }
