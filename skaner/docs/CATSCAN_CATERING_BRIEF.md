@@ -1,16 +1,19 @@
 # CATSCAN // CATERING INTELLIGENCE ENGINE
-## Brief produktowy — v0.1
+## Brief produktowy — v0.2
 
 ---
 
 ## 1. CO TO JEST
 
 Sektorowa baza wiedzy o rynku cateringów dietetycznych w Polsce.
-400-600 marek. 20 wymiarów analizy per marka. ~100,000 atrybutów.
+400-600 marek. 21 wymiarów analizy per marka. ~100,000 atrybutów.
+Dane komunikacyjne + finansowe + reklamowe + social + reputacja.
 Odświeżane cyklicznie. Odpytywane w języku naturalnym.
 
 Produkt docelowy: interfejs typu "zapytaj o cokolwiek w tej branży".
 Produkt MVP: raport sektorowy + prosta wyszukiwarka + chat AI.
+
+Patrz też: `CATSCAN_KRS_SUPPLEMENT.md` — szczegóły pozyskania danych z KRS.
 
 ---
 
@@ -66,10 +69,10 @@ trendy, media mentions, nowi gracze, zamknięcia.
 
 ---
 
-## 3. EXTRACTION SCHEMA — 20 WYMIARÓW
+## 3. EXTRACTION SCHEMA — 21 WYMIARÓW
 
-Każda marka (encja) ma 20 wymiarów.
-Każdy wymiar ma 3-10 atrybutów.
+Każda marka (encja) ma 21 wymiarów.
+Każdy wymiar ma 3-15 atrybutów.
 Atrybuty mają typy: text, number, enum, boolean, array, date.
 
 ### WYMIAR 01: IDENTYFIKACJA
@@ -135,38 +138,66 @@ Atrybuty mają typy: text, number, enum, boolean, array, date.
 - content_strategy: enum [no-blog, occasional, regular, aggressive]
 
 ### WYMIAR 08: REKLAMY (META)
+Źródło: Meta Ad Library API (darmowe, publiczne, WSZYSTKIE aktywne reklamy).
+Typowa marka: 5-30 aktywnych reklam. Niektóre 0, niektóre 100+.
+500 marek x ~15 avg = ~7,500 kreacji do przeanalizowania. Koszt API: $0.
 - active_ads_count: number
 - ad_formats: array[enum] — [image, video, carousel, stories]
-- ad_hooks: array[text] — pierwsze zdania reklam
+- ad_hooks: array[text] — pierwsze zdania reklam (top 10)
 - ad_cta_types: array[text] — CTA w reklamach
 - ad_offers: array[text] — promocje w reklamach
 - estimated_spend_tier: enum [none, low, medium, high, aggressive]
 - ad_creative_style: enum [ugc, professional, graphic, mixed]
 - ad_start_dates: array[date] — kiedy uruchomione
+- ad_platforms: array[enum] — [facebook, instagram, messenger, audience_network]
+- ad_screenshot_urls: array[text] — screenshoty kreacji
+- longest_running_ad_days: number — najdłużej działająca reklama (proxy na "co działa")
 
 ### WYMIAR 09: INSTAGRAM
+Źródło: Apify instagram-profile-scraper + instagram-post-scraper.
+Zbieramy: profil + ostatnie 20 postów per marka. Koszt: ~$15-20 za 500 marek.
 - ig_handle: text
 - ig_followers: number
+- ig_following: number
 - ig_posts_count: number
-- ig_avg_likes: number
-- ig_avg_comments: number
+- ig_bio: text
+- ig_link_in_bio: text
+- ig_verified: boolean
+- ig_avg_likes: number — średnia z ostatnich 20 postów
+- ig_avg_comments: number — średnia z ostatnich 20 postów
+- ig_engagement_rate: number — (likes+comments) / followers %
 - ig_posting_frequency: enum [daily, few-per-week, weekly, irregular, inactive]
-- ig_content_types: array[enum] — [food-photo, reels, stories, ugc, behind-scenes, educational]
-- ig_aesthetic_consistency: number 0-10
+- ig_content_types: array[enum] — [food-photo, reels, carousel, ugc, behind-scenes, educational, promo]
+- ig_top_hashtags: array[text] — 10 najczęstszych hashtagów
+- ig_aesthetic_consistency: number 0-10 — AI assessment
+- ig_recent_posts: array[{date, type, likes, comments, caption_excerpt}] — ostatnie 20
 
 ### WYMIAR 10: FACEBOOK
+Źródło: Apify facebook-pages-scraper. Ostatnie 15 postów. Koszt: ~$10-15 za 500 marek.
 - fb_page_url: text
+- fb_page_name: text
 - fb_followers: number
-- fb_avg_engagement: number
+- fb_likes: number
+- fb_avg_reactions: number — średnia z ostatnich 15 postów
+- fb_avg_shares: number
+- fb_avg_comments: number
 - fb_posting_frequency: enum [daily, few-per-week, weekly, irregular, inactive]
+- fb_content_types: array[enum] — [link, photo, video, event, offer]
+- fb_community_group: boolean — czy ma grupę
 - fb_community_size: number — członkowie grupy (jeśli jest)
 
 ### WYMIAR 11: TIKTOK
+Źródło: Apify tiktok-scraper. Ostatnie 10 filmów. Koszt: ~$10-15 za 500 marek.
+Uwaga: realnie 100-150 z 500 będzie aktywnych na TikToku.
 - tiktok_handle: text
 - tiktok_followers: number
+- tiktok_total_likes: number
+- tiktok_videos_count: number
 - tiktok_active: boolean
-- tiktok_content_style: enum [ugc, professional, influencer, educational]
-- tiktok_avg_views: number
+- tiktok_avg_views: number — średnia z ostatnich 10
+- tiktok_avg_likes: number
+- tiktok_content_style: enum [ugc, professional, influencer, educational, trending-audio]
+- tiktok_posting_frequency: enum [daily, few-per-week, weekly, irregular, inactive]
 
 ### WYMIAR 12: INFLUENCER MARKETING
 - influencer_count_detected: number
@@ -234,6 +265,40 @@ Atrybuty mają typy: text, number, enum, boolean, array, date.
 - new_products_signals: array[text]
 - competitive_moves: array[text] — ostatnie ruchy strategiczne
 
+### WYMIAR 21: DANE REJESTROWE I FINANSOWE (KRS)
+Źródło: API KRS (darmowe) + RDF/rejestr.io (sprawozdania finansowe).
+Szczegółowy pipeline: patrz `CATSCAN_KRS_SUPPLEMENT.md`.
+Coverage: ~70% dane rejestrowe, ~50-60% dane finansowe (JDG nie składają).
+Koszt: ~$35-45 za 500 marek.
+- legal_name: text — pełna nazwa prawna ("FIT CATERING SP. Z O.O.")
+- krs_number: text
+- nip: text
+- regon: text
+- legal_form: enum [sp_zoo, sa, jdg, sc, sk, other]
+- registration_date: date — kiedy firma powstała
+- share_capital: number — kapitał zakładowy (PLN)
+- shareholders: array[{name, share_pct}] — udziałowcy
+- is_sole_owner: boolean
+- board_members: array[{name, role}] — zarząd
+- board_size: number
+- pkd_primary: text — główny kod PKD
+- hq_address: text
+- has_debt_entries: boolean — zaległości w KRS (dział 4)
+- is_in_liquidation: boolean
+- revenue_2022: number — przychody netto (PLN)
+- revenue_2023: number
+- revenue_2024: number
+- net_income_2022: number — zysk/strata netto (PLN)
+- net_income_2023: number
+- net_income_2024: number
+- total_assets_latest: number — aktywa razem
+- equity_latest: number — kapitał własny
+- revenue_yoy_change_pct: number — zmiana przychodów R/R
+- revenue_3y_cagr: number — CAGR 3-letni
+- net_margin_pct: number — marża netto %
+- financial_health: enum [strong, moderate, weak, critical]
+- financial_data_source: enum [rdf_xml, rejestr_io, estimated, unavailable]
+
 ---
 
 ## 4. POZYSKANIE DANYCH — PIPELINE
@@ -273,15 +338,28 @@ Narzędzie: Claude Haiku per strona (~2K tokens in, ~1K out)
 Czas: 30 min (parallel)
 Koszt: ~$3-5
 
-### Faza 5: SOCIAL & ADS
+### Faza 5: SOCIAL MEDIA
 
-Wejście: nazwy marek / URL-e
-Wyjście: wymiary 08-12
-Narzędzie: Meta Ad Library API + Apify social actors
+Wejście: nazwy marek / URL-e social profiles
+Wyjście: wymiary 09-12
+Narzędzia:
+  - Apify instagram-profile-scraper + post-scraper (20 postów/marka): ~$15-20
+  - Apify facebook-pages-scraper (15 postów/marka): ~$10-15
+  - Apify tiktok-scraper (10 filmów/marka): ~$10-15
 Czas: 2-4h
-Koszt: ~$30-50
+Koszt: ~$35-50
+Volume: 500 profili x 3 platformy, ~20,000 postów total
 
-### Faza 6: REVIEWS & GEO
+### Faza 6: REKLAMY (META)
+
+Wejście: nazwy marek
+Wyjście: wymiar 08
+Narzędzie: Meta Ad Library API (darmowe, publiczne)
+Czas: 2-3h
+Koszt: $0
+Volume: ~7,500 aktywnych kreacji reklamowych (est.)
+
+### Faza 7: REVIEWS & GEO
 
 Wejście: nazwy marek
 Wyjście: wymiary 13 (Google), 14
@@ -289,18 +367,33 @@ Narzędzie: Apify Google Maps scraper
 Czas: 1-2h
 Koszt: ~$10-15
 
-### Faza 7: INTERPRETATION
+### Faza 8: KRS + DANE FINANSOWE
 
-Wejście: all structured data
-Wyjście: wymiar 20 (market signals) + cross-entity patterns
+Wejście: nazwy marek z fazy 1
+Wyjście: wymiar 21
+Pipeline (szczegóły: CATSCAN_KRS_SUPPLEMENT.md):
+  1. Perplexity batch: nazwa → NIP/KRS (~$10, 1-2h)
+  2. API KRS: dane rejestrowe ($0, 2-3h)
+  3. CEIDG API: dane JDG ($0, 30 min)
+  4. Rejestr.io/RDF: sprawozdania finansowe za 3 lata (~$20-30, 3-5h)
+  5. Parse + enrichment (~$2-3, 1h)
+Czas: 8-12h
+Koszt: ~$35-45
+Coverage: ~70% rejestrowe, ~50-60% finansowe
+
+### Faza 9: INTERPRETATION
+
+Wejście: all structured data (21 wymiarów)
+Wyjście: wymiar 20 (market signals) + cross-entity patterns + category fingerprint
 Narzędzie: Claude Sonnet — category-level analysis
-Czas: 15 min
+Czas: 15-30 min
 Koszt: ~$10-15
 
 ### TOTAL PIPELINE:
-- Czas: 1-2 dni (z testowaniem i poprawkami)
-- Koszt: ~$80-130
-- Wynik: ~500 encji x ~150 atrybutów = ~75,000 data points
+- Czas: 3-4 dni (z testowaniem i poprawkami, jednorazowo)
+- Koszt: ~$120-170
+- Wynik: ~500 encji x ~180 atrybutów = ~90,000 data points
+- Plus: ~7,500 kreacji reklamowych, ~20,000 postów social, ~750 sprawozdań finansowych
 
 ---
 
@@ -436,22 +529,24 @@ System generuje raport z gotowymi insightami.
 
 ### Setup (jednorazowo):
 - Infrastruktura: $0 (free tiers)
-- Pierwszy full scan: ~$130
-- Czas: 4-6 tygodni dev
+- Pierwszy full scan (21 wymiarów + KRS): ~$150
+- Czas: 5-7 tygodni dev
 
 ### Operacyjne (miesięcznie):
 - Supabase Pro: $25/mies
-- Cloudflare R2: ~$5/mies
-- Weekly re-scans (4x): ~$200/mies
+- Cloudflare R2: ~$10/mies (screenshoty + ad creatives)
+- Weekly re-scans — website + social (4x): ~$200/mies
+- Monthly re-scan — KRS/finanse (1x): ~$40/mies
+- Meta Ads monitoring (continuous): $0
 - Ad hoc queries (Claude Sonnet): ~$30/mies
 - Vercel Pro: $20/mies
-- TOTAL: ~$280/mies ≈ 1,200 PLN/mies
+- TOTAL: ~$325/mies ≈ 1,400 PLN/mies
 
 ### Revenue target (3 miesiące od startu):
 - 2 klientów Pulse: 2 × 5,000 = 10,000 PLN/mies
 - 1 raport jednorazowy/mies: 8,000 PLN
 - TOTAL: 18,000 PLN/mies
-- PROFIT: ~16,800 PLN/mies
+- PROFIT: ~16,600 PLN/mies
 
 ---
 
@@ -465,5 +560,6 @@ System generuje raport z gotowymi insightami.
 
 ---
 
-*CATSCAN_OS // v0.1 // CATERING_DIETETYCZNY*
-*Generated: 2026-04-03*
+*CATSCAN_OS // v0.2 // CATERING_DIETETYCZNY*
+*Updated: 2026-04-03*
+*Changelog v0.2: dodano wymiar 21 (KRS + finanse), rozszerzono social/ads, poprawiono pipeline i koszty*
