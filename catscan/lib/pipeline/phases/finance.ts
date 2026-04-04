@@ -173,18 +173,43 @@ export async function enrichFinance(entity: EntityRecord): Promise<EntityRecord>
     // Flatten latest year for easy access
     const latest = yearlyData[0] || {};
 
+    // Compute ratios for each year
+    const statementsWithRatios = yearlyData.map(y => ({
+      ...y,
+      ratios: computeRatios(y),
+    }));
+
+    const latestRatios = statementsWithRatios[0]?.ratios || {};
+
+    // Extract org metadata
+    const krsRejestry = (orgData.krs_rejestry || {}) as Record<string, string>;
+    const krsOrgany = (orgData.krs_organy || {}) as Record<string, unknown>;
+    const wspolnicy = (orgData.krs_wspolnicy || []) as Array<Record<string, unknown>>;
+
     const financeData = {
       krs_number: krsNumber,
       org_name: nazwy.pelna || nazwy.skrocona || null,
+      org_name_short: nazwy.skrocona || null,
       legal_form: stan.forma_prawna || null,
       nip: cleanNip,
       regon: numery.regon || null,
-      registration_date: (orgData.krs_rejestry as Record<string, string>)?.rejestr_przedsiebiorcow_data_wpisu || null,
+      registration_date: krsRejestry.rejestr_przedsiebiorcow_data_wpisu || null,
       pkd: stan.pkd_przewazajace_dzial || null,
+      pkd_code: (stan.pkd_przewazajace || null) as string | null,
       address: orgData.adres || null,
-      financial_statements: yearlyData,
+      share_capital: stan.kapital_zakladowy || null,
+      status: stan.status || null,
+      // Board / management
+      board_members: Array.isArray(krsOrgany.zarzad) ? (krsOrgany.zarzad as Array<Record<string, string>>).map(m => m.imiona_i_nazwisko || m.nazwa).filter(Boolean) : [],
+      shareholders: wspolnicy.map((w: Record<string, unknown>) => ({
+        name: w.imiona_i_nazwisko || w.nazwa || null,
+        shares: w.liczba_udzialow || null,
+        value: w.wartosc_udzialow || null,
+      })),
+      // Financial statements with ratios
+      financial_statements: statementsWithRatios,
       years_available: periods.length,
-      years_fetched: yearlyData.length,
+      years_fetched: statementsWithRatios.length,
       cost_pln: costPln,
       fetchedAt: new Date().toISOString(),
       // Top-level figures from latest year
@@ -194,6 +219,13 @@ export async function enrichFinance(entity: EntityRecord): Promise<EntityRecord>
       totalAssets: latest.totalAssets ?? null,
       equity: latest.equity ?? null,
       operatingProfit: latest.operatingProfit ?? null,
+      grossProfit: latest.grossProfit ?? null,
+      cash: latest.cash ?? null,
+      totalLiabilities: latest.totalLiabilities ?? null,
+      wages: latest.wages ?? null,
+      depreciation: latest.depreciation ?? null,
+      // Computed ratios for latest year
+      ratios: latestRatios,
     };
 
     return {
@@ -234,31 +266,47 @@ function findNode(nodes: FinNode[] | null, pattern: RegExp): FinNode | null {
   return null;
 }
 
-/** Parse RZiS (Rachunek zysków i strat) */
+/** Parse RZiS (Rachunek zysków i strat) — expanded */
 function parseRZiS(doc: Record<string, unknown>): Record<string, unknown> {
   const zawartosc = doc.zawartosc as FinNode | null;
   if (!zawartosc) return {};
 
-  // Navigate to the actual data — it might be nested under a variant (porównawczy/kalkulacyjny)
   const root = zawartosc.podobiekty || [zawartosc];
-
   const result: Record<string, unknown> = {};
 
-  // A: Przychody netto ze sprzedaży
+  // Przychody netto ze sprzedaży
   const revenue = findNode(root, /przychody netto ze sprzeda/i);
   if (revenue) {
     result.revenue = pln(revenue.pln_rok_obrotowy_biezacy);
     result.revenuePrevious = pln(revenue.pln_rok_obrotowy_poprzedni);
   }
 
-  // Zysk/strata netto
-  const netIncome = findNode(root, /zysk.*strata.*netto|zysk netto|strata netto/i);
-  if (netIncome) {
-    result.netIncome = pln(netIncome.pln_rok_obrotowy_biezacy);
-    result.netIncomePrevious = pln(netIncome.pln_rok_obrotowy_poprzedni);
+  // Koszt własny sprzedaży (COGS)
+  const cogs = findNode(root, /koszt.*własn.*sprzeda|koszty sprzedanych/i);
+  if (cogs) {
+    result.costOfGoodsSold = pln(cogs.pln_rok_obrotowy_biezacy);
   }
 
-  // Zysk/strata z działalności operacyjnej
+  // Zysk brutto ze sprzedaży
+  const grossProfit = findNode(root, /zysk.*brutto.*sprzeda/i);
+  if (grossProfit) {
+    result.grossProfit = pln(grossProfit.pln_rok_obrotowy_biezacy);
+    result.grossProfitPrevious = pln(grossProfit.pln_rok_obrotowy_poprzedni);
+  }
+
+  // Koszty sprzedaży
+  const salesCosts = findNode(root, /koszty sprzeda[żz]y/i);
+  if (salesCosts) {
+    result.salesCosts = pln(salesCosts.pln_rok_obrotowy_biezacy);
+  }
+
+  // Koszty ogólnego zarządu
+  const adminCosts = findNode(root, /koszty ogólnego zarz/i);
+  if (adminCosts) {
+    result.adminCosts = pln(adminCosts.pln_rok_obrotowy_biezacy);
+  }
+
+  // Zysk/strata z działalności operacyjnej (EBIT)
   const opProfit = findNode(root, /zysk.*strata.*działalności operac/i);
   if (opProfit) {
     result.operatingProfit = pln(opProfit.pln_rok_obrotowy_biezacy);
@@ -269,18 +317,49 @@ function parseRZiS(doc: Record<string, unknown>): Record<string, unknown> {
   const opCosts = findNode(root, /koszty działalności operac/i);
   if (opCosts) {
     result.operatingCosts = pln(opCosts.pln_rok_obrotowy_biezacy);
+    result.operatingCostsPrevious = pln(opCosts.pln_rok_obrotowy_poprzedni);
   }
+
+  // Przychody/koszty finansowe
+  const finRevenue = findNode(root, /przychody finansowe/i);
+  if (finRevenue) result.financialRevenue = pln(finRevenue.pln_rok_obrotowy_biezacy);
+  const finCosts = findNode(root, /koszty finansowe/i);
+  if (finCosts) result.financialCosts = pln(finCosts.pln_rok_obrotowy_biezacy);
+
+  // Zysk/strata brutto (przed podatkiem)
+  const preTax = findNode(root, /zysk.*strata.*brutto(?!.*sprzed)/i);
+  if (preTax) {
+    result.preTaxProfit = pln(preTax.pln_rok_obrotowy_biezacy);
+  }
+
+  // Podatek dochodowy
+  const tax = findNode(root, /podatek dochodowy/i);
+  if (tax) result.incomeTax = pln(tax.pln_rok_obrotowy_biezacy);
+
+  // Zysk/strata netto
+  const netIncome = findNode(root, /zysk.*strata.*netto|zysk netto|strata netto/i);
+  if (netIncome) {
+    result.netIncome = pln(netIncome.pln_rok_obrotowy_biezacy);
+    result.netIncomePrevious = pln(netIncome.pln_rok_obrotowy_poprzedni);
+  }
+
+  // Amortyzacja
+  const depreciation = findNode(root, /amortyzacja/i);
+  if (depreciation) result.depreciation = pln(depreciation.pln_rok_obrotowy_biezacy);
+
+  // Wynagrodzenia
+  const wages = findNode(root, /wynagrodzen/i);
+  if (wages) result.wages = pln(wages.pln_rok_obrotowy_biezacy);
 
   return result;
 }
 
-/** Parse Bilans */
+/** Parse Bilans — expanded */
 function parseBilans(doc: Record<string, unknown>): Record<string, unknown> {
   const zawartosc = doc.zawartosc as FinNode | null;
   if (!zawartosc) return {};
 
   const root = zawartosc.podobiekty || [zawartosc];
-
   const result: Record<string, unknown> = {};
 
   // Aktywa razem
@@ -290,6 +369,26 @@ function parseBilans(doc: Record<string, unknown>): Record<string, unknown> {
     result.totalAssetsPrevious = pln(assets.pln_rok_obrotowy_poprzedni);
   }
 
+  // Aktywa trwałe
+  const fixedAssets = findNode(root, /aktywa trwałe/i);
+  if (fixedAssets) result.fixedAssets = pln(fixedAssets.pln_rok_obrotowy_biezacy);
+
+  // Aktywa obrotowe
+  const currentAssets = findNode(root, /aktywa obrotowe/i);
+  if (currentAssets) result.currentAssets = pln(currentAssets.pln_rok_obrotowy_biezacy);
+
+  // Zapasy
+  const inventory = findNode(root, /zapasy/i);
+  if (inventory) result.inventory = pln(inventory.pln_rok_obrotowy_biezacy);
+
+  // Należności krótkoterminowe
+  const receivables = findNode(root, /należności krótkoterminowe/i);
+  if (receivables) result.receivables = pln(receivables.pln_rok_obrotowy_biezacy);
+
+  // Środki pieniężne (cash)
+  const cash = findNode(root, /środki pieniężne|inwestycje krótkoterminowe/i);
+  if (cash) result.cash = pln(cash.pln_rok_obrotowy_biezacy);
+
   // Kapitał własny
   const equity = findNode(root, /kapitał.*własny/i);
   if (equity) {
@@ -297,11 +396,62 @@ function parseBilans(doc: Record<string, unknown>): Record<string, unknown> {
     result.equityPrevious = pln(equity.pln_rok_obrotowy_poprzedni);
   }
 
-  // Zobowiązania
+  // Kapitał zakładowy
+  const shareCapital = findNode(root, /kapitał.*zakładowy|kapitał.*podstawowy/i);
+  if (shareCapital) result.shareCapital = pln(shareCapital.pln_rok_obrotowy_biezacy);
+
+  // Zysk/strata z lat ubiegłych
+  const retainedEarnings = findNode(root, /zysk.*strata.*lat ubiegłych|zysk.*strata.*z lat/i);
+  if (retainedEarnings) result.retainedEarnings = pln(retainedEarnings.pln_rok_obrotowy_biezacy);
+
+  // Zobowiązania i rezerwy razem
   const liabilities = findNode(root, /zobowiązania.*razem|zobowiązania i rezerwy/i);
   if (liabilities) {
     result.totalLiabilities = pln(liabilities.pln_rok_obrotowy_biezacy);
+    result.totalLiabilitiesPrevious = pln(liabilities.pln_rok_obrotowy_poprzedni);
   }
 
+  // Zobowiązania długoterminowe
+  const longTermDebt = findNode(root, /zobowiązania długoterminowe/i);
+  if (longTermDebt) result.longTermDebt = pln(longTermDebt.pln_rok_obrotowy_biezacy);
+
+  // Zobowiązania krótkoterminowe
+  const shortTermDebt = findNode(root, /zobowiązania krótkoterminowe/i);
+  if (shortTermDebt) result.shortTermDebt = pln(shortTermDebt.pln_rok_obrotowy_biezacy);
+
+  // Rezerwy na zobowiązania
+  const provisions = findNode(root, /rezerwy na zobowiązania/i);
+  if (provisions) result.provisions = pln(provisions.pln_rok_obrotowy_biezacy);
+
   return result;
+}
+
+/** Compute financial ratios from yearly data */
+function computeRatios(year: Record<string, unknown>): Record<string, number | null> {
+  const revenue = year.revenue as number | null;
+  const netIncome = year.netIncome as number | null;
+  const operatingProfit = year.operatingProfit as number | null;
+  const grossProfit = year.grossProfit as number | null;
+  const totalAssets = year.totalAssets as number | null;
+  const equity = year.equity as number | null;
+  const totalLiabilities = year.totalLiabilities as number | null;
+  const currentAssets = year.currentAssets as number | null;
+  const shortTermDebt = year.shortTermDebt as number | null;
+  const revenuePrev = year.revenuePrevious as number | null;
+
+  const ratio = (num: number | null, den: number | null): number | null => {
+    if (num == null || den == null || den === 0) return null;
+    return Math.round((num / den) * 10000) / 10000;
+  };
+
+  return {
+    netMargin: ratio(netIncome, revenue),
+    operatingMargin: ratio(operatingProfit, revenue),
+    grossMargin: ratio(grossProfit, revenue),
+    roe: ratio(netIncome, equity),                    // Return on Equity
+    roa: ratio(netIncome, totalAssets),                // Return on Assets
+    debtToEquity: ratio(totalLiabilities, equity),     // Debt/Equity
+    currentRatio: ratio(currentAssets, shortTermDebt), // Current Ratio
+    revenueGrowth: revenuePrev && revenue ? Math.round(((revenue - revenuePrev) / revenuePrev) * 10000) / 10000 : null,
+  };
 }

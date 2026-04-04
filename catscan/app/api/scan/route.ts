@@ -11,6 +11,7 @@ import { enrichReviews } from '@/lib/pipeline/phases/reviews';
 import { enrichFinance } from '@/lib/pipeline/phases/finance';
 import { enrichContext } from '@/lib/pipeline/phases/context';
 import { interpretDataset } from '@/lib/pipeline/phases/interpret';
+import { enrichPricingFallback } from '@/lib/pipeline/phases/pricing-fallback';
 
 /** POST /api/scan — start a new scan */
 export async function POST(req: NextRequest) {
@@ -30,7 +31,7 @@ export async function POST(req: NextRequest) {
   // Default: all phases. Can be overridden to run subset.
   // Order matters: context before discovery (provides legalName for rejestr.io search)
   const enabledPhases = phases || [
-    'crawl', 'extract', 'context', 'discovery', 'social', 'ads', 'reviews', 'finance', 'interpret'
+    'crawl', 'extract', 'context', 'pricing_fallback', 'discovery', 'social', 'ads', 'reviews', 'finance', 'interpret'
   ];
 
   const scanId = randomUUID();
@@ -194,6 +195,11 @@ async function runEntityPhase(
           if (ctx.trajectory) parts.push(`${ctx.trajectory}`);
           detail = parts.join(', ');
         }
+      } else if (phaseName === 'pricing_fallback') {
+        const pricing = d.pricing as Record<string, unknown> | undefined;
+        if (pricing?._fallback) detail = `filled via perplexity: ${pricing.price_range_pln}`;
+        else if (pricing?.cheapest_daily) detail = `already had: ${pricing.price_range_pln}`;
+        else detail = 'no price found';
       } else if (phaseName === 'finance') {
         const fin = d.finance as Record<string, unknown> | undefined;
         if (fin?.skipped) detail = `skipped: ${fin.reason}`;
@@ -236,6 +242,14 @@ async function runPipeline(scanId: string, enabledPhases: string[]) {
   // Discovery then uses legalName to search rejestr.io accurately.
   if (has('context')) {
     await runEntityPhase(scan, 'context', enrichContext, {
+      skipFailed: true,
+      requireKey: 'PERPLEXITY_API_KEY',
+    });
+  }
+
+  // Phase 3b: Pricing fallback — fill missing prices via Perplexity
+  if (has('pricing_fallback')) {
+    await runEntityPhase(scan, 'pricing_fallback', enrichPricingFallback, {
       skipFailed: true,
       requireKey: 'PERPLEXITY_API_KEY',
     });
