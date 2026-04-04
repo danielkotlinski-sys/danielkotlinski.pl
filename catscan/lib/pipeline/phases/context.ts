@@ -9,7 +9,7 @@
  */
 
 import { execSync } from 'child_process';
-import { writeFileSync } from 'fs';
+import { writeFileSync, unlinkSync } from 'fs';
 import type { EntityRecord } from '@/lib/db/store';
 
 interface ContextData {
@@ -65,23 +65,33 @@ export async function enrichContext(entity: EntityRecord): Promise<EntityRecord>
     temperature: 0.1,
   };
 
-  const inputFile = `/tmp/pplx_context_${Date.now()}.json`;
+  const inputFile = `/tmp/pplx_context_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.json`;
   writeFileSync(inputFile, JSON.stringify(requestBody));
 
   try {
     const raw = execSync(
-      `curl -s -m 60 'https://api.perplexity.ai/chat/completions' -H 'Authorization: Bearer ${apiKey}' -H 'Content-Type: application/json' -d @${inputFile}`,
+      `curl -s -m 60 'https://api.perplexity.ai/chat/completions' -H "Authorization: Bearer ${apiKey}" -H 'Content-Type: application/json' -d @${inputFile}`,
       { maxBuffer: 5 * 1024 * 1024, timeout: 70000 }
     ).toString('utf-8');
 
-    const response = JSON.parse(raw);
+    // Clean up temp file
+    try { unlinkSync(inputFile); } catch { /* ignore */ }
+
+    let response: Record<string, unknown>;
+    try {
+      response = JSON.parse(raw);
+    } catch {
+      console.warn(`[context] Invalid JSON response for "${entity.name}":`, raw.slice(0, 200));
+      return entity;
+    }
 
     if (response.error) {
       console.warn(`[context] Perplexity error for "${entity.name}":`, response.error);
       return entity;
     }
 
-    const content = response.choices?.[0]?.message?.content || '';
+    const choices = response.choices as Array<{ message?: { content?: string } }> | undefined;
+    const content = choices?.[0]?.message?.content || '';
 
     // Parse JSON from response (handle markdown code blocks)
     let jsonStr = content;
@@ -122,6 +132,8 @@ export async function enrichContext(entity: EntityRecord): Promise<EntityRecord>
       },
     };
   } catch (e) {
+    // Clean up temp file on error too
+    try { unlinkSync(inputFile); } catch { /* ignore */ }
     console.warn(
       `[context] Failed for "${entity.name}":`,
       e instanceof Error ? e.message : e

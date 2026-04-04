@@ -10,7 +10,7 @@
  */
 
 import { execSync } from 'child_process';
-import { readFileSync, existsSync, writeFileSync } from 'fs';
+import { readFileSync, existsSync, writeFileSync, unlinkSync } from 'fs';
 import { join } from 'path';
 import type { EntityRecord } from '@/lib/db/store';
 
@@ -99,7 +99,7 @@ async function apifyGoogleMaps(
     onePerQuery: true,
   };
 
-  const inputFile = `/tmp/apify_gmaps_${Date.now()}.json`;
+  const inputFile = `/tmp/apify_gmaps_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.json`;
   writeFileSync(inputFile, JSON.stringify(input));
 
   try {
@@ -108,17 +108,28 @@ async function apifyGoogleMaps(
       { maxBuffer: 20 * 1024 * 1024, timeout: 200000 }
     ).toString('utf-8');
 
-    const items = JSON.parse(raw);
-    if (!Array.isArray(items) || items.length === 0) {
+    // Clean up temp file
+    try { unlinkSync(inputFile); } catch { /* ignore */ }
+
+    let items: unknown[];
+    try {
+      const parsed = JSON.parse(raw);
+      items = Array.isArray(parsed) ? parsed : [];
+    } catch {
+      console.warn(`[reviews] Invalid JSON from Google Maps API for "${companyName}"`);
+      return empty;
+    }
+    if (items.length === 0) {
       console.warn(`[reviews] No Google Maps result for "${companyName}"`);
       return empty;
     }
 
-    const place = items[0];
+    const place = items[0] as Record<string, unknown>;
 
     // Extract review snippets
-    const reviews = (place.reviews || []).slice(0, 10);
-    const snippets = reviews
+    const rawReviews = Array.isArray(place.reviews) ? place.reviews : [];
+    const snippets = rawReviews
+      .slice(0, 10)
       .map((r: Record<string, unknown>) => {
         const text = String(r.text || r.textTranslated || '').slice(0, 200);
         return text;
@@ -126,14 +137,15 @@ async function apifyGoogleMaps(
       .filter((s: string) => s.length > 10);
 
     return {
-      rating: place.totalScore ?? place.rating ?? null,
-      reviewCount: place.reviewsCount ?? place.reviews_count ?? null,
-      mapsUrl: place.url ?? place.placeUrl ?? null,
-      address: place.address ?? place.street ?? null,
-      category: place.categoryName ?? place.category ?? null,
+      rating: (place.totalScore ?? place.rating ?? null) as number | null,
+      reviewCount: (place.reviewsCount ?? place.reviews_count ?? null) as number | null,
+      mapsUrl: (place.url ?? place.placeUrl ?? null) as string | null,
+      address: (place.address ?? place.street ?? null) as string | null,
+      category: (place.categoryName ?? place.category ?? null) as string | null,
       snippets,
     };
   } catch (e) {
+    try { unlinkSync(inputFile); } catch { /* ignore */ }
     console.warn(
       `[reviews] Apify Google Maps failed for "${companyName}":`,
       e instanceof Error ? e.message : e
@@ -161,7 +173,7 @@ export async function enrichReviews(entity: EntityRecord): Promise<EntityRecord>
   if (apiToken) {
     google = await apifyGoogleMaps(entity.name, apiToken);
     // Brief pause between API calls
-    execSync('sleep 1');
+    await new Promise(r => setTimeout(r, 1000));
   }
 
   const reviewData: ReviewData = {

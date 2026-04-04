@@ -14,10 +14,14 @@ import type { EntityRecord } from '@/lib/db/store';
 const NIP_REGEX = /\b(\d{3}[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{2})\b/g;
 const NIP_CLEAN_REGEX = /[-\s]/g;
 
+function shellEscape(s: string): string {
+  return "'" + s.replace(/'/g, "'\\''") + "'";
+}
+
 function curlFetch(url: string): string | null {
   try {
     const result = execSync(
-      `curl -sL -m 10 -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' '${url}'`,
+      `curl -sL -m 10 --max-redirs 5 -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' ${shellEscape(url)}`,
       { maxBuffer: 5 * 1024 * 1024, timeout: 15000 }
     );
     return result.toString('utf-8');
@@ -142,7 +146,7 @@ export async function discoverEntity(entity: EntityRecord): Promise<EntityRecord
   }
 
   // Brief pause to be nice to search engines
-  execSync('sleep 1');
+  await new Promise(r => setTimeout(r, 1000));
 
   return {
     ...entity,

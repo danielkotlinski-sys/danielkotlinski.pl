@@ -14,6 +14,11 @@ function getClient() {
   return client;
 }
 
+function safeText(response: Anthropic.Message): string {
+  if (response.content.length === 0) return '';
+  return response.content[0].type === 'text' ? response.content[0].text : '';
+}
+
 export async function extract(params: {
   content: string;
   prompt: string;
@@ -30,8 +35,12 @@ export async function extract(params: {
     ],
   });
 
-  const text = response.content[0].type === 'text' ? response.content[0].text : '';
-  return JSON.parse(text);
+  const text = safeText(response);
+  // Handle markdown code blocks
+  let jsonStr = text;
+  const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (jsonMatch) jsonStr = jsonMatch[1];
+  return JSON.parse(jsonStr.trim());
 }
 
 export async function interpret(params: {
@@ -49,5 +58,5 @@ export async function interpret(params: {
     ],
   });
 
-  return response.content[0].type === 'text' ? response.content[0].text : '';
+  return safeText(response);
 }

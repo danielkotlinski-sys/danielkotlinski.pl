@@ -1,12 +1,12 @@
 # CATSCAN // CATERING INTELLIGENCE ENGINE
-## Brief produktowy — v0.3
+## Brief produktowy — v0.4
 
 ---
 
 ## 1. CO TO JEST
 
 Sektorowa baza wiedzy o rynku cateringów dietetycznych w Polsce.
-256 marek w bazie (docelowo 400-600). 21 wymiarów analizy per marka. 175 atrybutów per marka = ~87,500 data points przy 500 markach.
+**256 marek w bazie = pełne pokrycie rynku.** 21 wymiarów analizy per marka. 175 atrybutów per marka = ~44,800 data points.
 Dane komunikacyjne + finansowe + reklamowe + social + reputacja.
 Odświeżane cyklicznie. Odpytywane w języku naturalnym.
 
@@ -14,7 +14,7 @@ Produkt docelowy: interfejs typu "zapytaj o cokolwiek w tej branży".
 Produkt MVP: raport sektorowy + prosta wyszukiwarka + chat AI.
 
 **Status:** MVP zbudowany — pipeline 9 faz, scan engine UI, query interface, audit page.
-Baza: 256 marek (177 Dietly + 78 Google search + 1 Dietly-city). Brakuje ~250 marek do pełnego pokrycia.
+Baza: 256 marek (177 Dietly + 78 Google search + 1 Dietly-city) = pełne pokrycie rynku.
 
 Patrz też: `CATSCAN_KRS_SUPPLEMENT.md` — szczegóły pozyskania danych z KRS.
 
@@ -90,11 +90,11 @@ Atrybuty mają typy: text, number, enum, boolean, array, date.
 - TikTok: 10 ostatnich filmów (views, likes, style)
 - Meta Ads: wszystkie aktywne reklamy (typowo 5-30, niektóre 100+)
 
-### Volume łączne przy 500 markach (est.):
-- Atrybuty structured: 500 × 175 = **~87,500 data points**
-- Social posts: ~20,000 (nie wszystkie marki na każdej platformie; TikTok ~100-150 aktywnych)
-- Ad creatives: ~7,500 (500 × ~15 avg aktywnych reklam)
-- Sprawozdania finansowe: ~750 (250 sp. z o.o. × 3 lata)
+### Volume łączne przy 256 markach (est.):
+- Atrybuty structured: 256 × 175 = **~44,800 data points**
+- Social posts: ~10,000 (nie wszystkie marki na każdej platformie; TikTok ~50-80 aktywnych)
+- Ad creatives: ~3,800 (256 × ~15 avg aktywnych reklam)
+- Sprawozdania finansowe: ~400 (130 sp. z o.o. × 3 lata)
 
 ### WYMIAR 01: IDENTYFIKACJA
 - name: text — nazwa marki
@@ -161,7 +161,7 @@ Atrybuty mają typy: text, number, enum, boolean, array, date.
 ### WYMIAR 08: REKLAMY (META)
 Źródło: Meta Ad Library API (darmowe, publiczne, WSZYSTKIE aktywne reklamy).
 Typowa marka: 5-30 aktywnych reklam. Niektóre 0, niektóre 100+.
-500 marek x ~15 avg = ~7,500 kreacji do przeanalizowania. Koszt API: $0.
+256 marek x ~15 avg = ~3,800 kreacji do przeanalizowania. Koszt API: $0.
 - active_ads_count: number
 - ad_formats: array[enum] — [image, video, carousel, stories]
 - ad_hooks: array[text] — pierwsze zdania reklam (top 10)
@@ -176,7 +176,7 @@ Typowa marka: 5-30 aktywnych reklam. Niektóre 0, niektóre 100+.
 
 ### WYMIAR 09: INSTAGRAM
 Źródło: Apify instagram-profile-scraper + instagram-post-scraper.
-Zbieramy: profil + ostatnie 20 postów per marka. Koszt: ~$15-20 za 500 marek.
+Zbieramy: profil + ostatnie 20 postów per marka. Koszt: ~$15-20 za 256 marek.
 - ig_handle: text
 - ig_followers: number
 - ig_following: number
@@ -194,7 +194,7 @@ Zbieramy: profil + ostatnie 20 postów per marka. Koszt: ~$15-20 za 500 marek.
 - ig_recent_posts: array[{date, type, likes, comments, caption_excerpt}] — ostatnie 20
 
 ### WYMIAR 10: FACEBOOK
-Źródło: Apify facebook-pages-scraper. Ostatnie 15 postów. Koszt: ~$10-15 za 500 marek.
+Źródło: Apify facebook-pages-scraper. Ostatnie 15 postów. Koszt: ~$10-15 za 256 marek.
 - fb_page_url: text
 - fb_page_name: text
 - fb_followers: number
@@ -208,7 +208,7 @@ Zbieramy: profil + ostatnie 20 postów per marka. Koszt: ~$15-20 za 500 marek.
 - fb_community_size: number — członkowie grupy (jeśli jest)
 
 ### WYMIAR 11: TIKTOK
-Źródło: Apify tiktok-scraper. Ostatnie 10 filmów. Koszt: ~$10-15 za 500 marek.
+Źródło: Apify tiktok-scraper. Ostatnie 10 filmów. Koszt: ~$10-15 za 256 marek.
 Uwaga: realnie 100-150 z 500 będzie aktywnych na TikToku.
 - tiktok_handle: text
 - tiktok_followers: number
@@ -290,7 +290,7 @@ Uwaga: realnie 100-150 z 500 będzie aktywnych na TikToku.
 Źródło: API KRS (darmowe) + RDF/rejestr.io (sprawozdania finansowe).
 Szczegółowy pipeline: patrz `CATSCAN_KRS_SUPPLEMENT.md`.
 Coverage: ~70% dane rejestrowe, ~50-60% dane finansowe (JDG nie składają).
-Koszt: ~$35-45 za 500 marek.
+Koszt: ~$35-45 za 256 marek.
 - legal_name: text — pełna nazwa prawna ("FIT CATERING SP. Z O.O.")
 - krs_number: text
 - nip: text
@@ -370,7 +370,7 @@ Wyjście: founder, rok założenia, media mentions, influencerzy, unikalne cechy
 Narzędzie: Perplexity sonar model (~$0.005/query)
 Implementacja: `lib/pipeline/phases/context.ts`
 Wymaga: `PERPLEXITY_API_KEY`
-Czas: 1-2h (500 marek)
+Czas: 1-2h (256 marek)
 Koszt: ~$2.50
 
 ### Faza 6: SOCIAL MEDIA ✅ GOTOWE
@@ -385,7 +385,7 @@ Implementacja: `lib/pipeline/phases/social.ts`
 Connector: `lib/connectors/apify.ts`
 Czas: 2-4h
 Koszt: ~$35-50
-Volume: 500 profili x 3 platformy, ~20,000 postów total
+Volume: 256 profili x 3 platformy, ~10,000 postów total
 
 ### Faza 7: REKLAMY (META) ✅ GOTOWE
 
@@ -435,9 +435,9 @@ Koszt: ~$10-15
 ### TOTAL PIPELINE:
 - Faz: 10 (seed + 9 faz per-scan). Wszystkie zaimplementowane.
 - Czas: 3-4 dni (z testowaniem i poprawkami, jednorazowo)
-- Koszt: ~$200-250 (w tym ~$105 rejestr.io API za dane finansowe)
-- Wynik: ~500 encji x 175 atrybutów = ~87,500 data points
-- Plus: ~7,500 kreacji reklamowych, ~20,000 postów social, ~750 sprawozdań finansowych
+- Koszt: ~$100-150 (w tym ~$55 rejestr.io API za dane finansowe)
+- Wynik: 256 encji x 175 atrybutów = ~44,800 data points
+- Plus: ~3,800 kreacji reklamowych, ~10,000 postów social, ~400 sprawozdań finansowych
 - Orchestrator: `app/api/scan/route.ts` — async, per-entity, z error handling i cost tracking
 
 ---
@@ -472,7 +472,7 @@ Snapshot JSONB pozwala:
 - Filtrować po dowolnym atrybucie ($->> operator)
 
 ### Rozmiar:
-- 500 encji x ~5KB JSON = 2.5MB per snapshot
+- 256 encji x ~5KB JSON = 1.3MB per snapshot
 - Daily snapshots x 365 = ~900MB/rok
 - Screenshoty (S3/Cloudflare R2): ~500MB per snapshot, ~50GB/rok z kompresją
 - Wszystko mieści się w darmowych/tanich tierach
@@ -614,7 +614,7 @@ System generuje raport z gotowymi insightami.
 - ✅ Google search discovery → +78 marek = **256 total**
 - ✅ `data/brands.json` z metadanymi Dietly (rating, reviews, ceny, diety)
 - ✅ Domeny www per marka
-- Brakuje: ~250 marek do docelowych 500
+- 256 marek = pełne pokrycie rynku
 
 ### FAZA 1: Pipeline + scan engine ✅ DONE
 - ✅ 9-fazowy pipeline: crawl → extract → discovery → context → social → ads → reviews → finance → interpret
@@ -623,7 +623,7 @@ System generuje raport z gotowymi insightami.
 - ✅ Logging z timestampami
 - ✅ Scan Engine UI z real-time progress
 - ✅ JSON file storage (MVP)
-- Brakuje: migracja do Postgres, pierwszy full scan 500 marek
+- Brakuje: migracja do Postgres, pierwszy full scan 256 marek
 
 ### FAZA 2: Query interface ✅ DONE
 - ✅ Chat UI z Claude Sonnet jako analitykiem
@@ -657,7 +657,7 @@ System generuje raport z gotowymi insightami.
 
 ### Setup (jednorazowo):
 - Infrastruktura: $0 (free tiers)
-- Pierwszy full scan (21 wymiarów + KRS): ~$150
+- Pierwszy full scan (21 wymiarów + KRS): ~$100-150
 - Czas: 5-7 tygodni dev
 
 ### Operacyjne (miesięcznie):
@@ -681,16 +681,16 @@ System generuje raport z gotowymi insightami.
 ## 10. PIERWSZY RUCH
 
 1. ~~Zbuduj dataset (faza 0-1)~~ ✅ Seed ready (256 marek), pipeline gotowy
-2. Uzupełnij bazę do ~500 marek (więcej miast, rankingi, polecenia)
-3. Uruchom pierwszy full scan (wszystkie 9 faz, ~$200-250)
+2. Uruchom pierwszy full scan 256 marek (wszystkie 9 faz, ~$100-150)
 4. Wygeneruj sample report: "TOP 50 cateringów w Polsce — kto naprawdę się wyróżnia"
 5. Opublikuj fragment na LinkedIn (5 insightów z danych)
 6. Wyślij pełny sample do 10 największych cateringów
-7. "Pełny raport z ~500 markami + dostęp do bazy: 12,000 PLN"
+6. "Pełny raport z 256 markami + dostęp do bazy: 12,000 PLN"
 
 ---
 
-*CATSCAN_OS // v0.3 // CATERING_DIETETYCZNY*
+*CATSCAN_OS // v0.4 // CATERING_DIETETYCZNY*
 *Updated: 2026-04-04*
+*Changelog v0.4: 256 marek = 100% pokrycia rynku (nie 500), przeliczone koszty i volume danych, pipeline hardening (URL escaping, JSON safety, temp file cleanup, safe API access)*
 *Changelog v0.3: aktualizacja statusu implementacji — wszystkie 9 faz pipeline gotowe, 256 marek w bazie, scan engine + query interface + audit page zbudowane, dodano sekcję o aktualnym storage (JSON MVP), zaktualizowano stack technologiczny i fazy budowy*
 *Changelog v0.2: dodano wymiar 21 (KRS + finanse), rozszerzono social/ads, poprawiono pipeline i koszty*

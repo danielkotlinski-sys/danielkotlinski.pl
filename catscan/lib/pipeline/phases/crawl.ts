@@ -95,10 +95,14 @@ function extractMeta(html: string) {
 // curl-based fetcher
 // ---------------------------------------------------------------------------
 
+function shellEscape(s: string): string {
+  return "'" + s.replace(/'/g, "'\\''") + "'";
+}
+
 function curlFetch(url: string): string | null {
   try {
     const result = execSync(
-      `curl -sL -m 15 -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' -H 'Accept: text/html' -H 'Accept-Language: pl,en;q=0.9' '${url}'`,
+      `curl -sL -m 15 --max-redirs 5 -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' -H 'Accept: text/html' -H 'Accept-Language: pl,en;q=0.9' ${shellEscape(url)}`,
       { maxBuffer: 10 * 1024 * 1024, timeout: 20000 },
     );
     return result.toString('utf-8');
@@ -157,7 +161,7 @@ export async function crawlEntity(
       ...entity,
       rawHtml: textContent,
       nip: foundNip || entity.nip,
-      domain: new URL(url).hostname,
+      domain: (() => { try { return new URL(url).hostname; } catch { return undefined; } })(),
       data: {
         ...entity.data,
         _meta: {

@@ -46,10 +46,14 @@ interface AdsData {
   method: 'meta_api' | 'ad_library_search';
 }
 
+function shellEscape(s: string): string {
+  return "'" + s.replace(/'/g, "'\\''") + "'";
+}
+
 function curlFetch(url: string): string | null {
   try {
     const result = execSync(
-      `curl -sL -m 15 '${url}'`,
+      `curl -sL -m 15 ${shellEscape(url)}`,
       { maxBuffer: 10 * 1024 * 1024, timeout: 20000 }
     );
     return result.toString('utf-8');

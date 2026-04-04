@@ -85,18 +85,23 @@ export async function extractEntity(entity: EntityRecord): Promise<EntityRecord>
   }
 
   try {
+    // Truncate HTML to avoid exceeding context window (~60K chars ≈ ~15K tokens)
+    const truncatedContent = (entity.rawHtml || '').slice(0, 60000);
+
     const response = await getClient().messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 4096,
       messages: [
         {
           role: 'user',
-          content: `${EXTRACTION_PROMPT}\n\n--- WEBSITE CONTENT FOR: ${entity.name} (${entity.url}) ---\n\n${entity.rawHtml}`,
+          content: `${EXTRACTION_PROMPT}\n\n--- WEBSITE CONTENT FOR: ${entity.name} (${entity.url}) ---\n\n${truncatedContent}`,
         },
       ],
     });
 
-    const text = response.content[0].type === 'text' ? response.content[0].text : '';
+    const text = response.content.length > 0 && response.content[0].type === 'text'
+      ? response.content[0].text
+      : '';
 
     // Try to parse JSON — handle markdown code blocks
     let jsonStr = text;
@@ -105,10 +110,18 @@ export async function extractEntity(entity: EntityRecord): Promise<EntityRecord>
       jsonStr = jsonMatch[1];
     }
 
-    const extracted = JSON.parse(jsonStr.trim());
+    let extracted: Record<string, unknown>;
+    try {
+      extracted = JSON.parse(jsonStr.trim());
+    } catch {
+      return {
+        ...entity,
+        errors: [...entity.errors, `Extract JSON parse error. Raw response: ${text.slice(0, 200)}`],
+      };
+    }
 
-    const inputTokens = response.usage.input_tokens;
-    const outputTokens = response.usage.output_tokens;
+    const inputTokens = response.usage?.input_tokens ?? 0;
+    const outputTokens = response.usage?.output_tokens ?? 0;
     // Haiku pricing: $0.80/1M input, $4/1M output
     const cost = (inputTokens * 0.80 + outputTokens * 4.0) / 1_000_000;
 

@@ -116,18 +116,26 @@ export async function interpretDataset(entities: EntityRecord[]): Promise<Interp
 
   const prompt = INTERPRETATION_PROMPT.replace('{COUNT}', String(cleanEntities.length));
 
-  const response = await getClient().messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 8192,
-    messages: [
-      {
-        role: 'user',
-        content: `${prompt}\n\n--- DATASET (${cleanEntities.length} firms) ---\n\n${JSON.stringify(cleanEntities, null, 2)}`,
-      },
-    ],
-  });
+  let response: Anthropic.Message;
+  try {
+    response = await getClient().messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 8192,
+      messages: [
+        {
+          role: 'user',
+          content: `${prompt}\n\n--- DATASET (${cleanEntities.length} firms) ---\n\n${JSON.stringify(cleanEntities, null, 2)}`,
+        },
+      ],
+    });
+  } catch (err) {
+    console.error('[interpret] Claude API error:', err instanceof Error ? err.message : err);
+    return null;
+  }
 
-  const text = response.content[0].type === 'text' ? response.content[0].text : '';
+  const text = response.content.length > 0 && response.content[0].type === 'text'
+    ? response.content[0].text
+    : '';
 
   // Parse JSON — handle markdown code blocks
   let jsonStr = text;

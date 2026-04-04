@@ -20,15 +20,24 @@ import type { EntityRecord } from '@/lib/db/store';
 
 const REJESTR_IO_BASE = 'https://rejestr.io/api/v2';
 
+function shellEscape(s: string): string {
+  return "'" + s.replace(/'/g, "'\\''") + "'";
+}
+
 function rejestrFetch(path: string, apiKey: string): unknown {
   try {
     const url = `${REJESTR_IO_BASE}${path}`;
     const result = execSync(
-      `curl -s -m 15 -H 'Authorization: ${apiKey}' -H 'Accept: application/json' '${url}'`,
+      `curl -s -m 15 -H "Authorization: ${apiKey}" -H 'Accept: application/json' ${shellEscape(url)}`,
       { maxBuffer: 10 * 1024 * 1024, timeout: 20000 }
     );
     const text = result.toString('utf-8');
-    const parsed = JSON.parse(text);
+    let parsed: Record<string, unknown>;
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      throw new Error(`Invalid JSON response (${text.slice(0, 100)})`);
+    }
     // Check for API errors
     if (parsed?.kod && parsed?.info) {
       throw new Error(`API ${parsed.kod}: ${parsed.info}`);

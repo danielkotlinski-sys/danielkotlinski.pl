@@ -10,6 +10,7 @@
  */
 
 import { execSync } from 'child_process';
+import { writeFileSync, unlinkSync } from 'fs';
 import type { EntityRecord } from '@/lib/db/store';
 
 interface SocialProfile {
@@ -57,14 +58,18 @@ function extractSocialUrls(entity: EntityRecord): { instagram?: string; facebook
 }
 
 function runApifyActor(actorId: string, input: Record<string, unknown>, apiToken: string): unknown[] {
+  const inputFile = `/tmp/apify_social_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.json`;
   try {
-    const inputJson = JSON.stringify(input);
+    writeFileSync(inputFile, JSON.stringify(input));
     const result = execSync(
-      `curl -s -m 180 -X POST 'https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${apiToken}' -H 'Content-Type: application/json' -d '${inputJson}'`,
+      `curl -s -m 180 -X POST 'https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${apiToken}' -H 'Content-Type: application/json' -d @${inputFile}`,
       { maxBuffer: 20 * 1024 * 1024, timeout: 190000 }
     );
-    return JSON.parse(result.toString('utf-8'));
+    try { unlinkSync(inputFile); } catch { /* ignore */ }
+    const parsed = JSON.parse(result.toString('utf-8'));
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
+    try { unlinkSync(inputFile); } catch { /* ignore */ }
     return [];
   }
 }
