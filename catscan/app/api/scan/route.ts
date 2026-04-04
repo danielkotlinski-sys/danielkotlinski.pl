@@ -177,9 +177,9 @@ async function runEntityPhase(
         const disc = d._discovery as Record<string, unknown> | undefined;
         if (disc) detail = `NIP: ${disc.nip || 'not found'} (${disc.nipSource})`;
       } else if (phaseName === 'finance') {
-        const fin = d._finance as Record<string, unknown> | undefined;
+        const fin = d.finance as Record<string, unknown> | undefined;
         if (fin?.skipped) detail = `skipped: ${fin.reason}`;
-        else if (fin) detail = `${fin.years_fetched} years fetched`;
+        else if (fin) detail = `${fin.years_fetched} years fetched, revenue: ${fin.revenue ?? 'n/a'}`;
       }
 
       log(scan, `  → ${newStatus === 'failed' ? 'FAILED: ' + (lastError || 'unknown') : 'OK'}${detail ? ' | ' + detail : ''}`);

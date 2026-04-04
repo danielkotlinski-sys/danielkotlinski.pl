@@ -35,7 +35,7 @@ export async function enrichFinance(entity: EntityRecord): Promise<EntityRecord>
       ...entity,
       data: {
         ...entity.data,
-        _finance: { skipped: true, reason: 'REJESTR_IO_API_KEY not set' },
+        finance: { skipped: true, reason: 'REJESTR_IO_API_KEY not set' },
       },
     };
   }
@@ -51,7 +51,7 @@ export async function enrichFinance(entity: EntityRecord): Promise<EntityRecord>
       ...entity,
       data: {
         ...entity.data,
-        _finance: { skipped: true, reason: 'No NIP available' },
+        finance: { skipped: true, reason: 'No NIP available' },
       },
     };
   }
@@ -73,7 +73,7 @@ export async function enrichFinance(entity: EntityRecord): Promise<EntityRecord>
         ...entity,
         data: {
           ...entity.data,
-          _finance: {
+          finance: {
             skipped: true,
             reason: `Org not found for NIP ${cleanNip}: ${err instanceof Error ? err.message : String(err)}`,
           },
@@ -130,30 +130,32 @@ export async function enrichFinance(entity: EntityRecord): Promise<EntityRecord>
       }
     }
 
+    const financeData = {
+      krs_number: krsNumber,
+      org_name: orgData.nazwa || orgData.name,
+      legal_form: orgData.forma_prawna || orgData.legal_form,
+      nip: cleanNip,
+      org_data: orgData,
+      financial_statements: financials,
+      years_available: financialDocs.length,
+      years_fetched: financials.length,
+      cost_pln: costPln,
+      fetchedAt: new Date().toISOString(),
+      // Flatten latest figures for easy access
+      revenue: financials[0]?.revenue_current ?? null,
+      netIncome: financials[0]?.net_income_current ?? null,
+      totalAssets: financials[0]?.total_assets_current ?? null,
+      equity: financials[0]?.equity_current ?? null,
+    };
+
     return {
       ...entity,
       krs: String(krsNumber || ''),
       nip: cleanNip,
-      financials: {
-        krs_number: krsNumber,
-        org_name: orgData.nazwa || orgData.name,
-        legal_form: orgData.forma_prawna || orgData.legal_form,
-        org_data: orgData,
-        financial_statements: financials,
-        years_available: financialDocs.length,
-        years_fetched: financials.length,
-        cost_pln: costPln,
-        fetchedAt: new Date().toISOString(),
-      },
+      financials: financeData,
       data: {
         ...entity.data,
-        _finance: {
-          krs_number: krsNumber,
-          cost_pln: costPln,
-          years_available: financialDocs.length,
-          years_fetched: financials.length,
-          fetchedAt: new Date().toISOString(),
-        },
+        finance: financeData,
       },
       status: 'enriched',
     };
@@ -163,7 +165,7 @@ export async function enrichFinance(entity: EntityRecord): Promise<EntityRecord>
       errors: [...entity.errors, `Finance error: ${err instanceof Error ? err.message : String(err)}`],
       data: {
         ...entity.data,
-        _finance: { skipped: true, reason: err instanceof Error ? err.message : String(err) },
+        finance: { skipped: true, reason: err instanceof Error ? err.message : String(err) },
       },
     };
   }

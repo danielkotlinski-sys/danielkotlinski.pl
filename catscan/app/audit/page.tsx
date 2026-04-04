@@ -158,7 +158,7 @@ const SECTIONS: Array<{
     label: 'FINANCE // rejestr.io',
     phase: 'finance',
     dataPath: 'finance',
-    fields: ['revenue', 'netIncome', 'totalAssets', 'equity'],
+    fields: ['revenue', 'netIncome', 'totalAssets', 'equity', 'org_name', 'krs_number', 'years_fetched'],
   },
 ];
 
