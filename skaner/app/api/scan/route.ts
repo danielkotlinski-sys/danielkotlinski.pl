@@ -47,8 +47,8 @@ export async function POST(request: NextRequest) {
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let streamClosed = false;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const sendEvent = (event: ProgressEvent | { type: string; scanId?: string; report?: any; error?: string }) => {
         if (streamClosed) return;
         try {
