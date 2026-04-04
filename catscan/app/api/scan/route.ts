@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
-import { saveScan, appendLog, getScan, getScans } from '@/lib/db/store';
+import { saveScan, getScan, getScans } from '@/lib/db/store';
 import type { ScanRecord, EntityRecord } from '@/lib/db/store';
 import { crawlEntity } from '@/lib/pipeline/phases/crawl';
 import { extractEntity } from '@/lib/pipeline/phases/extract';
@@ -45,15 +45,15 @@ export async function POST(req: NextRequest) {
     completedAt: null,
   };
 
+  log(scan, `Scan started — ${entities.length} entities`);
   saveScan(scan);
-  appendLog(scanId, `Scan started — ${entities.length} entities`);
 
   // Run pipeline async (don't await — return immediately)
   runPipeline(scanId).catch((err) => {
     const s = getScan(scanId);
     if (s) {
       s.status = 'failed';
-      appendLog(scanId, `Pipeline error: ${err.message}`);
+      log(s, `Pipeline error: ${err.message}`);
       saveScan(s);
     }
   });
@@ -78,20 +78,26 @@ export async function GET() {
 
 // --- Pipeline execution ---
 
+function log(scan: ScanRecord, message: string) {
+  const timestamp = new Date().toISOString().slice(11, 19);
+  scan.log.push(`[${timestamp}] ${message}`);
+}
+
 async function runPipeline(scanId: string) {
-  let scan = getScan(scanId)!;
+  const scan = getScan(scanId)!;
 
   // Phase 1: Crawl
   scan.currentPhase = 'crawl';
+  log(scan, '--- PHASE: CRAWL ---');
   saveScan(scan);
-  appendLog(scanId, '--- PHASE: CRAWL ---');
 
   for (let i = 0; i < scan.entities.length; i++) {
-    appendLog(scanId, `Crawling ${scan.entities[i].name} (${scan.entities[i].url})...`);
+    log(scan, `Crawling ${scan.entities[i].name} (${scan.entities[i].url})...`);
+    saveScan(scan);
     scan.entities[i] = await crawlEntity(scan.entities[i]);
     const status = scan.entities[i].status;
     const contentLen = scan.entities[i].rawHtml?.length || 0;
-    appendLog(scanId, `  → ${status} (${contentLen} chars)`);
+    log(scan, `  → ${status} (${contentLen} chars)`);
     saveScan(scan);
   }
 
@@ -100,24 +106,29 @@ async function runPipeline(scanId: string) {
 
   // Phase 2: Extract
   scan.currentPhase = 'extract';
+  log(scan, '--- PHASE: EXTRACT ---');
   saveScan(scan);
-  appendLog(scanId, '--- PHASE: EXTRACT ---');
 
-  for (let i = 0; i < scan.entities.length; i++) {
-    if (scan.entities[i].status === 'failed') {
-      appendLog(scanId, `Skipping ${scan.entities[i].name} (failed crawl)`);
-      continue;
+  if (!process.env.ANTHROPIC_API_KEY) {
+    log(scan, 'ANTHROPIC_API_KEY not set — skipping extraction');
+  } else {
+    for (let i = 0; i < scan.entities.length; i++) {
+      if (scan.entities[i].status === 'failed') {
+        log(scan, `Skipping ${scan.entities[i].name} (failed crawl)`);
+        continue;
+      }
+      log(scan, `Extracting ${scan.entities[i].name}...`);
+      saveScan(scan);
+      scan.entities[i] = await extractEntity(scan.entities[i]);
+      const ext = scan.entities[i].data._extraction as Record<string, number> | undefined;
+      if (ext) {
+        scan.totalCostUsd += ext.costUsd || 0;
+        log(scan, `  → extracted ($${ext.costUsd?.toFixed(4)})`);
+      } else {
+        log(scan, `  → ${scan.entities[i].status}${scan.entities[i].errors.length ? ': ' + scan.entities[i].errors[scan.entities[i].errors.length - 1] : ''}`);
+      }
+      saveScan(scan);
     }
-    appendLog(scanId, `Extracting ${scan.entities[i].name}...`);
-    scan.entities[i] = await extractEntity(scan.entities[i]);
-    const ext = scan.entities[i].data._extraction as Record<string, number> | undefined;
-    if (ext) {
-      scan.totalCostUsd += ext.costUsd || 0;
-      appendLog(scanId, `  → extracted ($${ext.costUsd?.toFixed(4)})`);
-    } else {
-      appendLog(scanId, `  → ${scan.entities[i].status}`);
-    }
-    saveScan(scan);
   }
 
   scan.phasesCompleted.push('extract');
@@ -125,18 +136,19 @@ async function runPipeline(scanId: string) {
 
   // Phase 3: Finance (if API key available)
   scan.currentPhase = 'finance';
+  log(scan, '--- PHASE: FINANCE ---');
   saveScan(scan);
-  appendLog(scanId, '--- PHASE: FINANCE ---');
 
   if (!process.env.REJESTR_IO_API_KEY) {
-    appendLog(scanId, 'REJESTR_IO_API_KEY not set — skipping finance phase');
+    log(scan, 'REJESTR_IO_API_KEY not set — skipping finance phase');
   } else {
     for (let i = 0; i < scan.entities.length; i++) {
       if (scan.entities[i].status === 'failed') continue;
-      appendLog(scanId, `Fetching finance data for ${scan.entities[i].name}...`);
+      log(scan, `Fetching finance data for ${scan.entities[i].name}...`);
+      saveScan(scan);
       scan.entities[i] = await enrichFinance(scan.entities[i]);
       const fin = scan.entities[i].data._finance as Record<string, unknown> | undefined;
-      appendLog(scanId, `  → ${fin?.skipped ? 'skipped: ' + fin.reason : 'enriched'}`);
+      log(scan, `  → ${fin?.skipped ? 'skipped: ' + fin.reason : 'enriched'}`);
       saveScan(scan);
     }
   }
@@ -151,8 +163,7 @@ async function runPipeline(scanId: string) {
   // Strip rawHtml from stored entities (save space)
   scan.entities = scan.entities.map((e) => ({ ...e, rawHtml: undefined }));
 
-  saveScan(scan);
-
   const succeeded = scan.entities.filter((e) => e.status !== 'failed').length;
-  appendLog(scanId, `--- SCAN COMPLETE: ${succeeded}/${scan.entities.length} entities, $${scan.totalCostUsd.toFixed(4)} ---`);
+  log(scan, `--- SCAN COMPLETE: ${succeeded}/${scan.entities.length} entities, $${scan.totalCostUsd.toFixed(4)} ---`);
+  saveScan(scan);
 }

@@ -76,6 +76,14 @@ export async function extractEntity(entity: EntityRecord): Promise<EntityRecord>
     return entity;
   }
 
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return {
+      ...entity,
+      status: 'failed',
+      errors: [...entity.errors, 'ANTHROPIC_API_KEY not set — cannot extract'],
+    };
+  }
+
   try {
     const response = await getClient().messages.create({
       model: 'claude-haiku-4-5-20251001',
