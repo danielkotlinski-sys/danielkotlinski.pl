@@ -19,7 +19,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:08.842Z"
+    "seededAt": "2026-04-04T10:29:44.791Z"
   },
   {
     "slug": "activbox.pl",
@@ -41,7 +41,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:14.736Z"
+    "seededAt": "2026-04-04T10:29:51.464Z"
   },
   {
     "slug": "akademia-smaku.pl",
@@ -63,7 +63,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:30.851Z"
+    "seededAt": "2026-04-04T10:31:30.939Z"
   },
   {
     "slug": "zamow.awokadocatering.pl",
@@ -85,13 +85,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:49.842Z"
+    "seededAt": "2026-04-04T10:32:09.222Z"
   },
   {
-    "slug": "barekmleczny.pl",
+    "slug": "barekmleczny",
     "name": "Barek Mleczny",
-    "domain": "barekmleczny.pl",
-    "url": "https://barekmleczny.pl",
+    "domain": null,
+    "url": null,
     "dietlySlug": "barekmleczny",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/barekmleczny",
     "source": "dietly",
@@ -107,7 +107,7 @@
       "badge": "dietly-awards",
       "awarded": true
     },
-    "seededAt": "2026-04-04T09:51:15.508Z"
+    "seededAt": "2026-04-04T10:29:52.168Z"
   },
   {
     "slug": "befitcatering.pl",
@@ -129,7 +129,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:51.366Z"
+    "seededAt": "2026-04-04T10:30:27.828Z"
   },
   {
     "slug": "beketocatering.pl",
@@ -151,7 +151,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:50:55.741Z"
+    "seededAt": "2026-04-04T10:29:30.149Z"
   },
   {
     "slug": "betterlife.com.pl",
@@ -173,7 +173,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:04.625Z"
+    "seededAt": "2026-04-04T10:29:40.281Z"
   },
   {
     "slug": "catering.biorself.pl",
@@ -195,7 +195,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:13.031Z"
+    "seededAt": "2026-04-04T10:29:49.553Z"
   },
   {
     "slug": "bombacatering.pl",
@@ -217,7 +217,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:48.878Z"
+    "seededAt": "2026-04-04T10:30:24.708Z"
   },
   {
     "slug": "bon-appetit.pl",
@@ -239,7 +239,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:47.399Z"
+    "seededAt": "2026-04-04T10:30:22.929Z"
   },
   {
     "slug": "boskibox.pl",
@@ -261,7 +261,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:19.006Z"
+    "seededAt": "2026-04-04T10:31:11.162Z"
   },
   {
     "slug": "boxikcatering.pl",
@@ -283,7 +283,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:42.117Z"
+    "seededAt": "2026-04-04T10:30:17.334Z"
   },
   {
     "slug": "boxynawypasie.pl",
@@ -305,7 +305,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:52.882Z"
+    "seededAt": "2026-04-04T10:32:13.037Z"
   },
   {
     "slug": "burakdieta.pl",
@@ -327,7 +327,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:29.397Z"
+    "seededAt": "2026-04-04T10:30:00.517Z"
   },
   {
     "slug": "broccoli-catering.pl",
@@ -349,7 +349,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:50.752Z"
+    "seededAt": "2026-04-04T10:30:27.094Z"
   },
   {
     "slug": "suvibox.pl",
@@ -371,7 +371,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:52.892Z"
+    "seededAt": "2026-04-04T10:30:29.490Z"
   },
   {
     "slug": "cateringmistrza.pl",
@@ -393,7 +393,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:01.122Z"
+    "seededAt": "2026-04-04T10:29:36.443Z"
   },
   {
     "slug": "cateringnadiecie.pl",
@@ -415,13 +415,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:38.995Z"
+    "seededAt": "2026-04-04T10:31:41.705Z"
   },
   {
-    "slug": "cateringpodketo.pl",
+    "slug": "cateringpodketo",
     "name": "Catering Podketo.pl",
-    "domain": "cateringpodketo.pl",
-    "url": "https://cateringpodketo.pl",
+    "domain": null,
+    "url": null,
     "dietlySlug": "cateringpodketo",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/cateringpodketo",
     "source": "dietly",
@@ -437,7 +437,7 @@
       "badge": "dietly-awards",
       "awarded": true
     },
-    "seededAt": "2026-04-04T09:50:57.632Z"
+    "seededAt": "2026-04-04T10:29:32.547Z"
   },
   {
     "slug": "i.imgur.com",
@@ -459,7 +459,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:30.605Z"
+    "seededAt": "2026-04-04T10:30:04.294Z"
   },
   {
     "slug": "chefbox.pl",
@@ -481,7 +481,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:41.523Z"
+    "seededAt": "2026-04-04T10:30:16.591Z"
   },
   {
     "slug": "codograma.pl",
@@ -503,7 +503,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:50:40.225Z"
+    "seededAt": "2026-04-04T10:29:08.653Z"
   },
   {
     "slug": "cudimiod.pl",
@@ -525,7 +525,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:46.780Z"
+    "seededAt": "2026-04-04T10:30:22.120Z"
   },
   {
     "slug": "czapielskiepudelka.pl",
@@ -547,7 +547,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:12.769Z"
+    "seededAt": "2026-04-04T10:31:04.841Z"
   },
   {
     "slug": "foodandfit.pl",
@@ -569,7 +569,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:13.360Z"
+    "seededAt": "2026-04-04T10:31:05.577Z"
   },
   {
     "slug": "diabelskodobre.pl",
@@ -591,7 +591,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:50:55.127Z"
+    "seededAt": "2026-04-04T10:29:29.446Z"
   },
   {
     "slug": "diatta.pl",
@@ -613,7 +613,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:10.323Z"
+    "seededAt": "2026-04-04T10:31:01.867Z"
   },
   {
     "slug": "diet4u.pl",
@@ -635,7 +635,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:58.464Z"
+    "seededAt": "2026-04-04T10:32:20.516Z"
   },
   {
     "slug": "cateromarket.pl",
@@ -657,7 +657,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:50:51.947Z"
+    "seededAt": "2026-04-04T10:29:26.199Z"
   },
   {
     "slug": "dietadodomu.pl",
@@ -679,7 +679,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:37.038Z"
+    "seededAt": "2026-04-04T10:31:39.461Z"
   },
   {
     "slug": "dietaekonomiczna",
@@ -701,7 +701,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:35.871Z"
+    "seededAt": "2026-04-04T10:31:38.079Z"
   },
   {
     "slug": "dietapirata.pl",
@@ -723,13 +723,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:32.732Z"
+    "seededAt": "2026-04-04T10:30:06.860Z"
   },
   {
-    "slug": "dietapoddrzwi.pl",
+    "slug": "dietapoddrzwi",
     "name": "Dieta Pod Drzwi",
-    "domain": "dietapoddrzwi.pl",
-    "url": "https://dietapoddrzwi.pl",
+    "domain": null,
+    "url": null,
     "dietlySlug": "dietapoddrzwi",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/dietapoddrzwi",
     "source": "dietly",
@@ -745,13 +745,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:47.994Z"
+    "seededAt": "2026-04-04T10:30:23.649Z"
   },
   {
-    "slug": "dietaposelska.pl",
+    "slug": "dietaposelska",
     "name": "Dieta Poselska",
-    "domain": "dietaposelska.pl",
-    "url": "https://dietaposelska.pl",
+    "domain": null,
+    "url": null,
     "dietlySlug": "dietaposelska",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/dietaposelska",
     "source": "dietly",
@@ -767,7 +767,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:35.597Z"
+    "seededAt": "2026-04-04T10:30:10.482Z"
   },
   {
     "slug": "dietasokowa.pl",
@@ -789,7 +789,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:22.033Z"
+    "seededAt": "2026-04-04T10:31:15.314Z"
   },
   {
     "slug": "edietella.pl",
@@ -811,7 +811,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:51.957Z"
+    "seededAt": "2026-04-04T10:30:28.703Z"
   },
   {
     "slug": "dietymelona.pl",
@@ -833,13 +833,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:20.208Z"
+    "seededAt": "2026-04-04T10:31:12.870Z"
   },
   {
-    "slug": "dietynienazarty.pl",
+    "slug": "dietynienazartycatering",
     "name": "Diety nie na żarty",
-    "domain": "dietynienazarty.pl",
-    "url": "https://dietynienazarty.pl",
+    "domain": null,
+    "url": null,
     "dietlySlug": "dietynienazartycatering",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/dietynienazartycatering",
     "source": "dietly",
@@ -855,7 +855,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:38.618Z"
+    "seededAt": "2026-04-04T10:30:13.468Z"
   },
   {
     "slug": "dietyodkucharzy.pl",
@@ -877,7 +877,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:45.907Z"
+    "seededAt": "2026-04-04T10:30:21.325Z"
   },
   {
     "slug": "dietykieta.pl",
@@ -899,13 +899,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:40.176Z"
+    "seededAt": "2026-04-04T10:31:43.063Z"
   },
   {
-    "slug": "lanfam.pl",
+    "slug": "dobreto",
     "name": "Dobre To.",
-    "domain": "lanfam.pl",
-    "url": "https://lanfam.pl",
+    "domain": null,
+    "url": null,
     "dietlySlug": "dobreto",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/dobreto",
     "source": "dietly",
@@ -921,7 +921,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:57.789Z"
+    "seededAt": "2026-04-04T10:30:40.667Z"
   },
   {
     "slug": "zamowienie.dobregodniacatering.pl",
@@ -943,7 +943,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:50:49.428Z"
+    "seededAt": "2026-04-04T10:29:23.894Z"
   },
   {
     "slug": "zamow.domowejedzonko.pl",
@@ -965,7 +965,7 @@
       "badge": "dietly-awards",
       "awarded": true
     },
-    "seededAt": "2026-04-04T09:50:48.279Z"
+    "seededAt": "2026-04-04T10:29:23.183Z"
   },
   {
     "slug": "drkaloria.pl",
@@ -987,7 +987,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:06.672Z"
+    "seededAt": "2026-04-04T10:30:56.155Z"
   },
   {
     "slug": "dzikibox.pl",
@@ -1009,7 +1009,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:09.435Z"
+    "seededAt": "2026-04-04T10:29:45.454Z"
   },
   {
     "slug": "easyfit.com.pl",
@@ -1031,7 +1031,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:57.861Z"
+    "seededAt": "2026-04-04T10:32:19.705Z"
   },
   {
     "slug": "panel.eatfitcatering.pl",
@@ -1053,7 +1053,7 @@
       "badge": "dietly-awards",
       "awarded": true
     },
-    "seededAt": "2026-04-04T09:51:40.647Z"
+    "seededAt": "2026-04-04T10:30:15.846Z"
   },
   {
     "slug": "eatwell.pl",
@@ -1075,7 +1075,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:28.811Z"
+    "seededAt": "2026-04-04T10:29:59.603Z"
   },
   {
     "slug": "eatfit24.pl",
@@ -1097,7 +1097,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:15.156Z"
+    "seededAt": "2026-04-04T10:31:07.949Z"
   },
   {
     "slug": "elite-diet.pl",
@@ -1119,7 +1119,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:07.260Z"
+    "seededAt": "2026-04-04T10:30:56.933Z"
   },
   {
     "slug": "fabrykasmaku.com.pl",
@@ -1141,7 +1141,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:18.348Z"
+    "seededAt": "2026-04-04T10:31:10.356Z"
   },
   {
     "slug": "fenomen.catering",
@@ -1163,7 +1163,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:30.001Z"
+    "seededAt": "2026-04-04T10:30:03.272Z"
   },
   {
     "slug": "fitking.pl",
@@ -1185,7 +1185,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:10.186Z"
+    "seededAt": "2026-04-04T10:29:46.498Z"
   },
   {
     "slug": "fitmarchewa.pl",
@@ -1207,13 +1207,13 @@
       "badge": "dietly-awards",
       "awarded": true
     },
-    "seededAt": "2026-04-04T09:51:17.655Z"
+    "seededAt": "2026-04-04T10:29:54.371Z"
   },
   {
-    "slug": "fitmuffinka.pl",
+    "slug": "fitmuffinka",
     "name": "Fit Muffinka",
-    "domain": "fitmuffinka.pl",
-    "url": "https://fitmuffinka.pl",
+    "domain": null,
+    "url": null,
     "dietlySlug": "fitmuffinka",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/fitmuffinka",
     "source": "dietly",
@@ -1229,7 +1229,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:02.257Z"
+    "seededAt": "2026-04-04T10:30:51.610Z"
   },
   {
     "slug": "fitszamka.pl",
@@ -1251,7 +1251,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:11.159Z"
+    "seededAt": "2026-04-04T10:29:47.298Z"
   },
   {
     "slug": "fit-catering.pl",
@@ -1273,7 +1273,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:22.625Z"
+    "seededAt": "2026-04-04T10:31:16.078Z"
   },
   {
     "slug": "fit-dieta.com",
@@ -1295,13 +1295,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:50:59.002Z"
+    "seededAt": "2026-04-04T10:29:34.149Z"
   },
   {
-    "slug": "fit-dieta.pl",
+    "slug": "fitdietapl",
     "name": "Fit-Dieta.pl",
-    "domain": "fit-dieta.pl",
-    "url": "https://fit-dieta.pl",
+    "domain": null,
+    "url": null,
     "dietlySlug": "fitdietapl",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/fitdietapl",
     "source": "dietly",
@@ -1317,7 +1317,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:40.788Z"
+    "seededAt": "2026-04-04T10:31:43.806Z"
   },
   {
     "slug": "fit-meal.pl",
@@ -1339,13 +1339,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:43.961Z"
+    "seededAt": "2026-04-04T10:30:18.155Z"
   },
   {
-    "slug": "fitboxcatering.pl",
+    "slug": "fitboxcatering",
     "name": "FitBox Catering",
-    "domain": "fitboxcatering.pl",
-    "url": "https://fitboxcatering.pl",
+    "domain": null,
+    "url": null,
     "dietlySlug": "fitboxcatering",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/fitboxcatering",
     "source": "dietly",
@@ -1361,7 +1361,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:50:44.874Z"
+    "seededAt": "2026-04-04T10:29:13.403Z"
   },
   {
     "slug": "fitcare.pl",
@@ -1383,7 +1383,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:59.084Z"
+    "seededAt": "2026-04-04T10:32:21.366Z"
   },
   {
     "slug": "fitlifedieta.pl",
@@ -1405,7 +1405,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:52.297Z"
+    "seededAt": "2026-04-04T10:32:12.407Z"
   },
   {
     "slug": "fitnesscatering.com.pl",
@@ -1427,13 +1427,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:56.684Z"
+    "seededAt": "2026-04-04T10:32:17.966Z"
   },
   {
-    "slug": "flamingdieta.pl",
+    "slug": "flamingdieta",
     "name": "FLAMINGDIETA",
-    "domain": "flamingdieta.pl",
-    "url": "https://flamingdieta.pl",
+    "domain": null,
+    "url": null,
     "dietlySlug": "flamingdieta",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/flamingdieta",
     "source": "dietly",
@@ -1449,7 +1449,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:16.677Z"
+    "seededAt": "2026-04-04T10:31:08.742Z"
   },
   {
     "slug": "foodforfoodies.pl",
@@ -1471,7 +1471,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:41.796Z"
+    "seededAt": "2026-04-04T10:31:46.144Z"
   },
   {
     "slug": "foodiediet.pl",
@@ -1493,13 +1493,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:53.475Z"
+    "seededAt": "2026-04-04T10:32:13.736Z"
   },
   {
-    "slug": "foodiebox.com.pl",
+    "slug": "foodieboxbycanapa",
     "name": "Foodiebox Kuchnie Świata",
-    "domain": "foodiebox.com.pl",
-    "url": "https://foodiebox.com.pl",
+    "domain": null,
+    "url": null,
     "dietlySlug": "foodieboxbycanapa",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/foodieboxbycanapa",
     "source": "dietly",
@@ -1515,13 +1515,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:27.613Z"
+    "seededAt": "2026-04-04T10:29:57.947Z"
   },
   {
-    "slug": "foodieforce.pl",
+    "slug": "foodieforce",
     "name": "FoodieForce",
-    "domain": "foodieforce.pl",
-    "url": "https://foodieforce.pl",
+    "domain": null,
+    "url": null,
     "dietlySlug": "foodieforce",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/foodieforce",
     "source": "dietly",
@@ -1537,7 +1537,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:49.506Z"
+    "seededAt": "2026-04-04T10:30:25.503Z"
   },
   {
     "slug": "formazywienia.pl",
@@ -1559,7 +1559,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:34.109Z"
+    "seededAt": "2026-04-04T10:31:36.015Z"
   },
   {
     "slug": "freshcatering.com.pl",
@@ -1581,7 +1581,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:11.514Z"
+    "seededAt": "2026-04-04T10:31:03.318Z"
   },
   {
     "slug": "fresh4you.pl",
@@ -1603,7 +1603,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:08.452Z"
+    "seededAt": "2026-04-04T10:30:58.511Z"
   },
   {
     "slug": "freshdiet.pl",
@@ -1625,7 +1625,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:33.471Z"
+    "seededAt": "2026-04-04T10:31:35.297Z"
   },
   {
     "slug": "gastromonkey.pl",
@@ -1647,7 +1647,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:00.206Z"
+    "seededAt": "2026-04-04T10:30:45.338Z"
   },
   {
     "slug": "panel.glodnymis.pl",
@@ -1669,7 +1669,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:50:47.658Z"
+    "seededAt": "2026-04-04T10:29:16.738Z"
   },
   {
     "slug": "goodiefoodie.pl",
@@ -1691,7 +1691,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:32.861Z"
+    "seededAt": "2026-04-04T10:31:34.614Z"
   },
   {
     "slug": "gramaturacatering.pl",
@@ -1713,13 +1713,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:10.920Z"
+    "seededAt": "2026-04-04T10:31:02.617Z"
   },
   {
-    "slug": "greendietbuffet.pl",
+    "slug": "greendietbuffet",
     "name": "GREEN DIET BUFFET",
-    "domain": "greendietbuffet.pl",
-    "url": "https://greendietbuffet.pl",
+    "domain": null,
+    "url": null,
     "dietlySlug": "greendietbuffet",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/greendietbuffet",
     "source": "dietly",
@@ -1735,7 +1735,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:42.378Z"
+    "seededAt": "2026-04-04T10:31:46.999Z"
   },
   {
     "slug": "happyfood.com.pl",
@@ -1757,7 +1757,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:59.536Z"
+    "seededAt": "2026-04-04T10:30:42.552Z"
   },
   {
     "slug": "healthyeat.pl",
@@ -1779,7 +1779,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:36.959Z"
+    "seededAt": "2026-04-04T10:30:11.934Z"
   },
   {
     "slug": "hellodieta.pl",
@@ -1801,13 +1801,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:05.896Z"
+    "seededAt": "2026-04-04T10:30:55.418Z"
   },
   {
-    "slug": "hellofit.pl",
+    "slug": "hellofiteconomy",
     "name": "Hello Fit ",
-    "domain": "hellofit.pl",
-    "url": "https://hellofit.pl",
+    "domain": null,
+    "url": null,
     "dietlySlug": "hellofiteconomy",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/hellofiteconomy",
     "source": "dietly",
@@ -1823,13 +1823,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:24.754Z"
+    "seededAt": "2026-04-04T10:31:23.690Z"
   },
   {
-    "slug": "husariacatering.pl",
+    "slug": "husariacatering",
     "name": "Husaria Catering",
-    "domain": "husariacatering.pl",
-    "url": "https://husariacatering.pl",
+    "domain": null,
+    "url": null,
     "dietlySlug": "husariacatering",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/husariacatering",
     "source": "dietly",
@@ -1845,7 +1845,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:43.805Z"
+    "seededAt": "2026-04-04T10:31:50.949Z"
   },
   {
     "slug": "files.clickweb.home.pl",
@@ -1867,7 +1867,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:44.390Z"
+    "seededAt": "2026-04-04T10:31:53.112Z"
   },
   {
     "slug": "justdiet",
@@ -1889,13 +1889,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:25.342Z"
+    "seededAt": "2026-04-04T10:31:24.445Z"
   },
   {
-    "slug": "just-diet.pl",
+    "slug": "justdietcatering",
     "name": "Just Diet Catering",
-    "domain": "just-diet.pl",
-    "url": "https://just-diet.pl",
+    "domain": null,
+    "url": null,
     "dietlySlug": "justdietcatering",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/justdietcatering",
     "source": "dietly",
@@ -1911,7 +1911,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:25.924Z"
+    "seededAt": "2026-04-04T10:31:25.204Z"
   },
   {
     "slug": "kapitanbox.pl",
@@ -1933,7 +1933,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:05.316Z"
+    "seededAt": "2026-04-04T10:29:41.023Z"
   },
   {
     "slug": "kapitan-cook.pl",
@@ -1955,7 +1955,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:26.522Z"
+    "seededAt": "2026-04-04T10:31:26.021Z"
   },
   {
     "slug": "fit-bag.pl",
@@ -1977,7 +1977,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:07.860Z"
+    "seededAt": "2026-04-04T10:30:57.662Z"
   },
   {
     "slug": "kikcatering.pl",
@@ -1999,7 +1999,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:31.430Z"
+    "seededAt": "2026-04-04T10:31:31.588Z"
   },
   {
     "slug": "idz.do",
@@ -2021,7 +2021,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:03.170Z"
+    "seededAt": "2026-04-04T10:29:38.641Z"
   },
   {
     "slug": "kolorowoizdrowo.pl",
@@ -2043,13 +2043,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:19.603Z"
+    "seededAt": "2026-04-04T10:31:11.860Z"
   },
   {
-    "slug": "kosmicznybox.pl",
+    "slug": "kosmicznybox",
     "name": "Kosmiczny Box",
-    "domain": "kosmicznybox.pl",
-    "url": "https://kosmicznybox.pl",
+    "domain": null,
+    "url": null,
     "dietlySlug": "kosmicznybox",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/kosmicznybox",
     "source": "dietly",
@@ -2065,7 +2065,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:54.152Z"
+    "seededAt": "2026-04-04T10:30:33.285Z"
   },
   {
     "slug": "kowalsmakow.pl",
@@ -2087,7 +2087,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:20.836Z"
+    "seededAt": "2026-04-04T10:31:13.673Z"
   },
   {
     "slug": "kraftbox.pl",
@@ -2109,7 +2109,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:13.962Z"
+    "seededAt": "2026-04-04T10:31:06.397Z"
   },
   {
     "slug": "kuchniavikinga.pl",
@@ -2131,7 +2131,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:04.324Z"
+    "seededAt": "2026-04-04T10:30:53.860Z"
   },
   {
     "slug": "zamow.kukulahealthyfood.pl",
@@ -2153,13 +2153,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:38.396Z"
+    "seededAt": "2026-04-04T10:31:40.898Z"
   },
   {
-    "slug": "kukurykukatering.pl",
+    "slug": "kukurykukatering",
     "name": "Kukuryku Katering",
-    "domain": "kukurykukatering.pl",
-    "url": "https://kukurykukatering.pl",
+    "domain": null,
+    "url": null,
     "dietlySlug": "kukurykukatering",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/kukurykukatering",
     "source": "dietly",
@@ -2175,7 +2175,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:34.690Z"
+    "seededAt": "2026-04-04T10:31:36.769Z"
   },
   {
     "slug": "kulinarniefit.pl",
@@ -2197,13 +2197,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:50:45.626Z"
+    "seededAt": "2026-04-04T10:29:14.380Z"
   },
   {
-    "slug": "ligasmaku.pl",
+    "slug": "lh3.googleusercontent.com",
     "name": "Liga Smaku",
-    "domain": "ligasmaku.pl",
-    "url": "https://ligasmaku.pl",
+    "domain": "lh3.googleusercontent.com",
+    "url": "https://lh3.googleusercontent.com",
     "dietlySlug": "ligasmaku",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/ligasmaku",
     "source": "dietly",
@@ -2219,7 +2219,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:36.316Z"
+    "seededAt": "2026-04-04T10:30:11.215Z"
   },
   {
     "slug": "lightmenu.pl",
@@ -2241,7 +2241,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:50:51.047Z"
+    "seededAt": "2026-04-04T10:29:25.433Z"
   },
   {
     "slug": "likeat.pl",
@@ -2263,7 +2263,7 @@
       "badge": "dietly-awards",
       "awarded": true
     },
-    "seededAt": "2026-04-04T09:51:24.503Z"
+    "seededAt": "2026-04-04T10:29:55.085Z"
   },
   {
     "slug": "lovecatering.pl",
@@ -2285,7 +2285,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:45.660Z"
+    "seededAt": "2026-04-04T10:31:56.973Z"
   },
   {
     "slug": "maczfit.pl",
@@ -2307,7 +2307,7 @@
       "badge": "dietly-awards",
       "awarded": true
     },
-    "seededAt": "2026-04-04T09:50:41.921Z"
+    "seededAt": "2026-04-04T10:29:10.188Z"
   },
   {
     "slug": "magicfitcatering.pl",
@@ -2329,13 +2329,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:16.914Z"
+    "seededAt": "2026-04-04T10:29:53.602Z"
   },
   {
-    "slug": "makrotaktykapro",
+    "slug": "scontent-waw2-1.xx.fbcdn.net",
     "name": "MAKROTAKTYKA.PRO",
-    "domain": null,
-    "url": null,
+    "domain": "scontent-waw2-1.xx.fbcdn.net",
+    "url": "https://scontent-waw2-1.xx.fbcdn.net",
     "dietlySlug": "makrotaktykapro",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/makrotaktykapro",
     "source": "dietly",
@@ -2351,7 +2351,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:46.245Z"
+    "seededAt": "2026-04-04T10:32:00.164Z"
   },
   {
     "slug": "fit-malaga.pl",
@@ -2373,7 +2373,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:49.260Z"
+    "seededAt": "2026-04-04T10:32:06.466Z"
   },
   {
     "slug": "malinowybox.pl",
@@ -2395,7 +2395,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:26.397Z"
+    "seededAt": "2026-04-04T10:29:56.589Z"
   },
   {
     "slug": "mango.diet",
@@ -2417,7 +2417,7 @@
       "badge": "dietly-awards",
       "awarded": true
     },
-    "seededAt": "2026-04-04T09:50:42.530Z"
+    "seededAt": "2026-04-04T10:29:10.874Z"
   },
   {
     "slug": "mastersmaku.pl",
@@ -2439,7 +2439,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:27.103Z"
+    "seededAt": "2026-04-04T10:31:26.761Z"
   },
   {
     "slug": "zamowienie.mihiderka.pl",
@@ -2461,7 +2461,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:55.807Z"
+    "seededAt": "2026-04-04T10:30:36.560Z"
   },
   {
     "slug": "mniamfit.pl",
@@ -2483,7 +2483,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:02.845Z"
+    "seededAt": "2026-04-04T10:30:52.422Z"
   },
   {
     "slug": "mojcatering.com.pl",
@@ -2505,13 +2505,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:50:54.254Z"
+    "seededAt": "2026-04-04T10:29:28.656Z"
   },
   {
-    "slug": "mysterycatering",
+    "slug": "catering-logo-images.s3.eu-central-1.amazonaws.com",
     "name": "Mystery Catering",
-    "domain": null,
-    "url": null,
+    "domain": "catering-logo-images.s3.eu-central-1.amazonaws.com",
+    "url": "https://catering-logo-images.s3.eu-central-1.amazonaws.com",
     "dietlySlug": "mysterycatering",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/mysterycatering",
     "source": "dietly",
@@ -2527,7 +2527,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:59.783Z"
+    "seededAt": "2026-04-04T10:32:22.105Z"
   },
   {
     "slug": "nalekko.pl",
@@ -2549,7 +2549,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:50:57.026Z"
+    "seededAt": "2026-04-04T10:29:31.682Z"
   },
   {
     "slug": "nasmak.pl",
@@ -2571,7 +2571,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:50:59.690Z"
+    "seededAt": "2026-04-04T10:29:34.945Z"
   },
   {
     "slug": "naszadieta.pl",
@@ -2593,13 +2593,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:50.438Z"
+    "seededAt": "2026-04-04T10:32:10.075Z"
   },
   {
-    "slug": "ntfy.pl",
+    "slug": "s3.eu-central-1.amazonaws.com",
     "name": "NICE TO FIT YOU",
-    "domain": "ntfy.pl",
-    "url": "https://ntfy.pl",
+    "domain": "s3.eu-central-1.amazonaws.com",
+    "url": "https://s3.eu-central-1.amazonaws.com",
     "dietlySlug": "ntfy",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/ntfy",
     "source": "dietly",
@@ -2615,13 +2615,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:53:00.369Z"
+    "seededAt": "2026-04-04T10:32:22.847Z"
   },
   {
-    "slug": "nieziemskakuchnia.pl",
+    "slug": "nieziemskakuchnia",
     "name": "Nieziemska Kuchnia",
-    "domain": "nieziemskakuchnia.pl",
-    "url": "https://nieziemskakuchnia.pl",
+    "domain": null,
+    "url": null,
     "dietlySlug": "nieziemskakuchnia",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/nieziemskakuchnia",
     "source": "dietly",
@@ -2637,7 +2637,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:02.574Z"
+    "seededAt": "2026-04-04T10:29:37.976Z"
   },
   {
     "slug": "nowalijkacatering.pl",
@@ -2659,13 +2659,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:58.459Z"
+    "seededAt": "2026-04-04T10:30:41.467Z"
   },
   {
-    "slug": "optidiet.pl",
+    "slug": "optidiet",
     "name": "OptiDiet",
-    "domain": "optidiet.pl",
-    "url": "https://optidiet.pl",
+    "domain": null,
+    "url": null,
     "dietlySlug": "optidiet",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/optidiet",
     "source": "dietly",
@@ -2681,7 +2681,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:01.609Z"
+    "seededAt": "2026-04-04T10:30:50.040Z"
   },
   {
     "slug": "optimalfit.pl",
@@ -2703,7 +2703,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:06.774Z"
+    "seededAt": "2026-04-04T10:29:42.536Z"
   },
   {
     "slug": "api.typeform.com",
@@ -2725,7 +2725,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:51.714Z"
+    "seededAt": "2026-04-04T10:32:11.734Z"
   },
   {
     "slug": "perfect-chef.pl",
@@ -2747,7 +2747,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:50:58.265Z"
+    "seededAt": "2026-04-04T10:29:33.318Z"
   },
   {
     "slug": "pogotowie-dietetyczne.pl",
@@ -2769,7 +2769,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:13.930Z"
+    "seededAt": "2026-04-04T10:29:50.663Z"
   },
   {
     "slug": "polskirycerz.pl",
@@ -2791,7 +2791,7 @@
       "badge": "dietly-awards",
       "awarded": true
     },
-    "seededAt": "2026-04-04T09:50:38.579Z"
+    "seededAt": "2026-04-04T10:29:07.205Z"
   },
   {
     "slug": "pomidorirukola.pl",
@@ -2813,7 +2813,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:14.567Z"
+    "seededAt": "2026-04-04T10:31:07.148Z"
   },
   {
     "slug": "predkicatering.pl",
@@ -2835,7 +2835,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:12.094Z"
+    "seededAt": "2026-04-04T10:31:04.010Z"
   },
   {
     "slug": "prl-box.pl",
@@ -2857,7 +2857,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:09.051Z"
+    "seededAt": "2026-04-04T10:30:59.327Z"
   },
   {
     "slug": "catering.prosta38.pl",
@@ -2879,7 +2879,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:27.704Z"
+    "seededAt": "2026-04-04T10:31:27.407Z"
   },
   {
     "slug": "readyfordiet.pl",
@@ -2901,7 +2901,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:30.261Z"
+    "seededAt": "2026-04-04T10:31:30.174Z"
   },
   {
     "slug": "zamowienie.robinfoodcatering.pl",
@@ -2923,7 +2923,7 @@
       "badge": "dietly-awards",
       "awarded": true
     },
-    "seededAt": "2026-04-04T09:50:39.290Z"
+    "seededAt": "2026-04-04T10:29:07.907Z"
   },
   {
     "slug": "rocketfood.pl",
@@ -2945,7 +2945,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:35.278Z"
+    "seededAt": "2026-04-04T10:31:37.411Z"
   },
   {
     "slug": "royalcook.pl",
@@ -2967,7 +2967,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:11.779Z"
+    "seededAt": "2026-04-04T10:29:47.983Z"
   },
   {
     "slug": "royal.fit",
@@ -2989,7 +2989,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:55.346Z"
+    "seededAt": "2026-04-04T10:32:15.091Z"
   },
   {
     "slug": "sabatini.pl",
@@ -3011,7 +3011,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:03.434Z"
+    "seededAt": "2026-04-04T10:30:53.077Z"
   },
   {
     "slug": "samwybor.pl",
@@ -3033,7 +3033,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:29.501Z"
+    "seededAt": "2026-04-04T10:31:29.450Z"
   },
   {
     "slug": "samozdrowe.pl",
@@ -3055,7 +3055,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:46.828Z"
+    "seededAt": "2026-04-04T10:32:01.105Z"
   },
   {
     "slug": "slowchef.pl",
@@ -3077,7 +3077,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:50.130Z"
+    "seededAt": "2026-04-04T10:30:26.354Z"
   },
   {
     "slug": "smaczniejem.pl",
@@ -3099,7 +3099,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:07.399Z"
+    "seededAt": "2026-04-04T10:29:43.262Z"
   },
   {
     "slug": "smakbox.com.pl",
@@ -3121,7 +3121,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:48.671Z"
+    "seededAt": "2026-04-04T10:32:05.422Z"
   },
   {
     "slug": "smakialpaki.pl",
@@ -3143,13 +3143,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:27.004Z"
+    "seededAt": "2026-04-04T10:29:57.258Z"
   },
   {
-    "slug": "spaorkana.pl",
+    "slug": "spaorkana",
     "name": "Spa Orkana Sp. z o.o.",
-    "domain": "spaorkana.pl",
-    "url": "https://spaorkana.pl",
+    "domain": null,
+    "url": null,
     "dietlySlug": "spaorkana",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/spaorkana",
     "source": "dietly",
@@ -3165,7 +3165,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:56.098Z"
+    "seededAt": "2026-04-04T10:32:17.180Z"
   },
   {
     "slug": "straznicydiety.pl",
@@ -3187,7 +3187,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:39.217Z"
+    "seededAt": "2026-04-04T10:30:14.389Z"
   },
   {
     "slug": "supermenu.com.pl",
@@ -3209,7 +3209,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:05.108Z"
+    "seededAt": "2026-04-04T10:30:54.584Z"
   },
   {
     "slug": "szczypta-smaku.pl",
@@ -3231,13 +3231,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:47.416Z"
+    "seededAt": "2026-04-04T10:32:03.768Z"
   },
   {
-    "slug": "sztukawyboru.com",
+    "slug": "sztukawyboru",
     "name": "Sztuka Wyboru",
-    "domain": "sztukawyboru.com",
-    "url": "https://sztukawyboru.com",
+    "domain": null,
+    "url": null,
     "dietlySlug": "sztukawyboru",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/sztukawyboru",
     "source": "dietly",
@@ -3253,7 +3253,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:50:37.152Z"
+    "seededAt": "2026-04-04T10:29:05.759Z"
   },
   {
     "slug": "takszef.com",
@@ -3275,7 +3275,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:50:53.342Z"
+    "seededAt": "2026-04-04T10:29:27.675Z"
   },
   {
     "slug": "takeawaydiet.com.pl",
@@ -3297,7 +3297,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:50:43.924Z"
+    "seededAt": "2026-04-04T10:29:12.612Z"
   },
   {
     "slug": "targcatering.pl",
@@ -3319,7 +3319,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:57.194Z"
+    "seededAt": "2026-04-04T10:30:39.953Z"
   },
   {
     "slug": "timcatering.pl",
@@ -3341,7 +3341,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:33.649Z"
+    "seededAt": "2026-04-04T10:30:07.982Z"
   },
   {
     "slug": "zamow.torebkawcukierce.pl",
@@ -3363,13 +3363,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:55.220Z"
+    "seededAt": "2026-04-04T10:30:34.140Z"
   },
   {
-    "slug": "towarspodlady.pl",
+    "slug": "towarspodlady",
     "name": "Towar spod lady",
-    "domain": "towarspodlady.pl",
-    "url": "https://towarspodlady.pl",
+    "domain": null,
+    "url": null,
     "dietlySlug": "towarspodlady",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/towarspodlady",
     "source": "dietly",
@@ -3385,7 +3385,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:50:36.505Z"
+    "seededAt": "2026-04-04T10:29:04.982Z"
   },
   {
     "slug": "tukokoszka.pl",
@@ -3407,13 +3407,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:00.975Z"
+    "seededAt": "2026-04-04T10:30:48.567Z"
   },
   {
-    "slug": "twojemenu.pl",
+    "slug": "twojemenu",
     "name": "Twoje Menu ",
-    "domain": "twojemenu.pl",
-    "url": "https://twojemenu.pl",
+    "domain": null,
+    "url": null,
     "dietlySlug": "twojemenu",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/twojemenu",
     "source": "dietly",
@@ -3429,7 +3429,7 @@
       "badge": "dietly-awards",
       "awarded": true
     },
-    "seededAt": "2026-04-04T09:50:50.062Z"
+    "seededAt": "2026-04-04T10:29:24.764Z"
   },
   {
     "slug": "tytkafit.pl",
@@ -3451,7 +3451,7 @@
       "badge": "dietly-awards",
       "awarded": true
     },
-    "seededAt": "2026-04-04T09:51:12.449Z"
+    "seededAt": "2026-04-04T10:29:48.835Z"
   },
   {
     "slug": "upapajacateringdietetyczny.pl",
@@ -3473,7 +3473,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:21.448Z"
+    "seededAt": "2026-04-04T10:31:14.599Z"
   },
   {
     "slug": "ucztawilka.pl",
@@ -3495,7 +3495,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:03.799Z"
+    "seededAt": "2026-04-04T10:29:39.344Z"
   },
   {
     "slug": "panel.urbanfits.pl",
@@ -3517,7 +3517,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:00.490Z"
+    "seededAt": "2026-04-04T10:29:35.691Z"
   },
   {
     "slug": "wdobrejformiecatering.pl",
@@ -3539,13 +3539,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:06.120Z"
+    "seededAt": "2026-04-04T10:29:41.774Z"
   },
   {
-    "slug": "warsawfit.pl",
+    "slug": "cdn.prod.website-files.com",
     "name": "Warsaw Fit",
-    "domain": "warsawfit.pl",
-    "url": "https://warsawfit.pl",
+    "domain": "cdn.prod.website-files.com",
+    "url": "https://cdn.prod.website-files.com",
     "dietlySlug": "warsawfit",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/warsawfit",
     "source": "dietly",
@@ -3561,7 +3561,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:17.431Z"
+    "seededAt": "2026-04-04T10:31:09.531Z"
   },
   {
     "slug": "wiktcodzienny.pl",
@@ -3583,7 +3583,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:28.215Z"
+    "seededAt": "2026-04-04T10:29:58.761Z"
   },
   {
     "slug": "wlasciwywybor.pl",
@@ -3605,7 +3605,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:50:37.781Z"
+    "seededAt": "2026-04-04T10:29:06.518Z"
   },
   {
     "slug": "fitboxcatering.pl",
@@ -3627,7 +3627,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:50:47.021Z"
+    "seededAt": "2026-04-04T10:29:15.757Z"
   },
   {
     "slug": "images.ctfassets.net",
@@ -3649,13 +3649,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:45.277Z"
+    "seededAt": "2026-04-04T10:30:20.577Z"
   },
   {
-    "slug": "wygodnadieta.pl",
+    "slug": "scontent-waw1-1.xx.fbcdn.net",
     "name": "WygodnaDieta.pl",
-    "domain": "wygodnadieta.pl",
-    "url": "https://wygodnadieta.pl",
+    "domain": "scontent-waw1-1.xx.fbcdn.net",
+    "url": "https://scontent-waw1-1.xx.fbcdn.net",
     "dietlySlug": "wygodnadieta",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/wygodnadieta",
     "source": "dietly",
@@ -3671,7 +3671,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:54.753Z"
+    "seededAt": "2026-04-04T10:32:14.447Z"
   },
   {
     "slug": "wykwintnybox.pl",
@@ -3693,7 +3693,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:37.618Z"
+    "seededAt": "2026-04-04T10:30:12.693Z"
   },
   {
     "slug": "wysmakowani.pl",
@@ -3715,7 +3715,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:16.141Z"
+    "seededAt": "2026-04-04T10:29:52.956Z"
   },
   {
     "slug": "zdrowaszama.com",
@@ -3737,7 +3737,7 @@
       "badge": "dietly-awards",
       "awarded": true
     },
-    "seededAt": "2026-04-04T09:50:41.233Z"
+    "seededAt": "2026-04-04T10:29:09.447Z"
   },
   {
     "slug": "zdrowo-najedzeni.pl",
@@ -3759,7 +3759,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:09.634Z"
+    "seededAt": "2026-04-04T10:31:01.032Z"
   },
   {
     "slug": "zdrowsza-dieta.pl",
@@ -3781,7 +3781,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:50:43.239Z"
+    "seededAt": "2026-04-04T10:29:11.597Z"
   },
   {
     "slug": "zdrowysmak.pl",
@@ -3803,7 +3803,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:53.510Z"
+    "seededAt": "2026-04-04T10:30:30.259Z"
   },
   {
     "slug": "zdrowystyl.eu",
@@ -3825,7 +3825,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:57.280Z"
+    "seededAt": "2026-04-04T10:32:18.974Z"
   },
   {
     "slug": "zielonypuzzel.pl",
@@ -3847,7 +3847,7 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:48.081Z"
+    "seededAt": "2026-04-04T10:32:04.775Z"
   },
   {
     "slug": "zlotybox.pl",
@@ -3869,13 +3869,13 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:52:28.312Z"
+    "seededAt": "2026-04-04T10:31:28.124Z"
   },
   {
-    "slug": "zryjzdrowo.pl",
+    "slug": "scontent-frt3-2.xx.fbcdn.net",
     "name": "ZryjZdrowo Catering",
-    "domain": "zryjzdrowo.pl",
-    "url": "https://zryjzdrowo.pl",
+    "domain": "scontent-frt3-2.xx.fbcdn.net",
+    "url": "https://scontent-frt3-2.xx.fbcdn.net",
     "dietlySlug": "zryjzdrowo",
     "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/zryjzdrowo",
     "source": "dietly",
@@ -3891,7 +3891,347 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:51:40.009Z"
+    "seededAt": "2026-04-04T10:30:15.081Z"
+  },
+  {
+    "slug": "awokadocatering.pl",
+    "name": "AWOKADO catering dietetyczny | Częstochowa i okolice",
+    "domain": "awokadocatering.pl",
+    "url": "https://awokadocatering.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "powermeal.pl",
+    "name": "Catering dietetyczny Elbląg ? Dieta pudełkowa z wymianą ...",
+    "domain": "powermeal.pl",
+    "url": "https://powermeal.pl/catering-dietetyczny/elblag/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "minutaosiem.pl",
+    "name": "Catering dietetyczny Gdańsk",
+    "domain": "minutaosiem.pl",
+    "url": "https://minutaosiem.pl/gdansk/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "dietyodrekina.pl",
+    "name": "Catering dietetyczny Jastrzębie",
+    "domain": "dietyodrekina.pl",
+    "url": "https://dietyodrekina.pl/catering-dietetyczny/jastrzebie-zdroj/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "eatfitcatering.pl",
+    "name": "Catering dietetyczny Kielce",
+    "domain": "eatfitcatering.pl",
+    "url": "https://eatfitcatering.pl/catering-dietetyczny/kielce/?srsltid=AfmBOooQfQ5ROnk6bRGiHWfVwZrfayUkBis-vQ_NazeH9_emgaPSWxp1",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "sztosmenu.pl",
+    "name": "Catering dietetyczny Kielce",
+    "domain": "sztosmenu.pl",
+    "url": "https://www.sztosmenu.pl/catering-dietetyczny-kielce/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "green-box.pl",
+    "name": "Catering dietetyczny Koszalin",
+    "domain": "green-box.pl",
+    "url": "https://green-box.pl/koszalin/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "fitapetit.com.pl",
+    "name": "Catering dietetyczny Kraków",
+    "domain": "fitapetit.com.pl",
+    "url": "https://www.fitapetit.com.pl/catering-dietetyczny-krakow",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "cateringi-dietetyczne.pl",
+    "name": "Catering dietetyczny Kraków",
+    "domain": "cateringi-dietetyczne.pl",
+    "url": "https://www.cateringi-dietetyczne.pl/krakow/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "uhrabiego.pl",
+    "name": "Catering dietetyczny Legnica",
+    "domain": "uhrabiego.pl",
+    "url": "https://www.uhrabiego.pl/legnica",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "bodychief.pl",
+    "name": "Catering dietetyczny Lublin",
+    "domain": "bodychief.pl",
+    "url": "https://bodychief.pl/dieta-pudelkowa/lublin?srsltid=AfmBOor9bLKtx_XVZyPfEVwkIncINfRIOaDHie55a2Bzv8rISoZmROkg",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.986Z"
+  },
+  {
+    "slug": "medidieta.pl",
+    "name": "Catering dietetyczny Lublin — dieta opracowana przez ...",
+    "domain": "medidieta.pl",
+    "url": "https://medidieta.pl/lublin",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.987Z"
+  },
+  {
+    "slug": "fitszef.pl",
+    "name": "Catering dietetyczny Lublin, dieta pudełkowa",
+    "domain": "fitszef.pl",
+    "url": "https://fitszef.pl/catering-dietetyczny-lublin/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.987Z"
+  },
+  {
+    "slug": "myfood.pl",
+    "name": "Catering dietetyczny Olsztyn (dieta pudełkowa)",
+    "domain": "myfood.pl",
+    "url": "https://myfood.pl/olsztyn/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "pomelo.com.pl",
+    "name": "Catering dietetyczny Opole",
+    "domain": "pomelo.com.pl",
+    "url": "https://pomelo.com.pl/catering-dietetyczny-opole/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "republikasmakoszy.pl",
+    "name": "Catering dietetyczny Opole 🥑 dieta pudełkowa I ...",
+    "domain": "republikasmakoszy.pl",
+    "url": "https://republikasmakoszy.pl/miasto/opole?srsltid=AfmBOop8Xni7s8VV97m0Bzd7BAGrRg4UphM_dJDC2cZ21dHjFGSa85YT",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "bedietcatering.pl",
+    "name": "Catering dietetyczny Piła",
+    "domain": "bedietcatering.pl",
+    "url": "https://bedietcatering.pl/pila/?srsltid=AfmBOoqlru4x33qYNwwcdN0A5IiVpmrVE_WryFrCDzf03sGB8CsD-Evf",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "fitway.pl",
+    "name": "Catering Dietetyczny Poznań",
+    "domain": "fitway.pl",
+    "url": "https://fitway.pl/?srsltid=AfmBOoon87Ypz9nqqawPbBBfj-VgxjY_5TWkiNNs6zFlzjmOTA9-PXO_",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "fitgar.pl",
+    "name": "Catering dietetyczny Słupsk - FITGAR - Doskonałe, smaczne ...",
+    "domain": "fitgar.pl",
+    "url": "https://fitgar.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "fitpapu.com",
+    "name": "Catering dietetyczny Tychy, dieta pudełkowa - Fitpapu Śląsk",
+    "domain": "fitpapu.com",
+    "url": "https://www.fitpapu.com/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "najlepszycatering.pl",
+    "name": "Catering dietetyczny Warszawa ⭐️ Ranking 2026 ...",
+    "domain": "najlepszycatering.pl",
+    "url": "https://najlepszycatering.pl/warszawa/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "zdrowelove.com.pl",
+    "name": "Catering dietetyczny Zielona Góra - ZdroweLove - Zielona ...",
+    "domain": "zdrowelove.com.pl",
+    "url": "https://zdrowelove.com.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "natu.care",
+    "name": "Catering dietetyczny, dieta pudełkowa Warszawa: ranking ...",
+    "domain": "natu.care",
+    "url": "https://natu.care/pl/catering-dietetyczny/warszawa",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "ciabattasquad.pl",
+    "name": "Catering Mysłowice - Obsługa Imprez i Firm ... - Ciabatta SQUAD",
+    "domain": "ciabattasquad.pl",
+    "url": "https://ciabattasquad.pl/catering/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "nawidelcu.fit",
+    "name": "Catering nie tylko Dietetyczy - Augustów, Suwałki - Na Widelcu",
+    "domain": "nawidelcu.fit",
+    "url": "https://nawidelcu.fit/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "czystamicha.com",
+    "name": "Czysta Micha: Catering dietetyczny, dieta pudełkowa Białystok",
+    "domain": "czystamicha.com",
+    "url": "https://czystamicha.com/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "dietpoint.pl",
+    "name": "Diet Point",
+    "domain": "dietpoint.pl",
+    "url": "https://www.dietpoint.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "dietanazdrowko.pl",
+    "name": "Dieta na zdrówko",
+    "domain": "dietanazdrowko.pl",
+    "url": "https://dietanazdrowko.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "ntfy.pl",
+    "name": "Dieta pudełkowa Kraków zamów catering dietetyczny z ...",
+    "domain": "ntfy.pl",
+    "url": "https://ntfy.pl/miasto/krakow",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "siejezdrowo.pl",
+    "name": "Dieta pudełkowa Piła",
+    "domain": "siejezdrowo.pl",
+    "url": "https://siejezdrowo.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "dietline.com.pl",
+    "name": "DietLine",
+    "domain": "dietline.com.pl",
+    "url": "https://dietline.com.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.987Z"
+  },
+  {
+    "slug": "fatway.pl",
+    "name": "Fatway Catering: Catering dietetyczny Słupsk, Koszalin, Gdańsk",
+    "domain": "fatway.pl",
+    "url": "https://fatway.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "fittanken.pl",
+    "name": "fit tanken",
+    "domain": "fittanken.pl",
+    "url": "https://fittanken.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "fitandmore.pl",
+    "name": "FitAndMore: Catering Dietetyczny Poznań #1",
+    "domain": "fitandmore.pl",
+    "url": "https://fitandmore.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
   },
   {
     "slug": "houseofprotein",
@@ -3913,6 +4253,446 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T09:53:39.622Z"
+    "seededAt": "2026-04-04T10:33:15.427Z"
+  },
+  {
+    "slug": "tajm.pl",
+    "name": "Kraków",
+    "domain": "tajm.pl",
+    "url": "https://tajm.pl/miasta/krakow/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "kuzniazdrowia.pl",
+    "name": "Kuźnia Zdrowia: catering dietetyczny, dieta pudełkowa",
+    "domain": "kuzniazdrowia.pl",
+    "url": "https://www.kuzniazdrowia.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "lekka-kuchnia.pl",
+    "name": "Lekka Kuchnia",
+    "domain": "lekka-kuchnia.pl",
+    "url": "https://lekka-kuchnia.pl/?srsltid=AfmBOoq_HrA22etixtndcey3fAdkqaAR15DYdlvEfZTFhojQ23Q-LmVB",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "torbasmaku.pl",
+    "name": "Lublin",
+    "domain": "torbasmaku.pl",
+    "url": "https://torbasmaku.pl/miasta/lublin/?srsltid=AfmBOop7eZo3VQTcjc6GGnKRcVfuDUEv6Qcx4VY_PjWNSJL_vSMPXqw2",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.987Z"
+  },
+  {
+    "slug": "lookfit.pl",
+    "name": "Mapa",
+    "domain": "lookfit.pl",
+    "url": "http://lookfit.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.988Z"
+  },
+  {
+    "slug": "freshlab.pl",
+    "name": "Mapa",
+    "domain": "freshlab.pl",
+    "url": "https://freshlab.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.988Z"
+  },
+  {
+    "slug": "foodiebox.com.pl",
+    "name": "Mapa",
+    "domain": "foodiebox.com.pl",
+    "url": "http://www.foodiebox.com.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.988Z"
+  },
+  {
+    "slug": "dietific.pl",
+    "name": "Mapa",
+    "domain": "dietific.pl",
+    "url": "https://www.dietific.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "pracowniasmakucatering.pl",
+    "name": "Mapa",
+    "domain": "pracowniasmakucatering.pl",
+    "url": "https://pracowniasmakucatering.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "loveatcatering.pl",
+    "name": "Mapa",
+    "domain": "loveatcatering.pl",
+    "url": "https://loveatcatering.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "wygodnadieta.pl",
+    "name": "Mapa",
+    "domain": "wygodnadieta.pl",
+    "url": "http://www.wygodnadieta.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "rukolacatering.pl",
+    "name": "Mapa",
+    "domain": "rukolacatering.pl",
+    "url": "https://rukolacatering.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "smak-fit.pl",
+    "name": "Mapa",
+    "domain": "smak-fit.pl",
+    "url": "http://www.smak-fit.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "lekkikes.pl",
+    "name": "Mapa",
+    "domain": "lekkikes.pl",
+    "url": "https://lekkikes.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "vikingpoint.pl",
+    "name": "Mapa",
+    "domain": "vikingpoint.pl",
+    "url": "http://www.vikingpoint.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "localnycatering.pl",
+    "name": "Mapa",
+    "domain": "localnycatering.pl",
+    "url": "https://localnycatering.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "greenfitcatering.pl",
+    "name": "Mapa",
+    "domain": "greenfitcatering.pl",
+    "url": "https://greenfitcatering.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "4fitcatering.pl",
+    "name": "Mapa",
+    "domain": "4fitcatering.pl",
+    "url": "https://4fitcatering.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "fitfactor.pl",
+    "name": "Mapa",
+    "domain": "fitfactor.pl",
+    "url": "http://fitfactor.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "balansbox.pl",
+    "name": "Mapa",
+    "domain": "balansbox.pl",
+    "url": "https://balansbox.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "food2fit.pl",
+    "name": "Mapa",
+    "domain": "food2fit.pl",
+    "url": "http://www.food2fit.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "misjazdrowie.pl",
+    "name": "Mapa",
+    "domain": "misjazdrowie.pl",
+    "url": "http://misjazdrowie.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "pitayacatering.com",
+    "name": "Mapa",
+    "domain": "pitayacatering.com",
+    "url": "https://www.pitayacatering.com/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "m.facebook.com",
+    "name": "Mapa",
+    "domain": "m.facebook.com",
+    "url": "https://m.facebook.com/Zdrowie_marzenia_motywacja_-103873214417773/?__tn__=,g",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "cateringkoszalin.pl",
+    "name": "Mapa",
+    "domain": "cateringkoszalin.pl",
+    "url": "https://cateringkoszalin.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "cateringdomino.pl",
+    "name": "Mapa",
+    "domain": "cateringdomino.pl",
+    "url": "http://www.cateringdomino.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "food2door.pl",
+    "name": "Mapa",
+    "domain": "food2door.pl",
+    "url": "http://www.food2door.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "cateringzdrowazmiana.pl",
+    "name": "Mapa",
+    "domain": "cateringzdrowazmiana.pl",
+    "url": "http://www.cateringzdrowazmiana.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "najlepszadietapudelkowa.pl",
+    "name": "Najlepsza Dieta Pudełkowa – Ogólnopolskie Wyróżnienia 2026",
+    "domain": "najlepszadietapudelkowa.pl",
+    "url": "https://najlepszadietapudelkowa.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "purefood.pl",
+    "name": "Olsztyn - PureFood",
+    "domain": "purefood.pl",
+    "url": "https://purefood.pl/olsztyn/?srsltid=AfmBOoqlt4pd8jwfO36LqQ-6kQv4agb4GNrvRroYSBu66fgE2pLUsfCm",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "optidiet.pl",
+    "name": "Optidiet: Catering Dietetyczny",
+    "domain": "optidiet.pl",
+    "url": "https://optidiet.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.988Z"
+  },
+  {
+    "slug": "kobieta.onet.pl",
+    "name": "ranking",
+    "domain": "kobieta.onet.pl",
+    "url": "https://kobieta.onet.pl/dom/najlepszy-catering-dietetyczny-ranking-dieta-pudelkowa-nasze-top-4/eev54mk",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "trojmiasto.pl",
+    "name": "Ranking 2025: najlepszy catering dietetyczny w Trójmieście",
+    "domain": "trojmiasto.pl",
+    "url": "https://www.trojmiasto.pl/kulinaria/Ranking-2025-najlepszy-catering-dietetyczny-w-Trojmiescie-n202446.html",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "cateringidietetyczne.pl",
+    "name": "Ranking cateringów dietetycznych | Ranking diet ...",
+    "domain": "cateringidietetyczne.pl",
+    "url": "https://www.cateringidietetyczne.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "rankingiproduktow.pl",
+    "name": "Ranking cateringów dietetycznych 2026 Najlepsze cateringi",
+    "domain": "rankingiproduktow.pl",
+    "url": "https://rankingiproduktow.pl/ranking-cateringow-dietetycznych/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "ranking-cateringow.pl",
+    "name": "Ranking cateringów dietetycznych i diety pudełkowej w 2026 ...",
+    "domain": "ranking-cateringow.pl",
+    "url": "https://www.ranking-cateringow.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "foodango.pl",
+    "name": "Ranking cateringów dietetycznych premium – Foodango.pl...",
+    "domain": "foodango.pl",
+    "url": "https://foodango.pl/blog/ranking-cateringow-premium?srsltid=AfmBOoogvfwPMRKXMqG235Rr2HJhK3fBnz4TGv_0NKt_uERVY7SAmk3x",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "wellbestudio.pl",
+    "name": "Ranking diet pudełkowych 2025: które cateringi są ...",
+    "domain": "wellbestudio.pl",
+    "url": "https://wellbestudio.pl/rankingi/ranking-diet-pudelkowych-2025-sprawdz-ktore-cateringi-sa-najlepsze-w-polsce/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "jadka.pl",
+    "name": "Ranking diet pudełkowych 2026 - JaDka",
+    "domain": "jadka.pl",
+    "url": "https://jadka.pl/ranking-diet-pudelkowych-2026/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "fitelita.pl",
+    "name": "Strona Główna",
+    "domain": "fitelita.pl",
+    "url": "https://fitelita.pl/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "gastropaczka.pl",
+    "name": "Tani catering dietetyczny",
+    "domain": "gastropaczka.pl",
+    "url": "https://gastropaczka.pl/lokalizacja/krakow/_/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "businessinsider.com.pl",
+    "name": "Top 5 najlepszych Cateringów Dietetycznych z opcją ...",
+    "domain": "businessinsider.com.pl",
+    "url": "https://businessinsider.com.pl/biznes/top-5-najlepszych-cateringow-dietetycznych-z-opcja-wyboru-menu/q54ylbk",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "lodz.pl",
+    "name": "TOP 7 najlepszych cateringów dietetycznych w Łodzi. ...",
+    "domain": "lodz.pl",
+    "url": "https://lodz.pl/artykul/top-7-najlepszych-cateringow-dietetycznych-w-lodzi-oceny-lodzian-mowia-same-za-siebie-ranking-65881/",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
+  },
+  {
+    "slug": "zdrowycatering.pl",
+    "name": "Zdrowy catering dietetyczny",
+    "domain": "zdrowycatering.pl",
+    "url": "https://www.zdrowycatering.pl/?srsltid=AfmBOoqRJ5WYqsh54Jppp9a5pj2rJfAvkoV6VH44sxikATLtoOPQHti4",
+    "dietlySlug": null,
+    "dietlyUrl": null,
+    "source": "search",
+    "seededAt": "2026-04-04T10:39:24.989Z"
   }
 ]
