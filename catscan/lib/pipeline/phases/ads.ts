@@ -185,10 +185,19 @@ async function fetchViaAdLibrarySearch(brandName: string): Promise<AdsData> {
 export async function enrichAds(entity: EntityRecord): Promise<EntityRecord> {
   const accessToken = process.env.META_ADS_ACCESS_TOKEN;
 
+  // Try to get the Facebook page name from social data (more accurate than brand name)
+  const socialData = (entity.data as Record<string, Record<string, unknown>>);
+  const fbPageName = (socialData?.social as Record<string, Record<string, unknown>>)?.facebook?.handle as string | undefined;
+  const searchName = fbPageName || entity.name;
+
   let adsData: AdsData;
 
   if (accessToken) {
-    adsData = await fetchViaMetaApi(entity.name, accessToken);
+    // Try with FB page name first, then brand name as fallback
+    adsData = await fetchViaMetaApi(searchName, accessToken);
+    if (adsData.activeAdsCount === 0 && fbPageName && fbPageName !== entity.name) {
+      adsData = await fetchViaMetaApi(entity.name, accessToken);
+    }
   } else {
     adsData = await fetchViaAdLibrarySearch(entity.name);
   }

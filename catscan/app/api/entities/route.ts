@@ -5,8 +5,11 @@ import { getScans } from '@/lib/db/store';
 export async function GET() {
   const scans = getScans();
 
-  const entities = scans
+  // Deduplicate: keep only the most recent scan's version of each entity (by URL)
+  const seen = new Map<string, Record<string, unknown>>();
+  scans
     .filter((s) => s.status === 'completed')
+    .reverse() // newest scans first
     .flatMap((s) =>
       s.entities
         .filter((e) => e.status !== 'failed')
@@ -22,7 +25,11 @@ export async function GET() {
           status: e.status,
           scanId: s.id,
         }))
-    );
+    )
+    .forEach((e) => {
+      const key = e.url || e.name;
+      if (!seen.has(key)) seen.set(key, e);
+    });
 
-  return NextResponse.json(entities);
+  return NextResponse.json(Array.from(seen.values()));
 }

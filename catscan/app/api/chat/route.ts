@@ -17,10 +17,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Provide a question' }, { status: 400 });
   }
 
-  // Gather all entities from completed scans
+  // Gather all entities from completed scans, deduplicated by URL (newest first)
   const scans = getScans();
+  const seen = new Set<string>();
   const entities = scans
     .filter((s) => s.status === 'completed')
+    .reverse()
     .flatMap((s) =>
       s.entities
         .filter((e) => e.status !== 'failed')
@@ -33,7 +35,13 @@ export async function POST(req: NextRequest) {
           ...e.data,
           financials: e.financials,
         }))
-    );
+    )
+    .filter((e) => {
+      const key = e.url || e.name;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
 
   if (entities.length === 0) {
     return NextResponse.json({

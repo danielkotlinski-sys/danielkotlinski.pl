@@ -40,8 +40,9 @@ export async function enrichFinance(entity: EntityRecord): Promise<EntityRecord>
     };
   }
 
-  // Find NIP from various sources
+  // Find NIP from various sources (discovery stores in entity.nip AND entity.data._discovery.nip)
   const nip = entity.nip
+    || (entity.data as Record<string, Record<string, string>>)?._discovery?.nip
     || (entity.data as Record<string, Record<string, string>>)?.contact?.nip
     || (entity.data as Record<string, Record<string, string>>)?._contact_raw?.nip;
 
