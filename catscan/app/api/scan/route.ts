@@ -9,6 +9,7 @@ import { enrichSocial } from '@/lib/pipeline/phases/social';
 import { enrichAds } from '@/lib/pipeline/phases/ads';
 import { enrichReviews } from '@/lib/pipeline/phases/reviews';
 import { enrichFinance } from '@/lib/pipeline/phases/finance';
+import { enrichContext } from '@/lib/pipeline/phases/context';
 import { interpretDataset } from '@/lib/pipeline/phases/interpret';
 
 /** POST /api/scan — start a new scan */
@@ -28,7 +29,7 @@ export async function POST(req: NextRequest) {
 
   // Default: all phases. Can be overridden to run subset.
   const enabledPhases = phases || [
-    'crawl', 'extract', 'discovery', 'social', 'ads', 'reviews', 'finance', 'interpret'
+    'crawl', 'extract', 'discovery', 'context', 'social', 'ads', 'reviews', 'finance', 'interpret'
   ];
 
   const scanId = randomUUID();
@@ -171,11 +172,27 @@ async function runEntityPhase(
         const ads = d.ads as Record<string, unknown> | undefined;
         if (ads) detail = `${ads.activeAdsCount} active ads, intensity: ${ads.estimatedIntensity}`;
       } else if (phaseName === 'reviews') {
-        const rev = d.reviews as Record<string, unknown> | undefined;
-        if (rev) detail = rev.googleRating ? `${rev.googleRating}★ (${rev.googleReviewCount} reviews)` : 'no rating found';
+        const rev = d.reviews as Record<string, Record<string, unknown>> | undefined;
+        if (rev) {
+          const gRating = rev.google?.rating;
+          const dRating = rev.dietly?.rating;
+          const parts: string[] = [];
+          if (gRating) parts.push(`Google: ${gRating}★`);
+          if (dRating) parts.push(`Dietly: ${dRating}★`);
+          detail = parts.length ? parts.join(', ') : 'no rating found';
+        }
       } else if (phaseName === 'discovery') {
         const disc = d._discovery as Record<string, unknown> | undefined;
         if (disc) detail = `NIP: ${disc.nip || 'not found'} (${disc.nipSource})`;
+      } else if (phaseName === 'context') {
+        const ctx = d.context as Record<string, unknown> | undefined;
+        if (ctx) {
+          const parts: string[] = [];
+          if (ctx.founder) parts.push(`founder: ${ctx.founder}`);
+          if (ctx.foundedYear) parts.push(`est. ${ctx.foundedYear}`);
+          if (ctx.trajectory) parts.push(`${ctx.trajectory}`);
+          detail = parts.join(', ');
+        }
       } else if (phaseName === 'finance') {
         const fin = d.finance as Record<string, unknown> | undefined;
         if (fin?.skipped) detail = `skipped: ${fin.reason}`;
@@ -220,7 +237,15 @@ async function runPipeline(scanId: string, enabledPhases: string[]) {
     });
   }
 
-  // Phase 4: Social media profiles (Apify required)
+  // Phase 4: Perplexity context (market intelligence)
+  if (has('context')) {
+    await runEntityPhase(scan, 'context', enrichContext, {
+      skipFailed: true,
+      requireKey: 'PERPLEXITY_API_KEY',
+    });
+  }
+
+  // Phase 5: Social media profiles (Apify required)
   if (has('social')) {
     await runEntityPhase(scan, 'social', enrichSocial, {
       skipFailed: true,
