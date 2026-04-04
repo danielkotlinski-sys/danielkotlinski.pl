@@ -2,9 +2,9 @@
  * Phase: Social — fetch Instagram, Facebook, TikTok data via Apify actors.
  *
  * Per brief (sekcja 2.4, Faza 5):
- *   - Apify instagram-profile-scraper + instagram-post-scraper
- *   - Apify facebook-pages-scraper
- *   - Apify tiktok-scraper
+ *   - apify/instagram-scraper (directUrls + resultsType: details)
+ *   - apify/facebook-pages-scraper (startUrls + resultsLimit)
+ *   - clockworks/free-tiktok-scraper (profiles + resultsPerPage)
  *
  * Requires APIFY_API_TOKEN. Without it, phase is skipped gracefully.
  */
@@ -60,8 +60,8 @@ function runApifyActor(actorId: string, input: Record<string, unknown>, apiToken
   try {
     const inputJson = JSON.stringify(input);
     const result = execSync(
-      `curl -s -m 120 -X POST 'https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${apiToken}' -H 'Content-Type: application/json' -d '${inputJson}'`,
-      { maxBuffer: 20 * 1024 * 1024, timeout: 130000 }
+      `curl -s -m 180 -X POST 'https://api.apify.com/v2/acts/${actorId}/run-sync-get-dataset-items?token=${apiToken}' -H 'Content-Type: application/json' -d '${inputJson}'`,
+      { maxBuffer: 20 * 1024 * 1024, timeout: 190000 }
     );
     return JSON.parse(result.toString('utf-8'));
   } catch {
@@ -91,87 +91,115 @@ export async function enrichSocial(entity: EntityRecord): Promise<EntityRecord> 
     method: 'apify',
   };
 
-  // Instagram — profile + recent posts
+  // Instagram — profile details via apify/instagram-scraper
   if (socialUrls.instagram) {
     const handle = socialUrls.instagram.match(/instagram\.com\/([^/?]+)/)?.[1] || '';
     if (handle) {
-      const profileItems = runApifyActor('apify/instagram-profile-scraper', {
-        usernames: [handle],
+      const profileItems = runApifyActor('apify/instagram-scraper', {
+        directUrls: [`https://www.instagram.com/${handle}/`],
+        resultsType: 'details',
         resultsLimit: 1,
       }, apiToken);
 
-      const data = (profileItems[0] || {}) as Record<string, unknown>;
-      const profile: SocialProfile = {
-        platform: 'instagram',
-        url: socialUrls.instagram,
-        handle,
-        followers: data.followersCount as number | undefined,
-        posts: data.postsCount as number | undefined,
-        verified: data.verified as boolean | undefined,
-      };
+      if (profileItems.length > 0) {
+        const data = profileItems[0] as Record<string, unknown>;
+        const followers = data.followersCount as number | undefined;
+        const posts = data.postsCount as number | undefined;
 
-      socialData.instagram = {
-        ...profile,
-        bio: data.biography as string | undefined,
-        avgLikes: data.avgLikes as number | undefined,
-        avgComments: data.avgComments as number | undefined,
-        engagementRate: data.engagementRate as number | undefined,
-      };
-      socialData.profiles.push(profile);
+        const profile: SocialProfile = {
+          platform: 'instagram',
+          url: socialUrls.instagram,
+          handle: (data.username as string) || handle,
+          followers,
+          posts,
+          verified: data.verified as boolean | undefined,
+        };
+
+        // Compute engagement rate from recent posts if available
+        let avgLikes: number | undefined;
+        let avgComments: number | undefined;
+        let engagementRate: number | undefined;
+        const latestPosts = data.latestPosts as Array<Record<string, number>> | undefined;
+        if (latestPosts && latestPosts.length > 0 && followers && followers > 0) {
+          avgLikes = Math.round(latestPosts.reduce((s, p) => s + (p.likesCount || 0), 0) / latestPosts.length);
+          avgComments = Math.round(latestPosts.reduce((s, p) => s + (p.commentsCount || 0), 0) / latestPosts.length);
+          engagementRate = parseFloat((((avgLikes + avgComments) / followers) * 100).toFixed(2));
+        }
+
+        socialData.instagram = {
+          ...profile,
+          bio: data.biography as string | undefined,
+          avgLikes,
+          avgComments,
+          engagementRate,
+        };
+        socialData.profiles.push(profile);
+      } else {
+        console.warn(`[social] Instagram actor returned empty data for handle: ${handle}`);
+      }
     }
   }
 
-  // Facebook — page data + recent posts
+  // Facebook — page data via apify/facebook-pages-scraper
   if (socialUrls.facebook) {
     const handle = socialUrls.facebook.match(/facebook\.com\/([^/?]+)/)?.[1] || '';
     const fbItems = runApifyActor('apify/facebook-pages-scraper', {
       startUrls: [{ url: socialUrls.facebook }],
-      maxPages: 1,
+      resultsLimit: 1,
     }, apiToken);
 
-    const data = (fbItems[0] || {}) as Record<string, unknown>;
-    const profile: SocialProfile = {
-      platform: 'facebook',
-      url: socialUrls.facebook,
-      handle,
-      followers: (data.followers || data.likes) as number | undefined,
-    };
+    if (fbItems.length > 0) {
+      const data = fbItems[0] as Record<string, unknown>;
+      const followers = (data.followersCount ?? data.likes) as number | undefined;
 
-    socialData.facebook = {
-      ...profile,
-      likes: data.likes as number | undefined,
-      rating: data.overallStarRating as number | undefined,
-      avgReactions: data.avgReactions as number | undefined,
-    };
-    socialData.profiles.push(profile);
+      const profile: SocialProfile = {
+        platform: 'facebook',
+        url: socialUrls.facebook,
+        handle: (data.title as string) || handle,
+        followers,
+      };
+
+      socialData.facebook = {
+        ...profile,
+        likes: data.likes as number | undefined,
+        rating: data.overallStarRating as number | undefined,
+      };
+      socialData.profiles.push(profile);
+    } else {
+      console.warn(`[social] Facebook actor returned empty data for: ${socialUrls.facebook}`);
+    }
   }
 
-  // TikTok — profile data
+  // TikTok — profile data via clockworks/free-tiktok-scraper
   if (socialUrls.tiktok) {
     const handle = socialUrls.tiktok.match(/tiktok\.com\/@([^/?]+)/)?.[1] || '';
     if (handle) {
       const ttItems = runApifyActor('clockworks/free-tiktok-scraper', {
         profiles: [handle],
         resultsPerPage: 1,
+        shouldDownloadCovers: false,
       }, apiToken);
 
-      const data = (ttItems[0] || {}) as Record<string, unknown>;
-      const authorStats = (data.authorStats || {}) as Record<string, number>;
+      if (ttItems.length > 0) {
+        const data = ttItems[0] as Record<string, unknown>;
+        const authorMeta = (data.authorMeta || {}) as Record<string, number>;
 
-      const profile: SocialProfile = {
-        platform: 'tiktok',
-        url: socialUrls.tiktok,
-        handle,
-        followers: authorStats.followerCount || (data.followers as number | undefined),
-        posts: authorStats.videoCount || (data.videoCount as number | undefined),
-      };
+        const profile: SocialProfile = {
+          platform: 'tiktok',
+          url: socialUrls.tiktok,
+          handle,
+          followers: authorMeta.fans as number | undefined,
+          posts: authorMeta.video as number | undefined,
+        };
 
-      socialData.tiktok = {
-        ...profile,
-        totalLikes: authorStats.heartCount || (data.likes as number | undefined),
-        avgViews: data.avgViews as number | undefined,
-      };
-      socialData.profiles.push(profile);
+        socialData.tiktok = {
+          ...profile,
+          totalLikes: authorMeta.heart as number | undefined,
+        };
+        socialData.profiles.push(profile);
+      } else {
+        console.warn(`[social] TikTok actor returned empty data for handle: ${handle}`);
+      }
     }
   }
 
