@@ -71,7 +71,7 @@ WAŻNE:
 let client: Anthropic | null = null;
 
 function getClient(): Anthropic {
-  if (!client) client = new Anthropic();
+  if (!client) client = new Anthropic({ timeout: 120_000 });
   return client;
 }
 

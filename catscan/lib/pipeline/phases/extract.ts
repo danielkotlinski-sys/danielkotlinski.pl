@@ -66,7 +66,7 @@ let client: Anthropic | null = null;
 
 function getClient(): Anthropic {
   if (!client) {
-    client = new Anthropic();
+    client = new Anthropic({ timeout: 120_000 });
   }
   return client;
 }
@@ -128,9 +128,10 @@ export async function extractEntity(entity: EntityRecord): Promise<EntityRecord>
       status: 'extracted',
     };
   } catch (err) {
+    // Don't fail the entity — extraction is best-effort.
+    // Perplexity context + other phases can still provide value.
     return {
       ...entity,
-      status: 'failed',
       errors: [...entity.errors, `Extraction error: ${err instanceof Error ? err.message : String(err)}`],
     };
   }

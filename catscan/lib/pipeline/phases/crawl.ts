@@ -1,9 +1,8 @@
-/** Phase: Crawl — fetch website HTML for each entity.
+/** Phase: Crawl — lightweight curl fetch of website HTML.
  *
- *  Strategy:
- *    1. If APIFY_API_TOKEN is set, use Apify website-content-crawler (Playwright)
- *       which renders JavaScript fully — critical for SPA sites (React/Next.js).
- *    2. Otherwise fall back to plain curl (no JS rendering).
+ *  No JS rendering — just grab what we can with plain HTTP.
+ *  SPA sites will return minimal content, but that's OK:
+ *  Perplexity context phase fills the gaps.
  */
 
 import { execSync } from 'child_process';
@@ -93,7 +92,7 @@ function extractMeta(html: string) {
 }
 
 // ---------------------------------------------------------------------------
-// curl-based fetcher (fallback, no JS rendering)
+// curl-based fetcher
 // ---------------------------------------------------------------------------
 
 function curlFetch(url: string): string | null {
@@ -105,182 +104,6 @@ function curlFetch(url: string): string | null {
     return result.toString('utf-8');
   } catch {
     return null;
-  }
-}
-
-function crawlWithCurl(
-  url: string,
-): {
-  allHtml: string;
-  allText: string;
-  subpagesCrawled: number;
-} {
-  const html = curlFetch(url);
-  if (!html || html.length < 100) {
-    return { allHtml: '', allText: '', subpagesCrawled: 0 };
-  }
-
-  const textContent = stripHtml(html);
-
-  // Collect internal links for subpage crawling
-  const allLinks: string[] = [];
-  const linkRegex = /<a[^>]+href=["'](.*?)["']/gi;
-  let m: RegExpExecArray | null;
-  while ((m = linkRegex.exec(html)) !== null) {
-    allLinks.push(m[1]);
-  }
-
-  const internalLinks = allLinks
-    .filter((l) => l.startsWith('/') || l.startsWith(url))
-    .slice(0, 20);
-
-  const valuablePages = internalLinks.filter((l) => {
-    const lower = l.toLowerCase();
-    return /cen|pric|menu|diet|ofert|about|o-nas|kontakt|contact|jak-to|how|faq|dostaw|deliver|regulamin|polityka|privacy|terms|impress/.test(
-      lower,
-    );
-  });
-
-  let subpageTexts = '';
-  let subpagesCrawled = 0;
-  for (const subpage of valuablePages.slice(0, 3)) {
-    try {
-      const subUrl = subpage.startsWith('http')
-        ? subpage
-        : new URL(subpage, url).href;
-      const subHtml = curlFetch(subUrl);
-      if (subHtml) {
-        const subText = stripHtml(subHtml);
-        subpageTexts += `\n\n--- PAGE: ${subUrl} ---\n${subText.slice(0, 5000)}`;
-        subpagesCrawled++;
-      }
-    } catch {
-      // skip failed subpages
-    }
-  }
-
-  const allText = textContent.slice(0, 15000) + subpageTexts.slice(0, 10000);
-
-  return { allHtml: html + subpageTexts, allText, subpagesCrawled };
-}
-
-// ---------------------------------------------------------------------------
-// Apify website-content-crawler (Playwright-based, full JS rendering)
-// ---------------------------------------------------------------------------
-
-interface ApifyCrawlItem {
-  url: string;
-  text?: string;
-  html?: string;
-  metadata?: {
-    title?: string;
-    description?: string;
-    [key: string]: unknown;
-  };
-}
-
-function crawlWithApify(
-  url: string,
-  token: string,
-): {
-  allHtml: string;
-  allText: string;
-  subpagesCrawled: number;
-  meta: { title: string; description: string; ogImage: string };
-  items: ApifyCrawlItem[];
-} {
-  const domain = new URL(url).origin;
-
-  const input = JSON.stringify({
-    startUrls: [{ url }],
-    maxCrawlPages: 5,
-    crawlerType: 'playwright:adaptive',
-    maxCrawlDepth: 1,
-    includeUrlGlobs: [`${domain}/**`],
-    outputFormats: ['text', 'html'],
-    // SPA fix: use domcontentloaded instead of networkidle
-    // networkidle never fires on sites with trackers/analytics
-    waitUntil: 'domcontentloaded',
-    navigationTimeoutSecs: 30,
-    requestTimeoutSecs: 60,
-    maxConcurrency: 2,
-    // Extra wait for SPA hydration after DOM load
-    waitForSecs: 3,
-  });
-
-  // Write input to a temp file to avoid shell quoting issues with JSON
-  const tmpFile = `/tmp/apify_input_${Date.now()}.json`;
-  execSync(`cat > '${tmpFile}' << 'APIFY_EOF'\n${input}\nAPIFY_EOF`);
-
-  try {
-    const apiUrl = `https://api.apify.com/v2/acts/apify~website-content-crawler/run-sync-get-dataset-items?token=${token}`;
-
-    const result = execSync(
-      `curl -sS -X POST '${apiUrl}' -H 'Content-Type: application/json' -d @'${tmpFile}'`,
-      {
-        maxBuffer: 20 * 1024 * 1024,
-        timeout: 120_000,
-      },
-    );
-
-    const items: ApifyCrawlItem[] = JSON.parse(result.toString('utf-8'));
-
-    if (!Array.isArray(items) || items.length === 0) {
-      return {
-        allHtml: '',
-        allText: '',
-        subpagesCrawled: 0,
-        meta: { title: '', description: '', ogImage: '' },
-        items: [],
-      };
-    }
-
-    // Combine HTML from all pages for extraction
-    const combinedHtml = items
-      .map((it) => it.html || '')
-      .join('\n');
-
-    // Combine text from all pages
-    const combinedText = items
-      .map((it, idx) => {
-        const pageUrl = it.url || `page-${idx}`;
-        const text = it.text || (it.html ? stripHtml(it.html) : '');
-        return `--- PAGE: ${pageUrl} ---\n${text}`;
-      })
-      .join('\n\n');
-
-    // Extract meta from the main page item (first one, or the one matching startUrl)
-    const mainItem =
-      items.find((it) => it.url === url) || items[0];
-    let meta = { title: '', description: '', ogImage: '' };
-
-    if (mainItem?.metadata) {
-      meta.title = (mainItem.metadata.title as string) || '';
-      meta.description = (mainItem.metadata.description as string) || '';
-    }
-    // Also try extracting from HTML meta tags as fallback
-    if (mainItem?.html) {
-      const htmlMeta = extractMeta(mainItem.html);
-      meta = {
-        title: meta.title || htmlMeta.title,
-        description: meta.description || htmlMeta.description,
-        ogImage: htmlMeta.ogImage,
-      };
-    }
-
-    return {
-      allHtml: combinedHtml,
-      allText: combinedText.slice(0, 25000),
-      subpagesCrawled: items.length - 1,
-      meta,
-      items,
-    };
-  } finally {
-    try {
-      execSync(`rm -f '${tmpFile}'`);
-    } catch {
-      // ignore cleanup errors
-    }
   }
 }
 
@@ -296,50 +119,43 @@ export async function crawlEntity(
     : `https://${entity.url}`;
 
   try {
-    const apifyToken = process.env.APIFY_API_TOKEN;
-    const useApify = Boolean(apifyToken);
+    const html = curlFetch(url);
 
-    let allHtml: string;
-    let allText: string;
-    let subpagesCrawled: number;
-    let meta: { title: string; description: string; ogImage: string };
-
-    if (useApify) {
-      // ---- Apify path (Playwright, full JS rendering) --------------------
-      const apifyResult = crawlWithApify(url, apifyToken!);
-      allHtml = apifyResult.allHtml;
-      allText = apifyResult.allText;
-      subpagesCrawled = apifyResult.subpagesCrawled;
-      meta = apifyResult.meta;
-    } else {
-      // ---- Fallback curl path (no JS rendering) --------------------------
-      const curlResult = crawlWithCurl(url);
-      allHtml = curlResult.allHtml;
-      allText = curlResult.allText;
-      subpagesCrawled = curlResult.subpagesCrawled;
-      meta = extractMeta(allHtml);
-    }
-
-    if (allText.length < 50 && allHtml.length < 100) {
+    if (!html || html.length < 100) {
+      // Don't fail — just mark as crawled with minimal data.
+      // Perplexity context phase will fill the gaps.
       return {
         ...entity,
-        status: 'failed',
-        errors: [
-          ...entity.errors,
-          `Empty or failed response from ${url}${useApify ? ' (Apify)' : ' (curl)'}`,
-        ],
+        rawHtml: '',
+        domain: (() => { try { return new URL(url).hostname; } catch { return undefined; } })(),
+        data: {
+          ...entity.data,
+          _meta: {
+            title: '',
+            description: '',
+            ogImage: '',
+            crawledUrl: url,
+            crawlerType: 'curl',
+            subpagesCrawled: 0,
+            contentLength: 0,
+            crawledAt: new Date().toISOString(),
+            note: 'Minimal/empty response — relying on Perplexity for content',
+          },
+        },
+        status: 'crawled',
       };
     }
 
-    // Extract structured data from the combined HTML of all pages
-    const socialLinks = extractSocialLinks(allHtml);
-    const foundNip = extractNip(allHtml) || extractNip(allText);
-    const email = extractEmail(allHtml) || extractEmail(allText);
-    const phone = extractPhone(allHtml) || extractPhone(allText);
+    const textContent = stripHtml(html).slice(0, 15000);
+    const meta = extractMeta(html);
+    const socialLinks = extractSocialLinks(html);
+    const foundNip = extractNip(html) || extractNip(textContent);
+    const email = extractEmail(html) || extractEmail(textContent);
+    const phone = extractPhone(html) || extractPhone(textContent);
 
     return {
       ...entity,
-      rawHtml: allText,
+      rawHtml: textContent,
       nip: foundNip || entity.nip,
       domain: new URL(url).hostname,
       data: {
@@ -347,9 +163,9 @@ export async function crawlEntity(
         _meta: {
           ...meta,
           crawledUrl: url,
-          crawlerType: useApify ? 'apify-playwright' : 'curl',
-          subpagesCrawled,
-          contentLength: allText.length,
+          crawlerType: 'curl',
+          subpagesCrawled: 0,
+          contentLength: textContent.length,
           crawledAt: new Date().toISOString(),
         },
         _social_urls:
@@ -363,13 +179,21 @@ export async function crawlEntity(
       status: 'crawled',
     };
   } catch (err) {
+    // Don't fail the entity — just mark as crawled with error note
     return {
       ...entity,
-      status: 'failed',
-      errors: [
-        ...entity.errors,
-        `Crawl error: ${err instanceof Error ? err.message : String(err)}`,
-      ],
+      rawHtml: '',
+      domain: (() => { try { return new URL(url).hostname; } catch { return undefined; } })(),
+      data: {
+        ...entity.data,
+        _meta: {
+          crawledUrl: url,
+          crawlerType: 'curl',
+          crawledAt: new Date().toISOString(),
+          error: err instanceof Error ? err.message : String(err),
+        },
+      },
+      status: 'crawled',
     };
   }
 }
