@@ -6,7 +6,7 @@
 ## 1. CO TO JEST
 
 Sektorowa baza wiedzy o rynku cateringów dietetycznych w Polsce.
-256 marek w bazie (docelowo 400-600). 21 wymiarów analizy per marka. ~100,000 atrybutów.
+256 marek w bazie (docelowo 400-600). 21 wymiarów analizy per marka. 175 atrybutów per marka = ~87,500 data points przy 500 markach.
 Dane komunikacyjne + finansowe + reklamowe + social + reputacja.
 Odświeżane cyklicznie. Odpytywane w języku naturalnym.
 
@@ -81,7 +81,7 @@ Wymaga `PERPLEXITY_API_KEY`. Koszt: ~$0.005/query.
 ## 3. EXTRACTION SCHEMA — 21 WYMIARÓW
 
 Każda marka (encja) ma 21 wymiarów.
-Każdy wymiar ma 3-15 atrybutów.
+Każdy wymiar ma 4-29 atrybutów. Łącznie: **175 atrybutów per marka**.
 Atrybuty mają typy: text, number, enum, boolean, array, date.
 
 ### WYMIAR 01: IDENTYFIKACJA
@@ -424,7 +424,7 @@ Koszt: ~$10-15
 - Faz: 10 (seed + 9 faz per-scan). Wszystkie zaimplementowane.
 - Czas: 3-4 dni (z testowaniem i poprawkami, jednorazowo)
 - Koszt: ~$200-250 (w tym ~$105 rejestr.io API za dane finansowe)
-- Wynik: ~500 encji x ~180 atrybutów = ~90,000 data points
+- Wynik: ~500 encji x 175 atrybutów = ~87,500 data points
 - Plus: ~7,500 kreacji reklamowych, ~20,000 postów social, ~750 sprawozdań finansowych
 - Orchestrator: `app/api/scan/route.ts` — async, per-entity, z error handling i cost tracking
 
