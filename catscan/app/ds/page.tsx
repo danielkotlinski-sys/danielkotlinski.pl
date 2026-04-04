@@ -76,7 +76,7 @@ const tableData: ScanRow[] = [
 /* ------------------------------------------------------------------ */
 export default function DesignSystemPage() {
   return (
-    <div className="cs min-h-screen flex">
+    <div className="min-h-screen flex">
       {/* Sidebar */}
       <div className="w-[200px] flex-shrink-0 relative">
         <div className="h-screen relative border border-cs-border">
