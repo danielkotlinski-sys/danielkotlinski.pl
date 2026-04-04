@@ -28,8 +28,9 @@ export async function POST(req: NextRequest) {
   }
 
   // Default: all phases. Can be overridden to run subset.
+  // Order matters: context before discovery (provides legalName for rejestr.io search)
   const enabledPhases = phases || [
-    'crawl', 'extract', 'discovery', 'context', 'social', 'ads', 'reviews', 'finance', 'interpret'
+    'crawl', 'extract', 'context', 'discovery', 'social', 'ads', 'reviews', 'finance', 'interpret'
   ];
 
   const scanId = randomUUID();
@@ -217,12 +218,12 @@ async function runPipeline(scanId: string, enabledPhases: string[]) {
   const scan = getScan(scanId)!;
   const has = (phase: string) => enabledPhases.includes(phase);
 
-  // Phase 1: Crawl websites
+  // Phase 1: Crawl websites (get HTML, social URLs, NIP from footer)
   if (has('crawl')) {
     await runEntityPhase(scan, 'crawl', crawlEntity);
   }
 
-  // Phase 2: Extract structured data via LLM
+  // Phase 2: Extract structured data via LLM (pricing, menu, delivery, etc.)
   if (has('extract')) {
     await runEntityPhase(scan, 'extract', extractEntity, {
       skipFailed: true,
@@ -230,18 +231,22 @@ async function runPipeline(scanId: string, enabledPhases: string[]) {
     });
   }
 
-  // Phase 3: Discover NIP/KRS
-  if (has('discovery')) {
-    await runEntityPhase(scan, 'discovery', discoverEntity, {
-      skipFailed: true,
-    });
-  }
-
-  // Phase 4: Perplexity context (market intelligence)
+  // Phase 3: Perplexity context — BEFORE discovery!
+  // Gets legalName + NIP + founder + trajectory via AI search.
+  // Discovery then uses legalName to search rejestr.io accurately.
   if (has('context')) {
     await runEntityPhase(scan, 'context', enrichContext, {
       skipFailed: true,
       requireKey: 'PERPLEXITY_API_KEY',
+    });
+  }
+
+  // Phase 4: Discover NIP/KRS via rejestr.io
+  // Uses context.legalName (brand→legal name bridge) for accurate search.
+  // Falls back to brand name, then crawled legal pages.
+  if (has('discovery')) {
+    await runEntityPhase(scan, 'discovery', discoverEntity, {
+      skipFailed: true,
     });
   }
 
@@ -253,21 +258,21 @@ async function runPipeline(scanId: string, enabledPhases: string[]) {
     });
   }
 
-  // Phase 5: Meta Ads
+  // Phase 6: Meta Ads
   if (has('ads')) {
     await runEntityPhase(scan, 'ads', enrichAds, {
       skipFailed: true,
     });
   }
 
-  // Phase 6: Google Reviews
+  // Phase 7: Google Reviews
   if (has('reviews')) {
     await runEntityPhase(scan, 'reviews', enrichReviews, {
       skipFailed: true,
     });
   }
 
-  // Phase 7: KRS + Financial data
+  // Phase 8: KRS + Financial data (needs NIP from discovery)
   if (has('finance')) {
     await runEntityPhase(scan, 'finance', enrichFinance, {
       skipFailed: true,

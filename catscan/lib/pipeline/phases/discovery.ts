@@ -160,10 +160,15 @@ function searchLegalPages(entityUrl?: string): string | null {
 export async function discoverEntity(entity: EntityRecord): Promise<EntityRecord> {
   const apiKey = process.env.REJESTR_IO_API_KEY;
 
-  // Check if NIP already extracted from website crawl
+  // Gather NIP candidates from previous phases
   const existingNip = entity.nip ||
     (entity.data as Record<string, Record<string, string>>)?.contact?.nip ||
     (entity.data as Record<string, Record<string, string>>)?._contact_raw?.nip;
+
+  // Get legalName and NIP from Perplexity context phase (runs before discovery)
+  const contextData = (entity.data as Record<string, Record<string, string>>)?.context;
+  const contextNip = contextData?.nip;
+  const contextLegalName = contextData?.legalName;
 
   let nip: string | undefined = existingNip?.replace(NIP_CLEAN_REGEX, '');
   let discoveryMethod = 'existing';
@@ -176,15 +181,30 @@ export async function discoverEntity(entity: EntityRecord): Promise<EntityRecord
     nip = undefined;
   }
 
-  // Strategy 1: rejestr.io name search (if no valid NIP yet and API key available)
+  // Try Perplexity NIP if crawl didn't find one
+  if (!nip && contextNip) {
+    const cleaned = contextNip.replace(NIP_CLEAN_REGEX, '');
+    if (validateNip(cleaned)) {
+      nip = cleaned;
+      discoveryMethod = 'perplexity';
+    }
+  }
+
+  // Strategy 1: rejestr.io search — use legalName from Perplexity (bridges brand→legal name gap)
   if (!nip && apiKey) {
-    const result = await searchRejestrIo(entity.name, apiKey);
-    if (result?.nip) {
-      nip = result.nip;
-      krs = result.krs;
-      legalForm = result.legalForm;
-      orgName = result.orgName;
-      discoveryMethod = 'rejestr_io';
+    // Try legalName first (most accurate), then brand name (fallback)
+    const searchNames = [contextLegalName, entity.name].filter(Boolean) as string[];
+    for (const name of searchNames) {
+      const result = await searchRejestrIo(name, apiKey);
+      if (result?.nip) {
+        nip = result.nip;
+        krs = result.krs;
+        legalForm = result.legalForm;
+        orgName = result.orgName;
+        discoveryMethod = contextLegalName && name === contextLegalName
+          ? 'rejestr_io_via_legal_name' : 'rejestr_io';
+        break;
+      }
     }
   }
 
