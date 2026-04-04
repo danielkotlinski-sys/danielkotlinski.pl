@@ -198,6 +198,14 @@ function crawlWithApify(
     maxCrawlDepth: 1,
     includeUrlGlobs: [`${domain}/**`],
     outputFormats: ['text', 'html'],
+    // SPA fix: use domcontentloaded instead of networkidle
+    // networkidle never fires on sites with trackers/analytics
+    waitUntil: 'domcontentloaded',
+    navigationTimeoutSecs: 30,
+    requestTimeoutSecs: 60,
+    maxConcurrency: 2,
+    // Extra wait for SPA hydration after DOM load
+    waitForSecs: 3,
   });
 
   // Write input to a temp file to avoid shell quoting issues with JSON
@@ -211,7 +219,7 @@ function crawlWithApify(
       `curl -sS -X POST '${apiUrl}' -H 'Content-Type: application/json' -d @'${tmpFile}'`,
       {
         maxBuffer: 20 * 1024 * 1024,
-        timeout: 180_000,
+        timeout: 120_000,
       },
     );
 
