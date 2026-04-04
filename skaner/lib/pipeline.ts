@@ -81,7 +81,9 @@ export async function runCategoryScanner(
   const pipelineStart = Date.now();
   const scanId = uuidv4();
   const costs = new ScanCostTracker(scanId);
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://skaner.danielkotlinski.pl';
+  const rawBaseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://skaner.danielkotlinski.pl';
+  // Strip accidental comment prefixes (e.g. "# e.g. https://...")
+  const baseUrl = rawBaseUrl.replace(/^#\s*(e\.?g\.?\s*)?/i, '').trim() || 'https://skaner.danielkotlinski.pl';
   const reportUrl = `${baseUrl}/raport/${scanId}`;
 
   const allBrands = [
