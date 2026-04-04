@@ -54,20 +54,34 @@ export async function crawlEntity(entity: EntityRecord): Promise<EntityRecord> {
     const descMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["'](.*?)["']/i);
     const ogImageMatch = html.match(/<meta[^>]*property=["']og:image["'][^>]*content=["'](.*?)["']/i);
 
-    // Extract links
-    const links: string[] = [];
+    // Extract ALL links from raw HTML
+    const allLinks: string[] = [];
+    const socialLinks: Record<string, string> = {};
     let linkMatch: RegExpExecArray | null;
     const linkRegex = /<a[^>]+href=["'](.*?)["']/gi;
     while ((linkMatch = linkRegex.exec(html)) !== null) {
       const href = linkMatch[1];
-      if (href.startsWith('/') || href.startsWith(url)) {
-        links.push(href);
+      allLinks.push(href);
+
+      // Capture social media links
+      if (/instagram\.com\/[a-zA-Z0-9_.]+/i.test(href)) {
+        socialLinks.instagram = href;
+      } else if (/facebook\.com\/[a-zA-Z0-9_.]+/i.test(href)) {
+        socialLinks.facebook = href;
+      } else if (/tiktok\.com\/@[a-zA-Z0-9_.]+/i.test(href)) {
+        socialLinks.tiktok = href;
+      } else if (/youtube\.com\/(c\/|channel\/|@)[a-zA-Z0-9_.]+/i.test(href)) {
+        socialLinks.youtube = href;
+      } else if (/linkedin\.com\/(company|in)\/[a-zA-Z0-9_.%-]+/i.test(href)) {
+        socialLinks.linkedin = href;
       }
-      if (links.length >= 20) break;
     }
 
+    // Internal links for subpage crawling
+    const internalLinks = allLinks.filter(l => l.startsWith('/') || l.startsWith(url)).slice(0, 20);
+
     // Find valuable subpages
-    const valuablePages = links.filter(l => {
+    const valuablePages = internalLinks.filter(l => {
       const lower = l.toLowerCase();
       return /cen|pric|menu|diet|ofert|about|o-nas|kontakt|contact|jak-to|how|faq|dostaw|deliver/.test(lower);
     });
@@ -87,12 +101,36 @@ export async function crawlEntity(entity: EntityRecord): Promise<EntityRecord> {
       }
     }
 
+    // Try to find NIP in raw HTML
+    const nipRegex = /(?:NIP|nip)[:\s]*(\d{3}[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{2})/g;
+    let nipMatch: RegExpExecArray | null;
+    let foundNip: string | undefined;
+    while ((nipMatch = nipRegex.exec(html)) !== null) {
+      const cleaned = nipMatch[1].replace(/[-\s]/g, '');
+      if (cleaned.length === 10) {
+        foundNip = cleaned;
+        break;
+      }
+    }
+    // Also check subpage content for NIP
+    if (!foundNip) {
+      const subNipMatch = subpageTexts.match(/(?:NIP|nip)[:\s]*(\d{3}[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{2})/);
+      if (subNipMatch) {
+        foundNip = subNipMatch[1].replace(/[-\s]/g, '');
+      }
+    }
+
+    // Also extract email and phone from raw HTML
+    const emailMatch = html.match(/[\w.-]+@[\w.-]+\.\w{2,}/);
+    const phoneMatch = html.match(/(?:\+48|48)?[\s-]?\d{3}[\s-]?\d{3}[\s-]?\d{3}/);
+
     // Truncate for LLM context
     const fullText = textContent.slice(0, 15000) + subpageTexts.slice(0, 10000);
 
     return {
       ...entity,
       rawHtml: fullText,
+      nip: foundNip || entity.nip,
       domain: new URL(url).hostname,
       data: {
         ...entity.data,
@@ -104,6 +142,12 @@ export async function crawlEntity(entity: EntityRecord): Promise<EntityRecord> {
           subpagesCrawled: valuablePages.slice(0, 3).length,
           contentLength: fullText.length,
           crawledAt: new Date().toISOString(),
+        },
+        _social_urls: Object.keys(socialLinks).length > 0 ? socialLinks : undefined,
+        _contact_raw: {
+          nip: foundNip || null,
+          email: emailMatch?.[0] || null,
+          phone: phoneMatch?.[0]?.trim() || null,
         },
       },
       status: 'crawled',

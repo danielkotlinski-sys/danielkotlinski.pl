@@ -131,9 +131,42 @@ async function runEntityPhase(
         scan.totalCostUsd += ext.costUsd;
       }
 
-      const newStatus = scan.entities[i].status;
-      const lastError = scan.entities[i].errors[scan.entities[i].errors.length - 1];
-      log(scan, `  → ${newStatus === 'failed' ? 'FAILED: ' + (lastError || 'unknown') : 'OK'}`);
+      const e = scan.entities[i];
+      const newStatus = e.status;
+      const lastError = e.errors[e.errors.length - 1];
+
+      // Phase-specific diagnostics
+      let detail = '';
+      const d = e.data as Record<string, unknown>;
+      if (phaseName === 'crawl') {
+        const meta = d._meta as Record<string, unknown> | undefined;
+        detail = meta ? `${meta.contentLength} chars, ${meta.subpagesCrawled} subpages` : '';
+        const socials = d._social_urls as Record<string, string> | undefined;
+        if (socials) detail += `, social: ${Object.keys(socials).join('+')}`;
+        const contact = d._contact_raw as Record<string, string> | undefined;
+        if (contact?.nip) detail += `, NIP: ${contact.nip}`;
+      } else if (phaseName === 'extract') {
+        const ext = d._extraction as Record<string, number> | undefined;
+        detail = ext ? `$${ext.costUsd?.toFixed(4)}` : '';
+      } else if (phaseName === 'social') {
+        const social = d.social as Record<string, unknown> | undefined;
+        if (social) detail = `${social.platformCount} platforms, ${social.totalFollowers} followers`;
+      } else if (phaseName === 'ads') {
+        const ads = d.ads as Record<string, unknown> | undefined;
+        if (ads) detail = `${ads.activeAdsCount} active ads, intensity: ${ads.estimatedIntensity}`;
+      } else if (phaseName === 'reviews') {
+        const rev = d.reviews as Record<string, unknown> | undefined;
+        if (rev) detail = rev.googleRating ? `${rev.googleRating}★ (${rev.googleReviewCount} reviews)` : 'no rating found';
+      } else if (phaseName === 'discovery') {
+        const disc = d._discovery as Record<string, unknown> | undefined;
+        if (disc) detail = `NIP: ${disc.nip || 'not found'} (${disc.nipSource})`;
+      } else if (phaseName === 'finance') {
+        const fin = d._finance as Record<string, unknown> | undefined;
+        if (fin?.skipped) detail = `skipped: ${fin.reason}`;
+        else if (fin) detail = `${fin.years_fetched} years fetched`;
+      }
+
+      log(scan, `  → ${newStatus === 'failed' ? 'FAILED: ' + (lastError || 'unknown') : 'OK'}${detail ? ' | ' + detail : ''}`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       scan.entities[i].errors.push(`${phaseName}: ${msg}`);
@@ -171,10 +204,11 @@ async function runPipeline(scanId: string, enabledPhases: string[]) {
     });
   }
 
-  // Phase 4: Social media profiles
+  // Phase 4: Social media profiles (Apify required)
   if (has('social')) {
     await runEntityPhase(scan, 'social', enrichSocial, {
       skipFailed: true,
+      requireKey: 'APIFY_API_TOKEN',
     });
   }
 
