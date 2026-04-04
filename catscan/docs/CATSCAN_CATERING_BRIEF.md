@@ -84,6 +84,18 @@ Każda marka (encja) ma 21 wymiarów.
 Każdy wymiar ma 4-29 atrybutów. Łącznie: **175 atrybutów per marka**.
 Atrybuty mają typy: text, number, enum, boolean, array, date.
 
+### Volume danych per marka (poza atrybutami):
+- Instagram: 20 ostatnich postów (posty z likes, comments, caption)
+- Facebook: 15 ostatnich postów (reactions, shares, comments)
+- TikTok: 10 ostatnich filmów (views, likes, style)
+- Meta Ads: wszystkie aktywne reklamy (typowo 5-30, niektóre 100+)
+
+### Volume łączne przy 500 markach (est.):
+- Atrybuty structured: 500 × 175 = **~87,500 data points**
+- Social posts: ~20,000 (nie wszystkie marki na każdej platformie; TikTok ~100-150 aktywnych)
+- Ad creatives: ~7,500 (500 × ~15 avg aktywnych reklam)
+- Sprawozdania finansowe: ~750 (250 sp. z o.o. × 3 lata)
+
 ### WYMIAR 01: IDENTYFIKACJA
 - name: text — nazwa marki
 - slug: text — identyfikator
