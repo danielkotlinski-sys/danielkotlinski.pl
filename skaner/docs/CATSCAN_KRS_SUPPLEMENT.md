@@ -210,39 +210,24 @@ Od 2018 roku sp. z o.o. składają sprawozdania w formacie XML
 ### Pipeline pozyskania sprawozdań
 
 ```
-OPCJA A: Scrape RDF (darmowe, ale wolne)
+REKOMENDACJA: Rejestr.io API (patrz sekcja 5)
 
-  1. Apify/Playwright: wejdź na rdf-przegladarka.ms.gov.pl
-  2. Dla każdego KRS: search → lista dokumentów → pobierz XML
-  3. Parse XML → structured JSON
-  4. 250 firm x 3 lata = 750 dokumentów
+  1. Search po NIP → lista dokumentów finansowych (0.05 PLN)
+  2. Pobierz dokument finansowy per rok (0.50 PLN)
+  3. Parse JSON → FinancialData struct
+  4. 250 firm × 3 lata = 750 dokumentów
   
-  Czas: 4-8h (wolny interfejs, rate limiting)
-  Koszt: ~$5-10 (Apify compute)
-  Hit rate: ~60-70% (nie wszystkie złożyły, nie wszystkie XML)
+  Czas: ~1h (1000 req/min limit → 750 req = 45 sec)
+  Koszt: ~412 PLN (~$105)
+  Hit rate: ~80%+ (najlepszy coverage z dostępnych źródeł)
 
-OPCJA B: Komercyjny agregator (płatne, ale szybkie)
+FALLBACK: RDF XML (darmowe, wolne)
 
-  rejestr.io — ma dane finansowe ustrukturyzowane
-  Nie ma publicznego API, ale:
-  - Apify actor "rejestr.io scraper" — scrapuje per KRS
-  - Dane: przychody, zysk, aktywa — za 3+ lata
-  - Kompletnie sparsowane, czyste dane
-  
-  Czas: 1-2h
-  Koszt: ~$15-20 (Apify compute za 250 firm)
-  Hit rate: ~80%+ (lepszy coverage)
-
-OPCJA C: Hybrid (rekomendacja)
-
-  1. Spróbuj rejestr.io scrape dla 250 firm
-  2. Dla brakujących: RDF scrape bezpośrednio
-  3. Dla nadal brakujących: LLM search 
-     ("przychody [nazwa firmy] catering 2024")
-  
-  Czas: 3-5h
-  Koszt: ~$20-30
-  Coverage: ~85-90% firm z KRS
+  Tylko dla firm brakujących w rejestr.io:
+  1. Apify/Playwright: rdf-przegladarka.ms.gov.pl
+  2. Search po KRS → pobierz XML → parse
+  Koszt: ~$5 (Apify compute)
+  Hit rate: ~60-70%
 ```
 
 ### Wynikowy schemat danych finansowych
@@ -252,7 +237,7 @@ interface FinancialData {
   // Per rok (trzymamy 3 lata)
   financials: Array<{
     year: number;                    // 2023, 2024, 2025
-    source: 'rdf_xml' | 'rejestr_io' | 'manual' | 'estimated';
+    source: 'rejestr_io_api' | 'rdf_xml' | 'manual' | 'estimated';
     
     // Rachunek Zysków i Strat
     revenue: number;                 // przychody netto (PLN)
@@ -285,25 +270,100 @@ interface FinancialData {
 
 ---
 
-## 5. WARSTWA C: KOMERCYJNE AGREGATORY (backup)
+## 5. WARSTWA C: REJESTR.IO API (rekomendacja)
 
-Jeśli opcje A+B nie dadzą wystarczającego coverage:
+### Rejestr.io — oficjalne REST API
 
-| Serwis | Co daje | Cena | API |
-|--------|---------|------|-----|
-| **rejestr.io** | KRS + finanse + powiązania | Darmowy podgląd, scraping | Brak oficjalnego |
-| **infoveriti.pl** | Pełne raporty finansowe | ~15-30 PLN/raport | Tak (płatne) |
-| **aleo.com** | KRS + finanse + scoring | ~5-15 PLN/raport | Tak (płatne) |
-| **bisnode.pl** | Credit reports + finanse | ~50-100 PLN/raport | Tak (enterprise) |
-| **wywiad-gospodarczy.pl** | Raporty o firmach | ~20-40 PLN/raport | Nie |
+Rejestr.io oferuje publiczne, płatne REST API z ustrukturyzowanymi danymi
+rejestrowo-finansowymi. To jedyne sensowne źródło danych finansowych
+dla naszego przypadku.
 
-Rekomendacja: **rejestr.io scraping** jako primary, bo darmowe i najlepszy
-coverage. Komercyjne API jako fallback dla firm których nie znajdziemy.
+**Endpoint bazowy:** `https://rejestr.io/api/v2/`
 
-Hipotetyczny koszt komercyjny dla 250 firm:
-- aleo.com: 250 × 10 PLN = 2,500 PLN (~$600) — DROGO
-- rejestr.io scraping: ~$20 — TANIO ale ryzyko blokady
-- RDF bezpośrednio: $5-10 — DARMOWE ale wolne
+**Autoryzacja:** klucz API w nagłówku `Authorization: <klucz>`
+
+**Rate limit:** 1000 req/min
+
+**Model płatności:** prepaid — doładowujesz konto, faktura VAT
+
+### Endpointy (11 total)
+
+| Endpoint | Cena/req | Opis |
+|----------|----------|------|
+| Wyszukiwanie organizacji | 0.05 PLN | search po nazwie/NIP/KRS |
+| Podstawowe dane organizacji | 0.05 PLN | nazwa, forma, NIP, adres |
+| Zaawansowane dane organizacji | 0.05 PLN | zarząd, udziałowcy, PKD, kapitał |
+| Dane osoby | 0.05 PLN | role, powiązania osoby |
+| Beneficjenci rzeczywiści | 0.05 PLN | UBO register |
+| Powiązania organizacji | 0.05 PLN | graf powiązań kapitałowych |
+| Powiązania osoby | 0.05 PLN | inne spółki danej osoby |
+| Odpis z KRS organizacji | 0.05 PLN | pełny odpis KRS w JSON |
+| Lista wpisów do KRS | 0.05 PLN | historia zmian w rejestrze |
+| **Lista dokumentów finansowych** | 0.05 PLN | dostępne sprawozdania (lata) |
+| **Dokument finansowy organizacji** | **0.50 PLN** | pełne sprawozdanie finansowe |
+
+### Porównanie: Rejestr.io API vs DIY (KRS API + RDF XML)
+
+```
+                          REJESTR.IO API          DIY (KRS API + RDF)
+─────────────────────────────────────────────────────────────────────
+Dane rejestrowe           0.05-0.15 PLN/firmę     $0 (KRS API)
+Dane finansowe            0.50 PLN/dokument       $0 (RDF XML parse)
+Format odpowiedzi         czysty JSON             XML (6+ schematów)
+Czas developmentu         ~2h (REST + mapping)    ~6-10h (XML parser)
+Edge cases                rozwiązane przez API    trzeba obsłużyć:
+                                                    - JednostkaMikro
+                                                    - JednostkaMala
+                                                    - JednostkaInna
+                                                    - brak pól
+                                                    - PDF zamiast XML
+                                                    - niestandardowe tagi
+Utrzymanie                zero (API vendor)       monitoring zmian XML
+Niezawodność              wysoka                  średnia (scraping RDF)
+Rate limit                1000 req/min            nieznany (RDF blokuje)
+```
+
+### Kalkulacja dla 250 sp. z o.o. × 3 lata
+
+```
+REJESTR.IO API:
+  250 × wyszukanie (0.05)              =   12.50 PLN
+  250 × dane zaawansowane (0.05)        =   12.50 PLN
+  250 × lista dokumentów (0.05)         =   12.50 PLN
+  250 × 3 × dokument finansowy (0.50)   =  375.00 PLN
+                                          ──────────
+  TOTAL:                                   412.50 PLN  (~$105)
+
+DIY (KRS API + RDF):
+  KRS API: $0
+  RDF scraping (Apify compute): ~$5-10
+  NIP discovery (Perplexity): ~$10
+  Dev time XML parser: 6-10h × stawka developera
+                                          ──────────
+  TOTAL: ~$15-20 + 6-10h dev time
+```
+
+### WERDYKT: Rejestr.io API
+
+**Rejestr.io wygrywa.** Przy stawce developera >$15/h, koszt budowy i utrzymania
+parsera XML (6-10h = $90-150) przewyższa $105 za API. Dorzuć edge cases,
+maintenance i ryzyko blokady RDF — nie ma dyskusji.
+
+Dodatkowe bonusy rejestr.io:
+- **Powiązania organizacji** (0.05 PLN) — odkrywanie grup kapitałowych za grosze
+- **Beneficjenci rzeczywiści** — UBO register, kto naprawdę stoi za firmą
+- **Historia wpisów** — timeline zmian w zarządzie, kapitale
+
+### Inne komercyjne agregatory (fallback)
+
+| Serwis | Cena | API | Uwagi |
+|--------|------|-----|-------|
+| **MGBI.pl** | Enterprise (kontakt) | Tak | Pełne raporty, drogi |
+| **infoveriti.pl** | ~15-30 PLN/raport | Tak | Overkill dla naszych potrzeb |
+| **aleo.com** | ~5-15 PLN/raport | Tak | 250 × 10 PLN = 2,500 PLN — DROGO |
+| **bisnode.pl** | ~50-100 PLN/raport | Enterprise | Poza budżetem |
+
+Żaden nie zbliża się do rejestr.io pod względem cena/wartość dla batch operations.
 
 ---
 
@@ -332,11 +392,11 @@ KROK 3: CEIDG API → dane JDG
   Koszt:  $0
 
 KROK 4: Sprawozdania finansowe (3 lata)
-  Input:  ~250 numerów KRS
-  Tool:   rejestr.io scraping (primary) + RDF scrape (fallback)
+  Input:  ~250 numerów KRS/NIP
+  Tool:   rejestr.io API (primary) + RDF scrape (fallback)
   Output: przychody, zysk, bilans — za 2022, 2023, 2024
-  Czas:   3-5h
-  Koszt:  ~$20-30
+  Czas:   ~1h (API) + ewentualny fallback
+  Koszt:  ~$105 (rejestr.io API)
 
 KROK 5: Parse + enrichment
   Input:  raw XML/JSON z kroków 2-4
@@ -346,9 +406,9 @@ KROK 5: Parse + enrichment
   Koszt:  ~$2-3
 
 TOTAL:
-  Czas:   8-12h (jednorazowo, potem incremental)
-  Koszt:  ~$35-45
-  Coverage: ~70% z danymi rejestrowymi, ~50-60% z danymi finansowymi
+  Czas:   5-8h (jednorazowo, potem incremental)
+  Koszt:  ~$120-130
+  Coverage: ~80% z danymi rejestrowymi, ~70% z danymi finansowymi
 ```
 
 ---
@@ -414,7 +474,7 @@ To jest jak Bloomberg Terminal dla polskiego rynku D2C food.
 
 ### Prawne
 - Dane z KRS i RDF są publiczne — brak ograniczeń prawnych
-- Scraping rejestr.io — szara strefa, mogą blokować
+- Rejestr.io API — oficjalne, płatne, bez ryzyka prawnego
 - Agregowanie i odsprzedaż danych publicznych — legalne w Polsce
 - RODO: dane zarządów sp. z o.o. są publiczne (rejestr jawny)
 
@@ -437,16 +497,17 @@ Social media (IG+FB+TT):        $35-50
 Meta Ads (darmowe API):          $0
 Google Reviews:                  $10-15
 KRS + CEIDG (dane rejestrowe):  $10
-Sprawozdania finansowe:          $20-30
+Sprawozdania finansowe:          $105 (rejestr.io API)
 Interpretation layer:            $10-15
                                  ─────────
-TOTAL:                           $120-170
+TOTAL:                           $200-250
 ```
 
 500 marek. 21 wymiarów. ~100,000 atrybutów. Dane finansowe za 3 lata.
-Za cenę kolacji w restauracji.
+Za cenę dobrej kolacji we dwoje.
 
 ---
 
-*CATSCAN_OS // SUPLEMENT KRS // v0.1*
-*Generated: 2026-04-03*
+*CATSCAN_OS // SUPLEMENT KRS // v0.2*
+*Generated: 2026-04-04*
+*Update: rejestr.io API jako primary source danych finansowych*

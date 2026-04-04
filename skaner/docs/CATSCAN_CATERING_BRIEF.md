@@ -391,7 +391,7 @@ Koszt: ~$10-15
 
 ### TOTAL PIPELINE:
 - Czas: 3-4 dni (z testowaniem i poprawkami, jednorazowo)
-- Koszt: ~$120-170
+- Koszt: ~$200-250 (w tym ~$105 rejestr.io API za dane finansowe)
 - Wynik: ~500 encji x ~180 atrybutów = ~90,000 data points
 - Plus: ~7,500 kreacji reklamowych, ~20,000 postów social, ~750 sprawozdań finansowych
 
