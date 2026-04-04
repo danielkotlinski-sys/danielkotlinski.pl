@@ -83,8 +83,10 @@ export default function SaturationHeatmap({ saturation, deepBrands, clientBrandN
       <div className="mb-5 p-4 bg-beige-light rounded-xl text-[11px] text-text-gray space-y-2">
         <p className="font-medium text-text-muted text-xs mb-1">Jak czytać tabelę</p>
         <p>
-          <strong>Wartość (0–100)</strong> — określa, jak intensywnie dana marka komunikuje dany temat.
-          100 = temat dominujący w komunikacji marki, 0 = temat nieobecny.
+          <strong>Wartość (0–100)</strong> — wskaźnik obecności tematu w komunikacji marki.
+          Mierzy, jak bardzo kluczowe frazy marki pokrywają się z danym tematem.
+          Wysoki wynik = temat silnie obecny, niski = temat słabo obecny lub nieobecny.
+          Wartości nie sumują się do 100 — marka może mieć wysoki wynik w wielu tematach jednocześnie.
         </p>
         <div className="flex items-center gap-2 flex-wrap">
           <span>Natężenie koloru:</span>
