@@ -620,10 +620,19 @@ Zweryfikuj konwencję narracyjną danymi liczbowymi z szerokiego benchmarku. Nap
 
 ZASADY:
 - Każdą obserwację oprzyj konkretnymi liczbami z saturation map.
+- Liczby z tabeli to wynik nasycenia (0-100) — określają jak intensywnie dana marka komunikuje dany temat. NIE są to procenty udziału ani zasięgu. Pisząc o nich, mów "wynik nasycenia X/100" lub "intensywność X na 100", NIE "X%".
+- Przykład poprawny: "BeDiet ma wynik nasycenia 40/100 w temacie Zasięg, przy średniej kategorii 7/100 — to wyraźna przewaga."
+- Przykład NIEPOPRAWNY: "BeDiet ma 40% w Zasięgu" — to mylące, bo sugeruje udział procentowy.
 - Pisz zwięźle — maks 2-3 zdania per obserwacja.
 - Jeśli konwencja się potwierdza — napisz to wprost z dowodem liczbowym.
 
-Odpowiedz jako tekst (nie JSON) — 3-5 akapitów, każdy = jedna obserwacja.
+Odpowiedz jako JSON:
+{
+  "obserwacje": [
+    { "tytul": "krótki tytuł obserwacji", "tresc": "2-3 zdania z konkretnymi danymi" },
+    ...
+  ]
+}
 `;
 
 export function fillPrompt(
