@@ -58,8 +58,11 @@ const DIMENSIONS: Dimension[] = [
       { key: 'price_range_pln', label: 'Zakres cen' },
       { key: 'cheapest_daily', label: 'Min PLN/dzien', format: 'currency' },
       { key: 'most_expensive_daily', label: 'Max PLN/dzien', format: 'currency' },
+      { key: 'price_1500kcal', label: '1500 kcal/dzien', format: 'currency' },
+      { key: 'price_2000kcal', label: '2000 kcal/dzien', format: 'currency' },
       { key: 'trial_offer', label: 'Oferta proba' },
       { key: 'subscription_discount', label: 'Rabat subskrypcja', format: 'boolean' },
+      { key: 'diet_prices', label: 'Cennik diet', format: 'list' },
     ],
   },
   {
