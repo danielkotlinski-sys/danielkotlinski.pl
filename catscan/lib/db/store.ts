@@ -41,6 +41,7 @@ export interface ScanRecord {
   currentPhase: string | null;
   log: string[];
   totalCostUsd: number;
+  interpretation?: Record<string, unknown>;
   createdAt: string;
   completedAt: string | null;
 }
