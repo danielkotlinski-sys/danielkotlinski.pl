@@ -83,7 +83,7 @@ export async function crawlEntity(entity: EntityRecord): Promise<EntityRecord> {
     // Find valuable subpages
     const valuablePages = internalLinks.filter(l => {
       const lower = l.toLowerCase();
-      return /cen|pric|menu|diet|ofert|about|o-nas|kontakt|contact|jak-to|how|faq|dostaw|deliver/.test(lower);
+      return /cen|pric|menu|diet|ofert|about|o-nas|kontakt|contact|jak-to|how|faq|dostaw|deliver|regulamin|polityka|privacy|terms|impress/.test(lower);
     });
 
     // Crawl up to 3 valuable subpages

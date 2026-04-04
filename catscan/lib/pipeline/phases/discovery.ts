@@ -48,19 +48,40 @@ function extractNipsFromText(text: string): string[] {
     .filter((v, i, a) => a.indexOf(v) === i); // dedupe
 }
 
-async function searchForNip(companyName: string): Promise<string | null> {
-  // Strategy 1: Search DuckDuckGo (no API key needed)
-  const query = encodeURIComponent(`NIP "${companyName}" catering dietetyczny`);
-  const searchUrl = `https://html.duckduckgo.com/html/?q=${query}`;
-
-  const html = curlFetch(searchUrl);
-  if (html) {
-    const nips = extractNipsFromText(html);
-    if (nips.length > 0) return nips[0];
+async function searchForNip(companyName: string, entityUrl?: string): Promise<string | null> {
+  // Strategy 1: Check company's own legal pages (regulamin, polityka prywatności)
+  if (entityUrl) {
+    const base = entityUrl.startsWith('http') ? entityUrl : `https://${entityUrl}`;
+    for (const path of ['/polityka-prywatnosci', '/regulamin', '/privacy-policy', '/terms']) {
+      try {
+        const url = new URL(path, base).href;
+        const html = curlFetch(url);
+        if (html) {
+          const nips = extractNipsFromText(html);
+          if (nips.length > 0) return nips[0];
+        }
+      } catch { /* skip */ }
+    }
   }
 
-  // Strategy 2: Try Google
-  const googleUrl = `https://www.google.com/search?q=${query}&hl=pl`;
+  // Strategy 2: Search DuckDuckGo with multiple query variants
+  const queries = [
+    `NIP "${companyName}" catering dietetyczny`,
+    `"${companyName}" NIP site:rejestr.io OR site:aleo.com`,
+    `"${companyName}" NIP regon`,
+  ];
+
+  for (const q of queries) {
+    const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(q)}`;
+    const html = curlFetch(searchUrl);
+    if (html) {
+      const nips = extractNipsFromText(html);
+      if (nips.length > 0) return nips[0];
+    }
+  }
+
+  // Strategy 3: Try Google
+  const googleUrl = `https://www.google.com/search?q=${encodeURIComponent(`NIP "${companyName}" catering`)}&hl=pl`;
   const gHtml = curlFetch(googleUrl);
   if (gHtml) {
     const nips = extractNipsFromText(gHtml);
@@ -108,7 +129,7 @@ export async function discoverEntity(entity: EntityRecord): Promise<EntityRecord
 
   // If no NIP, search for it
   if (!nip || !validateNip(nip)) {
-    const found = await searchForNip(entity.name);
+    const found = await searchForNip(entity.name, entity.url);
     nip = found || undefined;
     discoveryMethod = nip ? 'search' : 'not_found';
   }
