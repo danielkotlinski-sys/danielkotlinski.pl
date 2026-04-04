@@ -13,6 +13,8 @@ import { writeFileSync, unlinkSync } from 'fs';
 import type { EntityRecord } from '@/lib/db/store';
 
 interface ContextData {
+  nip: string | null;
+  legalName: string | null;
   founder: string | null;
   foundedYear: number | null;
   legalOwner: string | null;
@@ -33,6 +35,8 @@ ${brandName}${domain ? ` (${domain})` : ''} — catering dietetyczny / dieta pud
 
 Odpowiedz WYŁĄCZNIE poprawnym JSON (bez markdown, bez komentarzy):
 {
+  "nip": "10-cyfrowy NIP firmy (bez myślników) lub null — szukaj w KRS, rejestr.io, CEIDG, na stronie firmy",
+  "legalName": "pełna nazwa prawna firmy (np. 'FIT CATERING SP. Z O.O.') lub null",
   "founder": "imię i nazwisko założyciela lub null",
   "foundedYear": rok założenia (number) lub null,
   "legalOwner": "obecny właściciel/grupa kapitałowa jeśli inna niż założyciel, lub null",
@@ -103,7 +107,16 @@ export async function enrichContext(entity: EntityRecord): Promise<EntityRecord>
     let contextData: ContextData;
     try {
       const parsed = JSON.parse(jsonStr.trim());
+      // Clean NIP: remove dashes/spaces, validate 10 digits
+      let parsedNip: string | null = null;
+      if (parsed.nip) {
+        const cleaned = String(parsed.nip).replace(/[-\s]/g, '');
+        if (/^\d{10}$/.test(cleaned)) parsedNip = cleaned;
+      }
+
       contextData = {
+        nip: parsedNip,
+        legalName: parsed.legalName || null,
         founder: parsed.founder || null,
         foundedYear: typeof parsed.foundedYear === 'number' ? parsed.foundedYear : null,
         legalOwner: parsed.legalOwner || null,
@@ -124,8 +137,12 @@ export async function enrichContext(entity: EntityRecord): Promise<EntityRecord>
       return entity;
     }
 
+    // Backfill NIP on entity if discovery didn't find it but Perplexity did
+    const updatedNip = (!entity.nip && contextData.nip) ? contextData.nip : entity.nip;
+
     return {
       ...entity,
+      nip: updatedNip,
       data: {
         ...entity.data,
         context: contextData,
