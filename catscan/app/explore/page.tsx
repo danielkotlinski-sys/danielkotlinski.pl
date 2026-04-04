@@ -116,7 +116,13 @@ const DIMENSIONS: Dimension[] = [
       { key: 'followers', label: 'Followers', format: 'number' },
       { key: 'posts', label: 'Posty', format: 'number' },
       { key: 'bio', label: 'Bio' },
-      { key: 'engagementRate', label: 'Engagement', format: 'number' },
+      { key: 'engagementRate', label: 'Engagement %', format: 'number' },
+      { key: 'content.sampleSize', label: 'Probka postow', format: 'number' },
+      { key: 'content.postingFrequency', label: 'Czestotliwosc' },
+      { key: 'content.avgLikesRecent', label: 'Avg likes (recent)', format: 'number' },
+      { key: 'content.avgLikesHistorical', label: 'Avg likes (hist.)', format: 'number' },
+      { key: 'content.engagementTrend', label: 'Trend' },
+      { key: 'content.topHashtags', label: 'Top hashtagi', format: 'list' },
     ],
   },
   {
@@ -235,6 +241,13 @@ function formatValue(val: unknown, format?: string): string {
   }
   if (format === 'list' && Array.isArray(val)) {
     if (val.length === 0) return '\u2014';
+    // Handle array of objects (e.g. topHashtags: [{tag, count}])
+    if (typeof val[0] === 'object' && val[0] !== null) {
+      return val.map(v => {
+        const obj = v as Record<string, unknown>;
+        return obj.tag ? `${obj.tag}(${obj.count})` : obj.diet_name ? `${obj.diet_name}: ${obj.price_per_day_pln} PLN` : JSON.stringify(v);
+      }).join(', ');
+    }
     return val.join(', ');
   }
   if (format === 'url' && typeof val === 'string') {
