@@ -73,7 +73,8 @@ export async function POST(req: NextRequest) {
 }
 
 /** GET /api/scan — list all scans */
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const full = req.nextUrl.searchParams.get('full') === '1';
   const scans = getScans().map((s) => ({
     id: s.id,
     status: s.status,
@@ -83,6 +84,21 @@ export async function GET() {
     totalCostUsd: s.totalCostUsd,
     createdAt: s.createdAt,
     completedAt: s.completedAt,
+    // Include entities (without rawHtml) when ?full=1
+    ...(full ? {
+      entities: s.entities.map((e) => ({
+        id: e.id,
+        name: e.name,
+        url: e.url,
+        domain: e.domain,
+        nip: e.nip,
+        krs: e.krs,
+        status: e.status,
+        errors: e.errors,
+        data: e.data,
+        financials: e.financials,
+      })),
+    } : {}),
   }));
   return NextResponse.json(scans);
 }
