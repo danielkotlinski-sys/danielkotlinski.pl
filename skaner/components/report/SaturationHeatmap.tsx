@@ -87,6 +87,7 @@ export default function SaturationHeatmap({ saturation, deepBrands, clientBrandN
           Mierzy, jak bardzo kluczowe frazy marki pokrywają się z danym tematem.
           Wysoki wynik = temat silnie obecny, niski = temat słabo obecny lub nieobecny.
           Wartości nie sumują się do 100 — marka może mieć wysoki wynik w wielu tematach jednocześnie.
+          Wyniki benchmarkowych marek bazują na analizie treści ich stron internetowych.
         </p>
         <div className="flex items-center gap-2 flex-wrap">
           <span>Natężenie koloru:</span>
