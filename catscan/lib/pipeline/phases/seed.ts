@@ -196,23 +196,62 @@ const TOP_CITIES = [
   'suwałki', 'gniezno',
 ];
 
-function searchDDG(query: string): string[] {
-  const encoded = encodeURIComponent(query);
-  const html = curlFetch(`https://html.duckduckgo.com/html/?q=${encoded}`, 15);
-  if (!html) return [];
+/**
+ * Search via Apify Google Search Scraper.
+ * Batches up to 10 queries per actor run to save costs.
+ * Returns array of { domain, title, url } per result.
+ */
+function searchApifyGoogle(
+  queries: string[],
+  apifyToken: string
+): Array<{ domain: string; title: string; url: string }> {
+  const results: Array<{ domain: string; title: string; url: string }> = [];
 
-  const domains: string[] = [];
-  // Extract URLs from DuckDuckGo results
-  const urlRegex = /uddg=([^&"]+)/g;
-  let m: RegExpExecArray | null;
-  while ((m = urlRegex.exec(html)) !== null) {
+  // Batch queries (max 10 per run to keep actor fast)
+  const batchSize = 10;
+  for (let i = 0; i < queries.length; i += batchSize) {
+    const batch = queries.slice(i, i + batchSize);
+    const input = {
+      queries: batch.join('\n'),
+      maxPagesPerQuery: 1,
+      resultsPerPage: 20,
+      languageCode: 'pl',
+      countryCode: 'pl',
+      mobileResults: false,
+    };
+
+    const inputFile = `/tmp/apify_google_seed_${i}.json`;
+    writeFileSync(inputFile, JSON.stringify(input));
+
     try {
-      const decoded = decodeURIComponent(m[1]);
-      const domain = extractDomain(decoded);
-      if (domain) domains.push(domain);
-    } catch { /* skip */ }
+      const raw = execSync(
+        `curl -s -m 120 'https://api.apify.com/v2/acts/apify~google-search-scraper/run-sync-get-dataset-items?token=${apifyToken}' -H 'Content-Type: application/json' -d @${inputFile}`,
+        { maxBuffer: 20 * 1024 * 1024, timeout: 180000 }
+      ).toString('utf-8');
+
+      const data = JSON.parse(raw);
+      if (Array.isArray(data)) {
+        for (const page of data) {
+          const organic = page.organicResults || [];
+          for (const r of organic) {
+            const domain = extractDomain(r.url || '');
+            if (domain) {
+              results.push({ domain, title: r.title || '', url: r.url || '' });
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.warn(`[seed/search] Apify batch ${i} failed:`, e instanceof Error ? e.message : e);
+    }
+
+    // Brief pause between batches
+    if (i + batchSize < queries.length) {
+      execSync('sleep 2');
+    }
   }
-  return domains;
+
+  return results;
 }
 
 const SKIP_DOMAINS = new Set([
@@ -238,15 +277,23 @@ async function seedFromSearch(
   existingDomains: Set<string>,
   onProgress?: (msg: string) => void
 ): Promise<Brand[]> {
-  const brands: Brand[] = [];
-  const foundDomains = new Set<string>(existingDomains);
+  const apifyToken = process.env.APIFY_API_TOKEN;
+  if (!apifyToken) {
+    const msg = '[seed/search] APIFY_API_TOKEN not set — skipping Google search';
+    console.warn(msg);
+    onProgress?.(msg);
+    return [];
+  }
 
-  // Search for catering dietetyczny per city
+  const brands: Brand[] = [];
+  const foundDomains = new Set<string>();
+  existingDomains.forEach(d => foundDomains.add(d));
+
+  // Build query list
   const queries: string[] = [];
   for (const city of TOP_CITIES) {
     queries.push(`catering dietetyczny ${city}`);
   }
-  // Add ranking queries
   queries.push(
     'ranking cateringów dietetycznych 2025',
     'ranking cateringów dietetycznych 2026',
@@ -257,42 +304,41 @@ async function seedFromSearch(
     'catering dietetyczny porównanie',
   );
 
-  for (let i = 0; i < queries.length; i++) {
-    const query = queries[i];
-    if (i % 10 === 0) {
-      const msg = `[seed/search] ${i}/${queries.length} queries, ${brands.length} new brands found`;
-      console.log(msg);
-      onProgress?.(msg);
-    }
+  onProgress?.(`[seed/search] Running ${queries.length} Google queries via Apify...`);
+  const results = searchApifyGoogle(queries, apifyToken);
+  onProgress?.(`[seed/search] Got ${results.length} total results, filtering...`);
 
-    const domains = searchDDG(query);
-    for (const domain of domains) {
-      if (!isDietCateringDomain(domain)) continue;
-      if (foundDomains.has(domain)) continue;
-      foundDomains.add(domain);
+  for (const r of results) {
+    if (!isDietCateringDomain(r.domain)) continue;
+    if (foundDomains.has(r.domain)) continue;
+    foundDomains.add(r.domain);
 
-      // Use domain as brand name (will be refined in crawl phase)
-      const nameParts = domain.replace(/\.pl$|\.com$|\.eu$/, '').split('.');
-      const name = nameParts[nameParts.length - 1]
+    // Use Google title as brand name (better than domain guess)
+    // Clean up: remove " - Catering dietetyczny" suffixes etc.
+    let name = r.title
+      .replace(/\s*[-–|].*catering.*$/i, '')
+      .replace(/\s*[-–|].*dieta.*$/i, '')
+      .replace(/\s*[-–|].*dietetyczn.*$/i, '')
+      .replace(/\s*[-–|]\s*strona główna.*$/i, '')
+      .trim();
+
+    if (!name || name.length < 2) {
+      const nameParts = r.domain.replace(/\.pl$|\.com$|\.eu$/, '').split('.');
+      name = nameParts[nameParts.length - 1]
         .replace(/-/g, ' ')
         .replace(/\b\w/g, c => c.toUpperCase());
-
-      brands.push({
-        slug: domain,
-        name,
-        domain,
-        url: `https://${domain}`,
-        dietlySlug: null,
-        dietlyUrl: null,
-        source: 'search',
-        seededAt: new Date().toISOString(),
-      });
     }
 
-    // Rate limit: 1.5s between DDG queries to avoid blocks
-    if (i < queries.length - 1) {
-      execSync('sleep 1.5');
-    }
+    brands.push({
+      slug: r.domain,
+      name,
+      domain: r.domain,
+      url: r.url || `https://${r.domain}`,
+      dietlySlug: null,
+      dietlyUrl: null,
+      source: 'search',
+      seededAt: new Date().toISOString(),
+    });
   }
 
   console.log(`[seed/search] Done: ${brands.length} new brands from search`);
