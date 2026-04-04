@@ -332,7 +332,7 @@ export default function AdminReportsPage() {
                         </p>
                       </div>
                       <a
-                        href={scan.reportUrl}
+                        href={`/raport/${scan.scanId}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-xs px-3 py-1.5 bg-dk-teal text-white rounded-pill hover:bg-dk-teal-hover transition-colors"
