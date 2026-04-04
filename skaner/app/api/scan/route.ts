@@ -48,9 +48,16 @@ export async function POST(request: NextRequest) {
   const stream = new ReadableStream({
     async start(controller) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let streamClosed = false;
       const sendEvent = (event: ProgressEvent | { type: string; scanId?: string; report?: any; error?: string }) => {
-        const data = JSON.stringify(event);
-        controller.enqueue(encoder.encode(`data: ${data}\n\n`));
+        if (streamClosed) return;
+        try {
+          const data = JSON.stringify(event);
+          controller.enqueue(encoder.encode(`data: ${data}\n\n`));
+        } catch {
+          // Client disconnected — stop writing to stream
+          streamClosed = true;
+        }
       };
 
       // Keep-alive: send a comment every 25s to prevent Railway proxy timeout
