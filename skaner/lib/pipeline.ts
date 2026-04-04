@@ -129,12 +129,16 @@ export async function runCategoryScanner(
       synthesize_category: 85,
       client_position: 95,
     };
-    onProgress({
-      stepId,
-      status,
-      detail,
-      progress: status === 'done' ? progressMap[stepId] : undefined,
-    });
+    try {
+      onProgress({
+        stepId,
+        status,
+        detail,
+        progress: status === 'done' ? progressMap[stepId] : undefined,
+      });
+    } catch {
+      // Progress reporting must never kill the pipeline
+    }
   };
 
   // Collect websites + screenshots
