@@ -1,17 +1,20 @@
 # CATSCAN // CATERING INTELLIGENCE ENGINE
-## Brief produktowy — v0.2
+## Brief produktowy — v0.3
 
 ---
 
 ## 1. CO TO JEST
 
 Sektorowa baza wiedzy o rynku cateringów dietetycznych w Polsce.
-400-600 marek. 21 wymiarów analizy per marka. ~100,000 atrybutów.
+256 marek w bazie (docelowo 400-600). 21 wymiarów analizy per marka. ~100,000 atrybutów.
 Dane komunikacyjne + finansowe + reklamowe + social + reputacja.
 Odświeżane cyklicznie. Odpytywane w języku naturalnym.
 
 Produkt docelowy: interfejs typu "zapytaj o cokolwiek w tej branży".
 Produkt MVP: raport sektorowy + prosta wyszukiwarka + chat AI.
+
+**Status:** MVP zbudowany — pipeline 9 faz, scan engine UI, query interface, audit page.
+Baza: 256 marek (177 Dietly + 78 Google search + 1 Dietly-city). Brakuje ~250 marek do pełnego pokrycia.
 
 Patrz też: `CATSCAN_KRS_SUPPLEMENT.md` — szczegóły pozyskania danych z KRS.
 
@@ -19,10 +22,11 @@ Patrz też: `CATSCAN_KRS_SUPPLEMENT.md` — szczegóły pozyskania danych z KRS.
 
 ## 2. SKĄD DANE
 
-### 2.1 Źródło startowe: Dietly.pl
+### 2.1 Źródło startowe: Dietly.pl ✅ ZAIMPLEMENTOWANE
 
 Dietly to największa platforma do zamawiania cateringów w Polsce.
-Kataloguje marki z danymi strukturalnymi. Tylko Warszawa = 157 marek.
+Kataloguje marki z danymi strukturalnymi. Scraper zbudowany — parsuje sitemap Dietly.
+**Aktualnie:** 177 marek z Dietly + 78 z Google search = 256 w `data/brands.json`.
 
 Dane dostępne z Dietly per marka:
 - Nazwa firmy
@@ -38,9 +42,10 @@ Dane dostępne z Dietly per marka:
 
 To daje nam SEED DATA: listę marek + URL + podstawowe metryki.
 
-### 2.2 Źródło wtórne: strony www marek
+### 2.2 Źródło wtórne: strony www marek ✅ ZAIMPLEMENTOWANE
 
-Z Dietly mamy nazwy. Szukamy domen (Google/Perplexity).
+Z Dietly mamy nazwy + domeny. Crawl fazą curl (plain HTTP, bez JS rendering).
+SPA sites mają ograniczone dane — faza context (Perplexity) uzupełnia braki.
 Crawlujemy 3-5 podstron per marka:
 - Homepage
 - O nas / About
@@ -48,24 +53,28 @@ Crawlujemy 3-5 podstron per marka:
 - Cennik / Pricing
 - Blog (jeśli jest)
 
-### 2.3 Źródło: Meta Ad Library
+### 2.3 Źródło: Meta Ad Library ✅ ZAIMPLEMENTOWANE
 
 Publiczne API Meta. Wyszukujemy po nazwie marki.
 Widzimy: aktywne reklamy, formaty, copy, CTA, daty uruchomienia.
+Connector: `lib/connectors/meta-ads.ts`. Wymaga `META_ADS_ACCESS_TOKEN`.
 
-### 2.4 Źródło: Social media
+### 2.4 Źródło: Social media ✅ ZAIMPLEMENTOWANE
 
 Apify actors na: Instagram, Facebook, TikTok.
 Publiczne profile — posty, followersi, engagement, częstotliwość.
+Connector: `lib/connectors/apify.ts`. Wymaga `APIFY_API_TOKEN`.
 
-### 2.5 Źródło: Google Maps / Reviews
+### 2.5 Źródło: Google Maps / Reviews ✅ ZAIMPLEMENTOWANE
 
 Rating, liczba opinii, lokalizacja, zdjęcia.
+Apify Google Maps scraper + Dietly ratings z seed data.
 
-### 2.6 Źródło: Perplexity (kontekstowe)
+### 2.6 Źródło: Perplexity (kontekstowe) ✅ ZAIMPLEMENTOWANE
 
-Dla pytań wymagających kontekstu rynkowego:
-trendy, media mentions, nowi gracze, zamknięcia.
+Faza context: founder, rok założenia, media mentions, influencerzy,
+unikalne cechy, status rynkowy, competitive position.
+Wymaga `PERPLEXITY_API_KEY`. Koszt: ~$0.005/query.
 
 ---
 
@@ -303,103 +312,140 @@ Koszt: ~$35-45 za 500 marek.
 
 ## 4. POZYSKANIE DANYCH — PIPELINE
 
-### Faza 1: SEED (Dietly scrape)
+### Faza 1: SEED (Dietly scrape) ✅ GOTOWE
 
-Wejście: Dietly.pl — wszystkie miasta
-Wyjście: lista marek + Dietly URL + metryki z Dietly
-Narzędzie: Apify (web scraper) lub custom Playwright script
-Czas: 1-2h
-Koszt: ~$5
+Wejście: Dietly.pl sitemap + Apify Google Search ("catering dietetyczny [miasto]")
+Wyjście: lista marek + Dietly URL + metryki z Dietly + domeny www
+Narzędzie: Custom scraper (parsuje sitemap Dietly) + Apify Google Search
+Implementacja: `lib/pipeline/phases/seed.ts`
+Aktualny wynik: **256 marek** (177 Dietly + 78 search + 1 city)
 
-Wynik: ~500 encji z wymiarami 01 (częściowo), 02 (częściowo),
+Wynik: encje z wymiarami 01 (częściowo), 02 (częściowo),
        03 (częściowo), 13 (Dietly dane), 14 (częściowo), 18 (częściowo)
 
-### Faza 2: DOMAIN DISCOVERY
+### Faza 2: CRAWL ✅ GOTOWE
 
-Wejście: nazwy marek z fazy 1
-Wyjście: URL strony www per marka
-Narzędzie: Perplexity batch lub Google search API
-Czas: 1h
-Koszt: ~$5-10
+Wejście: URL-e stron www marek
+Wyjście: HTML + stripped text + wykryte social URLs + kontakt (NIP, email, telefon)
+Narzędzie: curl (plain HTTP, bez JS rendering)
+Implementacja: `lib/pipeline/phases/crawl.ts`
+Uwaga: SPA sites zwracają ograniczony content — faza context uzupełnia braki.
+Czas: szybkie, ~0.5-1s per marka
+Koszt: $0
 
-### Faza 3: WEBSITE CRAWL
-
-Wejście: ~500 URL-i x 3-5 podstron = 1500-2500 URL-i
-Wyjście: HTML + text + screenshots
-Narzędzie: Apify website-content-crawler + screenshot actor
-Czas: 2-4h
-Koszt: ~$20-30
-
-### Faza 4: STRUCTURED EXTRACTION
+### Faza 3: EXTRACT ✅ GOTOWE
 
 Wejście: raw text z crawla
-Wyjście: JSON per marka — wymiary 04-07, 15-17, 19
+Wyjście: JSON per marka — wymiary 02-07, 14-19
 Narzędzie: Claude Haiku per strona (~2K tokens in, ~1K out)
+Implementacja: `lib/pipeline/phases/extract.ts`
 Czas: 30 min (parallel)
 Koszt: ~$3-5
 
-### Faza 5: SOCIAL MEDIA
+### Faza 4: DISCOVERY (NIP/KRS) ✅ GOTOWE
 
-Wejście: nazwy marek / URL-e social profiles
+Wejście: nazwa marki + ewentualny NIP z crawla
+Wyjście: potwierdzony NIP, numer KRS, forma prawna
+Narzędzie: DuckDuckGo search via curl + analiza stron prawnych (regulamin, polityka prywatności)
+Implementacja: `lib/pipeline/phases/discovery.ts`
+Walidacja: algorytm checksum NIP
+Koszt: $0
+
+### Faza 5: CONTEXT (Perplexity) ✅ GOTOWE
+
+Wejście: nazwa marki + kontekst rynkowy
+Wyjście: founder, rok założenia, media mentions, influencerzy, unikalne cechy, trajectory
+Narzędzie: Perplexity sonar model (~$0.005/query)
+Implementacja: `lib/pipeline/phases/context.ts`
+Wymaga: `PERPLEXITY_API_KEY`
+Czas: 1-2h (500 marek)
+Koszt: ~$2.50
+
+### Faza 6: SOCIAL MEDIA ✅ GOTOWE
+
+Wejście: nazwy marek / URL-e social profiles (z crawla)
 Wyjście: wymiary 09-12
 Narzędzia:
   - Apify instagram-profile-scraper + post-scraper (20 postów/marka): ~$15-20
   - Apify facebook-pages-scraper (15 postów/marka): ~$10-15
   - Apify tiktok-scraper (10 filmów/marka): ~$10-15
+Implementacja: `lib/pipeline/phases/social.ts`
+Connector: `lib/connectors/apify.ts`
 Czas: 2-4h
 Koszt: ~$35-50
 Volume: 500 profili x 3 platformy, ~20,000 postów total
 
-### Faza 6: REKLAMY (META)
+### Faza 7: REKLAMY (META) ✅ GOTOWE
 
 Wejście: nazwy marek
 Wyjście: wymiar 08
 Narzędzie: Meta Ad Library API (darmowe, publiczne)
+Implementacja: `lib/pipeline/phases/ads.ts`
+Connector: `lib/connectors/meta-ads.ts`
 Czas: 2-3h
 Koszt: $0
 Volume: ~7,500 aktywnych kreacji reklamowych (est.)
 
-### Faza 7: REVIEWS & GEO
+### Faza 8: REVIEWS & GEO ✅ GOTOWE
 
 Wejście: nazwy marek
-Wyjście: wymiary 13 (Google), 14
-Narzędzie: Apify Google Maps scraper
+Wyjście: wymiary 13 (Google + Dietly), 14
+Narzędzie: Apify Google Maps scraper + Dietly ratings z seed data
+Implementacja: `lib/pipeline/phases/reviews.ts`
 Czas: 1-2h
 Koszt: ~$10-15
 
-### Faza 8: KRS + DANE FINANSOWE
+### Faza 9: FINANCE (KRS + rejestr.io) ✅ GOTOWE
 
-Wejście: nazwy marek z fazy 1
+Wejście: NIP z fazy discovery
 Wyjście: wymiar 21
+Narzędzie: rejestr.io API (primary) + KRS API (free) + RDF fallback
+Implementacja: `lib/pipeline/phases/finance.ts`
+Connector: `lib/connectors/rejestr-io.ts`
 Pipeline (szczegóły: CATSCAN_KRS_SUPPLEMENT.md):
-  1. Perplexity batch: nazwa → NIP/KRS (~$10, 1-2h)
-  2. API KRS: dane rejestrowe ($0, 2-3h)
-  3. CEIDG API: dane JDG ($0, 30 min)
-  4. Rejestr.io/RDF: sprawozdania finansowe za 3 lata (~$20-30, 3-5h)
-  5. Parse + enrichment (~$2-3, 1h)
-Czas: 8-12h
-Koszt: ~$35-45
+  1. Discovery: nazwa → NIP/KRS (faza 4)
+  2. rejestr.io: dane rejestrowe + sprawozdania finansowe (~$0.05-0.50/req)
+  3. Fallback: KRS API (free) + RDF XML
+Czas: 3-5h
+Koszt: ~$35-45 (zależy od coverage)
 Coverage: ~70% rejestrowe, ~50-60% finansowe
 
-### Faza 9: INTERPRETATION
+### Faza 10: INTERPRETATION ✅ GOTOWE
 
 Wejście: all structured data (21 wymiarów)
 Wyjście: wymiar 20 (market signals) + cross-entity patterns + category fingerprint
 Narzędzie: Claude Sonnet — category-level analysis
+Implementacja: `lib/pipeline/phases/interpret.ts`
+Uwaga: uruchamiana RAZ per scan (nie per-entity)
 Czas: 15-30 min
 Koszt: ~$10-15
 
 ### TOTAL PIPELINE:
+- Faz: 10 (seed + 9 faz per-scan). Wszystkie zaimplementowane.
 - Czas: 3-4 dni (z testowaniem i poprawkami, jednorazowo)
 - Koszt: ~$200-250 (w tym ~$105 rejestr.io API za dane finansowe)
 - Wynik: ~500 encji x ~180 atrybutów = ~90,000 data points
 - Plus: ~7,500 kreacji reklamowych, ~20,000 postów social, ~750 sprawozdań finansowych
+- Orchestrator: `app/api/scan/route.ts` — async, per-entity, z error handling i cost tracking
 
 ---
 
 ## 5. STORAGE
 
-### Baza danych: Postgres (Supabase / Neon — free tier na start)
+### MVP: JSON file storage ✅ AKTUALNIE
+
+Implementacja: `lib/db/store.ts`
+Pliki w `data/`:
+- `brands.json` — 256 marek (seed data z Dietly + Google search)
+- `scans.json` — historia scanów z pełnymi wynikami
+
+Modele danych (TypeScript):
+- `ScanRecord` — id, status, entities[], phasesCompleted[], log[], totalCostUsd
+- `EntityRecord` — id, name, url, nip, data (JSONB-like), financials, status, errors
+
+### Docelowo: Postgres (Supabase / Neon)
+
+Schema przygotowany: `lib/db/schema.sql`
 
 Tabele:
 - entities — 500 wierszy, podstawowe dane
@@ -423,12 +469,69 @@ Snapshot JSONB pozwala:
 
 ## 6. INTERFEJS MVP
 
-### 6.1 Strona główna: Search + Dashboard
+### 6.0 Hub / Home ✅ GOTOWE — `app/page.tsx`
 
-Prosty ekran. Na górze:
+Hero: "CATSCAN // MARKET_INTELLIGENCE_ENGINE"
+Trzy główne nawigacje:
+  - Design_System → `/ds`
+  - Scan_Engine → `/scan`
+  - Query_Interface → `/chat`
+
+### 6.1 Scan Engine ✅ GOTOWE — `app/scan/page.tsx`
+
+Pełny interfejs do uruchamiania scanów:
+  - Tabela input: dodaj firmy po NAME, URL, NIP (opcjonalnie)
+  - 3 presetowe firmy (Maczfit, Kuchnia Vikinga, Cateromarket)
+  - Wybór faz do uruchomienia (domyślnie: wszystkie 9)
+  - Start scan → async pipeline w tle
+  - Real-time progress (polling 2s):
+    - Aktualna faza
+    - Live log z timestampami
+    - Status per entity (pending → crawled → extracted → enriched → failed)
+    - Running cost w USD
+    - Kolor statusu (żółty=running, zielony=done, czerwony=failed)
+  - Preview danych encji (pricing, delivery, brand tone)
+  - Link do Query Interface po zakończeniu
+
+API: `POST /api/scan` → start, `GET /api/scan` → list, `GET /api/scan/[id]` → status
+
+### 6.2 Query Interface ✅ GOTOWE — `app/chat/page.tsx`
+
+Chat-like interface z Claude Sonnet jako analitykiem:
+  - User wpisuje pytanie → Claude Sonnet:
+    1. Dostaje pełny JSON dataset z ostatniego scana
+    2. Analizuje dane w kontekście pytania
+    3. Zwraca: tekst + tabela (markdown) + wnioski
+  - Metadata per query: model, token count, koszt
+  - Tabele auto-renderowane z markdown
+  - Przykłady zapytań (PL):
+    - "Pokaż ranking firm po cenie dnia — od najtańszej"
+    - "Porównaj pozycjonowanie marek"
+    - "Jakie modele dostawy stosują te firmy?"
+
+API: `POST /api/chat`
+
+### 6.3 Audit Page ✅ GOTOWE — `app/audit/page.tsx`
+
+Weryfikacja danych ze scanów:
+  - Przegląd wyników per entity
+  - Dane finansowe (jeśli pobrane)
+  - Quality check extracted dimensions
+
+### 6.4 Design System ✅ GOTOWE — `app/ds/page.tsx`
+
+Showcase wszystkich komponentów CATSCAN:
+  - Sidebar z 5 sekcjami
+  - Button, Card, Badge, Input, StatCard, SectionHeader, Table
+  - Paleta kolorów i typografia
+  - Static preview: `public/ds-preview.html`
+
+### 6.5 Strona główna: Search + Dashboard — 🔜 PLANOWANE
+
+Docelowy interfejs po migracji do Postgres:
 
   ┌─────────────────────────────────────────────┐
-  │  🔍  Zapytaj o cokolwiek w branży...       │
+  │  Zapytaj o cokolwiek w branży...            │
   └─────────────────────────────────────────────┘
 
 Pod spodem: 4 stat karty
@@ -443,32 +546,16 @@ Pod statami: "Popularne zapytania" — klikalne gotowe pytania:
   - "Pokaż marki premium bez bloga"
   - "Top 10 najaktywniejszych na Instagramie"
 
-### 6.2 Query result
-
-User wpisuje pytanie → Claude Sonnet:
-  1. Parsuje intencję
-  2. Generuje SQL do Postgres
-  3. Wykonuje query
-  4. Interpretuje wyniki
-  5. Zwraca: tekst + tabela + linki do encji
-
-Wynik wyświetla się pod searchem. Zawiera:
-  - Odpowiedź tekstowa (2-5 zdań)
-  - Tabela z danymi (sortowalna)
-  - Screenshoty stron (klikalne)
-  - Źródła: "Na podstawie crawla z 03.04.2026"
-  - Akcje: [Eksportuj PDF] [Dodaj do raportu] [Pogłęb]
-
-### 6.3 Entity view
+### 6.6 Entity view — 🔜 PLANOWANE
 
 Klikam w markę → pełna karta:
-  - Wszystkie 20 wymiarów
+  - Wszystkie 21 wymiarów
   - Screenshot strony
   - Aktywne reklamy (screenshoty)
   - Timeline zmian (jeśli mamy historię)
-  - Porównanie z kategoria (percentyle)
+  - Porównanie z kategorią (percentyle)
 
-### 6.4 Report generator
+### 6.7 Report generator — 🔜 PLANOWANE
 
 User wybiera:
   - Typ: Pełny sektor / Segment / Marka vs konkurenci
@@ -481,47 +568,76 @@ System generuje raport z gotowymi insightami.
 
 ## 7. STACK TECHNOLOGICZNY
 
-- Frontend: Next.js (mamy już) + CATSCAN Design System (mamy już)
-- Backend: Next.js API routes + Postgres (Supabase)
-- AI: Claude Sonnet (interpretacja) + Claude Haiku (extraction)
-- Crawling: Apify (actors) + Meta Ad Library API
+### Zaimplementowane ✅
+- Frontend: Next.js 14.2 + React 18 + Tailwind CSS 3.4 + CATSCAN Design System
+- Backend: Next.js API routes (serverless)
+- AI: Claude Sonnet (interpretacja + chat) + Claude Haiku (extraction) — `@anthropic-ai/sdk`
+- Crawling: curl (plain HTTP) + Apify actors (social, reviews, Google search)
+- Ads: Meta Ad Library API connector
+- Finance: rejestr.io API connector + KRS API
+- Context: Perplexity sonar model
+- Storage: JSON file-based (`lib/db/store.ts`) — MVP
+- Design System: 9 komponentów (`components/ds/`)
+
+### Do zbudowania 🔜
 - Storage: Supabase Postgres (dane) + Cloudflare R2 (screenshoty)
 - Scheduling: Vercel Cron lub Supabase Edge Functions (cykliczne scany)
 - Auth: to co mamy (email + org system)
+- Deploy: Vercel
+
+### Zmienne środowiskowe (`.env.example`):
+- `ANTHROPIC_API_KEY` — wymagany (Claude Haiku + Sonnet)
+- `APIFY_API_TOKEN` — opcjonalny (social, reviews, Google search)
+- `META_ADS_ACCESS_TOKEN` — opcjonalny (Meta Ad Library)
+- `REJESTR_IO_API_KEY` — opcjonalny (dane finansowe)
+- `PERPLEXITY_API_KEY` — opcjonalny (faza context)
 
 ---
 
 ## 8. FAZY BUDOWY
 
-### FAZA 0: Extraction schema + seed data (tydzień 1)
-- Zdefiniuj schema w TypeScript (types)
-- Scrapuj Dietly → seed ~500 marek
-- Znajdź domeny dla marek
-- Wynik: lista encji z podstawowymi danymi
+### FAZA 0: Extraction schema + seed data ✅ DONE
+- ✅ Schema TypeScript (types w `lib/db/store.ts`, `lib/pipeline/types.ts`)
+- ✅ Scraper Dietly sitemap → 177 marek
+- ✅ Google search discovery → +78 marek = **256 total**
+- ✅ `data/brands.json` z metadanymi Dietly (rating, reviews, ceny, diety)
+- ✅ Domeny www per marka
+- Brakuje: ~250 marek do docelowych 500
 
-### FAZA 1: Pipeline + pierwszy full scan (tydzień 2-3)
-- Zbuduj pipeline: crawl → extract → store
-- Pierwszy full scan 500 marek
-- Dane w Postgres
-- Wynik: baza z ~75,000 atrybutów
+### FAZA 1: Pipeline + scan engine ✅ DONE
+- ✅ 9-fazowy pipeline: crawl → extract → discovery → context → social → ads → reviews → finance → interpret
+- ✅ Async orchestrator z error handling per entity (`app/api/scan/route.ts`)
+- ✅ Cost tracking per scan (USD)
+- ✅ Logging z timestampami
+- ✅ Scan Engine UI z real-time progress
+- ✅ JSON file storage (MVP)
+- Brakuje: migracja do Postgres, pierwszy full scan 500 marek
 
-### FAZA 2: Query interface (tydzień 3-4)
-- Prosty search UI
-- Claude Sonnet jako query engine
-- Entity view (karta marki)
-- Wynik: działający prototyp do pokazania
+### FAZA 2: Query interface ✅ DONE
+- ✅ Chat UI z Claude Sonnet jako analitykiem
+- ✅ Natural language queries nad danymi ze skanów
+- ✅ Markdown rendering (tabele, listy)
+- ✅ Token count + cost per query
+- ✅ Audit page do weryfikacji danych
+- Brakuje: entity view (karta marki), search dashboard
 
-### FAZA 3: Report generator (tydzień 4-5)
+### FAZA 3: Report generator — 🔜 NASTĘPNA
 - PDF export
 - Prezentacja export
 - Pre-built report templates
 - Wynik: produkt do sprzedaży
 
-### FAZA 4: Monitoring (tydzień 5-6)
+### FAZA 4: Monitoring — 🔜 PLANOWANE
 - Cron: weekly re-scan
 - Diff engine: co się zmieniło
 - Email alerts
 - Wynik: Pulse — wartość cykliczna
+
+### FAZA 5: Production — 🔜 PLANOWANE
+- Migracja JSON → Supabase Postgres
+- Auth (email + org system)
+- Deploy na Vercel
+- Cloudflare R2 (screenshoty, ad creatives)
 
 ---
 
@@ -552,14 +668,17 @@ System generuje raport z gotowymi insightami.
 
 ## 10. PIERWSZY RUCH
 
-1. Zbuduj dataset (faza 0-1)
-2. Wygeneruj sample report: "TOP 50 cateringów w Polsce — kto naprawdę się wyróżnia"
-3. Opublikuj fragment na LinkedIn (5 insightów z danych)
-4. Wyślij pełny sample do 10 największych cateringów
-5. "Pełny raport z 487 markami + dostęp do bazy: 12,000 PLN"
+1. ~~Zbuduj dataset (faza 0-1)~~ ✅ Seed ready (256 marek), pipeline gotowy
+2. Uzupełnij bazę do ~500 marek (więcej miast, rankingi, polecenia)
+3. Uruchom pierwszy full scan (wszystkie 9 faz, ~$200-250)
+4. Wygeneruj sample report: "TOP 50 cateringów w Polsce — kto naprawdę się wyróżnia"
+5. Opublikuj fragment na LinkedIn (5 insightów z danych)
+6. Wyślij pełny sample do 10 największych cateringów
+7. "Pełny raport z ~500 markami + dostęp do bazy: 12,000 PLN"
 
 ---
 
-*CATSCAN_OS // v0.2 // CATERING_DIETETYCZNY*
-*Updated: 2026-04-03*
+*CATSCAN_OS // v0.3 // CATERING_DIETETYCZNY*
+*Updated: 2026-04-04*
+*Changelog v0.3: aktualizacja statusu implementacji — wszystkie 9 faz pipeline gotowe, 256 marek w bazie, scan engine + query interface + audit page zbudowane, dodano sekcję o aktualnym storage (JSON MVP), zaktualizowano stack technologiczny i fazy budowy*
 *Changelog v0.2: dodano wymiar 21 (KRS + finanse), rozszerzono social/ads, poprawiono pipeline i koszty*
