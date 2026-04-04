@@ -80,7 +80,8 @@ async function searchRejestrIo(companyName: string, apiKey: string): Promise<Rej
 
   for (const query of queries) {
     try {
-      const url = `${REJESTR_IO_BASE}/org/search?q=${encodeURIComponent(query)}`;
+      // rejestr.io v2: GET /org?nazwa=... (not /org/search)
+      const url = `${REJESTR_IO_BASE}/org?nazwa=${encodeURIComponent(query)}`;
       const result = execSync(
         `curl -s -m 15 -H "Authorization: ${apiKey}" -H 'Accept: application/json' ${shellEscape(url)}`,
         { maxBuffer: 5 * 1024 * 1024, timeout: 20000 }

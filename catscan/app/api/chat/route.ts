@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
+import { execSync } from 'child_process';
+import { writeFileSync, unlinkSync } from 'fs';
 import { getScans } from '@/lib/db/store';
 
-let client: Anthropic | null = null;
-
-function getClient(): Anthropic {
-  if (!client) client = new Anthropic();
-  return client;
+function shellEscape(s: string): string {
+  return "'" + s.replace(/'/g, "'\\''") + "'";
 }
 
 /** POST /api/chat — natural language query over extracted data */
@@ -15,6 +13,11 @@ export async function POST(req: NextRequest) {
 
   if (!question) {
     return NextResponse.json({ error: 'Provide a question' }, { status: 400 });
+  }
+
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    return NextResponse.json({ error: 'ANTHROPIC_API_KEY not set' }, { status: 500 });
   }
 
   // Gather all entities from completed scans, deduplicated by URL (newest first)
@@ -65,7 +68,7 @@ Jeśli pytanie dotyczy porównania — użyj tabelki.
 Jeśli pytanie wymaga danych których nie masz — powiedz wprost czego brakuje.
 Dane mogą być niekompletne — zaznacz to w odpowiedzi.`;
 
-  const response = await getClient().messages.create({
+  const requestBody = {
     model: 'claude-sonnet-4-6',
     max_tokens: 4096,
     system: systemPrompt,
@@ -75,18 +78,51 @@ Dane mogą być niekompletne — zaznacz to w odpowiedzi.`;
         content: `Dane firm:\n\n${JSON.stringify(cleanEntities, null, 2)}\n\nPytanie: ${question}`,
       },
     ],
-  });
+  };
 
-  const answer = response.content[0].type === 'text' ? response.content[0].text : '';
-  const cost =
-    (response.usage.input_tokens * 3.0 + response.usage.output_tokens * 15.0) / 1_000_000;
+  const inputFile = `/tmp/chat_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.json`;
+  writeFileSync(inputFile, JSON.stringify(requestBody));
+
+  let raw: string;
+  try {
+    raw = execSync(
+      `curl -s -m 120 https://api.anthropic.com/v1/messages -H ${shellEscape('x-api-key: ' + apiKey)} -H 'anthropic-version: 2023-06-01' -H 'content-type: application/json' -d @${inputFile}`,
+      { maxBuffer: 10 * 1024 * 1024, timeout: 130000 }
+    ).toString('utf-8');
+  } catch (err) {
+    try { unlinkSync(inputFile); } catch { /* ignore */ }
+    return NextResponse.json({ error: `API request failed: ${err instanceof Error ? err.message : String(err)}` }, { status: 500 });
+  }
+
+  try { unlinkSync(inputFile); } catch { /* ignore */ }
+
+  let response: Record<string, unknown>;
+  try {
+    response = JSON.parse(raw);
+  } catch {
+    return NextResponse.json({ error: `Invalid API response: ${raw.slice(0, 200)}` }, { status: 500 });
+  }
+
+  if (response.error) {
+    return NextResponse.json({ error: `API error: ${JSON.stringify(response.error)}` }, { status: 500 });
+  }
+
+  const content = response.content as Array<{ type: string; text: string }> | undefined;
+  const answer = content && content.length > 0 && content[0].type === 'text'
+    ? content[0].text
+    : '';
+
+  const usage = response.usage as { input_tokens: number; output_tokens: number } | undefined;
+  const inputTokens = usage?.input_tokens ?? 0;
+  const outputTokens = usage?.output_tokens ?? 0;
+  const cost = (inputTokens * 3.0 + outputTokens * 15.0) / 1_000_000;
 
   return NextResponse.json({
     answer,
     meta: {
       model: 'claude-sonnet-4-6',
-      inputTokens: response.usage.input_tokens,
-      outputTokens: response.usage.output_tokens,
+      inputTokens,
+      outputTokens,
       costUsd: Math.round(cost * 10000) / 10000,
       entitiesInContext: cleanEntities.length,
     },

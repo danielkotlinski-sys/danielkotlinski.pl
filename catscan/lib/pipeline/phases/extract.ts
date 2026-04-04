@@ -1,6 +1,7 @@
 /** Phase: Extract — Claude Haiku structured extraction from crawled content */
 
-import Anthropic from '@anthropic-ai/sdk';
+import { execSync } from 'child_process';
+import { writeFileSync, unlinkSync } from 'fs';
 import type { EntityRecord } from '@/lib/db/store';
 
 const EXTRACTION_PROMPT = `You are a market intelligence analyst extracting structured data about a Polish diet catering company from their website content.
@@ -62,13 +63,8 @@ Important:
 - All text fields in Polish if the source is Polish
 - Be precise, don't hallucinate data not present in the source`;
 
-let client: Anthropic | null = null;
-
-function getClient(): Anthropic {
-  if (!client) {
-    client = new Anthropic({ timeout: 120_000 });
-  }
-  return client;
+function shellEscape(s: string): string {
+  return "'" + s.replace(/'/g, "'\\''") + "'";
 }
 
 export async function extractEntity(entity: EntityRecord): Promise<EntityRecord> {
@@ -76,7 +72,8 @@ export async function extractEntity(entity: EntityRecord): Promise<EntityRecord>
     return entity;
   }
 
-  if (!process.env.ANTHROPIC_API_KEY) {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
     return {
       ...entity,
       status: 'failed',
@@ -88,7 +85,7 @@ export async function extractEntity(entity: EntityRecord): Promise<EntityRecord>
     // Truncate HTML to avoid exceeding context window (~60K chars ≈ ~15K tokens)
     const truncatedContent = (entity.rawHtml || '').slice(0, 60000);
 
-    const response = await getClient().messages.create({
+    const requestBody = {
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 4096,
       messages: [
@@ -97,10 +94,42 @@ export async function extractEntity(entity: EntityRecord): Promise<EntityRecord>
           content: `${EXTRACTION_PROMPT}\n\n--- WEBSITE CONTENT FOR: ${entity.name} (${entity.url}) ---\n\n${truncatedContent}`,
         },
       ],
-    });
+    };
 
-    const text = response.content.length > 0 && response.content[0].type === 'text'
-      ? response.content[0].text
+    const inputFile = `/tmp/extract_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.json`;
+    writeFileSync(inputFile, JSON.stringify(requestBody));
+
+    let raw: string;
+    try {
+      raw = execSync(
+        `curl -s -m 120 https://api.anthropic.com/v1/messages -H ${shellEscape('x-api-key: ' + apiKey)} -H 'anthropic-version: 2023-06-01' -H 'content-type: application/json' -d @${inputFile}`,
+        { maxBuffer: 10 * 1024 * 1024, timeout: 130000 }
+      ).toString('utf-8');
+    } finally {
+      try { unlinkSync(inputFile); } catch { /* ignore */ }
+    }
+
+    let response: Record<string, unknown>;
+    try {
+      response = JSON.parse(raw);
+    } catch {
+      return {
+        ...entity,
+        errors: [...entity.errors, `Extract: Invalid JSON from API: ${raw.slice(0, 200)}`],
+      };
+    }
+
+    if (response.error) {
+      const errObj = response.error as Record<string, string>;
+      return {
+        ...entity,
+        errors: [...entity.errors, `Extract API error: ${errObj.message || JSON.stringify(errObj)}`],
+      };
+    }
+
+    const content = response.content as Array<{ type: string; text: string }> | undefined;
+    const text = content && content.length > 0 && content[0].type === 'text'
+      ? content[0].text
       : '';
 
     // Try to parse JSON — handle markdown code blocks
@@ -120,8 +149,9 @@ export async function extractEntity(entity: EntityRecord): Promise<EntityRecord>
       };
     }
 
-    const inputTokens = response.usage?.input_tokens ?? 0;
-    const outputTokens = response.usage?.output_tokens ?? 0;
+    const usage = response.usage as { input_tokens: number; output_tokens: number } | undefined;
+    const inputTokens = usage?.input_tokens ?? 0;
+    const outputTokens = usage?.output_tokens ?? 0;
     // Haiku pricing: $0.80/1M input, $4/1M output
     const cost = (inputTokens * 0.80 + outputTokens * 4.0) / 1_000_000;
 
@@ -141,8 +171,6 @@ export async function extractEntity(entity: EntityRecord): Promise<EntityRecord>
       status: 'extracted',
     };
   } catch (err) {
-    // Don't fail the entity — extraction is best-effort.
-    // Perplexity context + other phases can still provide value.
     return {
       ...entity,
       errors: [...entity.errors, `Extraction error: ${err instanceof Error ? err.message : String(err)}`],

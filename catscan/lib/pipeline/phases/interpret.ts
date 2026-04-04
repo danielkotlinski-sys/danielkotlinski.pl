@@ -6,7 +6,8 @@
  * Output is a structured report stored on the scan record.
  */
 
-import Anthropic from '@anthropic-ai/sdk';
+import { execSync } from 'child_process';
+import { writeFileSync, unlinkSync } from 'fs';
 import type { EntityRecord } from '@/lib/db/store';
 
 const INTERPRETATION_PROMPT = `Jesteś analitykiem rynku cateringów dietetycznych w Polsce.
@@ -68,11 +69,8 @@ WAŻNE:
 - Luki konkurencyjne: 2-4
 - Jeśli brakuje danych w jakimś wymiarze — pomiń ranking, nie zgaduj`;
 
-let client: Anthropic | null = null;
-
-function getClient(): Anthropic {
-  if (!client) client = new Anthropic({ timeout: 120_000 });
-  return client;
+function shellEscape(s: string): string {
+  return "'" + s.replace(/'/g, "'\\''") + "'";
 }
 
 export interface InterpretationResult {
@@ -85,7 +83,8 @@ export interface InterpretationResult {
 }
 
 export async function interpretDataset(entities: EntityRecord[]): Promise<InterpretationResult | null> {
-  if (!process.env.ANTHROPIC_API_KEY) {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
     return null;
   }
 
@@ -116,25 +115,50 @@ export async function interpretDataset(entities: EntityRecord[]): Promise<Interp
 
   const prompt = INTERPRETATION_PROMPT.replace('{COUNT}', String(cleanEntities.length));
 
-  let response: Anthropic.Message;
+  const requestBody = {
+    model: 'claude-sonnet-4-6',
+    max_tokens: 8192,
+    messages: [
+      {
+        role: 'user',
+        content: `${prompt}\n\n--- DATASET (${cleanEntities.length} firms) ---\n\n${JSON.stringify(cleanEntities, null, 2)}`,
+      },
+    ],
+  };
+
+  const inputFile = `/tmp/interpret_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.json`;
+  writeFileSync(inputFile, JSON.stringify(requestBody));
+
+  let raw: string;
   try {
-    response = await getClient().messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 8192,
-      messages: [
-        {
-          role: 'user',
-          content: `${prompt}\n\n--- DATASET (${cleanEntities.length} firms) ---\n\n${JSON.stringify(cleanEntities, null, 2)}`,
-        },
-      ],
-    });
+    raw = execSync(
+      `curl -s -m 300 https://api.anthropic.com/v1/messages -H ${shellEscape('x-api-key: ' + apiKey)} -H 'anthropic-version: 2023-06-01' -H 'content-type: application/json' -d @${inputFile}`,
+      { maxBuffer: 10 * 1024 * 1024, timeout: 310000 }
+    ).toString('utf-8');
   } catch (err) {
-    console.error('[interpret] Claude API error:', err instanceof Error ? err.message : err);
+    try { unlinkSync(inputFile); } catch { /* ignore */ }
+    console.error('[interpret] curl error:', err instanceof Error ? err.message : err);
     return null;
   }
 
-  const text = response.content.length > 0 && response.content[0].type === 'text'
-    ? response.content[0].text
+  try { unlinkSync(inputFile); } catch { /* ignore */ }
+
+  let response: Record<string, unknown>;
+  try {
+    response = JSON.parse(raw);
+  } catch {
+    console.error('[interpret] Invalid JSON response:', raw.slice(0, 200));
+    return null;
+  }
+
+  if (response.error) {
+    console.error('[interpret] API error:', response.error);
+    return null;
+  }
+
+  const content = response.content as Array<{ type: string; text: string }> | undefined;
+  const text = content && content.length > 0 && content[0].type === 'text'
+    ? content[0].text
     : '';
 
   // Parse JSON — handle markdown code blocks
@@ -151,14 +175,18 @@ export async function interpretDataset(entities: EntityRecord[]): Promise<Interp
     report = { raw_response: text, parse_error: true };
   }
 
+  const usage = response.usage as { input_tokens: number; output_tokens: number } | undefined;
+  const inputTokens = usage?.input_tokens ?? 0;
+  const outputTokens = usage?.output_tokens ?? 0;
+
   // Sonnet pricing: $3/1M input, $15/1M output
-  const cost = (response.usage.input_tokens * 3.0 + response.usage.output_tokens * 15.0) / 1_000_000;
+  const cost = (inputTokens * 3.0 + outputTokens * 15.0) / 1_000_000;
 
   return {
     report,
     model: 'claude-sonnet-4-6',
-    inputTokens: response.usage.input_tokens,
-    outputTokens: response.usage.output_tokens,
+    inputTokens,
+    outputTokens,
     costUsd: Math.round(cost * 10000) / 10000,
     generatedAt: new Date().toISOString(),
   };
