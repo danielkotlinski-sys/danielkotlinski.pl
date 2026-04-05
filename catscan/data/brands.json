@@ -3377,7 +3377,7 @@
         "crawlerType": "curl",
         "subpagesCrawled": 0,
         "contentLength": 6874,
-        "crawledAt": "2026-04-05T07:20:30.792Z"
+        "crawledAt": "2026-04-05T08:10:43.244Z"
       },
       "_social_urls": {
         "instagram": "https://instagram.com/maczfit",
@@ -3391,22 +3391,22 @@
       },
       "brand_identity": {
         "brand_name": "Maczfit",
-        "tagline": "Catering dietetyczny Warszawa | 🥗 Dieta pudełkowa",
-        "positioning": "Maczfit oferuje zdrowe, zbilansowane posiłki pudełkowe dostarczone do domu dla osób aktywnych i zdrowotnie świadomych, którzy chcą jeść smacznie bez konieczności gotowania.",
+        "tagline": "Catering dietetyczny Warszawa",
+        "positioning": "Maczfit to catering dietetyczny oferujący zbilansowane, smaczne posiłki pudełkowe dla osób dbających o zdrowe odżywianie bez rezygnacji z wygody i smaku.",
         "language": "pl"
       },
       "pricing": {
-        "price_range_pln": "49.50-90 PLN/dzień",
+        "price_range_pln": "49,50-90 PLN/dzień",
         "cheapest_daily": 49.5,
         "most_expensive_daily": 90,
-        "trial_offer": "3 zestawy próbne (limit 3 zestawy próbne per klient)",
+        "trial_offer": "Zestawy próbne dostępne, limit 3 zestawy próbne na klienta",
         "subscription_discount": true,
         "diet_prices": [],
         "price_1500kcal": null,
         "price_2000kcal": null,
         "_fallback": "perplexity",
-        "price_source": "https://maczfit.pl i https://najlepszycatering.pl/maczfit/",
-        "_pricing_fallback_done": "2026-04-05T07:21:44.207Z"
+        "price_source": "https://www.maczfit.pl/kocialkowa-gorka, https://www.maczfit.pl/nadrozno, https://najlepszycatering.pl/maczfit/",
+        "_pricing_fallback_done": "2026-04-05T08:11:23.452Z"
       },
       "menu": {
         "diet_types": [
@@ -3414,15 +3414,20 @@
           "Diety z Wyborem Menu",
           "Trio"
         ],
-        "calorie_options": [],
-        "cuisine_style": "Polish",
+        "calorie_options": [
+          1200,
+          1500,
+          1800,
+          2000,
+          2500,
+          3000
+        ],
+        "cuisine_style": "polska",
         "dietary_restrictions": []
       },
       "delivery": {
         "delivery_model": "own_fleet",
-        "delivery_cities": [
-          "Warszawa"
-        ],
+        "delivery_cities": [],
         "delivery_time": null,
         "weekend_delivery": true
       },
@@ -3436,7 +3441,7 @@
         "testimonials_visible": true,
         "media_mentions": [],
         "certifications": [
-          "TÜV"
+          "Certyfikat TÜV"
         ],
         "dietitian_team": true
       },
@@ -3450,9 +3455,9 @@
       "_extraction": {
         "model": "claude-haiku-4-5-20251001",
         "inputTokens": 4455,
-        "outputTokens": 1282,
-        "costUsd": 0.0087,
-        "extractedAt": "2026-04-05T07:20:57.589Z"
+        "outputTokens": 1382,
+        "costUsd": 0.0091,
+        "extractedAt": "2026-04-05T08:10:55.469Z"
       },
       "context": {
         "nip": "9512471196",
@@ -3943,7 +3948,6 @@
         "regon": "381565356",
         "registration_date": "2018-10-15",
         "pkd": "Produkcja artykułów spożywczych",
-        "pkd_code": null,
         "address": {
           "kod": "05-532",
           "miejscowosc": "Szymanów",
@@ -3957,7 +3961,7 @@
           },
           "ulica": ""
         },
-        "share_capital": null,
+        "share_capital": 0,
         "status": {
           "wykreslona": false,
           "w_likwidacji": false,
@@ -3965,15 +3969,24 @@
           "wielkosc": "duza_srednia"
         },
         "board_members": [
-          "Nicolas Jedraszak"
+          "Grzegorz Marek Paluch (CZŁONEK ZARZĄDU)",
+          "Nicolas David Jedraszak (PREZES ZARZĄDU)",
+          "Dorota Zwolińska (CZŁONEK ZARZĄDU)"
         ],
-        "shareholders": [],
+        "shareholders": [
+          {
+            "name": "ŻABKA POLSKA",
+            "since": "2021-06-11"
+          }
+        ],
         "financial_statements": [
           {
             "periodStart": "2024-01-01",
             "periodEnd": "2024-12-31",
             "revenue": 409585713.81,
             "revenuePrevious": 330568896.58,
+            "grossProfit": 2804552.74,
+            "grossProfitPrevious": 5323583.91,
             "operatingProfit": -12289388.16,
             "operatingProfitPrevious": 131486.79,
             "operatingCosts": 406781161.07,
@@ -4005,7 +4018,7 @@
             "ratios": {
               "netMargin": -0.0249,
               "operatingMargin": -0.03,
-              "grossMargin": null,
+              "grossMargin": 0.0068,
               "roe": -0.129,
               "roa": -0.058,
               "debtToEquity": 1.2242,
@@ -4018,6 +4031,8 @@
             "periodEnd": "2023-12-31",
             "revenue": 330568896.58,
             "revenuePrevious": 228868145.75,
+            "grossProfit": 5323583.91,
+            "grossProfitPrevious": -5942002.51,
             "operatingProfit": 131486.79,
             "operatingProfitPrevious": -13328871.84,
             "operatingCosts": 325245312.67,
@@ -4049,7 +4064,7 @@
             "ratios": {
               "netMargin": -0.0028,
               "operatingMargin": 0.0004,
-              "grossMargin": null,
+              "grossMargin": 0.0161,
               "roe": -0.0105,
               "roa": -0.0053,
               "debtToEquity": 0.9823,
@@ -4062,6 +4077,8 @@
             "periodEnd": "2022-12-31",
             "revenue": 228868145.75,
             "revenuePrevious": 173336678.06,
+            "grossProfit": -5942002.51,
+            "grossProfitPrevious": 29900387.26,
             "operatingProfit": -13328871.84,
             "operatingProfitPrevious": 23874754.97,
             "operatingCosts": 234810148.26,
@@ -4093,7 +4110,7 @@
             "ratios": {
               "netMargin": -0.043,
               "operatingMargin": -0.0582,
-              "grossMargin": null,
+              "grossMargin": -0.026,
               "roe": -0.1099,
               "roa": -0.0716,
               "debtToEquity": 0.5349,
@@ -4104,15 +4121,15 @@
         ],
         "years_available": 6,
         "years_fetched": 3,
-        "cost_pln": 3.1,
-        "fetchedAt": "2026-04-05T07:25:48.464Z",
+        "cost_pln": 3.15,
+        "fetchedAt": "2026-04-05T08:11:33.424Z",
         "revenue": 409585713.81,
         "revenuePrevious": 330568896.58,
         "netIncome": -10195446.27,
         "totalAssets": 175729615.9,
         "equity": 79008568.67,
         "operatingProfit": -12289388.16,
-        "grossProfit": null,
+        "grossProfit": 2804552.74,
         "cash": 2646850.55,
         "totalLiabilities": 96721047.23,
         "wages": 25258406.13,
@@ -4120,7 +4137,7 @@
         "ratios": {
           "netMargin": -0.0249,
           "operatingMargin": -0.03,
-          "grossMargin": null,
+          "grossMargin": 0.0068,
           "roe": -0.129,
           "roa": -0.058,
           "debtToEquity": 1.2242,
@@ -4132,35 +4149,38 @@
         "headline": "Smak, który kochają Polacy!",
         "subheadline": "Bo dobre jedzenie to coś więcej niż dieta — to przyjemność odkrywania nowych smaków i kolorów, które każdego dnia trafiają do Twojej torby z logo Maczfit.",
         "primary_cta": "ZAMAWIAM",
-        "value_proposition": "Gotowe, zbilansowane posiłki wysokiej jakości dostarczone do domu, opracowane przez dietetyków, bez konieczności gotowania.",
+        "value_proposition": "Zbilansowane, smaczne posiłki pudełkowe dostępne w aplikacji mobilnej z pełną kontrolą nad dietą i szybką dostawa do ponad 5000 miejscowości w Polsce.",
         "social_proof_type": "reviews",
         "emotional_register": "friendly",
         "claims": [
-          "zbilansowane posiłki",
-          "opracowane przez dietetyków",
-          "45 dań najwyższej jakości",
-          "dowozimy do ponad 5000 miejscowości w całej Polsce",
-          "produkty i składniki najwyższej jakości, od sprawdzonych dostawców",
-          "10% w aplikacji na pierwsze zamówienie",
-          "zdrowe i smaczne posiłki"
+          "11 zbilansowanych diet opracowanych przez naszych dietetyków",
+          "45 dań najwyższej jakości do wyboru",
+          "Dowozimy do ponad 5000 miejscowości w całej Polsce",
+          "5000+ opinii 4.8/5",
+          "Dostęp do aplikacji mobilnej z możliwością zmiany terminów i adresów",
+          "Synchronizacja z Google Fit & Apple Health",
+          "10% rabat w aplikacji na pierwsze zamówienie",
+          "Program lojalnościowy z darmowymi paczkami",
+          "Certyfikat TÜV potwierdzający jakość",
+          "Największy zespół doświadczonych dietetyków, technologów żywności i kucharzy w Polsce",
+          "Produkty od sprawdzonych dostawców"
         ],
         "cliche_score": 7
       },
       "seo": {
         "title_tag": "Maczfit | Catering dietetyczny Warszawa | 🥗 Dieta pudełkowa",
         "meta_description": null,
-        "h1": "Smak, który kochają Polacy!",
+        "h1": null,
         "keyword_focus": [
           "catering dietetyczny Warszawa",
           "dieta pudełkowa",
-          "zdrowe posiłki",
-          "zbilansowana dieta"
+          "diety pudełkowe"
         ],
-        "has_local_seo": false,
-        "content_strategy": "occasional"
+        "has_local_seo": true,
+        "content_strategy": "regular"
       },
       "website_structure": {
-        "page_count_estimate": 8,
+        "page_count_estimate": 15,
         "has_blog": false,
         "has_calculator": true,
         "has_live_chat": false,
@@ -4182,13 +4202,14 @@
       },
       "differentiators": {
         "unique_claims": [
-          "11 zbilansowanych diet opracowanych przez dietetyków",
-          "45 dań z opcją wyboru menu",
-          "dostawa do ponad 5000 miejscowości w Polsce",
-          "największy zespół dietetyków, technologów żywności i kucharzy w Polsce",
-          "gwarancja jakości potwierdzona certyfikatem TÜV"
+          "Największy zespół doświadczonych dietetyków, technologów żywności i kucharzy w Polsce",
+          "45 dań do wyboru w menu",
+          "Dostawa do ponad 5000 miejscowości w Polsce",
+          "Aplikacja mobilna z synchronizacją do Google Fit & Apple Health",
+          "Możliwość bezproblemowej zmiany terminów i adresów dostaw",
+          "Certyfikat TÜV potwierdzający jakość"
         ],
-        "competitive_advantage_type": "quality",
+        "competitive_advantage_type": "convenience",
         "niche_focus": null
       },
       "_cost_context": {
@@ -4197,8 +4218,8 @@
         "provider": "perplexity"
       },
       "_cost_pricing": {
-        "usd": 0.005,
-        "calls": 1,
+        "usd": 0.01,
+        "calls": 2,
         "provider": "perplexity"
       },
       "_cost_discovery": {
@@ -4217,10 +4238,36 @@
         "usd": 0.04,
         "apifyCalls": 1,
         "provider": "apify"
+      },
+      "visual_identity": {
+        "dominant_colors": [
+          "#C41E3A",
+          "#FFFFFF",
+          "#000000",
+          "#F4B860",
+          "#E8E8E8"
+        ],
+        "color_palette_type": "complementary",
+        "typography_class": "sans-serif",
+        "image_style": "mixed",
+        "layout_pattern": "scroll-story",
+        "overall_aesthetic": "modern",
+        "logo_description": "Text-based logo 'Maczfit' in serif font with a red accent mark, appearing minimalist and professional",
+        "visual_quality_score": 7,
+        "analyzedAt": "2026-04-05T08:11:20.661Z",
+        "screenshot_url": "https://api.apify.com/v2/key-value-stores/K1Zgs2DUOchaIwOLa/records/screenshot_https___maczfit_pl_c3348900c56085aeaac1c1c07ba99103?signature=14K03h10GA3rl6wojmkIY&disableRedirect=true"
+      },
+      "_cost_visual": {
+        "usd": 0.0415,
+        "apifyCalls": 1,
+        "haikuCalls": 1,
+        "inputTokens": 1093,
+        "outputTokens": 150,
+        "provider": "apify+anthropic"
       }
     },
-    "lastScanId": "b96261e4-bd1d-4236-a9db-5468bc20cb32",
-    "lastScannedAt": "2026-04-05T07:26:56.092Z",
+    "lastScanId": "354af24e-8c54-43da-bbde-1429dc981630",
+    "lastScannedAt": "2026-04-05T08:11:33.456Z",
     "nip": "9512471196",
     "krs": "0000752666",
     "financials": {
@@ -4232,7 +4279,6 @@
       "regon": "381565356",
       "registration_date": "2018-10-15",
       "pkd": "Produkcja artykułów spożywczych",
-      "pkd_code": null,
       "address": {
         "kod": "05-532",
         "miejscowosc": "Szymanów",
@@ -4246,7 +4292,7 @@
         },
         "ulica": ""
       },
-      "share_capital": null,
+      "share_capital": 0,
       "status": {
         "wykreslona": false,
         "w_likwidacji": false,
@@ -4254,15 +4300,24 @@
         "wielkosc": "duza_srednia"
       },
       "board_members": [
-        "Nicolas Jedraszak"
+        "Grzegorz Marek Paluch (CZŁONEK ZARZĄDU)",
+        "Nicolas David Jedraszak (PREZES ZARZĄDU)",
+        "Dorota Zwolińska (CZŁONEK ZARZĄDU)"
       ],
-      "shareholders": [],
+      "shareholders": [
+        {
+          "name": "ŻABKA POLSKA",
+          "since": "2021-06-11"
+        }
+      ],
       "financial_statements": [
         {
           "periodStart": "2024-01-01",
           "periodEnd": "2024-12-31",
           "revenue": 409585713.81,
           "revenuePrevious": 330568896.58,
+          "grossProfit": 2804552.74,
+          "grossProfitPrevious": 5323583.91,
           "operatingProfit": -12289388.16,
           "operatingProfitPrevious": 131486.79,
           "operatingCosts": 406781161.07,
@@ -4294,7 +4349,7 @@
           "ratios": {
             "netMargin": -0.0249,
             "operatingMargin": -0.03,
-            "grossMargin": null,
+            "grossMargin": 0.0068,
             "roe": -0.129,
             "roa": -0.058,
             "debtToEquity": 1.2242,
@@ -4307,6 +4362,8 @@
           "periodEnd": "2023-12-31",
           "revenue": 330568896.58,
           "revenuePrevious": 228868145.75,
+          "grossProfit": 5323583.91,
+          "grossProfitPrevious": -5942002.51,
           "operatingProfit": 131486.79,
           "operatingProfitPrevious": -13328871.84,
           "operatingCosts": 325245312.67,
@@ -4338,7 +4395,7 @@
           "ratios": {
             "netMargin": -0.0028,
             "operatingMargin": 0.0004,
-            "grossMargin": null,
+            "grossMargin": 0.0161,
             "roe": -0.0105,
             "roa": -0.0053,
             "debtToEquity": 0.9823,
@@ -4351,6 +4408,8 @@
           "periodEnd": "2022-12-31",
           "revenue": 228868145.75,
           "revenuePrevious": 173336678.06,
+          "grossProfit": -5942002.51,
+          "grossProfitPrevious": 29900387.26,
           "operatingProfit": -13328871.84,
           "operatingProfitPrevious": 23874754.97,
           "operatingCosts": 234810148.26,
@@ -4382,7 +4441,7 @@
           "ratios": {
             "netMargin": -0.043,
             "operatingMargin": -0.0582,
-            "grossMargin": null,
+            "grossMargin": -0.026,
             "roe": -0.1099,
             "roa": -0.0716,
             "debtToEquity": 0.5349,
@@ -4393,15 +4452,15 @@
       ],
       "years_available": 6,
       "years_fetched": 3,
-      "cost_pln": 3.1,
-      "fetchedAt": "2026-04-05T07:25:48.464Z",
+      "cost_pln": 3.15,
+      "fetchedAt": "2026-04-05T08:11:33.424Z",
       "revenue": 409585713.81,
       "revenuePrevious": 330568896.58,
       "netIncome": -10195446.27,
       "totalAssets": 175729615.9,
       "equity": 79008568.67,
       "operatingProfit": -12289388.16,
-      "grossProfit": null,
+      "grossProfit": 2804552.74,
       "cash": 2646850.55,
       "totalLiabilities": 96721047.23,
       "wages": 25258406.13,
@@ -4409,7 +4468,7 @@
       "ratios": {
         "netMargin": -0.0249,
         "operatingMargin": -0.03,
-        "grossMargin": null,
+        "grossMargin": 0.0068,
         "roe": -0.129,
         "roa": -0.058,
         "debtToEquity": 1.2242,
