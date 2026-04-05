@@ -381,11 +381,11 @@ async function runPipeline(scanId: string, enabledPhases: string[]) {
     });
   }
 
-  // Phase 3b: Pricing fallback — fill missing prices via Perplexity
+  // Phase 3b: Pricing fallback — Dietly API (free) + Perplexity (non-Dietly)
   if (has('pricing_fallback')) {
     await runEntityPhase(scan, 'pricing_fallback', enrichPricingFallback, {
       skipFailed: true,
-      requireKey: 'PERPLEXITY_API_KEY',
+      // No requireKey — Dietly brands use free API, Perplexity only for non-Dietly
     });
   }
 

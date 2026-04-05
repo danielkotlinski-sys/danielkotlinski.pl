@@ -2138,12 +2138,14 @@
         "language": "pl"
       },
       "pricing": {
+        "price_1500kcal": 72.99,
+        "price_2000kcal": 77.99,
+        "cheapest_daily": 65.99,
         "benchmark_diet_name": "Wybór menu",
-        "cheapest_daily": 57.99,
-        "price_source": "kuchniavikinga.pl (various diet pages, regular prices)",
-        "_fallback": "dietly+perplexity",
-        "price_range_pln": "Od 48,99zł do 101,99zł",
-        "_pricing_fallback_done": "2026-04-05T09:05:09.095Z"
+        "price_source": "dietly-api",
+        "_fallback": "dietly-api",
+        "price_range_pln": "65.99-77.99 PLN/dzień",
+        "_pricing_fallback_done": "2026-04-05T09:38:36.956Z"
       },
       "menu": {
         "calorie_options": [
@@ -3020,9 +3022,10 @@
         "provider": "apify+anthropic"
       },
       "_cost_pricing": {
-        "usd": 0.005,
-        "calls": 1,
-        "provider": "dietly+perplexity"
+        "usd": 0,
+        "calls": 0,
+        "dietlyApiCalls": 3,
+        "provider": "dietly-api"
       },
       "_dietly_extract": {
         "dietCount": 13,
@@ -3039,11 +3042,12 @@
           3500
         ],
         "priceRange": "Od 48,99zł do 101,99zł",
-        "tierPricing": "BASIC: od 65.99 zł, COMFORT: od 68.99 zł, SUPREME: od 72.99 zł, LADIES VIBES: od 68.99 zł, KETO FUSION: od 71.99 zł, TYPES OF VEGE: od 66.99 zł"
+        "tierPricing": "BASIC: od 65.99 zł, COMFORT: od 68.99 zł, SUPREME: od 72.99 zł, LADIES VIBES: od 68.99 zł, KETO FUSION: od 71.99 zł, TYPES OF VEGE: od 66.99 zł",
+        "pricingMethod": "dietly-api"
       }
     },
-    "lastScanId": "63c60ce1-80cd-4f57-bbdb-b6eb0edadcc8",
-    "lastScannedAt": "2026-04-05T09:05:24.685Z",
+    "lastScanId": "b971433e-69e5-487d-8869-778e85f71f59",
+    "lastScannedAt": "2026-04-05T09:38:39.396Z",
     "nip": "5423314760",
     "krs": "0000970748",
     "financials": {
@@ -3460,14 +3464,14 @@
         "language": "pl"
       },
       "pricing": {
-        "price_1500kcal": 83,
-        "price_2000kcal": 89,
-        "benchmark_diet_name": "Everyday",
-        "price_range_pln": "66-95 PLN/dzień",
+        "price_1500kcal": 73,
+        "price_2000kcal": 84,
         "cheapest_daily": 66,
-        "price_source": "maczfit.pl — oficjalna strona firmy (cennik i opcje diet)",
-        "_fallback": "dietly+perplexity",
-        "_pricing_fallback_done": "2026-04-05T09:05:15.189Z"
+        "benchmark_diet_name": "Wybór menu",
+        "price_source": "dietly-api",
+        "_fallback": "dietly-api",
+        "price_range_pln": "66-84 PLN/dzień",
+        "_pricing_fallback_done": "2026-04-05T09:38:39.308Z"
       },
       "menu": {
         "calorie_options": [
@@ -4275,9 +4279,10 @@
         "provider": "perplexity"
       },
       "_cost_pricing": {
-        "usd": 0.005,
-        "calls": 1,
-        "provider": "dietly+perplexity"
+        "usd": 0,
+        "calls": 0,
+        "dietlyApiCalls": 3,
+        "provider": "dietly-api"
       },
       "_cost_discovery": {
         "pln": 0.05,
@@ -4336,11 +4341,12 @@
           2500,
           3000
         ],
-        "priceRange": "Od 46,00zł do 123,00zł"
+        "priceRange": "Od 46,00zł do 123,00zł",
+        "pricingMethod": "dietly-api"
       }
     },
-    "lastScanId": "63c60ce1-80cd-4f57-bbdb-b6eb0edadcc8",
-    "lastScannedAt": "2026-04-05T09:05:24.685Z",
+    "lastScanId": "b971433e-69e5-487d-8869-778e85f71f59",
+    "lastScannedAt": "2026-04-05T09:38:39.396Z",
     "nip": "9512471196",
     "krs": "0000752666",
     "financials": {
@@ -6379,8 +6385,8 @@
     "name": "NTFY",
     "domain": "ntfy.pl",
     "url": "https://ntfy.pl/miasto/krakow",
-    "dietlySlug": null,
-    "dietlyUrl": null,
+    "dietlySlug": "ntfy",
+    "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/ntfy",
     "source": "search",
     "seededAt": "2026-04-04T10:39:24.989Z",
     "data": {
@@ -6411,17 +6417,21 @@
         "language": "pl"
       },
       "pricing": {
-        "benchmark_diet_name": "Mini 10 dań",
-        "price_range_pln": "59,99-89,99 PLN/dzień",
-        "cheapest_daily": 59.99,
-        "price_source": "ntfy.pl (strony miejskie i pakiety wyboru menu)",
-        "_fallback": "perplexity",
-        "_pricing_fallback_done": "2026-04-05T09:05:17.691Z"
+        "benchmark_diet_name": "CLASSIC",
+        "price_source": "dietly-api",
+        "_fallback": "dietly-api",
+        "price_range_pln": "Od 51,10zł do 96,40zł",
+        "_pricing_fallback_done": "2026-04-05T09:40:58.662Z"
       },
       "menu": {
         "calorie_options": [
-          1200,
-          1500
+          1000,
+          1250,
+          1500,
+          1750,
+          2000,
+          2500,
+          3000
         ]
       },
       "delivery": {
@@ -7136,9 +7146,10 @@
         "provider": "perplexity"
       },
       "_cost_pricing": {
-        "usd": 0.01,
-        "calls": 2,
-        "provider": "perplexity"
+        "usd": 0,
+        "calls": 0,
+        "dietlyApiCalls": 0,
+        "provider": "dietly-api"
       },
       "_cost_discovery": {
         "pln": 0.05,
@@ -7181,10 +7192,25 @@
         "inputTokens": 1595,
         "outputTokens": 135,
         "provider": "apify+anthropic"
+      },
+      "_dietly_extract": {
+        "dietCount": 6,
+        "benchmarkDiet": "CLASSIC",
+        "calorieOptions": [
+          1000,
+          1250,
+          1500,
+          1750,
+          2000,
+          2500,
+          3000
+        ],
+        "priceRange": "Od 51,10zł do 96,40zł",
+        "pricingMethod": "dietly-api"
       }
     },
-    "lastScanId": "63c60ce1-80cd-4f57-bbdb-b6eb0edadcc8",
-    "lastScannedAt": "2026-04-05T09:05:24.685Z",
+    "lastScanId": "b4355291-ca49-4291-8828-f0427b1644cd",
+    "lastScannedAt": "2026-04-05T09:40:58.704Z",
     "nip": "7010485250",
     "krs": "0001066845",
     "financials": {

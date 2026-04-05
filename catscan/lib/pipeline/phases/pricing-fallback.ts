@@ -1,16 +1,16 @@
 /**
- * Phase: Pricing Fallback — benchmark pricing via Dietly SSR + Perplexity.
+ * Phase: Pricing Fallback — benchmark pricing via Dietly API + Perplexity.
  *
  * Strategy:
- *   1. Dietly brands (177/239): curl Dietly page → extract diet structure from
- *      __NEXT_DATA__ → find "Wybór menu"/"Standard" diet → get calorie options →
- *      targeted Perplexity query for price at 1500 + 2000 kcal.
+ *   1. Dietly brands (177/239): curl Dietly company page → extract diet structure
+ *      from __NEXT_DATA__ → find "Wybór menu"/"Standard" diet → call Dietly's
+ *      internal calculate-price API for exact per-kcal pricing (FREE, 100% accurate).
  *   2. Non-Dietly brands (62/239): generic Perplexity benchmark query.
  *   3. If extract already got prices, just compute benchmarks — no API calls.
  *
  * Also fills: calorie_options in menu dimension, price_range_pln fallback.
  *
- * Requires PERPLEXITY_API_KEY. ~$0.005-0.01/brand.
+ * Dietly brands: FREE (direct API). Non-Dietly: ~$0.005/brand via Perplexity.
  */
 
 import { execSync } from 'child_process';
@@ -58,8 +58,11 @@ interface DietlyExtract {
   diets: DietlyDiet[];
   priceRange: string | null;
   benchmarkDiet: string | null;    // Name of the chosen benchmark diet
+  benchmarkDietObj: DietlyDiet | null;  // Full diet object for API pricing
   calorieOptions: number[];         // All unique kcal options
   tierPricing: string;              // Human-readable tier min prices for Perplexity context
+  cityId: number;                   // City ID from SSR query
+  companySlug: string;              // Company slug for API calls
 }
 
 // ---------------------------------------------------------------------------
@@ -129,9 +132,14 @@ function extractDietlyData(dietlySlug: string): DietlyExtract | null {
     const queries = nextData?.props?.pageProps?.initialState?.dietlyApi?.queries;
     if (!queries) return null;
 
-    // Find the company details query
+    // Find the company details query and extract cityId
     const queryKey = Object.keys(queries).find(k => k.includes('getApiCompanyFullDetails'));
     if (!queryKey) return null;
+
+    // Parse cityId from query key: getApiCompanyFullDetails({"cityId":918123,...})
+    let cityId = 918123; // default Warsaw
+    const cityMatch = queryKey.match(/"cityId":(\d+)/);
+    if (cityMatch) cityId = parseInt(cityMatch[1], 10);
 
     const companyData = queries[queryKey]?.data;
     if (!companyData) return null;
@@ -194,12 +202,172 @@ function extractDietlyData(dietlySlug: string): DietlyExtract | null {
       diets,
       priceRange,
       benchmarkDiet: benchmarkDiet?.name || null,
+      benchmarkDietObj: benchmarkDiet,
       calorieOptions: Array.from(allKcal).sort((a, b) => a - b),
       tierPricing,
+      cityId,
+      companySlug: dietlySlug,
     };
   } catch {
     return null;
   }
+}
+
+// ---------------------------------------------------------------------------
+// Step 1b: Dietly calculate-price API — exact per-kcal pricing (FREE)
+// ---------------------------------------------------------------------------
+
+interface DietlyPriceResult {
+  price_1500kcal: number | null;
+  price_2000kcal: number | null;
+  cheapest_daily: number | null;
+}
+
+/**
+ * Call Dietly's internal calculate-price API to get exact per-day price
+ * for a specific calorie level. Returns the list price (totalDietWithoutSideOrdersCost).
+ */
+function getDietlyPrice(
+  companySlug: string,
+  cityId: number,
+  dietCaloriesId: number,
+  tierDietOptionId: string | undefined
+): number | null {
+  // Use a Monday date in the near future for the order
+  const deliveryDate = getNextMonday();
+
+  const body: Record<string, unknown> = {
+    cityId,
+    companyId: companySlug,
+    loyaltyProgramPoints: 0,
+    loyaltyProgramPointsGlobal: 0,
+    promoCodes: [],
+    simpleOrders: [{
+      itemId: 'benchmark',
+      customDeliveryMeals: {},
+      deliveryDates: [deliveryDate],
+      deliveryMeals: [],
+      dietCaloriesId,
+      paymentType: 'ONLINE',
+      sideOrders: [],
+      testOrder: false,
+      ...(tierDietOptionId ? { tierDietOptionId } : {}),
+    }],
+  };
+
+  const inputFile = `/tmp/dietly_price_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.json`;
+  writeFileSync(inputFile, JSON.stringify(body));
+
+  try {
+    const raw = execSync(
+      `curl -s -m 15 -X POST 'https://dietly.pl/api/dietly/open/shopping-cart/calculate-price' -H 'Content-Type: application/json' -H ${shellEscape('company-id: ' + companySlug)} -H 'x-guest-session: catscan-benchmark' -d @${inputFile}`,
+      { maxBuffer: 1024 * 1024, timeout: 20000 }
+    ).toString('utf-8');
+
+    try { unlinkSync(inputFile); } catch { /* ignore */ }
+
+    const response = JSON.parse(raw);
+    const items = response?.items;
+    if (!items || !Array.isArray(items) || items.length === 0) return null;
+
+    const item = items[0] as Record<string, number>;
+    // totalDietWithoutSideOrdersCost for 1 day = per-day list price
+    return item.totalDietWithoutSideOrdersCost ?? null;
+  } catch {
+    try { unlinkSync(inputFile); } catch { /* ignore */ }
+    return null;
+  }
+}
+
+function getNextMonday(): string {
+  const now = new Date();
+  const day = now.getDay();
+  const daysUntilMonday = day === 0 ? 1 : day === 1 ? 7 : 8 - day;
+  const monday = new Date(now.getTime() + daysUntilMonday * 86400000);
+  return monday.toISOString().slice(0, 10);
+}
+
+/**
+ * Find the dietCaloriesId for a specific kcal target in a benchmark diet.
+ */
+function findCaloriesId(diet: DietlyDiet, targetKcal: number): number | null {
+  // Check tiers first (first tier = cheapest/basic)
+  if (diet.dietTiers && diet.dietTiers.length > 0) {
+    const firstTier = diet.dietTiers[0];
+    for (const opt of (firstTier.dietOptions || [])) {
+      for (const cal of (opt.dietCalories || [])) {
+        if (cal.calories === targetKcal) return cal.dietCaloriesId;
+      }
+    }
+  }
+  // Check top-level options
+  for (const opt of (diet.dietOptions || [])) {
+    for (const cal of (opt.dietCalories || [])) {
+      if (cal.calories === targetKcal) return cal.dietCaloriesId;
+    }
+  }
+  return null;
+}
+
+/**
+ * Build tierDietOptionId for the API: "tierId-dietOptionId" for tiered diets.
+ */
+function buildTierDietOptionId(diet: DietlyDiet): string | undefined {
+  if (!diet.dietTiers || diet.dietTiers.length === 0) return undefined;
+  const firstTier = diet.dietTiers[0];
+  const firstOption = firstTier.dietOptions?.[0];
+  if (!firstOption) return undefined;
+  return `${firstTier.tierId}-${firstOption.dietOptionId}`;
+}
+
+/**
+ * Get exact benchmark prices from Dietly's calculate-price API.
+ * Returns prices for 1500 and 2000 kcal, plus cheapest (1200 kcal).
+ */
+function getDietlyBenchmarkPrices(extract: DietlyExtract): DietlyPriceResult {
+  const result: DietlyPriceResult = { price_1500kcal: null, price_2000kcal: null, cheapest_daily: null };
+  if (!extract.benchmarkDietObj) return result;
+
+  const diet = extract.benchmarkDietObj;
+  const tierOptId = buildTierDietOptionId(diet);
+
+  // Get 1500 kcal price
+  const cal1500 = findCaloriesId(diet, 1500);
+  if (cal1500) {
+    result.price_1500kcal = getDietlyPrice(extract.companySlug, extract.cityId, cal1500, tierOptId);
+  }
+
+  // Get 2000 kcal price
+  const cal2000 = findCaloriesId(diet, 2000);
+  if (cal2000) {
+    result.price_2000kcal = getDietlyPrice(extract.companySlug, extract.cityId, cal2000, tierOptId);
+  }
+
+  // Get cheapest (lowest kcal in the benchmark diet itself)
+  const benchmarkKcals: number[] = [];
+  if (diet.dietTiers && diet.dietTiers.length > 0) {
+    for (const opt of (diet.dietTiers[0].dietOptions || [])) {
+      for (const cal of (opt.dietCalories || [])) {
+        if (cal.calories >= 1000) benchmarkKcals.push(cal.calories);
+      }
+    }
+  }
+  if (benchmarkKcals.length === 0) {
+    for (const opt of (diet.dietOptions || [])) {
+      for (const cal of (opt.dietCalories || [])) {
+        if (cal.calories >= 1000) benchmarkKcals.push(cal.calories);
+      }
+    }
+  }
+  if (benchmarkKcals.length > 0) {
+    const lowestKcal = Math.min(...benchmarkKcals);
+    const calLowest = findCaloriesId(diet, lowestKcal);
+    if (calLowest) {
+      result.cheapest_daily = getDietlyPrice(extract.companySlug, extract.cityId, calLowest, tierOptId);
+    }
+  }
+
+  return result;
 }
 
 // ---------------------------------------------------------------------------
@@ -259,7 +427,7 @@ WAŻNE: Podaj realne ceny. Jeśli nie znajdziesz — null. NIE zgaduj.`;
 
 export async function enrichPricingFallback(entity: EntityRecord): Promise<EntityRecord> {
   const apiKey = process.env.PERPLEXITY_API_KEY;
-  if (!apiKey) return entity;
+  // Note: apiKey is only needed for non-Dietly brands. Dietly brands use free API.
 
   const existingPricing = getPricing(entity);
   const existingMenu = (entity.data as Record<string, Record<string, unknown>>)?.menu || {};
@@ -279,11 +447,11 @@ export async function enrichPricingFallback(entity: EntityRecord): Promise<Entit
   let pplxCalls = 0;
   let benchmarkResult: Record<string, unknown> | null = null;
   let dietlyExtract: DietlyExtract | null = null;
+  let dietlyApiPrices: DietlyPriceResult | null = null;
 
   // -----------------------------------------------------------------------
-  // Path A: Dietly brands — extract structure, then targeted query
+  // Path A: Dietly brands — extract structure + direct API pricing (FREE)
   // -----------------------------------------------------------------------
-  // Find dietlySlug from brands.json seed data
   const brands = getBrands();
   const entityDomain = entity.domain || (() => { try { return new URL(entity.url).hostname.replace('www.', ''); } catch { return ''; } })();
   const brandRecord = brands.find(b => {
@@ -295,7 +463,19 @@ export async function enrichPricingFallback(entity: EntityRecord): Promise<Entit
   if (dietlySlug) {
     dietlyExtract = extractDietlyData(dietlySlug);
 
-    if (dietlyExtract && dietlyExtract.benchmarkDiet) {
+    if (dietlyExtract && dietlyExtract.benchmarkDietObj) {
+      // Use Dietly's own calculate-price API for exact pricing (FREE!)
+      dietlyApiPrices = getDietlyBenchmarkPrices(dietlyExtract);
+      console.log(`[pricing] Dietly API prices for ${entity.name}: 1500=${dietlyApiPrices.price_1500kcal}, 2000=${dietlyApiPrices.price_2000kcal}, cheapest=${dietlyApiPrices.cheapest_daily}`);
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  // Path B: Non-Dietly brands or Dietly API failed — Perplexity fallback
+  // -----------------------------------------------------------------------
+  if (!dietlyApiPrices?.price_1500kcal && !dietlyApiPrices?.price_2000kcal && apiKey) {
+    if (dietlySlug && dietlyExtract?.benchmarkDiet) {
+      // Dietly brand but API failed — use targeted Perplexity
       benchmarkResult = callPerplexity(
         BENCHMARK_PRICE_PROMPT_DIETLY(
           entity.name,
@@ -307,18 +487,14 @@ export async function enrichPricingFallback(entity: EntityRecord): Promise<Entit
         apiKey
       );
       pplxCalls++;
+    } else {
+      // Non-Dietly brand — generic Perplexity query
+      benchmarkResult = callPerplexity(
+        BENCHMARK_PRICE_PROMPT_GENERIC(entity.name, entity.url),
+        apiKey
+      );
+      pplxCalls++;
     }
-  }
-
-  // -----------------------------------------------------------------------
-  // Path B: Non-Dietly brands or Dietly extraction failed — generic query
-  // -----------------------------------------------------------------------
-  if (!benchmarkResult) {
-    benchmarkResult = callPerplexity(
-      BENCHMARK_PRICE_PROMPT_GENERIC(entity.name, entity.url),
-      apiKey
-    );
-    pplxCalls++;
   }
 
   // -----------------------------------------------------------------------
@@ -326,8 +502,24 @@ export async function enrichPricingFallback(entity: EntityRecord): Promise<Entit
   // -----------------------------------------------------------------------
   const mergedPricing: Record<string, unknown> = { ...existingPricing };
 
-  if (benchmarkResult) {
-    // Benchmark prices — the key output
+  if (dietlyApiPrices) {
+    // Dietly API — exact prices, highest confidence
+    if (typeof dietlyApiPrices.price_1500kcal === 'number') {
+      mergedPricing.price_1500kcal = dietlyApiPrices.price_1500kcal;
+    }
+    if (typeof dietlyApiPrices.price_2000kcal === 'number') {
+      mergedPricing.price_2000kcal = dietlyApiPrices.price_2000kcal;
+    }
+    if (typeof dietlyApiPrices.cheapest_daily === 'number') {
+      mergedPricing.cheapest_daily = dietlyApiPrices.cheapest_daily;
+    }
+    if (dietlyExtract?.benchmarkDiet) {
+      mergedPricing.benchmark_diet_name = dietlyExtract.benchmarkDiet;
+    }
+    mergedPricing.price_source = 'dietly-api';
+    mergedPricing._fallback = 'dietly-api';
+  } else if (benchmarkResult) {
+    // Perplexity fallback
     if (typeof benchmarkResult.price_1500kcal === 'number') {
       mergedPricing.price_1500kcal = benchmarkResult.price_1500kcal;
     }
@@ -337,22 +529,20 @@ export async function enrichPricingFallback(entity: EntityRecord): Promise<Entit
     if (benchmarkResult.benchmark_diet_name) {
       mergedPricing.benchmark_diet_name = benchmarkResult.benchmark_diet_name;
     }
-
-    // Fill basic pricing if missing
-    if (!mergedPricing.price_range_pln && benchmarkResult.price_range_pln) {
-      mergedPricing.price_range_pln = benchmarkResult.price_range_pln;
-    }
     if (!mergedPricing.cheapest_daily && typeof benchmarkResult.cheapest_daily === 'number') {
       mergedPricing.cheapest_daily = benchmarkResult.cheapest_daily;
     }
-
     mergedPricing.price_source = benchmarkResult.source || mergedPricing.price_source || null;
     mergedPricing._fallback = dietlySlug ? 'dietly+perplexity' : 'perplexity';
   }
 
-  // Fill Dietly price range from SSR if we have it
-  if (!mergedPricing.price_range_pln && dietlyExtract?.priceRange) {
-    mergedPricing.price_range_pln = dietlyExtract.priceRange;
+  // Fill price range from Dietly API prices or SSR
+  if (!mergedPricing.price_range_pln) {
+    if (dietlyApiPrices?.cheapest_daily && dietlyApiPrices?.price_2000kcal) {
+      mergedPricing.price_range_pln = `${dietlyApiPrices.cheapest_daily}-${dietlyApiPrices.price_2000kcal} PLN/dzień`;
+    } else if (dietlyExtract?.priceRange) {
+      mergedPricing.price_range_pln = dietlyExtract.priceRange;
+    }
   }
 
   mergedPricing._pricing_fallback_done = new Date().toISOString();
@@ -370,7 +560,7 @@ export async function enrichPricingFallback(entity: EntityRecord): Promise<Entit
     } else if (benchmarkResult && Array.isArray(benchmarkResult.calorie_options) && (benchmarkResult.calorie_options as number[]).length > 0) {
       // From Perplexity generic response
       updatedMenu.calorie_options = benchmarkResult.calorie_options;
-    } else {
+    } else if (apiKey) {
       // Standalone calorie query as last resort
       const kcalResult = callPerplexity(CALORIE_OPTIONS_PROMPT(entity.name, entity.url), apiKey);
       pplxCalls++;
@@ -392,8 +582,14 @@ export async function enrichPricingFallback(entity: EntityRecord): Promise<Entit
         calorieOptions: dietlyExtract.calorieOptions,
         priceRange: dietlyExtract.priceRange,
         tierPricing: dietlyExtract.tierPricing || undefined,
+        pricingMethod: dietlyApiPrices ? 'dietly-api' : 'perplexity',
       } : undefined,
-      _cost_pricing: { usd: pplxCalls * 0.005, calls: pplxCalls, provider: dietlySlug ? 'dietly+perplexity' : 'perplexity' },
+      _cost_pricing: {
+        usd: pplxCalls * 0.005,
+        calls: pplxCalls,
+        dietlyApiCalls: dietlyApiPrices ? (dietlyApiPrices.price_1500kcal ? 1 : 0) + (dietlyApiPrices.price_2000kcal ? 1 : 0) + (dietlyApiPrices.cheapest_daily ? 1 : 0) : 0,
+        provider: dietlyApiPrices ? 'dietly-api' : (dietlySlug ? 'dietly+perplexity' : 'perplexity'),
+      },
     },
   };
 }
