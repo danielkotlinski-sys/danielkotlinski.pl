@@ -1,5 +1,5 @@
 # CATSCAN // CATERING INTELLIGENCE ENGINE
-## Brief produktowy — v0.4
+## Brief produktowy — v0.5
 
 ---
 
@@ -17,6 +17,7 @@ Produkt MVP: raport sektorowy + prosta wyszukiwarka + chat AI.
 Baza: 256 marek (177 Dietly + 78 Google search + 1 Dietly-city) = pełne pokrycie rynku.
 
 Patrz też: `CATSCAN_KRS_SUPPLEMENT.md` — szczegóły pozyskania danych z KRS.
+Patrz też: `CATSCAN_PRODUCT_INSIGHT.md` — design produktowy (decision maps, nie raporty).
 
 ---
 
@@ -61,9 +62,20 @@ Connector: `lib/connectors/meta-ads.ts`. Wymaga `META_ADS_ACCESS_TOKEN`.
 
 ### 2.4 Źródło: Social media ✅ ZAIMPLEMENTOWANE
 
-Apify actors na: Instagram, Facebook, TikTok.
+Apify actors na: Instagram, Facebook, TikTok + YouTube via Perplexity.
 Publiczne profile — posty, followersi, engagement, częstotliwość.
 Connector: `lib/connectors/apify.ts`. Wymaga `APIFY_API_TOKEN`.
+Fallback: Perplexity AI gdy Apify nie może scrapować (Facebook blokady, etc.).
+
+**Instagram posts — stratified sampling:**
+- Call #1 (istniejący): profil — followers, bio, engagement rate
+- Call #2 (nowy): ~50 postów → filtrowane do 20 próbkowych:
+  - 6 najnowszych (~2 tygodnie) = bieżąca aktywność
+  - 14 równomiernie z ostatnich 6 miesięcy = tło strategiczne
+- Per post: caption (500 zn.), likes, comments, typ (Image/Video/Sidecar), data, hashtagi
+- Analiza: posting frequency, engagement trend (rising/stable/declining), top 15 hashtagów, content mix
+- Dodatkowy czas: ~30s per profil (call #2). Dodatkowy koszt: ~$0.01/profil Apify
+- Logika próbkowania: jeśli marka ma kampanię w ostatnich 2 tygodniach — widzimy to w 6 recent posts. Ale avg likes/comments historical daje baseline z 6 miesięcy. engagementTrend porównuje recent vs historical — jeśli recent > 1.2x historical = "rising", jeśli < 0.8x = "declining".
 
 ### 2.5 Źródło: Google Maps / Reviews ✅ ZAIMPLEMENTOWANE
 
@@ -109,6 +121,10 @@ Atrybuty mają typy: text, number, enum, boolean, array, date.
 - price_category: enum [ekonomiczny, standardowy, premium, super-premium]
 - price_per_day_min: number — najniższa cena za dzień (PLN)
 - price_per_day_max: number — najwyższa cena za dzień (PLN)
+- price_1500kcal: number — cena benchmarkowa za 1500 kcal/dzień (PLN)
+- price_2000kcal: number — cena benchmarkowa za 2000 kcal/dzień (PLN)
+- diet_prices: array[{name, kcal, price_per_day}] — rozbicie cen per dieta
+- price_source: enum [crawl, perplexity, estimated] — skąd cena
 - pricing_model: enum [subscription, one-time, hybrid]
 - has_trial: boolean
 - has_discount: boolean
@@ -175,8 +191,8 @@ Typowa marka: 5-30 aktywnych reklam. Niektóre 0, niektóre 100+.
 - longest_running_ad_days: number — najdłużej działająca reklama (proxy na "co działa")
 
 ### WYMIAR 09: INSTAGRAM
-Źródło: Apify instagram-profile-scraper + instagram-post-scraper.
-Zbieramy: profil + ostatnie 20 postów per marka. Koszt: ~$15-20 za 256 marek.
+Źródło: Apify instagram-profile-scraper (Call #1) + instagram-scraper posts (Call #2, stratified).
+Zbieramy: profil + 20 próbkowych postów per marka (6 recent + 14 historical). Koszt: ~$15-20 za 256 marek.
 - ig_handle: text
 - ig_followers: number
 - ig_following: number
@@ -184,14 +200,16 @@ Zbieramy: profil + ostatnie 20 postów per marka. Koszt: ~$15-20 za 256 marek.
 - ig_bio: text
 - ig_link_in_bio: text
 - ig_verified: boolean
-- ig_avg_likes: number — średnia z ostatnich 20 postów
-- ig_avg_comments: number — średnia z ostatnich 20 postów
+- ig_avg_likes_recent: number — średnia z 6 najnowszych postów
+- ig_avg_likes_historical: number — średnia z 14 postów historycznych (6 mies.)
+- ig_avg_comments_recent: number
+- ig_avg_comments_historical: number
 - ig_engagement_rate: number — (likes+comments) / followers %
-- ig_posting_frequency: enum [daily, few-per-week, weekly, irregular, inactive]
-- ig_content_types: array[enum] — [food-photo, reels, carousel, ugc, behind-scenes, educational, promo]
-- ig_top_hashtags: array[text] — 10 najczęstszych hashtagów
-- ig_aesthetic_consistency: number 0-10 — AI assessment
-- ig_recent_posts: array[{date, type, likes, comments, caption_excerpt}] — ostatnie 20
+- ig_engagement_trend: enum [rising, stable, declining, insufficient_data] — recent vs historical
+- ig_posting_frequency: text — np. "4.2 posts/week"
+- ig_content_mix: object — {Image: N, Video: N, Sidecar: N}
+- ig_top_hashtags: array[{tag, count}] — 15 najczęstszych hashtagów
+- ig_recent_posts: array[IgPost] — 20 próbkowych (6 recent + 14 historical), per post: caption (500 zn.), likes, comments, typ, data, hashtagi, sampleBucket
 
 ### WYMIAR 10: FACEBOOK
 Źródło: Apify facebook-pages-scraper. Ostatnie 15 postów. Koszt: ~$10-15 za 256 marek.
@@ -354,38 +372,58 @@ Implementacja: `lib/pipeline/phases/extract.ts`
 Czas: 30 min (parallel)
 Koszt: ~$3-5
 
-### Faza 4: DISCOVERY (NIP/KRS) ✅ GOTOWE
-
-Wejście: nazwa marki + ewentualny NIP z crawla
-Wyjście: potwierdzony NIP, numer KRS, forma prawna
-Narzędzie: DuckDuckGo search via curl + analiza stron prawnych (regulamin, polityka prywatności)
-Implementacja: `lib/pipeline/phases/discovery.ts`
-Walidacja: algorytm checksum NIP
-Koszt: $0
-
-### Faza 5: CONTEXT (Perplexity) ✅ GOTOWE
+### Faza 4: CONTEXT (Perplexity) ✅ GOTOWE — przesunieta przed discovery
 
 Wejście: nazwa marki + kontekst rynkowy
-Wyjście: founder, rok założenia, media mentions, influencerzy, unikalne cechy, trajectory
+Wyjście: founder, rok założenia, media mentions, influencerzy, unikalne cechy, trajectory, legalName, NIP (bonus)
 Narzędzie: Perplexity sonar model (~$0.005/query)
 Implementacja: `lib/pipeline/phases/context.ts`
 Wymaga: `PERPLEXITY_API_KEY`
 Czas: 1-2h (256 marek)
 Koszt: ~$2.50
+Dwuprzebiegowy: pass 1 = core business data, pass 2 = media intelligence.
+Dodatkowe pola: employeeRange, uniqueInsight, legalName (backfill do discovery).
 
-### Faza 6: SOCIAL MEDIA ✅ GOTOWE
+### Faza 4.5: PRICING FALLBACK ✅ GOTOWE (nowa)
+
+Wejście: encje bez diet_prices (JS-rendered sites: Maczfit, NTFY, FitBox, etc.)
+Wyjście: diet_prices[], price_1500kcal, price_2000kcal, price_source
+Narzędzie: Perplexity sonar model
+Implementacja: `lib/pipeline/phases/pricing-fallback.ts`
+Logika: benchmarki 1500/2000 kcal obliczane z diet_prices (closest match ±300 kcal).
+Dwa tryby: full pricing (brak jakichkolwiek cen) vs diet breakdown only (jest min/max, brak rozbicia).
+Koszt: ~$1-2
+
+### Faza 5: DISCOVERY (NIP/KRS) ✅ GOTOWE — przepisana
+
+Wejście: nazwa marki + legalName z fazy context + ewentualny NIP z crawla
+Wyjście: potwierdzony NIP, numer KRS, forma prawna
+Narzędzie: rejestr.io name search (primary) + website legal pages (fallback) + Perplexity (bonus)
+Implementacja: `lib/pipeline/phases/discovery.ts`
+Walidacja: algorytm checksum NIP
+NIP resolution chain (5 kroków):
+  1. Crawled z website (footer/regulamin) — bezpośredni, bez luki
+  2. Perplexity AI (zna mapowanie brand→legal entity) — AI bridge
+  3. rejestr.io search by legalName z Perplexity — trafne wyszukiwanie
+  4. rejestr.io search by brand name — hail mary
+  5. Legal pages crawl — last resort
+Koszt: ~$0.05 PLN/req rejestr.io, ~85% hit rate
+
+### Faza 6: SOCIAL MEDIA ✅ GOTOWE — rozszerzona
 
 Wejście: nazwy marek / URL-e social profiles (z crawla)
 Wyjście: wymiary 09-12
 Narzędzia:
-  - Apify instagram-profile-scraper + post-scraper (20 postów/marka): ~$15-20
+  - Apify instagram-profile-scraper (Call #1, profil) + instagram-scraper (Call #2, ~50 postów → 20 stratified): ~$15-20
   - Apify facebook-pages-scraper (15 postów/marka): ~$10-15
   - Apify tiktok-scraper (10 filmów/marka): ~$10-15
+  - YouTube: via Perplexity (subscribers, total views)
+  - Fallback: Perplexity AI gdy Apify nie może scrapować (Facebook blokady, prywatne profile)
 Implementacja: `lib/pipeline/phases/social.ts`
 Connector: `lib/connectors/apify.ts`
 Czas: 2-4h
 Koszt: ~$35-50
-Volume: 256 profili x 3 platformy, ~10,000 postów total
+Volume: 256 profili x 4 platformy, ~10,000 postów total
 
 ### Faza 7: REKLAMY (META) ✅ GOTOWE
 
@@ -407,17 +445,22 @@ Implementacja: `lib/pipeline/phases/reviews.ts`
 Czas: 1-2h
 Koszt: ~$10-15
 
-### Faza 9: FINANCE (KRS + rejestr.io) ✅ GOTOWE
+### Faza 9: FINANCE (KRS + rejestr.io) ✅ GOTOWE — rozszerzona ekstrakcja
 
 Wejście: NIP z fazy discovery
-Wyjście: wymiar 21
+Wyjście: wymiar 21 (rozszerzony: pełny RZiS + Bilans + wskaźniki)
 Narzędzie: rejestr.io API (primary) + KRS API (free) + RDF fallback
 Implementacja: `lib/pipeline/phases/finance.ts`
 Connector: `lib/connectors/rejestr-io.ts`
 Pipeline (szczegóły: CATSCAN_KRS_SUPPLEMENT.md):
-  1. Discovery: nazwa → NIP/KRS (faza 4)
+  1. Discovery: nazwa → NIP/KRS (faza 5, po context)
   2. rejestr.io: dane rejestrowe + sprawozdania finansowe (~$0.05-0.50/req)
   3. Fallback: KRS API (free) + RDF XML
+Rozszerzona ekstrakcja:
+  - RZiS: COGS, zysk brutto, koszty sprzedaży, koszty administracyjne, przychody/koszty finansowe, zysk pre-tax, podatek, amortyzacja, wynagrodzenia
+  - Bilans: aktywa trwałe/obrotowe, zapasy, należności, gotówka, kapitał zakładowy, zyski zatrzymane, zadłużenie krótko/długoterminowe
+  - Wskaźniki: net/operating/gross margin, ROE, ROA, debt/equity ratio, current ratio, revenue growth
+  - KRS: członkowie zarządu, udziałowcy (name + share_pct)
 Czas: 3-5h
 Koszt: ~$35-45 (zależy od coverage)
 Coverage: ~70% rejestrowe, ~50-60% finansowe
@@ -433,12 +476,15 @@ Czas: 15-30 min
 Koszt: ~$10-15
 
 ### TOTAL PIPELINE:
-- Faz: 10 (seed + 9 faz per-scan). Wszystkie zaimplementowane.
+- Faz: 11 (seed + 10 faz per-scan). Wszystkie zaimplementowane.
+- Kolejność: crawl → extract → context → pricing_fallback → discovery → social → ads → reviews → finance → interpret
+- Kluczowa zmiana: context PRZED discovery (Perplexity dostarcza legalName → trafniejsze wyszukiwanie w rejestr.io)
 - Czas: 3-4 dni (z testowaniem i poprawkami, jednorazowo)
 - Koszt: ~$100-150 (w tym ~$55 rejestr.io API za dane finansowe)
-- Wynik: 256 encji x 175 atrybutów = ~44,800 data points
-- Plus: ~3,800 kreacji reklamowych, ~10,000 postów social, ~400 sprawozdań finansowych
+- Wynik: 256 encji x 175+ atrybutów = ~44,800+ data points
+- Plus: ~3,800 kreacji reklamowych, ~10,000 postów social (w tym 20 stratified IG per marka), ~400 sprawozdań finansowych
 - Orchestrator: `app/api/scan/route.ts` — async, per-entity, z error handling i cost tracking
+- AI backend: curl do Claude API (zamiast Anthropic SDK — SDK timeout w sandbox, curl działa stabilnie)
 
 ---
 
@@ -530,7 +576,19 @@ Weryfikacja danych ze scanów:
   - Dane finansowe (jeśli pobrane)
   - Quality check extracted dimensions
 
-### 6.4 Design System ✅ GOTOWE — `app/ds/page.tsx`
+### 6.4 Data Explorer ✅ GOTOWE — `app/explore/page.tsx`
+
+Interaktywne porównanie marek ze scanu:
+  - 14 zakładek wymiarowych (pricing, social, messaging, SEO, ads, etc.)
+  - Tabela z sortowaniem po dowolnej kolumnie
+  - Slide-out panel z detalami encji
+  - Szukanie i filtrowanie marek
+  - Widok card/table
+  - Kolumny IG: frequency, engagement trend, avg likes recent vs historical
+  - Kolumny pricing: 1500 kcal, 2000 kcal, diet breakdown
+  - Wynik testu: 10/10 extract, 10/10 context, 4/10 finance
+
+### 6.5 Design System ✅ GOTOWE — `app/ds/page.tsx`
 
 Showcase wszystkich komponentów CATSCAN:
   - Sidebar z 5 sekcjami
@@ -538,7 +596,7 @@ Showcase wszystkich komponentów CATSCAN:
   - Paleta kolorów i typografia
   - Static preview: `public/ds-preview.html`
 
-### 6.5 Strona główna: Search + Dashboard — 🔜 PLANOWANE
+### 6.6 Strona główna: Search + Dashboard — 🔜 PLANOWANE
 
 Docelowy interfejs po migracji do Postgres:
 
@@ -558,7 +616,7 @@ Pod statami: "Popularne zapytania" — klikalne gotowe pytania:
   - "Pokaż marki premium bez bloga"
   - "Top 10 najaktywniejszych na Instagramie"
 
-### 6.6 Entity view — 🔜 PLANOWANE
+### 6.7 Entity view — 🔜 PLANOWANE
 
 Klikam w markę → pełna karta:
   - Wszystkie 21 wymiarów
@@ -567,7 +625,7 @@ Klikam w markę → pełna karta:
   - Timeline zmian (jeśli mamy historię)
   - Porównanie z kategorią (percentyle)
 
-### 6.7 Report generator — 🔜 PLANOWANE
+### 6.8 Report generator — 🔜 PLANOWANE
 
 User wybiera:
   - Typ: Pełny sektor / Segment / Marka vs konkurenci
@@ -583,7 +641,7 @@ System generuje raport z gotowymi insightami.
 ### Zaimplementowane ✅
 - Frontend: Next.js 14.2 + React 18 + Tailwind CSS 3.4 + CATSCAN Design System
 - Backend: Next.js API routes (serverless)
-- AI: Claude Sonnet (interpretacja + chat) + Claude Haiku (extraction) — `@anthropic-ai/sdk`
+- AI: Claude Sonnet (interpretacja + chat) + Claude Haiku (extraction) — via curl (nie SDK, bo timeout w sandbox)
 - Crawling: curl (plain HTTP) + Apify actors (social, reviews, Google search)
 - Ads: Meta Ad Library API connector
 - Finance: rejestr.io API connector + KRS API
@@ -689,8 +747,9 @@ System generuje raport z gotowymi insightami.
 
 ---
 
-*CATSCAN_OS // v0.4 // CATERING_DIETETYCZNY*
-*Updated: 2026-04-04*
+*CATSCAN_OS // v0.5 // CATERING_DIETETYCZNY*
+*Updated: 2026-04-05*
+*Changelog v0.5: Instagram stratified sampling (6 recent + 14 historical), kcal benchmark pricing (1500/2000 + diet_prices breakdown), pricing-fallback faza (Perplexity dla JS sites), NIP discovery rewrite (rejestr.io search + Perplexity fallback + 5-krokowy chain), zmiana kolejności faz (context przed discovery — legalName bridge), rozszerzona ekstrakcja finansowa (pełny RZiS + Bilans + wskaźniki + zarząd/udziałowcy), Data Explorer UI (/explore — 14 tabs, sort, filter, slide-out), YouTube via Perplexity, Perplexity social fallback, Anthropic SDK→curl migration, CATSCAN_PRODUCT_INSIGHT.md (decision maps), context dwuprzebiegowy (core + media intelligence)*
 *Changelog v0.4: 256 marek = 100% pokrycia rynku (nie 500), przeliczone koszty i volume danych, pipeline hardening (URL escaping, JSON safety, temp file cleanup, safe API access)*
 *Changelog v0.3: aktualizacja statusu implementacji — wszystkie 9 faz pipeline gotowe, 256 marek w bazie, scan engine + query interface + audit page zbudowane, dodano sekcję o aktualnym storage (JSON MVP), zaktualizowano stack technologiczny i fazy budowy*
 *Changelog v0.2: dodano wymiar 21 (KRS + finanse), rozszerzono social/ads, poprawiono pipeline i koszty*
