@@ -1,5 +1,5 @@
 # CATSCAN // CATERING INTELLIGENCE ENGINE
-## Brief produktowy — v0.8
+## Brief produktowy — v0.9
 
 ---
 
@@ -13,8 +13,9 @@ Odświeżane cyklicznie. Odpytywane w języku naturalnym.
 Produkt docelowy: interfejs typu "zapytaj o cokolwiek w tej branży".
 Produkt MVP: raport sektorowy + prosta wyszukiwarka + chat AI.
 
-**Status:** MVP zbudowany — pipeline 11 faz, scan engine UI, query interface, audit page.
+**Status:** MVP zbudowany — pipeline 11 faz, SQLite database, Command Center UI, query interface, audit page.
 Baza: 239 marek (po cleanup: 256 → 239, usunięto 15 non-brand + 2 duplikaty, naprawiono 46 nazw).
+Production-ready: batch scanning (max 20/run), rescan_incomplete mode, post-scan validation (19/19 dims required), rate limiting + retry.
 
 Patrz też: `CATSCAN_KRS_SUPPLEMENT.md` — szczegóły pozyskania danych z KRS.
 Patrz też: `CATSCAN_PRODUCT_INSIGHT.md` — design produktowy (decision maps, nie raporty).
@@ -586,7 +587,10 @@ Koszt: ~$10-15
 - Orchestrator: `app/api/scan/route.ts` — async, per-entity, z error handling i cost tracking
 - AI backend: curl do Claude API (zamiast Anthropic SDK — SDK timeout w sandbox, curl działa stabilnie)
 - **Resume**: pipeline potrafi wznowić się po crashu/restarcie serwera (patrz sekcja 4.1)
-- **Persistence**: wyniki mergowane do `brands.json` po każdej fazie (patrz sekcja 5)
+- **Persistence**: wyniki mergowane do SQLite (`catscan.db`) po każdej fazie (patrz sekcja 5)
+- **Validation**: post-scan check — 19 wymiarów wymaganych, brands z brakami flagowane jako INCOMPLETE
+- **Batch mode**: `POST /api/scan { batch: 20 }` — skanuje N następnych nieskanowanych marek (cap: 20)
+- **Rescan**: `POST /api/scan { rescan_incomplete: true }` — naprawia marki z <19 wymiarami
 
 ### 4.1 RESUME — odporność na crash/restart ✅ GOTOWE
 
@@ -595,10 +599,10 @@ Problem: pipeline async biegnie in-memory. Restart serwera (Railway redeploy, cr
 Rozwiązanie — dwupoziomowe:
 
 **Poziom 1: Persistence danych (automatyczny)**
-- `mergeScanIntoBrands()` — po każdej zakończonej fazie wyniki mergowane do `brands.json`
+- `mergeScanIntoBrands()` — po każdej zakończonej fazie wyniki mergowane do SQLite (`scan_results` + `financial_years` + `social_posts`)
 - Matchowanie entity → brand po domenie (primary) lub nazwie (fallback)
-- `brands.json` żyje w git — commit po scanie = dane na zawsze
-- Explorer, Chat, Entities czytają z `brands.json` jako fallback gdy `scans.json` nie istnieje
+- `catscan.db` żyje w data/ — SQLite z WAL mode, atomowe transakcje
+- Explorer, Chat, Entities czytają z SQLite jako jedynego źródła prawdy
 
 **Poziom 2: Resume pipeline (ręczny)**
 - Każda faza ma marker w `entity.data` (np. `_meta` dla crawl, `context` dla context, `_discovery` dla discovery)
@@ -634,61 +638,60 @@ Implementacja: `app/api/scan/route.ts` (PATCH + POST resume + entityHasPhaseData
 
 ## 5. STORAGE
 
-### `brands.json` — jedyne źródło prawdy ✅ AKTUALNIE
+### SQLite — jedyne źródło prawdy ✅ ZAIMPLEMENTOWANE (v0.9)
 
-Implementacja: `lib/db/store.ts`
+Implementacja: `lib/db/sqlite.ts` (schema + prepared statements) + `lib/db/store.ts` (high-level API)
+Plik: `data/catscan.db` (WAL mode, foreign keys)
 Deploy: Railway (persistent container)
-Dane w git: tak — commit `brands.json` po scanie = trwałe dane
 
-**Architektura:**
-- `brands.json` — 239 marek z seed data + enriched data ze skanów. **Przeżywa redeploy** (w git).
-- `scans.json` — working state pipeline (ephemeral). Może zginąć przy redeploy — nieważne, bo wyniki mergowane do `brands.json` po każdej fazie.
+**Architektura — znormalizowana baza danych:**
+- **brands** — 239 rekordów masterdata (slug PK, name, domain, url, dietly_slug, nip, krs, last_scan_id)
+- **scan_results** — 1 wiersz per marka (slug PK → brands, data JSON blob ze wszystkimi wymiarami, phase_count, phases[])
+- **financial_years** — znormalizowane finanse per marka×rok (revenue, net_income, margins, wskaźniki, revenue_source)
+- **social_posts** — znormalizowane posty per marka×platforma×post (IG/TikTok, likes, comments, views, caption, hashtags)
+- **scans** — audit log pipeline (id, status, entities JSON, log, cost, timestamps)
 
-**Struktura brandu po scanie:**
+**Indeksy:** brands.domain, brands.nip, financial_years.slug, social_posts.slug+platform
+
+**Migracja z JSON:**
+- Jednorazowy skrypt: `scripts/migrate-json-to-sqlite.ts`
+- Przeniesiono 239 marek z `brands.json` + 8 wyników skanów + financial_years + social_posts
+- `brands.json` zachowany jako seed backup, ale NIE jest już źródłem prawdy
+
+**Zapytania (prepared statements):**
+- `stmts.getBrand(slug)`, `stmts.getBrandByDomain(domain)`, `stmts.getAllBrands()`
+- `stmts.upsertScanResult({slug, data, phaseCount, phases})` — atomowy UPSERT
+- `stmts.upsertFinancialYear(...)` — UNIQUE(slug, year_end)
+- `stmts.upsertSocialPost(...)` — UNIQUE(slug, platform, post_id)
+- `stmts.getScannedBrands()` — JOIN brands+scan_results
+
+**Struktura scan_results.data (JSON blob per marka):**
 ```json
 {
-  "slug": "maczfit-pl",
-  "name": "Maczfit",
-  "domain": "maczfit.pl",
-  "url": "https://maczfit.pl",
-  "dietly": { "rating": 4.79, "reviewCount": 1200, ... },
-  "data": {
-    "_meta": { /* crawl */ },
-    "_extraction": { /* extract cost/tokens */ },
-    "visual_identity": { /* visual: dominant_colors, aesthetic, quality_score */ },
-    "context": { /* perplexity: founder, trajectory, legalName */ },
-    "pricing": { /* ceny, diet_prices, benchmarki 1500/2000 kcal */ },
-    "_discovery": { /* NIP, KRS, forma prawna */ },
-    "social": { /* IG, FB, TikTok, YouTube */ },
-    "ads": { /* Meta Ads */ },
-    "reviews": { /* Google + Dietly ratings */ },
-    "finance": { /* KRS + sprawozdania + wskaźniki */ }
-  },
-  "financials": { /* kopia finance dla szybkiego dostępu */ },
-  "nip": "1234567890",
-  "krs": "0000123456",
-  "lastScanId": "abc-123",
-  "lastScannedAt": "2026-04-05T14:00:00Z"
+  "_meta": { /* crawl */ },
+  "_extraction": { /* extract cost/tokens */ },
+  "visual_identity": { /* dominant_colors, aesthetic, quality_score */ },
+  "context": { /* founder, trajectory, legalName */ },
+  "pricing": { /* ceny, price_by_kcal, benchmarki */ },
+  "_discovery": { /* NIP, KRS, forma prawna */ },
+  "social": { /* IG, TikTok, FB, YouTube */ },
+  "ads": { /* Meta Ads */ },
+  "reviews": { /* Google + Dietly ratings */ },
+  "finance": { /* KRS + sprawozdania + wskaźniki */ }
 }
 ```
-
-**Fallback reads:**
-- `/api/entities` — czyta z `scans.json`, fallback na enriched brands z `brands.json`
-- `/api/chat` — j.w., Chat działa nawet po utracie `scans.json`
-- `/api/scan` — resume czyta stan z `scans.json`
 
 Modele danych (TypeScript):
 - `ScanRecord` — id, status, entities[], phasesCompleted[], log[], totalCostUsd
 - `EntityRecord` — id, name, url, nip, data (JSONB-like), financials, status, errors
-- `BrandRecord` — slug, name, domain, url, data, nip, krs, lastScanId, lastScannedAt
 
-### Docelowo: Postgres (Supabase / Neon) — 🔜 gdy będzie potrzeba
+### Docelowo: Postgres (Supabase / Neon) — 🔜 gdy potrzeba
 
-Schema przygotowany: `lib/db/schema.sql`
-Migracja ma sens gdy: diff engine (porównanie skanów), multi-user access, albo >1000 marek.
+Migracja ma sens gdy: diff engine (porównanie skanów w czasie), multi-user access, albo >1000 marek.
+SQLite → Postgres: proste, ten sam model danych.
 
 ### Rozmiar:
-- 239 encji x ~5KB JSON = 1.2MB per snapshot (brands.json po full scanie ~1.5-2MB)
+- `catscan.db`: ~700 KB (8 marek zeskanowanych), est. ~5-8 MB po full scan 239 marek
 - Screenshoty (Cloudflare R2): ~500MB per snapshot — do zbudowania
 
 ---
@@ -703,26 +706,39 @@ Trzy główne nawigacje:
   - Scan_Engine → `/scan`
   - Query_Interface → `/chat`
 
-### 6.1 Scan Engine ✅ GOTOWE — `app/scan/page.tsx`
+### 6.1 Command Center ✅ GOTOWE — `app/scan/page.tsx` (v0.9 rewrite)
 
-Pełny interfejs do uruchamiania scanów:
-  - Tabela input: dodaj firmy po NAME, URL, NIP (opcjonalnie)
-  - 3 presetowe firmy (Maczfit, Kuchnia Vikinga, Cateromarket)
-  - Wybór faz do uruchomienia (domyślnie: wszystkie 11)
+Trzy zakładki — pełny interfejs do zarządzania skanowaniem:
+
+**Tab 1: Dashboard**
+  - Progress bar: scanned / total brands
+  - 5-stat grid: total brands, scanned, complete (19/19), incomplete, remaining
+  - Action buttons: BATCH_20 (skan 20 następnych), BATCH_5, RESCAN_INCOMPLETE (napraw brakujące wymiary)
+  - Lista incomplete brands: slug, name, dims count, missing dimensions
+  - Recent scans: ostatnie wyniki z phase_count i datą
+
+**Tab 2: Manual**
+  - Single brand scan: input na name + URL
   - Start scan → async pipeline w tle
-  - Real-time progress (polling 2s):
-    - Aktualna faza
-    - Live log z timestampami
-    - Status per entity (pending → crawled → extracted → enriched → failed)
-    - Running cost w USD
-    - Kolor statusu (żółty=running, zielony=done, czerwony=failed)
-  - Preview danych encji (pricing, delivery, brand tone)
-  - Link do Query Interface po zakończeniu
+
+**Tab 3: Log**
+  - Real-time pipeline monitor (polling 3s)
+  - Active scan card: id, status, faza, koszt, czas
+  - Entity progress list: nazwa, status, dim count per entity
+  - Full pipeline log: color-coded (fazy, errory, koszty), auto-scroll
 
 API:
-  - `POST /api/scan` → start nowy scan lub resume (`{ resume: scanId }`)
+  - `POST /api/scan` → start nowy scan, batch (`{ batch: N }`), resume (`{ resume: scanId }`), rescan (`{ rescan_incomplete: true }`)
   - `PATCH /api/scan` → reset stuck scan (`{ scanId }`) — running → failed
   - `GET /api/scan` → list, `GET /api/scan/[id]` → status
+  - `GET /api/scan/stats` → database stats (total/scanned/complete/incomplete counts, incomplete list, recent scans)
+
+**Production safeguards:**
+  - Batch cap: max 20 brands per run (hard limit)
+  - Post-scan validation: 19 expected dimensions checked per entity after every scan
+  - `rescan_incomplete`: finds brands with <19 dims, creates scan for all of them
+  - Rate limiting: per-provider sliding window (Perplexity 20/min, Apify 10/min, rejestr.io 30/min, Anthropic 15/min)
+  - Retry: exponential backoff with ±20% jitter, max 3 retries on 429/503
 
 ### 6.2 Query Interface ✅ GOTOWE — `app/chat/page.tsx`
 
@@ -817,12 +833,14 @@ System generuje raport z gotowymi insightami.
 - Ads: Meta Ad Library API connector
 - Finance: rejestr.io API connector + KRS API
 - Context: Perplexity sonar model
-- Storage: `brands.json` (trwałe, w git) + `scans.json` (working state) — `lib/db/store.ts`
+- Storage: SQLite (`data/catscan.db`, WAL mode) — `lib/db/sqlite.ts` + `lib/db/store.ts`
+- Resilience: `lib/utils/resilient-fetch.ts` — per-provider rate limiting, exponential backoff, retry on 429/503
 - Deploy: Railway (persistent container)
 - Design System: 9 komponentów (`components/ds/`)
 
 ### Do zbudowania 🔜
-- Storage: Supabase Postgres (gdy potrzeba diff engine / multi-user) + Cloudflare R2 (screenshoty)
+- Storage upgrade: Postgres (Supabase/Neon) gdy diff engine / multi-user + Cloudflare R2 (screenshoty)
+- Wire resilient-fetch.ts into pipeline phases (phases still use raw execSync+curl)
 - Scheduling: Railway Cron lub external (cykliczne scany)
 - Auth: to co mamy (email + org system)
 
@@ -853,8 +871,13 @@ System generuje raport z gotowymi insightami.
 - ✅ Logging z timestampami
 - ✅ Scan Engine UI z real-time progress
 - ✅ Pipeline resume po crash/restart (PATCH reset + POST resume)
-- ✅ Persistence: wyniki mergowane do `brands.json` po każdej fazie
-- ✅ Fallback reads: Explorer/Chat czytają z `brands.json` gdy `scans.json` zaginął
+- ✅ Persistence: wyniki mergowane do SQLite po każdej fazie (atomowe transakcje)
+- ✅ SQLite database: znormalizowane tabele (brands, scan_results, financial_years, social_posts, scans)
+- ✅ Batch scanning: max 20 brands per run, auto-picks next unscanned from SQLite
+- ✅ Rescan incomplete: finds brands with <19 dims, creates scan for all
+- ✅ Post-scan validation: 19 expected dimensions checked, INCOMPLETE brands flagged
+- ✅ Rate limiting + retry: per-provider sliding window, exponential backoff (resilient-fetch.ts)
+- ✅ Command Center UI: 3-tab dashboard (progress/manual/log), real-time monitoring
 - Brakuje: pierwszy full scan 239 marek
 
 ### FAZA 2: Query interface ✅ DONE
@@ -934,8 +957,9 @@ System generuje raport z gotowymi insightami.
 
 ---
 
-*CATSCAN_OS // v0.8 // CATERING_DIETETYCZNY*
+*CATSCAN_OS // v0.9 // CATERING_DIETETYCZNY*
 *Updated: 2026-04-05*
+*Changelog v0.9: SQLite migration — `data/catscan.db` jako jedyne źródło prawdy (WAL mode, foreign keys). Znormalizowane tabele: brands (239), scan_results (JSON blob per marka), financial_years (marka×rok), social_posts (marka×platforma×post), scans (audit). Prepared statements z UPSERT (atomowe). Migration script: `scripts/migrate-json-to-sqlite.ts`. Command Center UI — rewrite `app/scan/page.tsx`: 3 zakładki (dashboard z progress bar + stats + batch actions, manual single brand scan, real-time log monitor z color coding). `/api/scan/stats` endpoint (total/scanned/complete/incomplete counts, incomplete list z missing dims, recent scans). Production readiness: batch scanning (max 20/run, auto-picks next unscanned), `rescan_incomplete` mode (naprawia marki <19 dims), post-scan validation (19 expected dims checked per entity), resilient-fetch.ts (per-provider rate limiting sliding window + exponential backoff ±20% jitter + retry on 429/503). `brands.json` zachowany jako seed backup ale nie jest już source of truth.*
 *Changelog v0.8: Dietly calculate-price API — pełna mapa cenowa per kcal (`price_by_kcal`) dla 177 marek Dietly (FREE, 100% accurate, reverse-engineered z Next.js SSR), `cheapest_daily` + `benchmark_diet_name` + `price_source: dietly-api`, pricing_fallback bez requireKey (Dietly brands nie potrzebują Perplexity). TikTok auto-discovery via Apify slug candidates (bez Perplexity) + stratified sampling 30→12 postów (4 recent + 8 historical), content analysis (posting frequency, engagement trend views-based, top hashtags). Finance Perplexity fallback: gdy KRS nie ma revenue (holdingi, mikro, JDG) → Perplexity szuka podmiotu operacyjnego i szacuje przychody z publicznych źródeł; `revenue_source` field (krs/perplexity-estimate/unavailable); `perplexity_estimate` block z operating_entity_name, confidence, notes; no-NIP path (Perplexity-only). Coverage revenue: ~85% (vs ~50-60% bez fallbacka). Updated costs: ~$0.70/brand, ~$167 za 239 marek*
 *Changelog v0.7: nowa faza Visual Identity (wymiar 05 — Apify screenshot + Claude Haiku 4.5 vision, 8 atrybutów wizualnych, ~$0.05/brand), brand data cleanup (256→239: 46 bad names fixed, 15 non-brand removed, 2 deduplicated), calorie_options w pricing-fallback (derive z diet_prices lub Perplexity query), finance: usunięto pkd_code, dodano /krs-powiazania (board_members z rolami + shareholders), fixed grossProfit regex ("Zysk (strata) ze sprzedaży"), share_capital z Bilansu, pipeline order: crawl→extract→visual→context→pricing_fallback→discovery→social→ads→reviews→finance→interpret (11 faz), updated costs: ~$0.65/brand, ~$155 za 239 marek*
 *Changelog v0.6: pipeline resume po crash/restart (PATCH reset + POST resume, entityHasPhaseData markery), persistence wyników do brands.json po każdej fazie (brands.json = jedyne źródło prawdy, przeżywa redeploy), fallback reads w /api/entities i /api/chat (czytają z brands.json gdy scans.json zaginął), Railway jako deploy target (nie Vercel), zaktualizowane koszty operacyjne*
