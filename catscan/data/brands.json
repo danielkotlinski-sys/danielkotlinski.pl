@@ -6184,7 +6184,1000 @@
     "dietlySlug": null,
     "dietlyUrl": null,
     "source": "search",
-    "seededAt": "2026-04-04T10:39:24.989Z"
+    "seededAt": "2026-04-04T10:39:24.989Z",
+    "data": {
+      "_meta": {
+        "title": "Catering Dietetyczny Warszawa. Dieta Pudełkowa z dostawą | Be Diet Catering by Ewa Chodakowska",
+        "description": "Be Diet Catering z dostawą pod drzwi. Wypróbuj catering dietetyczny Warszawa. Otrzymujesz 5 pełnowartościowych posiłków, które zadbają o Twoje ciało, umysł oraz zapewnią energię na cały dzień. Sprawdź sam!",
+        "ogImage": "",
+        "crawledUrl": "https://bedietcatering.pl",
+        "crawlerType": "curl",
+        "subpagesCrawled": 0,
+        "contentLength": 15000,
+        "crawledAt": "2026-04-05T12:12:11.567Z"
+      },
+      "_social_urls": {
+        "instagram": "https://www.instagram.com/bediet_catering/",
+        "facebook": "https://www.facebook.com/bedietcatering/",
+        "youtube": "https://www.youtube.com/channel/UCTtYYF-Neph9_O6NG_AR6oA"
+      },
+      "_contact_raw": {
+        "nip": null,
+        "email": "BDC-634-Wersja-B-BG@300x-min.png",
+        "phone": "616265697"
+      },
+      "brand_identity": {
+        "brand_name": "Be Diet Catering",
+        "tagline": "Catering Dietetyczny z dostawą pod drzwi",
+        "positioning": "Catering dietetyczny dla osób pragnących zdrowego odżywiania bez czasu na gotowanie, oferujący zbilansowane posiłki pod nadzorem dietetyków klinicznych i Ewy Chodakowskiej.",
+        "language": "pl"
+      },
+      "messaging": {
+        "headline": "Odpocznij w te święta My zajmiemy się Twoim menu",
+        "subheadline": "Poznaj menu wielkanocne",
+        "primary_cta": "Zamów teraz",
+        "value_proposition": "5 pełnowartościowych posiłków ułożonych pod okiem dietetyków klinicznych, przy współpracy z Ewą Chodakowską, pozwalające zdrowo i smacznie jeść oraz zrealizować swój cel.",
+        "social_proof_type": "reviews",
+        "emotional_register": "motivational",
+        "claims": [
+          "5 pełnowartościowych posiłków",
+          "dietetycy kliniczni",
+          "dostawa pod drzwi",
+          "wysokiej jakości składniki",
+          "sami wypiekamy swoje bułeczki, ciasteczka oraz ciasta",
+          "nie ma żadnych sztucznych składników, barwników oraz cukru",
+          "bogata w witaminy, minerały oraz antyoksydanty",
+          "bezpłatna dostawa",
+          "kierowcy punktualni",
+          "samochody z chłodnią"
+        ],
+        "cliche_score": 7
+      },
+      "pricing": {
+        "price_range_pln": null,
+        "cheapest_daily": null,
+        "most_expensive_daily": null,
+        "trial_offer": "Kupując dietę na okres 1 miesiąca, otrzymasz bezpłatny trzymiesięczny dostęp do platformy beactivetv.pl",
+        "subscription_discount": null,
+        "benchmark_diet_name": "Dieta z wyborem menu",
+        "price_source": "https://crm.bedietcatering.pl/app/zamowienie?diet=13 i ?diet=17",
+        "_fallback": "perplexity",
+        "_pricing_fallback_done": "2026-04-05T12:13:18.027Z"
+      },
+      "menu": {
+        "diet_types": [
+          "Be Diet High Protein",
+          "Be Diet Optimal",
+          "Be Diet Vege",
+          "Be Diet Low IG",
+          "Be Diet Keto",
+          "Be Diet Vege+Fish",
+          "Be Diet Mom2Be",
+          "Be Diet Hashimoto",
+          "Be Diet Summer Ready",
+          "Rodzinny Box Optimal",
+          "Rodzinny Box Vege",
+          "Rodzinny Box Vege+Fish",
+          "Be Diet Select - 10",
+          "Be Diet Select - 15",
+          "Be Diet Select - 20"
+        ],
+        "calorie_options": [
+          1000,
+          2000
+        ],
+        "cuisine_style": "Polish",
+        "dietary_restrictions": [
+          "vegetarian",
+          "vegan",
+          "gluten-free",
+          "lactose-free",
+          "pescatarian",
+          "low-glycemic",
+          "high-protein",
+          "ketogenic"
+        ]
+      },
+      "delivery": {
+        "delivery_model": "own_fleet",
+        "delivery_cities": [
+          "Warszawa",
+          "Kraków",
+          "Gdańsk",
+          "Wrocław",
+          "Poznań"
+        ],
+        "delivery_time": null,
+        "weekend_delivery": null
+      },
+      "technology": {
+        "has_online_ordering": true,
+        "has_mobile_app": null,
+        "has_meal_customization": true,
+        "payment_methods": []
+      },
+      "social_proof": {
+        "testimonials_visible": true,
+        "media_mentions": [],
+        "certifications": [
+          "Zdrowa Marka Roku"
+        ],
+        "dietitian_team": true
+      },
+      "contact": {
+        "city": "Warszawa",
+        "phone": "616265697",
+        "email": "BDC-634-Wersja-B-BG@300x-min.png",
+        "nip": null
+      },
+      "seo": {
+        "title_tag": "Catering Dietetyczny Warszawa. Dieta Pudełkowa z dostawą | Be Diet Catering by Ewa Chodakowska",
+        "meta_description": null,
+        "h1": "Catering Dietetyczny Warszawa. Dieta Pudełkowa z dostawą | Be Diet Catering by Ewa Chodakowska",
+        "keyword_focus": [
+          "catering dietetyczny Warszawa",
+          "dieta pudełkowa",
+          "dieta pudełkowa z dostawą",
+          "catering dietetyczny",
+          "Be Diet Catering"
+        ],
+        "has_local_seo": true,
+        "content_strategy": "regular"
+      },
+      "website_structure": {
+        "page_count_estimate": 15,
+        "has_blog": true,
+        "has_calculator": true,
+        "has_live_chat": false,
+        "ordering_ux": "on-site",
+        "tech_signals": [
+          "custom",
+          "WordPress"
+        ]
+      },
+      "content_marketing": {
+        "has_lead_magnet": true,
+        "has_newsletter": true,
+        "has_youtube": true
+      },
+      "customer_acquisition": {
+        "referral_program": false,
+        "affiliate_program": false,
+        "b2b_offering": true,
+        "dietly_promoted": false
+      },
+      "differentiators": {
+        "unique_claims": [
+          "Współpraca z Ewą Chodakowską",
+          "Dietetycy kliniczni przygotowujący posiłki",
+          "Szef kuchni ze swoim zespołem",
+          "Sami wypiekamy swoje bułeczki, ciasteczka oraz ciasta",
+          "Dostarczamy do ponad 3000 miejscowości na terenie całej Polski",
+          "Darmowy trzymiesięczny dostęp do platformy beactivetv.pl przy zakupie na 1 miesiąc",
+          "3 prestiżowe nagrody (Zdrowa Marka Roku)"
+        ],
+        "competitive_advantage_type": "brand",
+        "niche_focus": "Kobiety, osoby aktywne, kobiety w ciąży, osoby z problemami metabolicznymi (Hashimoto)"
+      },
+      "_extraction": {
+        "model": "claude-haiku-4-5-20251001",
+        "inputTokens": 7463,
+        "outputTokens": 1697,
+        "costUsd": 0.0128,
+        "extractedAt": "2026-04-05T12:12:26.548Z"
+      },
+      "visual_identity": {
+        "dominant_colors": [
+          "#FFFFFF",
+          "#E91E8C",
+          "#2C3E50",
+          "#F5F5F5",
+          "#4CAF50"
+        ],
+        "color_palette_type": "vibrant",
+        "typography_class": "sans-serif",
+        "image_style": "photography",
+        "layout_pattern": "hero-centric",
+        "overall_aesthetic": "modern",
+        "logo_description": "BeDiet catering logo with pink/magenta text and stylized lettering",
+        "visual_quality_score": 8,
+        "analyzedAt": "2026-04-05T12:13:05.167Z",
+        "screenshot_url": "https://api.apify.com/v2/key-value-stores/dfmbbq81UbhJrf6ND/records/screenshot_https___bedietcatering_pl_b79a49ce74812d3f66a056210d33ecea?signature=1juDT4AwIIDuyrTEpfu5z&disableRedirect=true"
+      },
+      "_cost_visual": {
+        "usd": 0.0419,
+        "apifyCalls": 1,
+        "haikuCalls": 1,
+        "inputTokens": 1601,
+        "outputTokens": 146,
+        "provider": "apify+anthropic"
+      },
+      "context": {
+        "nip": "5252554605",
+        "legalName": "BEDIET GROUP SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",
+        "founder": "Ewa Chodakowska",
+        "foundedYear": 2013,
+        "legalOwner": null,
+        "employeeRange": "11-50",
+        "mediaArticles": [
+          "https://myfitness.gazeta.pl/myfitness/7,166676,24987212,znany-youtuber-przetestowal-be-diet-catering-jak-ocenil-diete.html"
+        ],
+        "influencers": [
+          "Ewa Chodakowska",
+          "Maciej (youtuber)"
+        ],
+        "uniqueFeatures": [
+          "Konsultacje z dietetykami klinicznymi przed i w trakcie diety",
+          "Wczesne poranne dostawy pod same drzwi",
+          "Dostawy w wielu miejscowościach w Polsce, nawet mniejszych",
+          "Szeroki wybór diet o różnej kaloryczności i rodzajach",
+          "Współpraca z doświadczonym szefem kuchni i zespołem"
+        ],
+        "currentStatus": "Firma jest aktywna w 2025 roku, z ostatnią zmianą w KRS w lipcu 2025 i aktualizacją danych w listopadzie 2025, kontynuuje działalność w branży cateringu dietetycznego.",
+        "recentNews": [],
+        "competitivePosition": "Be Diet Catering pozycjonuje się jako premium catering dietetyczny z wysokiej jakości składnikami od lokalnych dostawców, działający w głównych miastach Polski (Warszawa, Kraków, Gdańsk, Wrocław, Poznań) oraz mniejszych miastach.",
+        "trajectory": "stable",
+        "awards": [
+          "Zdrowa Marka Roku",
+          "3 prestiżowe nagrody (szczegóły niedostępne w wynikach)"
+        ],
+        "b2bOffering": false,
+        "uniqueInsight": "Marka opiera się na autorytecie Ewy Chodakowskiej i wyróżnia się szczegółowym wyliczaniem makroskładników dla każdego posiłku oraz sezonowym menu dostępnym do podglądu na stronie.",
+        "fetchedAt": "2026-04-05T12:13:15.292Z"
+      },
+      "_cost_context": {
+        "usd": 0.01,
+        "calls": 2,
+        "provider": "perplexity"
+      },
+      "_cost_pricing": {
+        "usd": 0.005,
+        "calls": 1,
+        "dietlyApiCalls": 0,
+        "provider": "perplexity"
+      },
+      "_discovery": {
+        "nip": "5252554605",
+        "nipValid": true,
+        "nipSource": "existing",
+        "krs": null,
+        "legalForm": null,
+        "orgName": null,
+        "discoveredAt": "2026-04-05T12:14:57.213Z"
+      },
+      "_cost_discovery": {
+        "pln": 0.05,
+        "usd": 0.013,
+        "calls": 1,
+        "provider": "rejestr.io"
+      },
+      "social": {
+        "profiles": [
+          {
+            "platform": "instagram",
+            "url": "https://www.instagram.com/bediet_catering/",
+            "handle": "bediet_catering",
+            "followers": 36721,
+            "posts": 2099,
+            "verified": false
+          },
+          {
+            "platform": "facebook",
+            "url": "https://www.facebook.com/bedietcatering/",
+            "handle": "bedietcatering"
+          },
+          {
+            "platform": "youtube",
+            "url": "https://www.youtube.com/channel/UCTtYYF-Neph9_O6NG_AR6oA",
+            "handle": "UCTtYYF-Neph9_O6NG_AR6oA"
+          }
+        ],
+        "totalFollowers": 36721,
+        "platformCount": 3,
+        "fetchedAt": "2026-04-05T12:14:57.254Z",
+        "method": "apify+perplexity",
+        "instagram": {
+          "platform": "instagram",
+          "url": "https://www.instagram.com/bediet_catering/",
+          "handle": "bediet_catering",
+          "followers": 36721,
+          "posts": 2099,
+          "verified": false,
+          "bio": "Bądź dla siebie dobra! 😍 Skorzystaj z diety tworzonej przy współpracy @chodakowskaewa, dietetyków klinicznych i doświadczonego szefa kuchni 🥬",
+          "avgLikes": 85,
+          "avgComments": 12,
+          "engagementRate": 0.26,
+          "content": {
+            "sampleSize": 20,
+            "recentPosts": 6,
+            "historicalPosts": 14,
+            "dateRange": {
+              "oldest": "2025-11-04",
+              "newest": "2026-03-31"
+            },
+            "postingFrequency": "1.0 posts/week",
+            "avgLikesRecent": 61,
+            "avgLikesHistorical": 92,
+            "avgCommentsRecent": 12,
+            "avgCommentsHistorical": 11,
+            "engagementTrend": "declining",
+            "topHashtags": [
+              {
+                "tag": "#bedietcatering",
+                "count": 2
+              },
+              {
+                "tag": "#zdrowystylzycia",
+                "count": 2
+              },
+              {
+                "tag": "#caterindietetyczny",
+                "count": 2
+              },
+              {
+                "tag": "#chodakowskaewa",
+                "count": 2
+              },
+              {
+                "tag": "#ewachodakowska",
+                "count": 1
+              },
+              {
+                "tag": "#dietapudełkowa",
+                "count": 1
+              },
+              {
+                "tag": "#cateringdietetyczny",
+                "count": 1
+              },
+              {
+                "tag": "#dieta",
+                "count": 1
+              }
+            ],
+            "contentMix": {
+              "Sidecar": 9,
+              "Video": 10,
+              "Image": 1
+            },
+            "posts": [
+              {
+                "id": "3864981916134960898",
+                "timestamp": "2026-03-31T12:56:10.000Z",
+                "type": "Sidecar",
+                "caption": "Wyobraź sobie Wielkanoc… bez gotowania, bez pośpiechu, za to z jedzeniem, które naprawdę smakuje 🐣\nNasz Szef Kuchni wraz z zespołem przygotował wyjątkowe menu na Niedzielę Wielkanocną - w lekkiej, nowoczesnej odsłonie.\nZnajdziesz tu zarówno dopracowaną klasykę, jak i świeże interpretacje świątecznych smaków:\n od szarpanej kaczki, przez krem chrzanowy, po sernik pistacjowy czy pinsę z łososiem ✨\nKażde danie przygotowujemy od podstaw, w naszej kuchni - z dbałością o każdy detal.\nTy wybierasz. My ",
+                "hashtags": [],
+                "likes": 22,
+                "comments": 4,
+                "url": "https://www.instagram.com/p/DWjLJM-iG8C/",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "3859208721272427251",
+                "timestamp": "2026-03-23T13:54:48.000Z",
+                "type": "Video",
+                "caption": "🔥 -28% na bestseller SUMMER READY - tylko dziś!\n⏳ Oferta limitowana\nChcesz schudnąć do lata i w końcu zobaczyć realny efekt?\nZacznij dziś - 60 dni mogą realnie wpłynąć na Twoją sylwetkę! \nSUMMER READY to kompleksowe przygotowanie do lata - masz plan, masz dietę, masz efekt.\n🎁 Dodatkowo otrzymasz  GRATIS:\n• e-book „Projekt Lato. Twoja droga do wymarzonej sylwetki”\n• 3 miesiące dostępu do platformy beactivetv.pl\nOd jutra wracamy do -24%\nLink do zamówienia w BIO\nKod: SUMMER28\nDostawy diety Summer",
+                "hashtags": [],
+                "likes": 40,
+                "comments": 6,
+                "url": "https://www.instagram.com/p/DWOqeKRiFLz/",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "3856863920988362749",
+                "timestamp": "2026-03-20T08:07:09.000Z",
+                "type": "Sidecar",
+                "caption": "Chcesz schudnąć, ale nie wiesz od czego zacząć? \n\nOdpowiedni dobór kaloryczności to absolutna podstawa skutecznej redukcji.\n\nBo jeśli jesz za mało → jesteś głodna, zmęczona i efektów brak.\nJeśli jesz za dużo → waga stoi i frustracja rośnie.\n\nZ nami nie zgadujesz.\nMasz wsparcie dietetyczek, które pomogą Ci dobrać dietę dokładnie pod Twój cel, styl życia i potrzeby.\n\n✔️ koniec z podjadaniem\n✔️ więcej energii w ciągu dnia\n✔️ realne efekty\n\nA do tego teraz:\n-24% na wszystkie diety z kodem EFEKT24 🔥",
+                "hashtags": [],
+                "likes": 55,
+                "comments": 12,
+                "url": "https://www.instagram.com/p/DWGVU01iBf9/",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "3850532022049611863",
+                "timestamp": "2026-03-11T14:26:48.000Z",
+                "type": "Sidecar",
+                "caption": "Piątek 13 nadchodzi… ale spokojnie - mamy sposób, żeby odczarować ten dzień. 😏\n\nNajgorszy scenariusz?\nNie mieć zamówionej diety High Protein.\n\nDlaczego większa ilość białka w diecie robi różnicę?\n– pomaga dłużej utrzymać sytość i ograniczyć podjadanie\n – wspiera utrzymanie masy mięśniowej podczas redukcji\n – sprzyja regeneracji po treningach\n – ułatwia kontrolę apetytu, szczególnie ważne podczas redukcji \n\nDlatego w diecie High Protein zwiększamy udział białka w posiłkach, żeby redukcja była ła",
+                "hashtags": [],
+                "likes": 37,
+                "comments": 10,
+                "url": "https://www.instagram.com/p/DVv1nkaiKBX/",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "3848481961127991847",
+                "timestamp": "2026-03-08T18:41:52.000Z",
+                "type": "Video",
+                "caption": "Dziś świętujemy Kobiety i dbanie o siebie 🤍\n\nZ okazji Dnia Kobiet życzymy dużo energii do realizowania marzeń i jak najwięcej powodów do uśmiechu każdego dnia 🌷\n\nTo ostatni dzień wielkiej promocji -30% na wszystkie diety z kodem WOMAN30 \nZamów w najlepszej cenie! \nLink w BIO",
+                "hashtags": [],
+                "likes": 109,
+                "comments": 23,
+                "url": "https://www.instagram.com/p/DVojfQZiFon/",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "3845480146040023066",
+                "timestamp": "2026-03-04T15:13:00.000Z",
+                "type": "Video",
+                "caption": "–30% z kodem WOMAN30 🔥\nTak wygląda codzienne menu Ewy Chodakowskiej 🤍\n\nDopracowane  w każdym szczególe - od jakości składników, przez smak, aż po idealne proporcje.\nTy nie musisz liczyć kalorii, planować zakupów ani spędzać godzin w kuchni.\n Po prostu otwierasz pudełko i jesz.\nTo wygoda, która naprawdę zmienia codzienność.\nTeraz możesz zamówić dokładnie te same posiłki z rabatem –30%.\n\nZamów Be Diet Catering z kodem WOMAN30 –30%\nOferta ważna tylko do 8 marca.\n Link do zamówienia w BIO 🎁",
+                "hashtags": [],
+                "likes": 102,
+                "comments": 15,
+                "url": "https://www.instagram.com/p/DVd49GPiGga/",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "3758634707207103083",
+                "timestamp": "2025-11-04T19:23:24.000Z",
+                "type": "Video",
+                "caption": "–30% i zero stresu o poranku. ✨\n\nCatering to taki cichy bohater dnia, sprawia, że możesz wstać później, zjeść spokojnie i nie zaczynać dnia od gonitwy. ☕💛\nBo pośpiech nie jest już w modzie.\n\nNie czekaj i zamów z kodem PROMO30 — daj sobie poranek z odrobiną spokoju, smaku i luzu w najlepszej cenie.\n\n#EwaChodakowska #dietapudełkowa #cateringdietetyczny #dieta",
+                "hashtags": [
+                  "#ewachodakowska",
+                  "#dietapudełkowa",
+                  "#cateringdietetyczny",
+                  "#dieta"
+                ],
+                "likes": 55,
+                "comments": 7,
+                "url": "https://www.instagram.com/p/DQpWlojiKJr/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3766545254116259698",
+                "timestamp": "2025-11-15T17:20:05.000Z",
+                "type": "Image",
+                "caption": "Pomyśl o weekendzie jak o małym święcie.\nŚwięcie Twojego spokoju, luzu i odpoczynku.\nZamawiasz dietę od poniedziałku do piątku, a weekend… dostajesz od nas.\n\nNaprawdę! Dwa dni zupełnie za darmo!\nBo Ty jesteś stworzona do odpoczynku, a my do tego, żeby to ułatwiać. 💛\n💥Kod: WEEKOFF\n\nPełen regulamin promocji dostępny na stronie www.bedietcatering.pl\n\n#BeDietCatering #zdrowystylzycia #caterindietetyczny #chodakowskaewa",
+                "hashtags": [
+                  "#bedietcatering",
+                  "#zdrowystylzycia",
+                  "#caterindietetyczny",
+                  "#chodakowskaewa"
+                ],
+                "likes": 23,
+                "comments": 0,
+                "url": "https://www.instagram.com/p/DRFdPPeCHdy/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3771625862307788472",
+                "timestamp": "2025-11-22T17:34:21.000Z",
+                "type": "Sidecar",
+                "caption": "Catering to nie „pójście na łatwiznę”.\nTo decyzja: „mam ważniejsze rzeczy niż stanie w kuchni.”\nBo jeśli masz ogarniać wszystko, to ktoś może ogarnąć za Ciebie jedzenie.\n\nA teraz masz do tego najlepszą okazję:\nzamawiasz dwie diety, a drugą dostajesz 50% taniej.\nKOD: DUET50\n\nNo to powiedz szczerze - którego posiłku najchętniej NIGDY byś już nie gotowała?\nDaj znać w komentarzu 👇🍽💛\n\n#BeDietCatering #zdrowystylzycia #caterindietetyczny #chodakowskaewa",
+                "hashtags": [
+                  "#bedietcatering",
+                  "#zdrowystylzycia",
+                  "#caterindietetyczny",
+                  "#chodakowskaewa"
+                ],
+                "likes": 128,
+                "comments": 6,
+                "url": "https://www.instagram.com/p/DRXgb0kiDa4/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3778139267311359501",
+                "timestamp": "2025-12-01T17:19:21.000Z",
+                "type": "Video",
+                "caption": "✨POINT x Ewa Chodakowska x Reebok ✨\n\nWczoraj odbyło się nasze wyjątkowe, zamknięte wydarzenie dla Point Girls 💌\n\nNa dziewczyny czekały:\n• stroje marki Reebok @modivo @worldbox \n• prezent od BeBioSklep @sklep.bebio.pl \n• trening z ikoną fitnessu Ewą Chodakowską @chodakowskaewa \n• stretching z główną trenerką POINT Ksenią @kseniyaeromenko \n• pyszne jedzenie od BeDiet Catering @bediet_catering \n\nDziękujemy wszystkim za cudowną atmosferę, to był niezapomniany dzień! ✨💫",
+                "hashtags": [],
+                "likes": 322,
+                "comments": 73,
+                "url": "https://www.instagram.com/p/DRupaVsDFYN/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3782531859004060985",
+                "timestamp": "2025-12-07T18:43:51.000Z",
+                "type": "Video",
+                "caption": "Coś EXTRA?\nNajpyszniejszy catering, jaki możesz sobie podarować. 🎁😎\n\n👉 –28% z kodem SANTA28\nZamawiasz dziś, a jutro dziękuje Ci… Twoja energia, Twój czas i Twój talerz.\n\nIdealny prezent? Masz go przed sobą. ♥️\n⏳ Tylko do północy!",
+                "hashtags": [],
+                "likes": 60,
+                "comments": 11,
+                "url": "https://www.instagram.com/p/DR-QK9fiPU5/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3790497503087439916",
+                "timestamp": "2025-12-18T18:28:56.000Z",
+                "type": "Sidecar",
+                "caption": "Kawa zamiast lunchu + cały dzień stresu… a wieczorem włącza się głodomor? 😏\nTo nie słaba wola. To organizm, który woła o regularne jedzenie.\n\nStałe posiłki = mniej napadów głodu i spokojniejszy wieczór.\nMy w Be Diet Catering ogarniamy to za Ciebie.\n\nA teraz z kod SLEDZIK24 zamówisz swój catering 24% TANIEJ 🐟\n\nZdarza Ci się „kawa na obiad”? Napisz w komentarzu 👇",
+                "hashtags": [],
+                "likes": 64,
+                "comments": 0,
+                "url": "https://www.instagram.com/p/DSajWVpiDAs/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3796920789711241022",
+                "timestamp": "2025-12-27T15:11:17.000Z",
+                "type": "Video",
+                "caption": "-27% z kodem NOWYROK27\n\nJeśli Twoje postanowienie na 2026 brzmi: czuć się BOSKO 💃\nto zacznij od tego, co robisz codziennie - od jedzenia.\n\nMy gotujemy, Ty odzyskujesz czas, energię i spokój w głowie.\n\nA teraz najlepsze:\nzamów catering 27% taniej 🎉\n\n👉 Wpisz kod NOWYROK27\n👉 Wejdź na www.bedietcatering.pl",
+                "hashtags": [],
+                "likes": 122,
+                "comments": 8,
+                "url": "https://www.instagram.com/p/DSxX1dfCL8-/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3803476671831998482",
+                "timestamp": "2026-01-05T16:16:13.000Z",
+                "type": "Sidecar",
+                "caption": "Laur od Was, kod LAUR24 dla Was 🏆💛\nTo Wy przyznaliście nam Złoty Laur Konsumenta 2026! Jak to mówią, Wasze głosy, nasza motywacja! 💪\n\nDziękujemy za wszystkie miłe słowa i obiecujemy – będziemy jeszcze lepsi! 💯\nZ okazji tej złotej chwili mamy dla Was –24% na dietę! 🎉\n\nWpisz kod: LAUR24 i ciesz się smakami, które pokochaliście!\nDziękujemy, że jesteście z nami. 💛\nTeraz świętujemy razem, bo złoto smakuje najlepiej w dobrym towarzystwie! 😉",
+                "hashtags": [],
+                "likes": 36,
+                "comments": 10,
+                "url": "https://www.instagram.com/p/DTIqeGgCAAS/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3809358855927268362",
+                "timestamp": "2026-01-13T19:03:04.000Z",
+                "type": "Sidecar",
+                "caption": "To nie przypadek, że to właśnie TE składniki trafiają do naszych dań.\nZa nimi stoją konkretne decyzje dietetyków i myślenie o tym, jak jedzenie wpływa na Twoje samopoczucie 💛\n\nJeśli chcesz sprawdzić, jak smakuje codzienność zaplanowana z głową, z naturalnymi składnikami:\n👉 Teraz diety Be Diet Catering już od 54,99 zł/dzień z kodem TWOJPLAN24 \n⏰ tylko do 25.01\n\nDaj znać, działanie którego składnika najbardziej Cię zaskoczyło? 👀",
+                "hashtags": [],
+                "likes": 73,
+                "comments": 2,
+                "url": "https://www.instagram.com/p/DTdj7JViIQK/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3815864812920387816",
+                "timestamp": "2026-01-22T18:30:12.000Z",
+                "type": "Video",
+                "caption": "🤯 CATERING ma JEDEN poważny problem… \n\nNigdy nie wiesz, co zjeść jako pierwsze, bo wszystko jest zbyt pyszne. ✨\nTo jedyny dylemat, przed którym ostrzegamy. 😉\n\n💰 Zamów go w promce już od 54,99 zł/dzień z kodem TWOJPLAN24.\nTylko do 25.01 na www.bedietcatering.pl",
+                "hashtags": [],
+                "likes": 135,
+                "comments": 7,
+                "url": "https://www.instagram.com/p/DT0rNR9CDjo/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3821559344324428543",
+                "timestamp": "2026-01-30T15:04:54.000Z",
+                "type": "Video",
+                "caption": "TYLKO DO DZIŚ -28% na WSZYSTKIE diety! \n\n😭 NIEEEE…\nTo koniec –28%.\n\nEwa nie świętuje.\nEwa żałuje, że ten rabat właśnie się kończy 💔\n\n🔥 –28% na wszystkie diety\n⏰ OSTATNIE GODZINY\n🎟 KOD: STYCZEN28\n\nTaka promocja często się nie zdarza.\nTo ostatni moment, żeby zdążyć.\n\n👉 Zamów teraz, zanim rabat zniknie: www.bedietcatering.pl\n\nOferta kończy się dziś - 30 stycznia!",
+                "hashtags": [],
+                "likes": 50,
+                "comments": 7,
+                "url": "https://www.instagram.com/p/DUI5_nmiEL_/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3829576464018718284",
+                "timestamp": "2026-02-10T16:31:51.000Z",
+                "type": "Sidecar",
+                "caption": "💘Te dania mają status walentynkowych bestsellerów nie bez powodu…\nBo najlepsze momenty często dzieją się przy stole: przy chrupiącej granoli, kremowym risotto i sosie wasabi, który uzależnia 😍\nZebraliśmy dla Was absolutne hity tygodnia walentynkowego - te dania skradły serca (i podniebienia) na 5 gwiazdek ⭐️\n\nJeśli chcesz spróbować naszych topowych hitów… to jest ten moment 👇 💘\n-24% na wszystkie diety (link w BIO)\nKod: LOVE24\n\n 💬 Powiedz nam w komentarzu: który bestseller wybierasz jako pie",
+                "hashtags": [],
+                "likes": 47,
+                "comments": 6,
+                "url": "https://www.instagram.com/p/DUlY4EKCD5M/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3834496978898178418",
+                "timestamp": "2026-02-17T11:28:59.000Z",
+                "type": "Video",
+                "caption": "🎁 –28% na wszystkie diety! Rekordowa zniżka lutego właśnie wystartowała 💥\n\nTo idealny moment, żeby zrobić sobie (albo komuś) najlepszy prezent: zdrowe jedzenie, więcej energii i spokój na cały dzień ✨\n\nCodziennie:\n• składniki najwyższej jakości\n• wsparcie Twoich celów\n• posiłki, które odżywiają i dodają energii\n\nAle uwaga…promocja trwa tylko 3 dni ⏳\n📌 Kod: UCZTA28\n 📆 Oferta ważna do 19 lutego. \nZamów - link w BIO!",
+                "hashtags": [],
+                "likes": 114,
+                "comments": 6,
+                "url": "https://www.instagram.com/p/DU23q-viNFy/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3838993595504300434",
+                "timestamp": "2026-02-23T16:22:00.000Z",
+                "type": "Sidecar",
+                "caption": "Dlaczego dieta High Protein to jeden z najlepszych wyborów podczas redukcji i treningu?\n\n✔️ Dłuższa sytość i stabilna energia – białko zwiększa uczucie nasycenia po posiłku, pomaga ograniczyć podjadanie i wspiera stabilny poziom glukozy we krwi.\n\n✔️ Lepsza regeneracja po wysiłku - jako podstawowy budulec mięśni wspiera odbudowę włókien mięśniowych i przyspiesza regenerację \n\n✔️ Skuteczniejsza kontrola masy ciała - ułatwia utrzymanie deficytu kalorycznego bez ciągłego uczucia głodu, co sprzyja tr",
+                "hashtags": [],
+                "likes": 57,
+                "comments": 4,
+                "url": "https://www.instagram.com/p/DVG2FXTCJGS/",
+                "sampleBucket": "historical"
+              }
+            ]
+          }
+        },
+        "facebook": {
+          "platform": "facebook",
+          "url": "https://www.facebook.com/bedietcatering/",
+          "handle": "bedietcatering"
+        },
+        "youtube": {
+          "platform": "youtube",
+          "url": "https://www.youtube.com/channel/UCTtYYF-Neph9_O6NG_AR6oA",
+          "handle": "UCTtYYF-Neph9_O6NG_AR6oA"
+        }
+      },
+      "_cost_social": {
+        "usd": 0.165,
+        "apifyCalls": 4,
+        "pplxCalls": 1,
+        "provider": "apify+perplexity"
+      },
+      "ads": {
+        "activeAdsCount": 0,
+        "ads": [],
+        "platforms": {},
+        "avgAdDurationDays": 0,
+        "longestRunningAdDays": 0,
+        "adCopySnippets": [],
+        "estimatedIntensity": "none",
+        "fetchedAt": "2026-04-05T12:15:48.338Z",
+        "method": "ad_library_search"
+      },
+      "reviews": {
+        "google": {
+          "rating": 4.4,
+          "reviewCount": 559,
+          "mapsUrl": "https://www.google.com/maps/search/?api=1&query=Be%20Diet%20Catering%20-%20Ewa%20Chodakowska&query_place_id=ChIJ1YSmWBotGUcRq-74YqwIY1A",
+          "address": null,
+          "category": "Catering",
+          "snippets": [
+            "Pyszne posiłki oraz ich jakość. Wszystko smaczne, doprawione i przede wszystkim zdrowe i  urozmaicone. I do tego profesjonalny kontakt z dietetykami. Polecam w 100%",
+            "Od ponad dwóch tygodni korzystam z cateringu diet VegeFisch wybierając Be Diet nie spodziewałam się takiej różnorodności, smakowitości dań. Przewyższa to całkowicie moje oczekiwania. Absolutnie poleca",
+            "Posiłki smaczne i zróżnicowane, jakość produktów wydaje się być naprawdę dobra. Zawsze na czas, bezproblemowa zmiana terminu, świetny kontakt z dietetykami - telefon ode mnie zawsze był odebrany 🙂\nIl",
+            "Moje pierwsze 3 dni za mną z cateringiem od Ewy Chodakowskiej\nJestem zachwycona\nWszystko świeżutkie, nawet makaron grama nie przegotowany\nWidać że owoce i warzywa są z najwyższej półki\nCoś pyyysznego ",
+            "Polecam każdemu catering Ewy Chodakowskiej. Wyprobowałam kilka znanych firm, jednak to do Ewy wracam za każdym razem jak bumerang <3 Dania są dopracowane, pięknie skomponowane, a do tego czuć , że jes",
+            "Korzystamy z synem z opcji Familly box i jest to strzał w dziesiątkę. Posiłki ciekawe bardzo smaczne a przede wszystkim już przygotowane :) wybraliśmy opcję wege z rybą i jesteśmy pod wrażeniem. Sprób",
+            "To zdecydowanie najlepszy catering dietetyczny jaki jadłam. Świeżo, pysznie i na czas. A co najważniejsze dla mnie - nie powtarza się też wciąż to samo.",
+            "Smaczne i świeże posiłki, zawsze na czas, dobrze zapakowane.",
+            "Pyszne jedzonko :)",
+            "Mam mieszane odczucia co do tego cateringu bo z jednej strony produkty były świeże i dobrej jakości i niby codziennie inne dania a miałam wrażenie że ciągle jem to samo. Korzystałam z diety optymalnej"
+          ]
+        },
+        "dietly": {
+          "rating": null,
+          "reviewCount": null,
+          "positivePercent": null
+        },
+        "sentiment": "positive",
+        "fetchedAt": "2026-04-05T12:17:00.103Z",
+        "method": "apify"
+      },
+      "_cost_reviews": {
+        "usd": 0.04,
+        "apifyCalls": 1,
+        "provider": "apify"
+      },
+      "finance": {
+        "krs_number": "0000461720",
+        "org_name": "BEDIET GROUP SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",
+        "org_name_short": "BEDIET GROUP",
+        "legal_form": "SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",
+        "nip": "5252554605",
+        "regon": "146671161",
+        "registration_date": "2013-05-11",
+        "pkd": "Produkcja artykułów spożywczych",
+        "address": {
+          "kod": "02-677",
+          "miejscowosc": "Warszawa",
+          "nr_domu": "13",
+          "nr_mieszkania": "19",
+          "panstwo": "Polska",
+          "poczta": "Warszawa",
+          "teryt": {
+            "gmina": "146501",
+            "powiat": "1465",
+            "wojewodztwo": "14"
+          },
+          "ulica": "Cybernetyki"
+        },
+        "share_capital": 0,
+        "status": {
+          "wykreslona": false,
+          "w_likwidacji": false,
+          "w_upadlosci": false,
+          "wielkosc": "mikro"
+        },
+        "board_members": [
+          "Wojciech Roman Kosmalewski (CZŁONEK ZARZĄDU)",
+          "Karol Jan Kozieł (CZŁONEK ZARZĄDU)",
+          "Katarzyna Anna Zięba Wójcik (CZŁONEK ZARZĄDU)",
+          "Ewa Chodakowska Kavoukis (WICEPREZES ZARZĄDU)",
+          "Eleftherios Kavoukis (PREZES ZARZĄDU)"
+        ],
+        "shareholders": [
+          {
+            "name": "Ewa Chodakowska Kavoukis",
+            "since": "2016-05-31"
+          },
+          {
+            "name": "Eleftherios Kavoukis",
+            "since": "2013-05-11"
+          }
+        ],
+        "financial_statements": [
+          {
+            "periodStart": "2024-01-01",
+            "periodEnd": "2024-12-31",
+            "incomeTax": 0,
+            "netIncome": -473.07,
+            "netIncomePrevious": -4500.34,
+            "depreciation": 0,
+            "wages": 0,
+            "totalAssets": 2304.45,
+            "totalAssetsPrevious": 2779.82,
+            "fixedAssets": 0,
+            "currentAssets": 2304.45,
+            "inventory": 0,
+            "receivables": 0,
+            "equity": -18728.94,
+            "equityPrevious": -18253.57,
+            "shareCapital": 0,
+            "totalLiabilities": 21033.39,
+            "totalLiabilitiesPrevious": 21033.39,
+            "provisions": 21033.39,
+            "ratios": {
+              "netMargin": null,
+              "operatingMargin": null,
+              "grossMargin": null,
+              "roe": 0.0253,
+              "roa": -0.2053,
+              "debtToEquity": -1.123,
+              "currentRatio": null,
+              "revenueGrowth": null
+            }
+          },
+          {
+            "periodStart": "2023-01-01",
+            "periodEnd": "2023-12-31",
+            "incomeTax": 0,
+            "netIncome": -4500.34,
+            "netIncomePrevious": -2476.57,
+            "depreciation": 0,
+            "wages": 0,
+            "totalAssets": 2779.82,
+            "totalAssetsPrevious": 7277.86,
+            "fixedAssets": 0,
+            "currentAssets": 2779.82,
+            "inventory": 0,
+            "receivables": 0,
+            "equity": -18253.57,
+            "equityPrevious": -13755.53,
+            "shareCapital": 0,
+            "totalLiabilities": 21033.39,
+            "totalLiabilitiesPrevious": 21033.39,
+            "provisions": 21033.39,
+            "ratios": {
+              "netMargin": null,
+              "operatingMargin": null,
+              "grossMargin": null,
+              "roe": 0.2465,
+              "roa": -1.6189,
+              "debtToEquity": -1.1523,
+              "currentRatio": null,
+              "revenueGrowth": null
+            }
+          },
+          {
+            "periodStart": "2022-01-01",
+            "periodEnd": "2022-12-31",
+            "incomeTax": 0,
+            "depreciation": 0,
+            "wages": 0,
+            "totalAssets": 7277.86,
+            "totalAssetsPrevious": 9754.43,
+            "fixedAssets": 0,
+            "currentAssets": 7277.86,
+            "inventory": 0,
+            "receivables": 0,
+            "equity": -13755.53,
+            "equityPrevious": -11278.96,
+            "shareCapital": 0,
+            "totalLiabilities": 21033.39,
+            "totalLiabilitiesPrevious": 21033.39,
+            "provisions": 21033.39,
+            "ratios": {
+              "netMargin": null,
+              "operatingMargin": null,
+              "grossMargin": null,
+              "roe": null,
+              "roa": null,
+              "debtToEquity": -1.5291,
+              "currentRatio": null,
+              "revenueGrowth": null
+            }
+          }
+        ],
+        "years_available": 8,
+        "years_fetched": 3,
+        "cost_pln": 3.15,
+        "fetchedAt": "2026-04-05T12:17:04.895Z",
+        "revenue": null,
+        "revenuePrevious": null,
+        "netIncome": -473.07,
+        "totalAssets": 2304.45,
+        "equity": -18728.94,
+        "operatingProfit": null,
+        "grossProfit": null,
+        "cash": null,
+        "totalLiabilities": 21033.39,
+        "wages": 0,
+        "depreciation": 0,
+        "ratios": {
+          "netMargin": null,
+          "operatingMargin": null,
+          "grossMargin": null,
+          "roe": 0.0253,
+          "roa": -0.2053,
+          "debtToEquity": -1.123,
+          "currentRatio": null,
+          "revenueGrowth": null
+        }
+      }
+    },
+    "lastScanId": "b4aab7eb-2f12-4eb1-b62f-f59c4bb5e6ec",
+    "lastScannedAt": "2026-04-05T12:17:46.926Z",
+    "nip": "5252554605",
+    "krs": "0000461720",
+    "financials": {
+      "krs_number": "0000461720",
+      "org_name": "BEDIET GROUP SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",
+      "org_name_short": "BEDIET GROUP",
+      "legal_form": "SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",
+      "nip": "5252554605",
+      "regon": "146671161",
+      "registration_date": "2013-05-11",
+      "pkd": "Produkcja artykułów spożywczych",
+      "address": {
+        "kod": "02-677",
+        "miejscowosc": "Warszawa",
+        "nr_domu": "13",
+        "nr_mieszkania": "19",
+        "panstwo": "Polska",
+        "poczta": "Warszawa",
+        "teryt": {
+          "gmina": "146501",
+          "powiat": "1465",
+          "wojewodztwo": "14"
+        },
+        "ulica": "Cybernetyki"
+      },
+      "share_capital": 0,
+      "status": {
+        "wykreslona": false,
+        "w_likwidacji": false,
+        "w_upadlosci": false,
+        "wielkosc": "mikro"
+      },
+      "board_members": [
+        "Wojciech Roman Kosmalewski (CZŁONEK ZARZĄDU)",
+        "Karol Jan Kozieł (CZŁONEK ZARZĄDU)",
+        "Katarzyna Anna Zięba Wójcik (CZŁONEK ZARZĄDU)",
+        "Ewa Chodakowska Kavoukis (WICEPREZES ZARZĄDU)",
+        "Eleftherios Kavoukis (PREZES ZARZĄDU)"
+      ],
+      "shareholders": [
+        {
+          "name": "Ewa Chodakowska Kavoukis",
+          "since": "2016-05-31"
+        },
+        {
+          "name": "Eleftherios Kavoukis",
+          "since": "2013-05-11"
+        }
+      ],
+      "financial_statements": [
+        {
+          "periodStart": "2024-01-01",
+          "periodEnd": "2024-12-31",
+          "incomeTax": 0,
+          "netIncome": -473.07,
+          "netIncomePrevious": -4500.34,
+          "depreciation": 0,
+          "wages": 0,
+          "totalAssets": 2304.45,
+          "totalAssetsPrevious": 2779.82,
+          "fixedAssets": 0,
+          "currentAssets": 2304.45,
+          "inventory": 0,
+          "receivables": 0,
+          "equity": -18728.94,
+          "equityPrevious": -18253.57,
+          "shareCapital": 0,
+          "totalLiabilities": 21033.39,
+          "totalLiabilitiesPrevious": 21033.39,
+          "provisions": 21033.39,
+          "ratios": {
+            "netMargin": null,
+            "operatingMargin": null,
+            "grossMargin": null,
+            "roe": 0.0253,
+            "roa": -0.2053,
+            "debtToEquity": -1.123,
+            "currentRatio": null,
+            "revenueGrowth": null
+          }
+        },
+        {
+          "periodStart": "2023-01-01",
+          "periodEnd": "2023-12-31",
+          "incomeTax": 0,
+          "netIncome": -4500.34,
+          "netIncomePrevious": -2476.57,
+          "depreciation": 0,
+          "wages": 0,
+          "totalAssets": 2779.82,
+          "totalAssetsPrevious": 7277.86,
+          "fixedAssets": 0,
+          "currentAssets": 2779.82,
+          "inventory": 0,
+          "receivables": 0,
+          "equity": -18253.57,
+          "equityPrevious": -13755.53,
+          "shareCapital": 0,
+          "totalLiabilities": 21033.39,
+          "totalLiabilitiesPrevious": 21033.39,
+          "provisions": 21033.39,
+          "ratios": {
+            "netMargin": null,
+            "operatingMargin": null,
+            "grossMargin": null,
+            "roe": 0.2465,
+            "roa": -1.6189,
+            "debtToEquity": -1.1523,
+            "currentRatio": null,
+            "revenueGrowth": null
+          }
+        },
+        {
+          "periodStart": "2022-01-01",
+          "periodEnd": "2022-12-31",
+          "incomeTax": 0,
+          "depreciation": 0,
+          "wages": 0,
+          "totalAssets": 7277.86,
+          "totalAssetsPrevious": 9754.43,
+          "fixedAssets": 0,
+          "currentAssets": 7277.86,
+          "inventory": 0,
+          "receivables": 0,
+          "equity": -13755.53,
+          "equityPrevious": -11278.96,
+          "shareCapital": 0,
+          "totalLiabilities": 21033.39,
+          "totalLiabilitiesPrevious": 21033.39,
+          "provisions": 21033.39,
+          "ratios": {
+            "netMargin": null,
+            "operatingMargin": null,
+            "grossMargin": null,
+            "roe": null,
+            "roa": null,
+            "debtToEquity": -1.5291,
+            "currentRatio": null,
+            "revenueGrowth": null
+          }
+        }
+      ],
+      "years_available": 8,
+      "years_fetched": 3,
+      "cost_pln": 3.15,
+      "fetchedAt": "2026-04-05T12:17:04.895Z",
+      "revenue": null,
+      "revenuePrevious": null,
+      "netIncome": -473.07,
+      "totalAssets": 2304.45,
+      "equity": -18728.94,
+      "operatingProfit": null,
+      "grossProfit": null,
+      "cash": null,
+      "totalLiabilities": 21033.39,
+      "wages": 0,
+      "depreciation": 0,
+      "ratios": {
+        "netMargin": null,
+        "operatingMargin": null,
+        "grossMargin": null,
+        "roe": 0.0253,
+        "roa": -0.2053,
+        "debtToEquity": -1.123,
+        "currentRatio": null,
+        "revenueGrowth": null
+      }
+    }
   },
   {
     "slug": "fitway.pl",
