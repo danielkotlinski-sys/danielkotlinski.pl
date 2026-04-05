@@ -27,6 +27,13 @@ interface ScanStatus {
   brands?: Array<{ name: string; missing?: string[] }>;
 }
 
+interface BrandEntry {
+  slug: string;
+  name: string;
+  url: string;
+  status: 'complete' | 'incomplete' | 'unscanned';
+}
+
 interface DbStats {
   totalBrands: number;
   scannedBrands: number;
@@ -36,6 +43,7 @@ interface DbStats {
   socialPosts: number;
   incompleteList: Array<{ slug: string; name: string; dims: number; missing: string[]; errors: string[] }>;
   recentScans: Array<{ slug: string; phase_count: number; updated_at: string }>;
+  brandList: BrandEntry[];
 }
 
 const EXPECTED_DIMS = [
@@ -64,6 +72,13 @@ export default function ScanDashboard() {
   // Manual scan fields
   const [manualName, setManualName] = useState('');
   const [manualUrl, setManualUrl] = useState('');
+
+  // Custom scan config
+  const [showConfig, setShowConfig] = useState(false);
+  const [selectedSlugs, setSelectedSlugs] = useState<Set<string>>(new Set());
+  const [selectedPhases, setSelectedPhases] = useState<Set<string>>(new Set(ALL_PHASES));
+  const [brandFilter, setBrandFilter] = useState('');
+  const [brandStatusFilter, setBrandStatusFilter] = useState<'all' | 'unscanned' | 'incomplete' | 'complete'>('all');
 
   // ── Fetch DB stats ──
   const fetchStats = useCallback(async () => {
@@ -143,6 +158,37 @@ export default function ScanDashboard() {
       if (data.scanId) {
         setActiveScanId(data.scanId);
         setScanStatus(null);
+        setTab('log');
+      } else {
+        setError(data.message || data.error || 'Unknown response');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setLoading(null);
+    }
+  };
+
+  const startCustomScan = async () => {
+    if (selectedSlugs.size === 0) { setError('Wybierz przynajmniej 1 markę'); return; }
+    if (selectedSlugs.size > 20) { setError('Max 20 marek na skan'); return; }
+    if (selectedPhases.size === 0) { setError('Wybierz przynajmniej 1 fazę'); return; }
+    setLoading('custom');
+    setError(null);
+    try {
+      const res = await fetch('/api/scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slugs: Array.from(selectedSlugs),
+          phases: Array.from(selectedPhases),
+        }),
+      });
+      const data = await res.json();
+      if (data.scanId) {
+        setActiveScanId(data.scanId);
+        setScanStatus(null);
+        setShowConfig(false);
         setTab('log');
       } else {
         setError(data.message || data.error || 'Unknown response');
@@ -274,14 +320,14 @@ export default function ScanDashboard() {
           </div>
 
           {/* Action buttons */}
-          <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-4 gap-4 mb-6">
             <button
               onClick={() => startBatch(20)}
               disabled={!!loading || isRunning}
               className="border-2 border-cs-black bg-cs-black text-white p-4 font-mono text-cs-sm uppercase tracking-[0.1em] hover:bg-cs-ink transition-colors disabled:opacity-40 text-left"
             >
               <div className="font-bold text-cs-md mb-1">BATCH_20</div>
-              <div className="text-cs-xs text-gray-400">Skanuj kolejne 20 marek</div>
+              <div className="text-cs-xs text-gray-400">Kolejne 20 nieskanowanych</div>
             </button>
 
             <button
@@ -294,6 +340,17 @@ export default function ScanDashboard() {
             </button>
 
             <button
+              onClick={() => setShowConfig(!showConfig)}
+              disabled={!!loading || isRunning}
+              className={`border-2 p-4 font-mono text-cs-sm uppercase tracking-[0.1em] transition-colors disabled:opacity-40 text-left ${
+                showConfig ? 'border-blue-500 bg-blue-500 text-white' : 'border-blue-500 text-blue-600 hover:bg-blue-500 hover:text-white'
+              }`}
+            >
+              <div className="font-bold text-cs-md mb-1">CUSTOM</div>
+              <div className="text-cs-xs">{showConfig ? 'Zamknij konfigurator' : 'Wybierz marki i fazy'}</div>
+            </button>
+
+            <button
               onClick={startRescanIncomplete}
               disabled={!!loading || isRunning || stats.incompleteBrands === 0}
               className={`border-2 p-4 font-mono text-cs-sm uppercase tracking-[0.1em] transition-colors disabled:opacity-40 text-left ${
@@ -302,10 +359,143 @@ export default function ScanDashboard() {
                   : 'border-cs-border text-cs-silver'
               }`}
             >
-              <div className="font-bold text-cs-md mb-1">RESCAN_INCOMPLETE</div>
-              <div className="text-cs-xs">{stats.incompleteBrands} marek do naprawy</div>
+              <div className="font-bold text-cs-md mb-1">RESCAN</div>
+              <div className="text-cs-xs">{stats.incompleteBrands} incomplete</div>
             </button>
           </div>
+
+          {/* Custom scan config panel */}
+          {showConfig && stats.brandList && (
+            <div className="border-2 border-blue-500 mb-6">
+              <div className="bg-blue-50 p-4 border-b border-blue-300">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="font-mono text-cs-xs uppercase tracking-[0.14em] text-blue-700 font-bold">
+                    SCAN_CONFIG — wybierz marki ({selectedSlugs.size}/20) i fazy ({selectedPhases.size}/{ALL_PHASES.length})
+                  </div>
+                  <button
+                    onClick={startCustomScan}
+                    disabled={!!loading || selectedSlugs.size === 0 || selectedPhases.size === 0}
+                    className="bg-blue-600 text-white px-4 py-1.5 font-mono text-cs-xs uppercase tracking-[0.1em] hover:bg-blue-700 disabled:opacity-40"
+                  >
+                    {loading === 'custom' ? 'STARTING...' : `START (${selectedSlugs.size} marek)`}
+                  </button>
+                </div>
+
+                {/* Phase selector */}
+                <div className="mb-3">
+                  <div className="font-mono text-[0.6rem] text-blue-600 uppercase mb-1.5">
+                    FAZY:
+                    <button
+                      className="ml-2 underline"
+                      onClick={() => setSelectedPhases(new Set(ALL_PHASES))}
+                    >wszystkie</button>
+                    <button
+                      className="ml-2 underline"
+                      onClick={() => setSelectedPhases(new Set())}
+                    >żadna</button>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {ALL_PHASES.map(p => (
+                      <button
+                        key={p}
+                        onClick={() => {
+                          const next = new Set(selectedPhases);
+                          next.has(p) ? next.delete(p) : next.add(p);
+                          setSelectedPhases(next);
+                        }}
+                        className={`px-2 py-0.5 font-mono text-[0.6rem] uppercase border transition-colors ${
+                          selectedPhases.has(p)
+                            ? 'bg-blue-600 text-white border-blue-600'
+                            : 'bg-white text-blue-400 border-blue-300 hover:border-blue-500'
+                        }`}
+                      >
+                        {p}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Brand filter */}
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="text"
+                    placeholder="Szukaj marki..."
+                    value={brandFilter}
+                    onChange={e => setBrandFilter(e.target.value)}
+                    className="flex-1 bg-white border border-blue-300 p-1.5 font-mono text-cs-xs focus:outline-none focus:border-blue-500"
+                  />
+                  <div className="flex gap-1">
+                    {(['all', 'unscanned', 'incomplete', 'complete'] as const).map(s => (
+                      <button
+                        key={s}
+                        onClick={() => setBrandStatusFilter(s)}
+                        className={`px-2 py-1 font-mono text-[0.6rem] uppercase border transition-colors ${
+                          brandStatusFilter === s
+                            ? 'bg-cs-black text-white border-cs-black'
+                            : 'bg-white text-cs-silver border-cs-border hover:border-cs-black'
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    className="px-2 py-1 font-mono text-[0.6rem] text-blue-600 underline"
+                    onClick={() => {
+                      const filtered = stats.brandList
+                        .filter(b => brandStatusFilter === 'all' || b.status === brandStatusFilter)
+                        .filter(b => !brandFilter || b.name.toLowerCase().includes(brandFilter.toLowerCase()) || b.slug.includes(brandFilter.toLowerCase()));
+                      setSelectedSlugs(new Set(filtered.slice(0, 20).map(b => b.slug)));
+                    }}
+                  >zaznacz widoczne</button>
+                  <button
+                    className="px-2 py-1 font-mono text-[0.6rem] text-red-500 underline"
+                    onClick={() => setSelectedSlugs(new Set())}
+                  >wyczyść</button>
+                </div>
+              </div>
+
+              {/* Brand list */}
+              <div className="max-h-64 overflow-y-auto divide-y divide-blue-100">
+                {stats.brandList
+                  .filter(b => brandStatusFilter === 'all' || b.status === brandStatusFilter)
+                  .filter(b => !brandFilter || b.name.toLowerCase().includes(brandFilter.toLowerCase()) || b.slug.includes(brandFilter.toLowerCase()))
+                  .map(b => (
+                    <label
+                      key={b.slug}
+                      className={`flex items-center gap-3 px-4 py-1.5 cursor-pointer hover:bg-blue-50 transition-colors ${
+                        selectedSlugs.has(b.slug) ? 'bg-blue-50' : ''
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedSlugs.has(b.slug)}
+                        onChange={() => {
+                          const next = new Set(selectedSlugs);
+                          if (next.has(b.slug)) {
+                            next.delete(b.slug);
+                          } else if (next.size < 20) {
+                            next.add(b.slug);
+                          }
+                          setSelectedSlugs(next);
+                        }}
+                        className="accent-blue-600"
+                      />
+                      <span className="font-mono text-cs-xs flex-1">{b.name}</span>
+                      <span className="font-mono text-[0.6rem] text-cs-silver">{b.slug}</span>
+                      <span className={`font-mono text-[0.6rem] px-1.5 py-0.5 ${
+                        b.status === 'complete' ? 'bg-green-100 text-green-700'
+                          : b.status === 'incomplete' ? 'bg-red-100 text-red-600'
+                          : 'bg-gray-100 text-gray-500'
+                      }`}>
+                        {b.status === 'complete' ? '19/19' : b.status === 'incomplete' ? 'INCOMPLETE' : 'NEW'}
+                      </span>
+                    </label>
+                  ))
+                }
+              </div>
+            </div>
+          )}
 
           {/* Incomplete brands */}
           {stats.incompleteList.length > 0 && (

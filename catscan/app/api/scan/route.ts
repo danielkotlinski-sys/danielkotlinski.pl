@@ -24,12 +24,13 @@ const ALL_PHASES = [
 /** POST /api/scan — start a new scan, resume, or batch from unscanned brands */
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { companies, phases, resume: resumeScanId, batch, rescan_incomplete } = body as {
+  const { companies, phases, resume: resumeScanId, batch, rescan_incomplete, slugs } = body as {
     companies?: Array<{ name: string; url: string; nip?: string }>;
     phases?: string[];
     resume?: string;  // scan ID to resume
     batch?: number;   // pull N unscanned brands from SQLite
     rescan_incomplete?: boolean;  // re-scan brands with <19 dimensions
+    slugs?: string[];  // scan specific brands by slug
   };
 
   // --- RESUME MODE ---
@@ -150,6 +151,66 @@ export async function POST(req: NextRequest) {
       mode: 'rescan_incomplete',
       entityCount: incomplete.length,
       brands: incomplete.map(c => ({ name: c.name, missing: c.missing })),
+    });
+  }
+
+  // --- CUSTOM RANGE: scan specific brands by slug ---
+  if (slugs && Array.isArray(slugs) && slugs.length > 0) {
+    if (slugs.length > 20) {
+      return NextResponse.json({ error: `Max 20 brands per scan, got ${slugs.length}` }, { status: 400 });
+    }
+    const { stmts: sqlStmts } = await import('@/lib/db/sqlite');
+    const selectedBrands = slugs.map(s => sqlStmts.getBrand.get(s) as { slug: string; name: string; url: string; domain: string } | undefined).filter(Boolean) as Array<{ slug: string; name: string; url: string; domain: string }>;
+
+    if (selectedBrands.length === 0) {
+      return NextResponse.json({ error: 'No matching brands found for provided slugs' }, { status: 404 });
+    }
+
+    const enabledPhases = phases || ALL_PHASES;
+    const scanId = randomUUID();
+    const entities: EntityRecord[] = selectedBrands.map(b => ({
+      id: randomUUID(),
+      name: b.name,
+      url: b.url,
+      nip: undefined,
+      domain: b.domain,
+      data: {},
+      status: 'pending' as const,
+      errors: [],
+    }));
+
+    const scan: ScanRecord = {
+      id: scanId,
+      status: 'running',
+      sectorId: 'catering-pl',
+      entities,
+      phasesCompleted: [],
+      currentPhase: 'crawl',
+      log: [],
+      totalCostUsd: 0,
+      createdAt: new Date().toISOString(),
+      completedAt: null,
+    };
+
+    log(scan, `CUSTOM scan started — ${entities.length} brands: [${selectedBrands.map(b => b.slug).join(', ')}], phases: [${enabledPhases.join(', ')}]`);
+    saveScan(scan);
+
+    runPipeline(scanId, enabledPhases).catch((err) => {
+      const s = getScan(scanId);
+      if (s) {
+        s.status = 'failed';
+        log(s, `Pipeline error: ${err.message}`);
+        saveScan(s);
+      }
+    });
+
+    return NextResponse.json({
+      scanId,
+      status: 'running',
+      mode: 'custom',
+      entityCount: entities.length,
+      phases: enabledPhases,
+      brands: selectedBrands.map(b => b.name),
     });
   }
 

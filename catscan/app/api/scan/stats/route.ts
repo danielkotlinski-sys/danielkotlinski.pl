@@ -76,6 +76,31 @@ export async function GET() {
     updated_at: r.updated_at,
   }));
 
+  // Full brand list with scan status (for range picker)
+  const allBrands = stmts.getAllBrands.all() as Array<{
+    slug: string; name: string; url: string; domain: string;
+  }>;
+  const scannedSlugs = new Set(allResults.map(r => r.slug));
+  const completeSlugs = new Set<string>();
+  for (const row of allResults) {
+    let dataObj: Record<string, unknown> = {};
+    try { dataObj = JSON.parse(row.data); } catch { /* empty */ }
+    const allPresent = EXPECTED_DIMS.every(d => {
+      const val = dataObj[d];
+      return val !== undefined && val !== null && val !== '';
+    });
+    if (allPresent) completeSlugs.add(row.slug);
+  }
+
+  const brandList = allBrands.map(b => ({
+    slug: b.slug,
+    name: b.name,
+    url: b.url,
+    status: completeSlugs.has(b.slug) ? 'complete' as const
+      : scannedSlugs.has(b.slug) ? 'incomplete' as const
+      : 'unscanned' as const,
+  }));
+
   return NextResponse.json({
     totalBrands,
     scannedBrands,
@@ -85,5 +110,6 @@ export async function GET() {
     socialPosts,
     incompleteList: incompleteList.sort((a, b) => a.dims - b.dims),
     recentScans,
+    brandList,
   });
 }
