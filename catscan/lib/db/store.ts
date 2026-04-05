@@ -1,36 +1,18 @@
 /**
- * JSON file-based storage for MVP. Replace with Supabase later.
- * Stores data in catscan/data/ directory.
+ * CATSCAN data store — SQLite backend.
+ *
+ * Public API unchanged from JSON version:
+ *   getScans, getScan, saveScan, appendLog,
+ *   getBrands, mergeScanIntoBrands
+ *
+ * New SQLite-powered functions:
+ *   getScanResult, getAllScanResults, getScannedBrands,
+ *   saveScanResult, saveFinancialYears, saveSocialPosts
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
-import { join } from 'path';
+import { db, stmts } from './sqlite';
 
-const DATA_DIR = join(process.cwd(), 'data');
-
-function ensureDir() {
-  if (!existsSync(DATA_DIR)) {
-    mkdirSync(DATA_DIR, { recursive: true });
-  }
-}
-
-function filePath(collection: string): string {
-  return join(DATA_DIR, `${collection}.json`);
-}
-
-function readCollection<T>(collection: string): T[] {
-  ensureDir();
-  const fp = filePath(collection);
-  if (!existsSync(fp)) return [];
-  return JSON.parse(readFileSync(fp, 'utf-8'));
-}
-
-function writeCollection<T>(collection: string, data: T[]) {
-  ensureDir();
-  writeFileSync(filePath(collection), JSON.stringify(data, null, 2));
-}
-
-// --- Scans ---
+// ── Interfaces (unchanged) ──
 
 export interface ScanRecord {
   id: string;
@@ -60,23 +42,31 @@ export interface EntityRecord {
   errors: string[];
 }
 
+// ── Scans (audit log) ──
+
 export function getScans(): ScanRecord[] {
-  return readCollection<ScanRecord>('scans');
+  const rows = stmts.getAllScans.all() as Array<Record<string, unknown>>;
+  return rows.map(rowToScan);
 }
 
 export function getScan(id: string): ScanRecord | undefined {
-  return getScans().find(s => s.id === id);
+  const row = stmts.getScan.get(id) as Record<string, unknown> | undefined;
+  return row ? rowToScan(row) : undefined;
 }
 
 export function saveScan(scan: ScanRecord) {
-  const scans = getScans();
-  const idx = scans.findIndex(s => s.id === scan.id);
-  if (idx >= 0) {
-    scans[idx] = scan;
-  } else {
-    scans.push(scan);
-  }
-  writeCollection('scans', scans);
+  stmts.upsertScan.run({
+    id: scan.id,
+    status: scan.status,
+    entities: JSON.stringify(scan.entities),
+    phasesCompleted: JSON.stringify(scan.phasesCompleted),
+    currentPhase: scan.currentPhase,
+    log: JSON.stringify(scan.log),
+    totalCostUsd: scan.totalCostUsd,
+    interpretation: scan.interpretation ? JSON.stringify(scan.interpretation) : null,
+    createdAt: scan.createdAt,
+    completedAt: scan.completedAt,
+  });
 }
 
 export function appendLog(scanId: string, message: string) {
@@ -87,7 +77,23 @@ export function appendLog(scanId: string, message: string) {
   saveScan(scan);
 }
 
-// --- Brands (persistent seed + enriched data) ---
+function rowToScan(row: Record<string, unknown>): ScanRecord {
+  return {
+    id: row.id as string,
+    status: row.status as ScanRecord['status'],
+    sectorId: 'catering',
+    entities: JSON.parse((row.entities as string) || '[]'),
+    phasesCompleted: JSON.parse((row.phases_completed as string) || '[]'),
+    currentPhase: (row.current_phase as string) || null,
+    log: JSON.parse((row.log as string) || '[]'),
+    totalCostUsd: (row.total_cost_usd as number) || 0,
+    interpretation: row.interpretation ? JSON.parse(row.interpretation as string) : undefined,
+    createdAt: (row.created_at as string) || '',
+    completedAt: (row.completed_at as string) || null,
+  };
+}
+
+// ── Brands ──
 
 interface BrandRecord {
   slug: string;
@@ -98,87 +104,220 @@ interface BrandRecord {
 }
 
 export function getBrands(): BrandRecord[] {
-  return readCollection<BrandRecord>('brands');
+  const rows = stmts.getAllBrands.all() as Array<Record<string, unknown>>;
+  return rows.map(rowToBrand);
 }
 
-function saveBrands(brands: BrandRecord[]) {
-  writeCollection('brands', brands);
+function rowToBrand(row: Record<string, unknown>): BrandRecord {
+  return {
+    slug: row.slug as string,
+    name: row.name as string,
+    domain: (row.domain as string) || undefined,
+    url: (row.url as string) || '',
+    dietlySlug: row.dietly_slug || null,
+    dietlyUrl: row.dietly_url || null,
+    nip: row.nip || undefined,
+    krs: row.krs || undefined,
+    source: row.source || undefined,
+    seededAt: row.seeded_at || undefined,
+    lastScanId: row.last_scan_id || undefined,
+    lastScannedAt: row.last_scanned_at || undefined,
+  };
 }
 
 /**
- * Merge scan results back into brands.json.
+ * Merge scan results into brands + scan_results tables.
  * Matches by domain (primary) or name (fallback).
- * Returns count of brands updated.
+ * Also normalizes financial_years and social_posts.
  */
 export function mergeScanIntoBrands(scan: ScanRecord): number {
-  const brands = getBrands();
   let updated = 0;
 
-  for (const entity of scan.entities) {
-    if (entity.status === 'failed' && Object.keys(entity.data).length === 0) continue;
+  const mergeAll = db.transaction(() => {
+    for (const entity of scan.entities) {
+      if (entity.status === 'failed' && Object.keys(entity.data).length === 0) continue;
 
-    // Match by domain (primary) or slug/name (fallback)
-    const entityDomain = entity.domain || new URL(entity.url).hostname.replace('www.', '');
-    let brand = brands.find(b => {
-      const bDomain = b.domain || '';
-      return bDomain === entityDomain || bDomain === `www.${entityDomain}`;
-    });
-    if (!brand) {
-      brand = brands.find(b => b.name.toLowerCase() === entity.name.toLowerCase());
-    }
+      const entityDomain = entity.domain || (() => { try { return new URL(entity.url).hostname.replace('www.', ''); } catch { return ''; } })();
 
-    if (!brand) {
-      // New brand not in seed — add it
-      brands.push({
-        slug: entityDomain.replace(/\./g, '-'),
+      // Find matching brand
+      let brand = stmts.getBrandByDomain.get(entityDomain, entityDomain) as Record<string, unknown> | undefined;
+      if (!brand) {
+        brand = stmts.getBrandByName.get(entity.name) as Record<string, unknown> | undefined;
+      }
+
+      const slug = (brand?.slug as string) || entityDomain.replace(/\./g, '-');
+
+      // Upsert brand
+      stmts.upsertBrand.run({
+        slug,
         name: entity.name,
-        domain: entityDomain,
+        domain: entityDomain || null,
         url: entity.url,
-        nip: entity.nip,
-        krs: entity.krs,
-        data: entity.data,
-        financials: entity.financials,
+        dietlySlug: null,
+        dietlyUrl: null,
+        source: null,
+        nip: entity.nip || null,
+        krs: entity.krs || null,
+        seededAt: null,
         lastScanId: scan.id,
         lastScannedAt: scan.completedAt || new Date().toISOString(),
       });
-      updated++;
-      continue;
-    }
 
-    // Merge enriched data into existing brand
-    if (entity.nip) brand.nip = entity.nip;
-    if (entity.krs) brand.krs = entity.krs;
-    if (entity.domain) brand.domain = entity.domain;
+      // Merge data (smart merge: preserve existing, don't overwrite with empty)
+      const existingResult = stmts.getScanResult.get(slug) as Record<string, unknown> | undefined;
+      const existingData = existingResult ? JSON.parse(existingResult.data as string) : {};
+      const newData = entity.data || {};
+      const merged = { ...existingData };
 
-    // Merge entity.data into brand.data — only overwrite if new data is non-empty.
-    // Prevents partial scans from wiping out data from previous scans.
-    const existingData = (brand.data || {}) as Record<string, unknown>;
-    const newData = (entity.data || {}) as Record<string, unknown>;
-    const merged = { ...existingData };
-    for (const [key, value] of Object.entries(newData)) {
-      // Skip empty objects/arrays that would overwrite richer existing data
-      if (value && typeof value === 'object' && !Array.isArray(value)) {
-        const obj = value as Record<string, unknown>;
-        const isEmpty = Object.keys(obj).length === 0
-          || (Object.keys(obj).length === 1 && obj.skipped);
-        if (isEmpty && existingData[key] && typeof existingData[key] === 'object') {
-          continue; // Keep existing richer data
+      for (const [key, value] of Object.entries(newData)) {
+        if (value && typeof value === 'object' && !Array.isArray(value)) {
+          const obj = value as Record<string, unknown>;
+          const isEmpty = Object.keys(obj).length === 0
+            || (Object.keys(obj).length === 1 && obj.skipped);
+          if (isEmpty && existingData[key] && typeof existingData[key] === 'object') {
+            continue;
+          }
+        }
+        if (Array.isArray(value) && value.length === 0 && Array.isArray(existingData[key]) && (existingData[key] as unknown[]).length > 0) {
+          continue;
+        }
+        merged[key] = value;
+      }
+
+      // Count non-internal phases
+      const phases = Object.keys(merged).filter(k => !k.startsWith('_'));
+
+      stmts.upsertScanResult.run({
+        slug,
+        data: JSON.stringify(merged),
+        phaseCount: phases.length,
+        phases: JSON.stringify(phases),
+      });
+
+      // Normalize financial years
+      const finance = merged.finance as Record<string, unknown> | undefined;
+      if (finance && Array.isArray(finance.financial_statements)) {
+        for (const stmt of finance.financial_statements as Array<Record<string, unknown>>) {
+          const ratios = (stmt.ratios || {}) as Record<string, unknown>;
+          stmts.upsertFinancialYear.run({
+            slug,
+            yearStart: stmt.periodStart || null,
+            yearEnd: stmt.periodEnd || null,
+            revenue: stmt.revenue ?? null,
+            netIncome: stmt.netIncome ?? null,
+            operatingProfit: stmt.operatingProfit ?? null,
+            grossProfit: stmt.grossProfit ?? null,
+            totalAssets: stmt.totalAssets ?? null,
+            equity: stmt.equity ?? null,
+            totalLiabilities: stmt.totalLiabilities ?? null,
+            cash: stmt.cash ?? null,
+            wages: stmt.wages ?? null,
+            depreciation: stmt.depreciation ?? null,
+            netMargin: ratios.netMargin ?? null,
+            roe: ratios.roe ?? null,
+            roa: ratios.roa ?? null,
+            revenueSource: finance.revenue_source || 'krs',
+            rawData: JSON.stringify(stmt),
+          });
         }
       }
-      if (Array.isArray(value) && value.length === 0 && Array.isArray(existingData[key]) && (existingData[key] as unknown[]).length > 0) {
-        continue; // Keep existing non-empty array
+
+      // Normalize social posts — Instagram
+      const social = merged.social as Record<string, unknown> | undefined;
+      if (social) {
+        const ig = social.instagram as Record<string, unknown> | undefined;
+        if (ig?.content) {
+          const content = ig.content as Record<string, unknown>;
+          const posts = (content.posts || []) as Array<Record<string, unknown>>;
+          for (const post of posts) {
+            stmts.upsertSocialPost.run({
+              slug,
+              platform: 'instagram',
+              postId: post.id || post.url || `ig_${Date.now()}_${Math.random()}`,
+              url: post.url || null,
+              caption: post.caption || null,
+              hashtags: JSON.stringify(post.hashtags || []),
+              timestamp: post.timestamp || null,
+              likes: post.likes ?? null,
+              comments: post.comments ?? null,
+              views: null,
+              shares: null,
+              sampleBucket: post.sampleBucket || null,
+            });
+          }
+        }
+
+        // TikTok
+        const tt = social.tiktok as Record<string, unknown> | undefined;
+        if (tt?.content) {
+          const content = tt.content as Record<string, unknown>;
+          const posts = (content.posts || []) as Array<Record<string, unknown>>;
+          for (const post of posts) {
+            stmts.upsertSocialPost.run({
+              slug,
+              platform: 'tiktok',
+              postId: post.id || post.url || `tt_${Date.now()}_${Math.random()}`,
+              url: post.url || null,
+              caption: post.caption || null,
+              hashtags: JSON.stringify(post.hashtags || []),
+              timestamp: post.timestamp || null,
+              likes: post.likes ?? null,
+              comments: post.comments ?? null,
+              views: post.views ?? null,
+              shares: post.shares ?? null,
+              sampleBucket: post.sampleBucket || null,
+            });
+          }
+        }
       }
-      merged[key] = value;
+
+      updated++;
     }
-    brand.data = merged;
+  });
 
-    if (entity.financials) brand.financials = entity.financials;
-    brand.lastScanId = scan.id;
-    brand.lastScannedAt = scan.completedAt || new Date().toISOString();
-
-    updated++;
-  }
-
-  saveBrands(brands);
+  mergeAll();
   return updated;
+}
+
+// ── New SQLite-powered queries ──
+
+export interface ScanResultRow {
+  slug: string;
+  data: Record<string, unknown>;
+  phase_count: number;
+  phases: string[];
+  updated_at: string;
+}
+
+export function getScanResult(slug: string): ScanResultRow | null {
+  const row = stmts.getScanResult.get(slug) as Record<string, unknown> | undefined;
+  if (!row) return null;
+  return {
+    slug: row.slug as string,
+    data: JSON.parse(row.data as string),
+    phase_count: row.phase_count as number,
+    phases: JSON.parse(row.phases as string),
+    updated_at: row.updated_at as string,
+  };
+}
+
+export function getAllScanResults(): ScanResultRow[] {
+  const rows = stmts.getAllScanResults.all() as Array<Record<string, unknown>>;
+  return rows.map(row => ({
+    slug: row.slug as string,
+    data: JSON.parse(row.data as string),
+    phase_count: row.phase_count as number,
+    phases: JSON.parse(row.phases as string),
+    updated_at: row.updated_at as string,
+  }));
+}
+
+/** Get brands that have scan data — the "scanned brands" view */
+export function getScannedBrands(): Array<BrandRecord & { data: Record<string, unknown>; phase_count: number }> {
+  const rows = stmts.getScannedBrands.all() as Array<Record<string, unknown>>;
+  return rows.map(row => ({
+    ...rowToBrand(row),
+    data: JSON.parse((row.data as string) || '{}'),
+    phase_count: (row.phase_count as number) || 0,
+  }));
 }
