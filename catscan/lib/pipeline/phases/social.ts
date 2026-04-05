@@ -38,6 +38,19 @@ interface IgPost {
   sampleBucket: 'recent' | 'historical';
 }
 
+interface TtPost {
+  id: string;
+  timestamp: string;
+  caption: string | null;
+  hashtags: string[];
+  views: number;
+  likes: number;
+  comments: number;
+  shares: number;
+  url: string;
+  sampleBucket: 'recent' | 'historical';
+}
+
 interface IgContentAnalysis {
   sampleSize: number;
   recentPosts: number;       // posts from last ~2 weeks
@@ -52,6 +65,21 @@ interface IgContentAnalysis {
   topHashtags: Array<{ tag: string; count: number }>;
   contentMix: Record<string, number>; // e.g. { Image: 5, Video: 8, Sidecar: 7 }
   posts: IgPost[];
+}
+
+interface TtContentAnalysis {
+  sampleSize: number;
+  recentPosts: number;
+  historicalPosts: number;
+  dateRange: { oldest: string; newest: string } | null;
+  postingFrequency: string | null;
+  avgViewsRecent: number | null;
+  avgViewsHistorical: number | null;
+  avgLikesRecent: number | null;
+  avgLikesHistorical: number | null;
+  engagementTrend: 'rising' | 'stable' | 'declining' | 'insufficient_data';
+  topHashtags: Array<{ tag: string; count: number }>;
+  posts: TtPost[];
 }
 
 interface SocialData {
@@ -71,6 +99,7 @@ interface SocialData {
   tiktok?: SocialProfile & {
     totalLikes?: number;
     avgViews?: number;
+    content?: TtContentAnalysis;
   };
   youtube?: SocialProfile & {
     subscribers?: number;
@@ -288,6 +317,178 @@ function analyzeContent(posts: IgPost[], followers: number | undefined): IgConte
 }
 
 // ---------------------------------------------------------------------------
+// TikTok helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Generate candidate TikTok handles from brand name and domain.
+ * Example: "Kuchnia Vikinga" + "kuchniavikinga.pl" → ["kuchniavikinga", "kuchnia_vikinga", "kuchnia.vikinga"]
+ */
+function generateTikTokCandidates(brandName: string, domain?: string): string[] {
+  const candidates: string[] = [];
+
+  // From domain (most reliable — brands often use same handle)
+  if (domain) {
+    const slug = domain.replace(/^www\./, '').replace(/\.(pl|com|eu|com\.pl)$/, '');
+    candidates.push(slug);
+    candidates.push(slug.replace(/[-_.]/g, ''));
+  }
+
+  // From brand name
+  const lower = brandName.toLowerCase();
+  candidates.push(lower.replace(/\s+/g, ''));          // "kuchniavikinga"
+  candidates.push(lower.replace(/\s+/g, '_'));          // "kuchnia_vikinga"
+  candidates.push(lower.replace(/\s+/g, '.'));          // "kuchnia.vikinga"
+  candidates.push(lower.replace(/\s+/g, '').replace(/[^a-z0-9._]/g, '')); // ascii only
+
+  // Deduplicate and filter
+  return Array.from(new Set(candidates)).filter(c => c.length >= 3 && /^[\w.]+$/.test(c));
+}
+
+/**
+ * Try to find TikTok profile by testing candidate handles via Apify.
+ * Returns { handle, items } if found, null if no profile exists.
+ */
+function discoverTikTokViaApify(
+  brandName: string,
+  domain: string | undefined,
+  apiToken: string,
+  resultsPerPage = 30
+): { handle: string; items: unknown[] } | null {
+  const candidates = generateTikTokCandidates(brandName, domain);
+
+  for (const handle of candidates) {
+    const items = runApifyActor('clockworks~free-tiktok-scraper', {
+      profiles: [handle],
+      resultsPerPage,
+      shouldDownloadCovers: false,
+    }, apiToken, 120000); // 2 min timeout per attempt
+
+    if (items.length > 0) {
+      const first = items[0] as Record<string, unknown>;
+      // Verify it's a real profile (has authorMeta or valid post data)
+      if (first.authorMeta || first.text !== undefined) {
+        return { handle, items };
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Stratified sampling for TikTok: 4 most recent + 8 spread over 6 months = 12 posts.
+ * Similar to Instagram sampling but adapted for TikTok's data structure.
+ */
+function stratifyTtSample(rawPosts: Array<Record<string, unknown>>): TtPost[] {
+  if (rawPosts.length === 0) return [];
+
+  const parsed = rawPosts
+    .map(p => {
+      const ts = (p.createTimeISO as string) || (p.createTime ? new Date((p.createTime as number) * 1000).toISOString() : '');
+      const text = (p.text as string) || '';
+      return {
+        id: String(p.id || ''),
+        timestamp: ts,
+        caption: text ? text.slice(0, 500) : null,
+        hashtags: extractHashtags(text),
+        views: (p.playCount as number) || (p.viewCount as number) || 0,
+        likes: (p.diggCount as number) || (p.likesCount as number) || 0,
+        comments: (p.commentCount as number) || (p.commentsCount as number) || 0,
+        shares: (p.shareCount as number) || 0,
+        url: (p.webVideoUrl as string) || `https://www.tiktok.com/@/video/${p.id}`,
+        sampleBucket: 'recent' as const,
+        _date: ts ? new Date(ts) : new Date(0),
+      };
+    })
+    .filter(p => p._date.getTime() > 0)
+    .sort((a, b) => b._date.getTime() - a._date.getTime());
+
+  if (parsed.length === 0) return [];
+
+  // Recent: first 4 posts
+  const recent = parsed.slice(0, 4).map(p => ({ ...p, sampleBucket: 'recent' as const }));
+
+  // Historical: 8 evenly spread from the rest
+  const remaining = parsed.slice(4);
+  const historical: any[] = [];
+  if (remaining.length > 0) {
+    const step = Math.max(1, Math.floor(remaining.length / 8));
+    for (let i = 0; i < remaining.length && historical.length < 8; i += step) {
+      historical.push({ ...remaining[i], sampleBucket: 'historical' as const });
+    }
+  }
+
+  // Strip internal _date field
+  return [...recent, ...historical].map(({ _date, ...rest }) => rest);
+}
+
+/**
+ * Analyze TikTok posts sample — engagement trends, hashtags, frequency.
+ */
+function analyzeTtContent(posts: TtPost[], followers: number | undefined): TtContentAnalysis {
+  const recentPosts = posts.filter(p => p.sampleBucket === 'recent');
+  const historicalPosts = posts.filter(p => p.sampleBucket === 'historical');
+
+  // Date range
+  const timestamps = posts.map(p => new Date(p.timestamp).getTime()).filter(t => t > 0);
+  const dateRange = timestamps.length >= 2
+    ? { oldest: new Date(Math.min(...timestamps)).toISOString().slice(0, 10), newest: new Date(Math.max(...timestamps)).toISOString().slice(0, 10) }
+    : null;
+
+  // Posting frequency
+  let postingFrequency: string | null = null;
+  if (dateRange && timestamps.length >= 2) {
+    const rangeMs = Math.max(...timestamps) - Math.min(...timestamps);
+    const weeks = rangeMs / (7 * 86400000);
+    if (weeks > 0) postingFrequency = `${(posts.length / weeks).toFixed(1)} posts/week`;
+  }
+
+  // Averages
+  const avgOf = (arr: TtPost[], key: 'views' | 'likes') =>
+    arr.length > 0 ? Math.round(arr.reduce((s, p) => s + p[key], 0) / arr.length) : null;
+
+  const avgViewsRecent = avgOf(recentPosts, 'views');
+  const avgViewsHistorical = avgOf(historicalPosts, 'views');
+  const avgLikesRecent = avgOf(recentPosts, 'likes');
+  const avgLikesHistorical = avgOf(historicalPosts, 'likes');
+
+  // Engagement trend (based on views)
+  let engagementTrend: TtContentAnalysis['engagementTrend'] = 'insufficient_data';
+  if (avgViewsRecent !== null && avgViewsHistorical !== null && avgViewsHistorical > 0) {
+    const ratio = avgViewsRecent / avgViewsHistorical;
+    engagementTrend = ratio > 1.2 ? 'rising' : ratio < 0.8 ? 'declining' : 'stable';
+  }
+
+  // Top hashtags
+  const hashtagCounts = new Map<string, number>();
+  for (const p of posts) {
+    for (const tag of p.hashtags) {
+      hashtagCounts.set(tag, (hashtagCounts.get(tag) || 0) + 1);
+    }
+  }
+  const topHashtags = Array.from(hashtagCounts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 15)
+    .map(([tag, count]) => ({ tag, count }));
+
+  return {
+    sampleSize: posts.length,
+    recentPosts: recentPosts.length,
+    historicalPosts: historicalPosts.length,
+    dateRange,
+    postingFrequency,
+    avgViewsRecent,
+    avgViewsHistorical,
+    avgLikesRecent,
+    avgLikesHistorical,
+    engagementTrend,
+    topHashtags,
+    posts,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Perplexity fallback
 // ---------------------------------------------------------------------------
 
@@ -473,32 +674,70 @@ export async function enrichSocial(entity: EntityRecord): Promise<EntityRecord> 
   }
 
   // -----------------------------------------------------------------------
-  // TikTok — profile data via Apify
+  // TikTok — discovery + profile + posts via Apify
   // -----------------------------------------------------------------------
-  if (socialUrls.tiktok) {
-    const handle = socialUrls.tiktok.match(/tiktok\.com\/@([^/?]+)/)?.[1] || '';
-    if (handle) {
-      const ttItems = runApifyActor('clockworks~free-tiktok-scraper', {
-        profiles: [handle],
-        resultsPerPage: 1,
-        shouldDownloadCovers: false,
-      }, apiToken); apifyCalls++;
+  {
+    let ttHandle: string | undefined;
+    let ttItems: unknown[] = [];
 
-      if (ttItems.length > 0) {
-        const data = ttItems[0] as Record<string, unknown>;
-        if (!data.error) {
-          const authorMeta = (data.authorMeta || {}) as Record<string, number>;
-          const profile: SocialProfile = {
-            platform: 'tiktok',
-            url: socialUrls.tiktok,
-            handle,
-            followers: authorMeta.fans as number | undefined,
-            posts: authorMeta.video as number | undefined,
-          };
-          socialData.tiktok = { ...profile, totalLikes: authorMeta.heart as number | undefined };
-          socialData.profiles.push(profile);
-        }
+    if (socialUrls.tiktok) {
+      // URL known from crawl — use it directly
+      ttHandle = socialUrls.tiktok.match(/tiktok\.com\/@([^/?]+)/)?.[1];
+      if (ttHandle) {
+        ttItems = runApifyActor('clockworks~free-tiktok-scraper', {
+          profiles: [ttHandle],
+          resultsPerPage: 30,
+          shouldDownloadCovers: false,
+        }, apiToken, 120000); apifyCalls++;
       }
+    } else {
+      // No TikTok URL from crawl — try slug-based discovery via Apify
+      const entityDomain = (() => { try { return new URL(entity.url).hostname.replace('www.', ''); } catch { return undefined; } })();
+      const discovered = discoverTikTokViaApify(entity.name, entityDomain, apiToken);
+      if (discovered) {
+        ttHandle = discovered.handle;
+        ttItems = discovered.items;
+        socialUrls.tiktok = `https://www.tiktok.com/@${ttHandle}`;
+        console.log(`[social] TikTok discovered for ${entity.name}: @${ttHandle}`);
+      }
+      apifyCalls++; // Count the discovery attempt(s)
+    }
+
+    if (ttHandle && ttItems.length > 0) {
+      // Extract profile data from authorMeta
+      const profileItem = ttItems.find(item => (item as Record<string, unknown>).authorMeta) as Record<string, unknown> | undefined;
+      const authorMeta = (profileItem?.authorMeta || {}) as Record<string, number>;
+      const followers = authorMeta.fans as number | undefined;
+
+      const profile: SocialProfile = {
+        platform: 'tiktok',
+        url: socialUrls.tiktok || `https://www.tiktok.com/@${ttHandle}`,
+        handle: ttHandle,
+        followers,
+        posts: authorMeta.video as number | undefined,
+      };
+      const totalLikes = authorMeta.heart as number | undefined;
+
+      // Parse posts for content analysis (stratified sample: 4 recent + 8 historical = 12)
+      const postItems = ttItems.filter(item => {
+        const i = item as Record<string, unknown>;
+        return i.id && (i.text !== undefined || i.playCount !== undefined);
+      }) as Array<Record<string, unknown>>;
+
+      let ttContent: TtContentAnalysis | undefined;
+      if (postItems.length > 0) {
+        const sample = stratifyTtSample(postItems);
+        ttContent = analyzeTtContent(sample, followers);
+        console.log(`[social] TikTok @${ttHandle}: ${followers || '?'} followers, ${postItems.length} raw → ${sample.length} sampled posts`);
+      }
+
+      socialData.tiktok = {
+        ...profile,
+        totalLikes,
+        avgViews: ttContent?.avgViewsRecent ?? undefined,
+        content: ttContent,
+      };
+      socialData.profiles.push(profile);
     }
   }
 

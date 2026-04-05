@@ -2239,430 +2239,6 @@
         "orgName": null,
         "discoveredAt": "2026-04-05T07:21:48.842Z"
       },
-      "social": {
-        "profiles": [
-          {
-            "platform": "instagram",
-            "url": "https://www.instagram.com/kuchniavikinga/",
-            "handle": "kuchniavikinga",
-            "followers": 84652,
-            "posts": 1326,
-            "verified": false
-          },
-          {
-            "platform": "facebook",
-            "url": "https://www.facebook.com/Kuchniavikinga",
-            "handle": "Kuchnia Vikinga",
-            "followers": 132501
-          },
-          {
-            "platform": "youtube",
-            "url": "https://www.youtube.com/channel/UCjwQThJo793mDN5l_rIjN-A",
-            "handle": "UCjwQThJo793mDN5l_rIjN-A"
-          }
-        ],
-        "totalFollowers": 217153,
-        "platformCount": 3,
-        "fetchedAt": "2026-04-05T07:21:52.142Z",
-        "method": "apify+perplexity",
-        "instagram": {
-          "platform": "instagram",
-          "url": "https://www.instagram.com/kuchniavikinga/",
-          "handle": "kuchniavikinga",
-          "followers": 84652,
-          "posts": 1326,
-          "verified": false,
-          "bio": "Dołącz do największej społeczności Vikingów! ⚔️👇🏻",
-          "avgLikes": 489,
-          "avgComments": 22,
-          "engagementRate": 0.6,
-          "content": {
-            "sampleSize": 20,
-            "recentPosts": 6,
-            "historicalPosts": 14,
-            "dateRange": {
-              "oldest": "2026-01-11",
-              "newest": "2026-04-04"
-            },
-            "postingFrequency": "1.7 posts/week",
-            "avgLikesRecent": 201,
-            "avgLikesHistorical": 665,
-            "avgCommentsRecent": 9,
-            "avgCommentsHistorical": 21,
-            "engagementTrend": "declining",
-            "topHashtags": [
-              {
-                "tag": "#kuchniavikinga",
-                "count": 17
-              },
-              {
-                "tag": "#mecz",
-                "count": 2
-              },
-              {
-                "tag": "#zosialewandowska",
-                "count": 2
-              },
-              {
-                "tag": "#wielkanoc",
-                "count": 1
-              },
-              {
-                "tag": "#święta",
-                "count": 1
-              },
-              {
-                "tag": "#perfumy",
-                "count": 1
-              },
-              {
-                "tag": "#premium",
-                "count": 1
-              },
-              {
-                "tag": "#bogactwo",
-                "count": 1
-              },
-              {
-                "tag": "#slay",
-                "count": 1
-              },
-              {
-                "tag": "#prank",
-                "count": 1
-              },
-              {
-                "tag": "#mazurek",
-                "count": 1
-              },
-              {
-                "tag": "#bartoszmazurek",
-                "count": 1
-              },
-              {
-                "tag": "#jedzenie",
-                "count": 1
-              },
-              {
-                "tag": "#podlasie",
-                "count": 1
-              },
-              {
-                "tag": "#primaaprilis",
-                "count": 1
-              }
-            ],
-            "contentMix": {
-              "Image": 10,
-              "Video": 8,
-              "Sidecar": 2
-            },
-            "posts": [
-              {
-                "id": "3867732395600725242",
-                "timestamp": "2026-04-04T08:00:53.000Z",
-                "type": "Image",
-                "caption": "Który Sławek jest Wam najbliższy w te Święta? 👀\n\n#wielkanoc #kuchniavikinga #święta",
-                "hashtags": [
-                  "#wielkanoc",
-                  "#kuchniavikinga",
-                  "#święta"
-                ],
-                "likes": 270,
-                "comments": 8,
-                "url": "https://www.instagram.com/p/DWs8h8mDUT6/",
-                "sampleBucket": "recent"
-              },
-              {
-                "id": "3867158804949640461",
-                "timestamp": "2026-04-03T13:03:23.000Z",
-                "type": "Video",
-                "caption": "Skarpety po treningu, kokos czy bogactwo - tak według naszych ankietowanych pachną ,,perfumy” Vikinga! XD A Wy jakie nuty zapachowe byście tutaj widzieli? 😀\n\n#perfumy #premium #bogactwo #slay #prank",
-                "hashtags": [
-                  "#perfumy",
-                  "#premium",
-                  "#bogactwo",
-                  "#slay",
-                  "#prank"
-                ],
-                "likes": 94,
-                "comments": 9,
-                "url": "https://www.instagram.com/p/DWq6HGrDCUN/",
-                "sampleBucket": "recent"
-              },
-              {
-                "id": "3866989299015100478",
-                "timestamp": "2026-04-03T07:24:28.000Z",
-                "type": "Sidecar",
-                "caption": "Dlaczego nasz Mazurek jest „Florencki”? 🤔\n\nInspiracją był niesamowity wyczyn @b_mazurek86, który w meczu @jagielloniabialystok – Fiorentina ustrzelił hat tricka.🔥 Obiecaliśmy niespodziankę z tej okazji i jak zwykle nasza cukiernia nie zawodzi. 🫶\n\nZjedzone już ciacho? Poczuliście już Święta? 😀\n\n#kuchniavikinga #mazurek #bartoszmazurek",
-                "hashtags": [
-                  "#kuchniavikinga",
-                  "#mazurek",
-                  "#bartoszmazurek"
-                ],
-                "likes": 132,
-                "comments": 5,
-                "url": "https://www.instagram.com/p/DWqTkd-CCg-/",
-                "sampleBucket": "recent"
-              },
-              {
-                "id": "3866255023538463145",
-                "timestamp": "2026-04-02T07:06:09.000Z",
-                "type": "Video",
-                "caption": "Mamy własny zakład mięsny 🥩 \n\nJako jeden z największych dostawców dań gotowych w Polsce kontrolujemy cały proces: od surowca aż po gotowy produkt - bo jakość zaczyna się od podstaw.\n\nMięso? Tylko od polskich dostawców 🇵🇱\n\nZostaw 💛 jeśli stawiasz na jakość i koniecznie daj znać czy tak sobie wyobrażałeś zakład mięsny 🫣👇\n#kuchniavikinga #jedzenie #podlasie",
-                "hashtags": [
-                  "#kuchniavikinga",
-                  "#jedzenie",
-                  "#podlasie"
-                ],
-                "likes": 258,
-                "comments": 17,
-                "url": "https://www.instagram.com/p/DWnsnWpFGGp/",
-                "sampleBucket": "recent"
-              },
-              {
-                "id": "3865510765365068491",
-                "timestamp": "2026-04-01T06:26:55.000Z",
-                "type": "Image",
-                "caption": "Dziś łamiemy zasady – bo mamy coś ważnego do ogłoszenia! 📣\n\nNasza kuchnia testowa naprawdę przeszła samą siebie! 🤯 Zamiast klasycznego sosu… żelek, który rozpuszcza się pod wpływem temperatury. I najlepsze? Ty decydujesz, ile sosu chcesz – trochę, więcej albo wcale.\n\nPasuje taka opcja? 👀\n\n#kuchniavikinga #primaaprilis",
-                "hashtags": [
-                  "#kuchniavikinga",
-                  "#primaaprilis"
-                ],
-                "likes": 399,
-                "comments": 11,
-                "url": "https://www.instagram.com/p/DWlDY-NCILL/",
-                "sampleBucket": "recent"
-              },
-              {
-                "id": "3865104935826619499",
-                "timestamp": "2026-03-31T17:00:35.000Z",
-                "type": "Image",
-                "caption": "Lepszej okazji nie będzie... 😇 Jaki wynik dziś obstawiacie? 👀 \n\n#kuchniavikinga #mecz #meczpolskaszwecja #reprezetacja",
-                "hashtags": [
-                  "#kuchniavikinga",
-                  "#mecz",
-                  "#meczpolskaszwecja",
-                  "#reprezetacja"
-                ],
-                "likes": 51,
-                "comments": 6,
-                "url": "https://www.instagram.com/p/DWjnHX_jfxr/",
-                "sampleBucket": "recent"
-              },
-              {
-                "id": "3807576111941894182",
-                "timestamp": "2026-01-11T08:01:43.000Z",
-                "type": "Video",
-                "caption": "Robi wrażenie? 😎 Szczerze? Czasem sami niedowierzamy, ile osób codziennie znajduje na swojej wycieraczce żółte torby z naszym logo. Dla nas to więcej niż liczby, to potwierdzenie, że dostarczamy Wam posiłki, które pokochaliście.  ⚔️\n\n#kuchniavikinga #produkcja #firma #ciekawostki",
-                "hashtags": [
-                  "#kuchniavikinga",
-                  "#produkcja",
-                  "#firma",
-                  "#ciekawostki"
-                ],
-                "likes": 4372,
-                "comments": 150,
-                "url": "https://www.instagram.com/p/DTXOkznj0Am/",
-                "sampleBucket": "historical"
-              },
-              {
-                "id": "3836690508278186210",
-                "timestamp": "2026-02-20T12:06:11.000Z",
-                "type": "Sidecar",
-                "caption": "W pakiecie supreme macie 40 dań do wyboru CODZIENNIE. 🤯 Kto by chciał wylądować w takim niebie? 😌\n\n___\n👉 Jeśli marzy Ci się takie niebo – pakiet supreme zamówisz szybko i wygodnie w aplikacji lub na kuchniavikinga.pl. \n\n#kuchniavikinga #pakietsupreme",
-                "hashtags": [
-                  "#kuchniavikinga",
-                  "#pakietsupreme"
-                ],
-                "likes": 68,
-                "comments": 0,
-                "url": "https://www.instagram.com/p/DU-qbCLCMDi/",
-                "sampleBucket": "historical"
-              },
-              {
-                "id": "3836899542717781253",
-                "timestamp": "2026-02-20T19:02:11.000Z",
-                "type": "Video",
-                "caption": "Jakby ktoś się zastanawiał, jak wyglądała nasza impreza firmowa w tym roku… 😎\n\nMinęły już dwa miesiące, a my nadal wracamy do tego niesamowitego czasu. Bo u nas zasada jest prosta – albo robimy coś na 100%, albo wcale. Po raz kolejny spotkaliśmy się w pięknym @majatek.howieny – miejscu, które na dobre wpisało się w naszą historię. Trudno byłoby znaleźć drugą przestrzeń, która pomieści ponad 1000 Vikingów 🤯Wśród nich byli nasi pracownicy, ale też przyjaciele, goście i sympatycy. \n\nNie mogło zab",
-                "hashtags": [
-                  "#kuchniavikinga"
-                ],
-                "likes": 319,
-                "comments": 28,
-                "url": "https://www.instagram.com/p/DU_Z84qjVUF/",
-                "sampleBucket": "historical"
-              },
-              {
-                "id": "3838711182018862400",
-                "timestamp": "2026-02-23T07:00:54.000Z",
-                "type": "Image",
-                "caption": "Wszyscy obudzą się z formą na lato, Ty weź się do pracy już teraz! ⚔️ \n\nPrawdziwy kaloryfer potrzebuje nie tylko mocy, ale przede wszystkim regularności. Także dawaj, szlifujemy formę z Vikingiem, żeby nie było siary, gdy słoneczko konkretnie przygrzeje. 😅\n\n✅ KOD: WFORMIE15 – na dobry start, żeby się ciutkę spocić. Dla Vikingów zamawiających na 10 dni lub więcej.\n💥KOD: WFORMIE25 – dla konkretnych graczy, którzy celują w zamówienia na 25 dni lub dłużej. \n\nDowieziemy formę razem! 😉 Zamów wygodn",
-                "hashtags": [
-                  "#kuchniavikinga",
-                  "#idziewiosna",
-                  "#promocja",
-                  "#forma"
-                ],
-                "likes": 336,
-                "comments": 5,
-                "url": "https://www.instagram.com/p/DVF13tPjd1A/",
-                "sampleBucket": "historical"
-              },
-              {
-                "id": "3838892188792624283",
-                "timestamp": "2026-02-23T13:00:32.000Z",
-                "type": "Image",
-                "caption": "To nie możesz być gorszy 😏\n\nSławek na swoją imprezę wybrał cztery nowe Party Boxy i… trudno się dziwić temu zestawowi:\n\n1️⃣ Hot Dog Box\n2️⃣ Smash Burger Box\n3️⃣ Sushi Box – Pieczony Łosoś\n4️⃣ Brownie Box\n\nKtóry party box wziąłbyś na wspólną imprezę ze Sławkiem? 🔥 Burgerowy konkret, sushi vibe czy coś na słodko? 🤔\n\n____\nChcesz mieć taki zestaw u siebie? ⚔️\n\nWejdź do aplikacji mobilnej Kuchni Vikinga albo zaloguj się na 👉 www.kuchniavikinga.pl\nZnajdziesz je w sekcji dodatków – możesz dodać je ",
-                "hashtags": [
-                  "#kuchniavikinga",
-                  "#partyboxy"
-                ],
-                "likes": 260,
-                "comments": 0,
-                "url": "https://www.instagram.com/p/DVGfBs8AZSb/",
-                "sampleBucket": "historical"
-              },
-              {
-                "id": "3840190006879072720",
-                "timestamp": "2026-02-25T07:59:05.000Z",
-                "type": "Image",
-                "caption": "Nikt nie mówił, że będzie łatwo… 😬 Twoja idealna dieta – z czego by się składała?\n\n____\n👉 Jeśli kuszą Cię takie dania, możesz bez problemu dodać je jako dodatek do swojego aktualnego lub nowego zamówienia – przez aplikację mobilną albo na stronie kuchniavikinga.pl 🫶\n\n#kuchniavikinga",
-                "hashtags": [
-                  "#kuchniavikinga"
-                ],
-                "likes": 320,
-                "comments": 25,
-                "url": "https://www.instagram.com/p/DVLGHcOCDHQ/",
-                "sampleBucket": "historical"
-              },
-              {
-                "id": "3840958791797986828",
-                "timestamp": "2026-02-26T09:26:58.000Z",
-                "type": "Video",
-                "caption": "Poznajcie Zosię – prawdziwą Wojowniczkę. Zosia walczy z nowotworem wątroby IV stopnia. Jej szansą jest innowacyjna terapia w USA – przełomowe leczenie, które daje realną nadzieję w tej nierównej walce. Dlatego po raz drugi organizujemy Bal Charytatywny, będący częścią naszej zbiórki i tu potrzebujemy Waszego wsparcia. Koszt leczenia jest ogromny – musimy zebrać aż 2 miliony złotych, ale wiemy, że z Waszą pomocą się uda. ⚔️\n\n6 marca spotykamy się na 2. Balu Charytatywnym „Drzewo Życia”. Wtedy Maj",
-                "hashtags": [
-                  "#kuchniavikinga",
-                  "#zosialewandowska",
-                  "#zbiórka",
-                  "#balcharytatywny"
-                ],
-                "likes": 1111,
-                "comments": 41,
-                "url": "https://www.instagram.com/p/DVN06u-CFYM/",
-                "sampleBucket": "historical"
-              },
-              {
-                "id": "3841020999928458125",
-                "timestamp": "2026-02-26T11:30:06.000Z",
-                "type": "Image",
-                "caption": "Tak tylko mówimy… 😅 Co jeszcze dobrego dziś jecie? 👀\n\n#kuchniavikinga",
-                "hashtags": [
-                  "#kuchniavikinga"
-                ],
-                "likes": 149,
-                "comments": 13,
-                "url": "https://www.instagram.com/p/DVODD-zjSuN/",
-                "sampleBucket": "historical"
-              },
-              {
-                "id": "3841741049777900025",
-                "timestamp": "2026-02-27T11:21:04.000Z",
-                "type": "Video",
-                "caption": "Jeżeli chcesz się spotkać i porozmawiać na żywo z takimi osobami jak: Cezary Pazura, Klaudia Halejcio, Krzysztof Stanowski czy posłuchać na żywo LemOn, Ani Dąbrowskiej oraz Sw@dy i Niczos, to nie może cię zabraknąć na naszym 2. Balu Charytatywnym! \n\nTo wieczór, w którym przyjemnie spędzony czas ma realną moc pomagania ⚔️ W tym roku łączymy siły dla 8-letniej Zosi, która walczy ze złośliwym nowotworem wątroby. Jej szansą jest nowoczesna terapia CAR-T Cell w USA – ogromna nadzieja, ale też ogromne",
-                "hashtags": [
-                  "#zosialewandowska",
-                  "#kuchniavikinga"
-                ],
-                "likes": 429,
-                "comments": 6,
-                "url": "https://www.instagram.com/p/DVQmyFfDEn5/",
-                "sampleBucket": "historical"
-              },
-              {
-                "id": "3846321778158839135",
-                "timestamp": "2026-03-05T19:03:17.000Z",
-                "type": "Video",
-                "caption": "To nie jest łatwa historia.\n\nPoznajcie Zosię – naszą Małą Wojowniczkę, która od kilku lat mierzy się z nowotworem wątroby IV stopnia. To trudna walka i dla niej, i dla całej rodziny, która każdego dnia robi wszystko, żeby pomóc jej wrócić do zdrowia.\n\nW tym materiale możecie poznać historię Zosi opowiedzianą oczami jej rodziców. \n\nPS. Cały czas trwa zbiórka dla Zosi 👉 siepomaga.pl/vikingowie-razem-po-zdrowie-zosi\nJeśli możecie dorzucić choć małą cegiełkę – będzie to ogromna pomoc. Każda wpłata ",
-                "hashtags": [],
-                "likes": 270,
-                "comments": 6,
-                "url": "https://www.instagram.com/p/DVg4UdPAaVf/",
-                "sampleBucket": "historical"
-              },
-              {
-                "id": "3849738548375529684",
-                "timestamp": "2026-03-10T12:10:45.000Z",
-                "type": "Video",
-                "caption": "Umiesz kibicować lepiej niż my (XD) i chcesz to pokazać? 📣 A przy okazji zgarnąć dwie wejściówki na mecz Polska – Albania? Weź udział w naszym konkursie, który startuje już jutro (11.03)!\n\nSzukamy najbardziej kreatywnych okrzyków kibicowskich, które poniosą stadion! \n\nJak wziąć udział?\n\nWejdź na stronę 👉 krzyczjakviking.pl i wyślij swój bojowy okrzyk – możesz nagrać go prosto z telefonu albo z komputera. WAŻNE❗Na stronie można przesyłać zgłoszenia 11.03 w godz. 08:00–19:00.\n\nA jeśli akurat jes",
-                "hashtags": [
-                  "#kuchniavikinga",
-                  "#mecz",
-                  "#polskaalbania",
-                  "#reprezentacja",
-                  "#dzieńmężczyzn"
-                ],
-                "likes": 204,
-                "comments": 0,
-                "url": "https://www.instagram.com/p/DVtBNAeDSjU/",
-                "sampleBucket": "historical"
-              },
-              {
-                "id": "3854052303099695591",
-                "timestamp": "2026-03-16T11:00:59.000Z",
-                "type": "Image",
-                "caption": "Ptaszki ćwierkają, że coś nadchodzi… 🤭 I nie mówimy tylko o tej długo wyczekiwanej porze roku, ale też o promocji, która właśnie wpadła w ten piękny, słoneczny poniedziałek! ☀️\n\nA to jeszcze nie wszystko. Oprócz wiosennej promki z kartą Vikinga możesz zgarnąć nawet do -5,5% zwrotu na swoje konto ZEN! 🤯 Szczegóły akcji znajdziesz tutaj: kuchniavikinga.pl/zen/\n\nA tu czekają na Ciebie kodziki:\n 🌸 WIOSNA20 – 20% rabatu na wszystko, bez limitu\n 🌸 WIOSNA30 – 30% rabatu przy zamówieniu na min. 25 d",
-                "hashtags": [
-                  "#wiosna",
-                  "#kuchniavikinga",
-                  "#promka"
-                ],
-                "likes": 165,
-                "comments": 5,
-                "url": "https://www.instagram.com/p/DV8WCZoCJHn/",
-                "sampleBucket": "historical"
-              },
-              {
-                "id": "3857585504854576475",
-                "timestamp": "2026-03-21T08:00:49.000Z",
-                "type": "Image",
-                "caption": "Człowiek już prawie schował kurtkę, już się nastawił na słońce i dłuższe dni…a tu nagle pogoda znowu robi swoje XD XD Dajcie znać, jak u Was –  wpisujcie miasta i pogodę 😀👇\n\nAle żeby trochę ocieplić ten marzec, dorzucamy coś od siebie:\n🌸WIOSNA20 – 20% rabatu na wszystko, bez limitu\n🌸WIOSNA30 – 30% rabatu przy zamówieniu na min. 25 dni\n\nZamów wygodnie w aplikacji lub na www.kuchniavikinga.pl 🤝\n_______\n★ Kody rabatowe nie łączą się z innymi zniżkami i promocjami.\n★ Promocja trwa do 31.03.2026",
-                "hashtags": [],
-                "likes": 88,
-                "comments": 4,
-                "url": "https://www.instagram.com/p/DWI5ZQLjY1b/",
-                "sampleBucket": "historical"
-              },
-              {
-                "id": "3861965059492722782",
-                "timestamp": "2026-03-27T09:02:14.000Z",
-                "type": "Image",
-                "caption": "Są historie, które zostają w nas na długo. Historia Klaudii i Filipa jest jedną z nich. 🥺\n\nRodzeństwo, które niemal w tym samym czasie usłyszało najtrudniejszą diagnozę. Klaudia – od czterech lat walczy z guzem mózgu i wodogłowiem. Filip – zmierzył się z ostrą białaczką limfoblastyczną. Dwie ogromne walki, prowadzone równolegle, dzień po dniu. \n\nWe wrześniu 2024 roku, z okazji naszych 6 urodzin razem z Wami zrobiliśmy coś niezwykłego – zebraliśmy ponad 200 000 zł na ich leczenie. Dzięki temu Fi",
-                "hashtags": [
-                  "#kuchniavikinga",
-                  "#fundacjavikingstory"
-                ],
-                "likes": 1221,
-                "comments": 8,
-                "url": "https://www.instagram.com/p/DWYdMKSCLhe/",
-                "sampleBucket": "historical"
-              }
-            ]
-          }
-        },
-        "facebook": {
-          "platform": "facebook",
-          "url": "https://www.facebook.com/Kuchniavikinga",
-          "handle": "Kuchnia Vikinga",
-          "followers": 132501,
-          "likes": 132501
-        },
-        "youtube": {
-          "platform": "youtube",
-          "url": "https://www.youtube.com/channel/UCjwQThJo793mDN5l_rIjN-A",
-          "handle": "UCjwQThJo793mDN5l_rIjN-A"
-        }
-      },
       "ads": {
         "activeAdsCount": 0,
         "ads": [],
@@ -2994,9 +2570,9 @@
         "provider": "rejestr.io"
       },
       "_cost_social": {
-        "usd": 0.125,
-        "apifyCalls": 3,
-        "pplxCalls": 1,
+        "usd": 0.04,
+        "apifyCalls": 1,
+        "pplxCalls": 0,
         "provider": "apify+perplexity"
       },
       "_cost_reviews": {
@@ -3053,10 +2629,313 @@
         "priceRange": "Od 48,99zł do 101,99zł",
         "tierPricing": "BASIC: od 65.99 zł, COMFORT: od 68.99 zł, SUPREME: od 72.99 zł, LADIES VIBES: od 68.99 zł, KETO FUSION: od 71.99 zł, TYPES OF VEGE: od 66.99 zł",
         "pricingMethod": "dietly-api"
+      },
+      "social": {
+        "profiles": [
+          {
+            "platform": "tiktok",
+            "url": "https://www.tiktok.com/@kuchniavikinga",
+            "handle": "kuchniavikinga",
+            "followers": 27600,
+            "posts": 530
+          }
+        ],
+        "totalFollowers": 27600,
+        "platformCount": 1,
+        "fetchedAt": "2026-04-05T10:48:03.729Z",
+        "method": "apify",
+        "tiktok": {
+          "platform": "tiktok",
+          "url": "https://www.tiktok.com/@kuchniavikinga",
+          "handle": "kuchniavikinga",
+          "followers": 27600,
+          "posts": 530,
+          "totalLikes": 281600,
+          "avgViews": 1762,
+          "content": {
+            "sampleSize": 12,
+            "recentPosts": 4,
+            "historicalPosts": 8,
+            "dateRange": {
+              "oldest": "2026-02-28",
+              "newest": "2026-04-04"
+            },
+            "postingFrequency": "2.4 posts/week",
+            "avgViewsRecent": 1762,
+            "avgViewsHistorical": 35504,
+            "avgLikesRecent": 73,
+            "avgLikesHistorical": 244,
+            "engagementTrend": "declining",
+            "topHashtags": [
+              {
+                "tag": "#kuchniavikinga",
+                "count": 12
+              },
+              {
+                "tag": "#dieta",
+                "count": 5
+              },
+              {
+                "tag": "#trend",
+                "count": 4
+              },
+              {
+                "tag": "#tiktok",
+                "count": 3
+              },
+              {
+                "tag": "#viking",
+                "count": 3
+              },
+              {
+                "tag": "#podlasie",
+                "count": 2
+              },
+              {
+                "tag": "#fantazje",
+                "count": 1
+              },
+              {
+                "tag": "#food",
+                "count": 1
+              },
+              {
+                "tag": "#kodrabatowy",
+                "count": 1
+              },
+              {
+                "tag": "#zdrowejedzenie",
+                "count": 1
+              },
+              {
+                "tag": "#stadionnarodowy",
+                "count": 1
+              },
+              {
+                "tag": "#martysupreme",
+                "count": 1
+              },
+              {
+                "tag": "#mecz",
+                "count": 1
+              },
+              {
+                "tag": "#polskaalbania",
+                "count": 1
+              },
+              {
+                "tag": "#reprezentacja",
+                "count": 1
+              }
+            ],
+            "posts": [
+              {
+                "id": "7624927322822495521",
+                "timestamp": "2026-04-04T15:32:23.000Z",
+                "caption": "Skąd wzięła się nazwa Kuchnia Vikinga? 🤔\n\nTo nie hełmy i brody — tylko charakter, konsekwencja i jedzenie, które naprawdę daje energię do działania.\n\nA Ty od kiedy jesteś z Vikingiem? 💬\n\n#kuchniavikinga #dieta ",
+                "hashtags": [
+                  "#kuchniavikinga",
+                  "#dieta"
+                ],
+                "views": 1003,
+                "likes": 44,
+                "comments": 0,
+                "shares": 7,
+                "url": "https://www.tiktok.com/@kuchniavikinga/video/7624927322822495521",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "7624477992651115809",
+                "timestamp": "2026-04-03T10:28:45.000Z",
+                "caption": "Skarpety po treningu, kokos czy bogactwo - tak według naszych ankietowanych pachną ,,perfumy\" Vikinga! XD\nA Wy jakie nuty zapachowe byście tutaj widzieli? 😀\n#kuchniavikinga #trend #tiktok #podlasie ",
+                "hashtags": [
+                  "#kuchniavikinga",
+                  "#trend",
+                  "#tiktok",
+                  "#podlasie"
+                ],
+                "views": 1405,
+                "likes": 59,
+                "comments": 2,
+                "shares": 2,
+                "url": "https://www.tiktok.com/@kuchniavikinga/video/7624477992651115809",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "7624061593063591201",
+                "timestamp": "2026-04-02T07:32:56.000Z",
+                "caption": "Zobacz nasz zakład mięsny! \n\nDaj znać czy tak go sobie wyobrażałeś 🫣🫣 Co chcesz zobaczyć kolejnego? #kuchniavikinga #trend #tiktok #podlasie ",
+                "hashtags": [
+                  "#kuchniavikinga",
+                  "#trend",
+                  "#tiktok",
+                  "#podlasie"
+                ],
+                "views": 3238,
+                "likes": 137,
+                "comments": 12,
+                "shares": 4,
+                "url": "https://www.tiktok.com/@kuchniavikinga/video/7624061593063591201",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "7623846503706053920",
+                "timestamp": "2026-04-01T17:38:13.000Z",
+                "caption": "✨⚔️💛\n\n#kuchniavikinga #trend #fantazje #dieta ",
+                "hashtags": [
+                  "#kuchniavikinga",
+                  "#trend",
+                  "#fantazje",
+                  "#dieta"
+                ],
+                "views": 1401,
+                "likes": 51,
+                "comments": 0,
+                "shares": 7,
+                "url": "https://www.tiktok.com/@kuchniavikinga/video/7623846503706053920",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "7623678835833294113",
+                "timestamp": "2026-04-01T06:47:39.000Z",
+                "caption": "Jak oceniacie takie rozwiązanie? 🫣👀 \n#kuchniavikinga #trend #tiktok #food ",
+                "hashtags": [
+                  "#kuchniavikinga",
+                  "#trend",
+                  "#tiktok",
+                  "#food"
+                ],
+                "views": 66000,
+                "likes": 971,
+                "comments": 47,
+                "shares": 69,
+                "url": "https://www.tiktok.com/@kuchniavikinga/video/7623678835833294113",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "7622717091728182560",
+                "timestamp": "2026-03-29T16:35:33.000Z",
+                "caption": "🌸WIOSNA20: -20% (bez limitu)\n🌸 WIOSNA30: -30% przy zamówieniu na minimum 25\ndni\n\n⏰Promocja trwa do 31.03.2026 r. do 12:00 \n\n#kuchniavikinga #viking #kodrabatowy ",
+                "hashtags": [
+                  "#kuchniavikinga",
+                  "#viking",
+                  "#kodrabatowy"
+                ],
+                "views": 1489,
+                "likes": 30,
+                "comments": 2,
+                "shares": 8,
+                "url": "https://www.tiktok.com/@kuchniavikinga/video/7622717091728182560",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "7620119777352224033",
+                "timestamp": "2026-03-22T16:36:39.000Z",
+                "caption": "60 tysięcy osób. Codziennie.\nJak jeden pełny Stadion Narodowy — tylko że tutaj każdy dostaje swoje pudełko z jedzeniem 💛\n\nTo nie jest tylko skala. To powtarzalność, jakość i standard, który musi się zgadzać… każdego dnia od nowa. Bez wyjątków.\n\nZa tym stoją setki osób, ogromna logistyka i tysiące posiłków przygotowywanych tak, żeby naprawdę chciało się wrócić kolejnego dnia.\n\nChcesz zobaczyć, jak wygląda kuchnia, która karmi cały stadion — i dba o każdy detal? Zajrzyj na profil ✨⚔️\n\n#kuchniavik",
+                "hashtags": [
+                  "#kuchniavikinga",
+                  "#dieta",
+                  "#zdrowejedzenie",
+                  "#stadionnarodowy"
+                ],
+                "views": 2071,
+                "likes": 56,
+                "comments": 2,
+                "shares": 1,
+                "url": "https://www.tiktok.com/@kuchniavikinga/video/7620119777352224033",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "7617950912492997920",
+                "timestamp": "2026-03-16T20:20:20.000Z",
+                "caption": "And the oscars goes to… ⚔️💛\n\n💬 Odpowiadamy na Wasze najczęściej zadawane pytania!\n\nI teraz niespodzianka: czekają na Ciebie kodziki, dzięki którym wiosna smakuje jeszcze lepiej!\n\n🌸 WIOSNA20 – 20% rabatu na całe zamówienie, bez limitu\n🌸 WIOSNA30 – 30% rabatu przy zamówieniu na minimum 25 dni\n\n👉 Zamów wygodnie w aplikacji lub na www.kuchniavikinga.pl\n_______\n★ Kody rabatowe nie łączą się z innymi zniżkami i promocjami.\n★ Promocja trwa do 31.03.2026 r. do godz. 12:00 🚨\n★ Regulamin: kuchniavik",
+                "hashtags": [
+                  "#kuchniavikinga",
+                  "#martysupreme",
+                  "#dieta"
+                ],
+                "views": 2219,
+                "likes": 29,
+                "comments": 4,
+                "shares": 6,
+                "url": "https://www.tiktok.com/@kuchniavikinga/video/7617950912492997920",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "7615667720499170583",
+                "timestamp": "2026-03-10T16:40:22.000Z",
+                "caption": "Szukamy najbardziej kreatywnych okrzyków kibicowskich, które poniosą stadion! \n\nJak wziąć udział?\n\nWejdź na stronę 👉 krzyczjakviking.pl i wyślij swój bojowy okrzyk – możesz nagrać go prosto z telefonu albo z komputera. \nWAŻNE❗Na stronie można przesyłać zgłoszenia 11.03 w godz. 08:00–19:00.\n\nA jeśli akurat jesteś w Warszawie, wpadnij jutro (11.03) pod Pałac Kultury i Nauki. Będziemy tam od 8:00 do 18:00 z profesjonalnym studiem, w którym możesz nagrać swój okrzyk na żywo i wykrzyczeć wsparcie dl",
+                "hashtags": [
+                  "#kuchniavikinga",
+                  "#mecz",
+                  "#polskaalbania",
+                  "#reprezentacja",
+                  "#dzieńmężczyzn"
+                ],
+                "views": 2513,
+                "likes": 50,
+                "comments": 4,
+                "shares": 4,
+                "url": "https://www.tiktok.com/@kuchniavikinga/video/7615667720499170583",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "7614146183631539478",
+                "timestamp": "2026-03-06T14:16:01.000Z",
+                "caption": "Myślicie, że pieski polubiłby się z naszym Vikingiem Sławkiem? ✨🖤 \n\n#kuchniavikinga #viking #asior #dzieciok ",
+                "hashtags": [
+                  "#kuchniavikinga",
+                  "#viking",
+                  "#asior",
+                  "#dzieciok"
+                ],
+                "views": 997,
+                "likes": 15,
+                "comments": 1,
+                "shares": 8,
+                "url": "https://www.tiktok.com/@kuchniavikinga/video/7614146183631539478",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "7613359431346130198",
+                "timestamp": "2026-03-04T11:23:04.000Z",
+                "caption": "Nadaje się na influencera? 😁  Pst… Napoje możecie dodać w dodatkach do swojego zamówienia ✌🏼\n\n#kuchniavikinga #viral #dlaciebie #influencer ",
+                "hashtags": [
+                  "#kuchniavikinga",
+                  "#viral",
+                  "#dlaciebie",
+                  "#influencer"
+                ],
+                "views": 205800,
+                "likes": 747,
+                "comments": 15,
+                "shares": 22,
+                "url": "https://www.tiktok.com/@kuchniavikinga/video/7613359431346130198",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "7611945888235244822",
+                "timestamp": "2026-02-28T15:57:46.000Z",
+                "caption": "miłej soboty Vikingowie ✨🌸\n\n#kuchniavikinga #viking #dieta ",
+                "hashtags": [
+                  "#kuchniavikinga",
+                  "#viking",
+                  "#dieta"
+                ],
+                "views": 2941,
+                "likes": 57,
+                "comments": 0,
+                "shares": 5,
+                "url": "https://www.tiktok.com/@kuchniavikinga/video/7611945888235244822",
+                "sampleBucket": "historical"
+              }
+            ]
+          }
+        }
       }
     },
-    "lastScanId": "b62134fd-e302-49bf-b37c-28065fb144dc",
-    "lastScannedAt": "2026-04-05T09:55:54.829Z",
+    "lastScanId": "3494cb82-ca3f-4ec1-ac4e-90ecdd4d2cf5",
+    "lastScannedAt": "2026-04-05T10:48:09.672Z",
     "nip": "5423314760",
     "krs": "0000970748",
     "financials": {
