@@ -13,12 +13,14 @@ import { enrichContext } from '@/lib/pipeline/phases/context';
 import { interpretDataset } from '@/lib/pipeline/phases/interpret';
 import { enrichPricingFallback } from '@/lib/pipeline/phases/pricing-fallback';
 import { extractVisualIdentity } from '@/lib/pipeline/phases/visual';
+import { analyzeVideo } from '@/lib/pipeline/phases/video';
 
 // All phases in order. Context before discovery (provides legalName for rejestr.io).
 // Visual runs after crawl (needs URL), uses Apify screenshot + Haiku vision.
+// Video runs after social (needs post URLs), uses yt-dlp + Gemini + Sonnet.
 const ALL_PHASES = [
   'crawl', 'extract', 'visual', 'context', 'pricing_fallback', 'discovery',
-  'social', 'ads', 'reviews', 'finance', 'interpret'
+  'social', 'video', 'ads', 'reviews', 'finance', 'interpret'
 ];
 
 /** POST /api/scan — start a new scan, resume, or batch from unscanned brands */
@@ -417,6 +419,7 @@ function entityHasPhaseData(entity: EntityRecord, phaseName: string): boolean {
     case 'pricing_fallback': return !!(d.pricing && (d.pricing as Record<string, unknown>)._pricing_fallback_done);
     case 'discovery':       return !!d._discovery;
     case 'social':          return !!(d.social && !(d.social as Record<string, unknown>).skipped);
+    case 'video':           return !!(d.video && !(d.video as Record<string, unknown>).skipped);
     case 'ads':             return !!d.ads;
     case 'reviews':         return !!d.reviews;
     case 'finance':         return !!(d.finance && !(d.finance as Record<string, unknown>).skipped);
@@ -512,6 +515,10 @@ async function runEntityPhase(
       } else if (phaseName === 'social') {
         const social = d.social as Record<string, unknown> | undefined;
         if (social) detail = `${social.platformCount} platforms, ${social.totalFollowers} followers`;
+      } else if (phaseName === 'video') {
+        const vid = d.video as Record<string, unknown> | undefined;
+        if (vid?.skipped) detail = `skipped: ${vid.reason}`;
+        else if (vid) detail = `${vid.analyzed_count}/${(vid.analyzed_count as number) + (vid.failed_count as number)} videos analyzed, platforms: ${(vid.platforms as string[])?.join('+') || 'none'}`;
       } else if (phaseName === 'ads') {
         const ads = d.ads as Record<string, unknown> | undefined;
         if (ads) detail = `${ads.activeAdsCount} active ads, intensity: ${ads.estimatedIntensity}`;
@@ -634,6 +641,14 @@ async function runPipeline(scanId: string, enabledPhases: string[]) {
     await runEntityPhase(scan, 'social', enrichSocial, {
       skipFailed: true,
       requireKey: 'APIFY_API_TOKEN',
+    });
+  }
+
+  // Phase 5b: Video analysis — yt-dlp + Gemini Flash + Sonnet (needs social data)
+  if (has('video')) {
+    await runEntityPhase(scan, 'video', analyzeVideo, {
+      skipFailed: true,
+      requireKey: 'GEMINI_API_KEY',
     });
   }
 
