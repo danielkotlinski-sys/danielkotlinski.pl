@@ -221,6 +221,7 @@ interface DietlyPriceResult {
   price_1500kcal: number | null;
   price_2000kcal: number | null;
   cheapest_daily: number | null;
+  price_by_kcal: Record<number, number>;  // Full map: {1200: 65.99, 1500: 72.99, ...}
 }
 
 /**
@@ -322,49 +323,52 @@ function buildTierDietOptionId(diet: DietlyDiet): string | undefined {
 
 /**
  * Get exact benchmark prices from Dietly's calculate-price API.
- * Returns prices for 1500 and 2000 kcal, plus cheapest (1200 kcal).
+ * Returns full price map for all kcal variants, plus 1500/2000 shortcuts.
  */
 function getDietlyBenchmarkPrices(extract: DietlyExtract): DietlyPriceResult {
-  const result: DietlyPriceResult = { price_1500kcal: null, price_2000kcal: null, cheapest_daily: null };
+  const result: DietlyPriceResult = { price_1500kcal: null, price_2000kcal: null, cheapest_daily: null, price_by_kcal: {} };
   if (!extract.benchmarkDietObj) return result;
 
   const diet = extract.benchmarkDietObj;
   const tierOptId = buildTierDietOptionId(diet);
 
-  // Get 1500 kcal price
-  const cal1500 = findCaloriesId(diet, 1500);
-  if (cal1500) {
-    result.price_1500kcal = getDietlyPrice(extract.companySlug, extract.cityId, cal1500, tierOptId);
-  }
-
-  // Get 2000 kcal price
-  const cal2000 = findCaloriesId(diet, 2000);
-  if (cal2000) {
-    result.price_2000kcal = getDietlyPrice(extract.companySlug, extract.cityId, cal2000, tierOptId);
-  }
-
-  // Get cheapest (lowest kcal in the benchmark diet itself)
-  const benchmarkKcals: number[] = [];
+  // Collect all unique kcal values available in the benchmark diet (first tier or top-level options)
+  const benchmarkKcals: { calories: number; dietCaloriesId: number }[] = [];
   if (diet.dietTiers && diet.dietTiers.length > 0) {
     for (const opt of (diet.dietTiers[0].dietOptions || [])) {
       for (const cal of (opt.dietCalories || [])) {
-        if (cal.calories >= 1000) benchmarkKcals.push(cal.calories);
+        if (cal.calories >= 1000) benchmarkKcals.push(cal);
       }
     }
   }
   if (benchmarkKcals.length === 0) {
     for (const opt of (diet.dietOptions || [])) {
       for (const cal of (opt.dietCalories || [])) {
-        if (cal.calories >= 1000) benchmarkKcals.push(cal.calories);
+        if (cal.calories >= 1000) benchmarkKcals.push(cal);
       }
     }
   }
-  if (benchmarkKcals.length > 0) {
-    const lowestKcal = Math.min(...benchmarkKcals);
-    const calLowest = findCaloriesId(diet, lowestKcal);
-    if (calLowest) {
-      result.cheapest_daily = getDietlyPrice(extract.companySlug, extract.cityId, calLowest, tierOptId);
+
+  // Deduplicate by calories value
+  const uniqueKcals = Array.from(
+    new Map(benchmarkKcals.map(c => [c.calories, c])).values()
+  ).sort((a, b) => a.calories - b.calories);
+
+  // Fetch price for every calorie variant
+  for (const cal of uniqueKcals) {
+    const price = getDietlyPrice(extract.companySlug, extract.cityId, cal.dietCaloriesId, tierOptId);
+    if (price !== null) {
+      result.price_by_kcal[cal.calories] = price;
     }
+  }
+
+  // Extract key benchmarks from the full map
+  result.price_1500kcal = result.price_by_kcal[1500] ?? null;
+  result.price_2000kcal = result.price_by_kcal[2000] ?? null;
+
+  const allPrices = Object.values(result.price_by_kcal);
+  if (allPrices.length > 0) {
+    result.cheapest_daily = Math.min(...allPrices);
   }
 
   return result;
@@ -513,6 +517,9 @@ export async function enrichPricingFallback(entity: EntityRecord): Promise<Entit
     if (typeof dietlyApiPrices.cheapest_daily === 'number') {
       mergedPricing.cheapest_daily = dietlyApiPrices.cheapest_daily;
     }
+    if (Object.keys(dietlyApiPrices.price_by_kcal).length > 0) {
+      mergedPricing.price_by_kcal = dietlyApiPrices.price_by_kcal;
+    }
     if (dietlyExtract?.benchmarkDiet) {
       mergedPricing.benchmark_diet_name = dietlyExtract.benchmarkDiet;
     }
@@ -587,7 +594,7 @@ export async function enrichPricingFallback(entity: EntityRecord): Promise<Entit
       _cost_pricing: {
         usd: pplxCalls * 0.005,
         calls: pplxCalls,
-        dietlyApiCalls: dietlyApiPrices ? (dietlyApiPrices.price_1500kcal ? 1 : 0) + (dietlyApiPrices.price_2000kcal ? 1 : 0) + (dietlyApiPrices.cheapest_daily ? 1 : 0) : 0,
+        dietlyApiCalls: dietlyApiPrices ? Object.keys(dietlyApiPrices.price_by_kcal).length : 0,
         provider: dietlyApiPrices ? 'dietly-api' : (dietlySlug ? 'dietly+perplexity' : 'perplexity'),
       },
     },

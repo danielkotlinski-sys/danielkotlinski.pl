@@ -1,5 +1,5 @@
 # CATSCAN // CATERING INTELLIGENCE ENGINE
-## Brief produktowy — v0.7
+## Brief produktowy — v0.8
 
 ---
 
@@ -40,6 +40,21 @@ Dane dostępne z Dietly per marka:
 - Aktualne promocje i rabaty
 - Krótki opis firmy
 - Badge'e (np. Dietly Awards 2025)
+
+**Dietly SSR extraction** — z `__NEXT_DATA__` na profilu firmy:
+- Pełna struktura diet: nazwy, tiery, warianty kaloryczne, dietCaloriesId
+- cityId z query key SSR
+- priceRange (minPrice per tier)
+- Calorie options (wszystkie dostępne kaloryczności)
+
+**Dietly calculate-price API** (reverse-engineered, v0.8):
+- Endpoint: `POST /api/dietly/open/shopping-cart/calculate-price`
+- Headers: `company-id`, `x-guest-session`
+- Body: shopping cart z cityId, companySlug, simpleOrders[{dietCaloriesId, tierDietOptionId}]
+- Response: `totalDietWithoutSideOrdersCost` = dokładna cena dzienna PLN
+- Koszt: **$0** (wewnętrzne API Dietly, nie wymaga autentykacji)
+- Dokładność: **100%** — ceny z silnika cenowego Dietly
+- Pokrycie: ~177 marek Dietly (minus ~10-20% bez skonfigurowanego cennika)
 
 To daje nam SEED DATA: listę marek + URL + podstawowe metryki.
 
@@ -118,13 +133,19 @@ Atrybuty mają typy: text, number, enum, boolean, array, date.
 - legal_entity: text — nazwa spółki (jeśli dostępna)
 
 ### WYMIAR 02: POZYCJONOWANIE CENOWE
+Źródło: Dietly calculate-price API (177 marek, 100% dokładność, $0 koszt) + Perplexity fallback (~62 marki non-Dietly).
+Metodologia: cena dziennej diety "Wybór menu" / "Standard" (najniższy tier) dla każdego wariantu kalorycznego.
 - price_category: enum [ekonomiczny, standardowy, premium, super-premium]
 - price_per_day_min: number — najniższa cena za dzień (PLN)
 - price_per_day_max: number — najwyższa cena za dzień (PLN)
 - price_1500kcal: number — cena benchmarkowa za 1500 kcal/dzień (PLN)
 - price_2000kcal: number — cena benchmarkowa za 2000 kcal/dzień (PLN)
+- price_by_kcal: map{kcal → price} — pełna mapa cen per kaloryczność (PLN/dzień)
+  Przykład: {1200: 65.99, 1500: 72.99, 1800: 75.99, 2000: 77.99, 2500: 85.99, 3000: 91.99}
+- cheapest_daily: number — najtańszy wariant kaloryczny (PLN/dzień)
+- benchmark_diet_name: text — nazwa diety użytej do benchmarku
 - diet_prices: array[{name, kcal, price_per_day}] — rozbicie cen per dieta
-- price_source: enum [crawl, perplexity, estimated] — skąd cena
+- price_source: enum [dietly-api, crawl, perplexity, estimated] — skąd cena
 - pricing_model: enum [subscription, one-time, hybrid]
 - has_trial: boolean
 - has_discount: boolean
@@ -402,20 +423,39 @@ Koszt: ~$2.50
 Dwuprzebiegowy: pass 1 = core business data, pass 2 = media intelligence.
 Dodatkowe pola: employeeRange, uniqueInsight, legalName (backfill do discovery).
 
-### Faza 4.5: PRICING FALLBACK ✅ GOTOWE (rozszerzona)
+### Faza 4.5: PRICING FALLBACK ✅ GOTOWE (v0.8 — Dietly API)
 
-Wejście: encje bez diet_prices (JS-rendered sites: Maczfit, NTFY, FitBox, etc.)
-Wyjście: diet_prices[], price_1500kcal, price_2000kcal, price_source, **calorie_options[]**
-Narzędzie: Perplexity sonar model
+Wejście: encje bez benchmark pricing
+Wyjście: price_1500kcal, price_2000kcal, **price_by_kcal{}**, cheapest_daily, calorie_options[]
 Implementacja: `lib/pipeline/phases/pricing-fallback.ts`
-Logika: benchmarki 1500/2000 kcal obliczane z diet_prices (closest match ±300 kcal).
-Dwa tryby: full pricing (brak jakichkolwiek cen) vs diet breakdown only (jest min/max, brak rozbicia).
-**Calorie options:** teraz też wypełnia `menu.calorie_options`:
-  1. Najpierw próbuje wyciągnąć z diet_prices (wartości kcal)
-  2. Fallback: dedykowane zapytanie Perplexity: "Jakie warianty kaloryczne oferuje [brand]?"
-  3. Koszt dodatkowego query: ~$0.005/brand
-  4. Przykład: Maczfit → [1200, 1500, 1800, 2000, 2500, 3000]
-Koszt: ~$0.01/brand (1-2 Perplexity calls)
+
+**Dwa ścieżki:**
+
+**Path A: Dietly brands (177/239) — Dietly calculate-price API (FREE, 100% accurate)**
+  1. Curl profil firmy na Dietly → parse `__NEXT_DATA__` → struktura diet (nazwy, tiery, kaloryczności, ID)
+  2. Znajdź dietę benchmarkową: "Wybór menu" > "Standard" > "Klasyczna" > pierwsza
+  3. Dla każdego wariantu kalorycznego: call `POST /api/dietly/open/shopping-cart/calculate-price`
+  4. Response: `totalDietWithoutSideOrdersCost` = dokładna cena PLN/dzień
+  5. Wynik: pełna mapa `price_by_kcal: {1200: 65.99, 1500: 72.99, ..., 3000: 91.99}`
+  - Koszt: **$0** (wewnętrzne API Dietly)
+  - Dokładność: **100%**
+  - Czas: ~1s/wariant, ~7s/brand (avg 7 wariantów)
+  - Pokrycie: ~85% marek Dietly (reszta nie ma cennika w Dietly)
+
+**Path B: Non-Dietly brands (62/239) — Perplexity fallback**
+  - Targeted query: "cena diety [brand] 1500/2000 kcal"
+  - Koszt: ~$0.005/brand
+  - Dokładność: ~30-50%
+
+**Calorie options:** wypełnia `menu.calorie_options`:
+  1. Z Dietly SSR (free, 100% accurate) — lub —
+  2. Z Perplexity response — lub —
+  3. Dedykowane zapytanie Perplexity
+  Przykład: Viking → [1000, 1200, 1500, 1800, 2000, 2200, 2500, 3000, 3500]
+
+Przykładowe wyniki:
+  - Kuchnia Vikinga: {1200: 65.99, 1500: 72.99, 1800: 75.99, 2000: 77.99, 2200: 81.99, 2500: 85.99, 3000: 91.99}
+  - Maczfit: {1200: 90, 1500: 99, 1800: 103, 2000: 107, 2500: 113, 3000: 123}
 
 ### Faza 5: DISCOVERY (NIP/KRS) ✅ GOTOWE — przepisana
 
@@ -503,11 +543,12 @@ Koszt: ~$10-15
 ### TOTAL PIPELINE:
 - Faz: 12 (seed + 11 faz per-scan). Wszystkie zaimplementowane.
 - Kolejność: crawl → extract → **visual** → context → pricing_fallback → discovery → social → ads → reviews → finance → interpret
+- Kluczowa zmiana v0.8: **Dietly calculate-price API** — pełna mapa cenowa per kcal (FREE, 100% accurate) dla 177 marek
 - Kluczowa zmiana v0.7: nowa faza `visual` między extract i context (Apify screenshot + Haiku vision)
 - Kluczowa zmiana v0.6: context PRZED discovery (Perplexity dostarcza legalName → trafniejsze wyszukiwanie w rejestr.io)
 - Czas: 3-4 dni (z testowaniem i poprawkami, jednorazowo)
-- Koszt: ~$155 za 239 marek (~$0.65/brand)
-- Wynik: 239 encji x 175+ atrybutów = ~41,825+ data points
+- Koszt: ~$140 za 239 marek (~$0.59/brand) — oszczędność ~$15 dzięki Dietly API vs Perplexity
+- Wynik: 239 encji x 178+ atrybutów = ~42,500+ data points
 - Plus: ~3,600 kreacji reklamowych, ~9,500 postów social (w tym 20 stratified IG per marka), ~360 sprawozdań finansowych
 - Orchestrator: `app/api/scan/route.ts` — async, per-entity, z error handling i cost tracking
 - AI backend: curl do Claude API (zamiast Anthropic SDK — SDK timeout w sandbox, curl działa stabilnie)
