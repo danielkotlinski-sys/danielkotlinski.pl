@@ -6,15 +6,24 @@ import type { EntityRecord } from '@/lib/db/store';
 
 const EXTRACTION_PROMPT = `You are a market intelligence analyst extracting structured data about a Polish diet catering company from their website content.
 
-Extract the following dimensions. Return ONLY valid JSON, no markdown, no explanation.
+Extract ALL of the following dimensions. Return ONLY valid JSON, no markdown, no explanation.
 
 {
   "brand_identity": {
     "brand_name": "string — primary brand name",
     "tagline": "string or null",
     "positioning": "string — one sentence: who they target and what they promise",
-    "emotional_register": "premium | friendly | clinical | motivational | neutral",
     "language": "pl | en | both"
+  },
+  "messaging": {
+    "headline": "string or null — main hero headline on the homepage",
+    "subheadline": "string or null — supporting text under the headline",
+    "primary_cta": "string or null — text of the main call-to-action button, e.g. 'Zamów dietę'",
+    "value_proposition": "string or null — the core promise in one sentence",
+    "social_proof_type": "reviews | counter | logos | celebrities | none — dominant social proof format used",
+    "emotional_register": "premium | friendly | clinical | motivational | neutral",
+    "claims": ["array of specific promises found on site, e.g. 'świeże składniki', 'dostawa o 6 rano', 'bez konserwantów'"],
+    "cliche_score": "number 0-10 — how generic/cliché is the messaging (10 = very generic, 0 = very original)"
   },
   "pricing": {
     "price_range_pln": "string — e.g. '45-89 PLN/dzień'",
@@ -25,18 +34,18 @@ Extract the following dimensions. Return ONLY valid JSON, no markdown, no explan
   },
   "menu": {
     "diet_types": ["list of diet names offered, e.g. 'Standard', 'Keto', 'Vege'"],
-    "calorie_options": ["list of kcal options, e.g. '1200', '1500', '2000'"],
+    "calorie_options": [1200, 1500, 2000, 2500, "IMPORTANT: these are the DAILY calorie plan options customers can choose (like 1200, 1500, 2000, 2500, 3000 kcal/day), NOT individual meal calories. Look for plan/package kcal options."],
     "cuisine_style": "string or null — Polish, Mediterranean, Asian, mixed",
-    "dietary_restrictions": ["vegan", "gluten-free", "lactose-free", etc.]
+    "dietary_restrictions": ["vegan", "gluten-free", "lactose-free", "etc."]
   },
   "delivery": {
     "delivery_model": "own_fleet | courier | mixed | unknown",
-    "delivery_cities": ["list of main cities or 'cała Polska'"],
+    "delivery_cities": ["IMPORTANT: extract EVERY city mentioned on the site — list ALL of them, even if there are dozens. e.g. 'Warszawa', 'Kraków', 'Wrocław', 'Gdańsk'... Do not summarize as 'cała Polska' unless that is literally the only thing stated."],
     "delivery_time": "string or null — e.g. 'do 6:00 rano'",
     "weekend_delivery": "boolean or null"
   },
   "technology": {
-    "has_online_ordering": true,
+    "has_online_ordering": "boolean",
     "has_mobile_app": "boolean or null",
     "has_meal_customization": "boolean or null",
     "payment_methods": ["list or empty"]
@@ -51,17 +60,52 @@ Extract the following dimensions. Return ONLY valid JSON, no markdown, no explan
     "city": "string or null — main HQ city",
     "phone": "string or null",
     "email": "string or null",
-    "nip": "string or null — if visible on site"
+    "nip": "string or null — Polish tax ID if visible on site"
   },
-  "unique_differentiator": "string — one sentence: what makes this brand unique vs competitors"
+  "seo": {
+    "title_tag": "string or null — content of <title> tag",
+    "meta_description": "string or null — content of meta description",
+    "h1": "string or null — main H1 heading",
+    "keyword_focus": ["array of primary keywords the site seems to target, e.g. 'dieta pudełkowa', 'catering dietetyczny Warszawa'"],
+    "has_local_seo": "boolean — true if site mentions specific cities/regions for SEO",
+    "content_strategy": "no-blog | occasional | regular | aggressive — based on blog presence and volume"
+  },
+  "website_structure": {
+    "page_count_estimate": "number or null — rough count of pages/subpages visible in navigation",
+    "has_blog": "boolean",
+    "has_calculator": "boolean — e.g. BMI/BMR/calorie calculator",
+    "has_live_chat": "boolean — live chat widget or chatbot visible",
+    "ordering_ux": "on-site | redirect-dietly | phone | form — how users actually place orders",
+    "tech_signals": ["array of detected technologies, e.g. 'WordPress', 'Dietly', 'Shopify', 'custom', 'React', 'Next.js'"]
+  },
+  "content_marketing": {
+    "has_lead_magnet": "boolean — free ebook, PDF guide, quiz etc.",
+    "has_newsletter": "boolean — newsletter signup form visible",
+    "has_youtube": "boolean — embedded YouTube videos or link to YouTube channel"
+  },
+  "customer_acquisition": {
+    "referral_program": "boolean — refer-a-friend program mentioned",
+    "affiliate_program": "boolean — affiliate/partner program mentioned",
+    "b2b_offering": "boolean — corporate/B2B catering offering mentioned",
+    "dietly_promoted": "boolean — Dietly platform prominently featured or used for ordering"
+  },
+  "differentiators": {
+    "unique_claims": ["array of claims that set this brand apart, e.g. 'jedyny catering z dietą FODMAP', 'własna farma ekologiczna'"],
+    "competitive_advantage_type": "price | quality | convenience | niche | brand | none — the primary axis of differentiation",
+    "niche_focus": "string or null — specific niche if any, e.g. 'sportowcy', 'kobiety w ciąży', 'wegetarianie'"
+  }
 }
 
 Important:
 - Use null for fields you cannot determine from the content
 - For lists, use empty array [] if no data found
+- calorie_options MUST be an array of integers like [1200, 1500, 2000], NOT strings
+- delivery_cities: list EVERY city individually, do not summarize
+- claims and unique_claims: be specific, quote actual text from the site
 - Prices in PLN only
 - All text fields in Polish if the source is Polish
-- Be precise, don't hallucinate data not present in the source`;
+- Be precise, don't hallucinate data not present in the source
+- cliche_score: 0 = truly original messaging, 10 = entirely generic diet catering clichés`;
 
 function shellEscape(s: string): string {
   return "'" + s.replace(/'/g, "'\\''") + "'";
@@ -87,7 +131,7 @@ export async function extractEntity(entity: EntityRecord): Promise<EntityRecord>
 
     const requestBody = {
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 4096,
+      max_tokens: 8192,
       messages: [
         {
           role: 'user',
@@ -146,6 +190,21 @@ export async function extractEntity(entity: EntityRecord): Promise<EntityRecord>
       return {
         ...entity,
         errors: [...entity.errors, `Extract JSON parse error. Raw response: ${text.slice(0, 200)}`],
+      };
+    }
+
+    // Merge _contact_raw from crawl phase into extracted contact data
+    const contactRaw = entity.data._contact_raw as Record<string, string | null> | undefined;
+    if (contactRaw) {
+      const extractedContact = (extracted.contact || {}) as Record<string, string | null>;
+      extracted.contact = {
+        ...extractedContact,
+        // Crawl-phase data takes priority for structured fields (regex-extracted, more reliable)
+        phone: contactRaw.phone || extractedContact.phone || null,
+        email: contactRaw.email || extractedContact.email || null,
+        nip: contactRaw.nip || extractedContact.nip || null,
+        // Keep city from LLM extraction (crawl doesn't extract it)
+        city: extractedContact.city || null,
       };
     }
 

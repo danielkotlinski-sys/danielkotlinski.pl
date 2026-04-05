@@ -2141,7 +2141,7 @@
         "crawlerType": "curl",
         "subpagesCrawled": 0,
         "contentLength": 14654,
-        "crawledAt": "2026-04-05T06:39:10.359Z"
+        "crawledAt": "2026-04-05T07:20:27.975Z"
       },
       "_social_urls": {
         "facebook": "https://www.facebook.com/Kuchniavikinga",
@@ -2156,50 +2156,15 @@
       "brand_identity": {
         "brand_name": "Kuchnia Vikinga",
         "tagline": "Zdrowa dieta pudełkowa",
-        "positioning": "Kuchnia Vikinga obsługuje osoby pragnące zdrowego, zbilansowanego jedzenia dostarczonego pod drzwi w całej Polsce, oferując 18 diet i szerokie możliwości personalizacji.",
-        "emotional_register": "friendly",
+        "positioning": "Kuchnia Vikinga obsługuje osoby poszukujące zdrowej, zbilansowanej diety pudełkowej dostarczanej pod drzwi, oferując 18 kompletnych diet z bogatym wyborem posiłków.",
         "language": "pl"
       },
       "pricing": {
-        "price_range_pln": "48,99-79,99 PLN/dzień",
-        "cheapest_daily": 48.99,
+        "price_range_pln": "39,99-79,99 PLN/dzień",
+        "cheapest_daily": 39.99,
         "most_expensive_daily": 79.99,
-        "trial_offer": "Odbierz -5 zł za każdy dzień zamówienia przy zamówieniu powyżej 5 dni",
-        "subscription_discount": true,
-        "diet_prices": [
-          {
-            "diet_name": "Basic 1200 kcal",
-            "price_per_day_pln": 65.99
-          },
-          {
-            "diet_name": "Basic 1500 kcal",
-            "price_per_day_pln": 72.99
-          },
-          {
-            "diet_name": "Basic 1800 kcal",
-            "price_per_day_pln": 75.99
-          },
-          {
-            "diet_name": "Basic 2000 kcal",
-            "price_per_day_pln": 77.99
-          },
-          {
-            "diet_name": "Basic 2200 kcal",
-            "price_per_day_pln": 81.99
-          },
-          {
-            "diet_name": "Basic 2500 kcal",
-            "price_per_day_pln": 85.99
-          },
-          {
-            "diet_name": "Basic 3000 kcal",
-            "price_per_day_pln": 91.99
-          }
-        ],
-        "price_1500kcal": null,
-        "price_2000kcal": null,
-        "price_source": "https://kuchniavikinga.pl/cennik/",
-        "_pricing_fallback_done": "2026-04-05T06:39:59.399Z"
+        "trial_offer": "Rabat -5 zł za każdy dzień zamówienia przy zamówieniu powyżej 5 dni",
+        "subscription_discount": true
       },
       "menu": {
         "diet_types": [
@@ -2223,22 +2188,24 @@
           "Types of Vege"
         ],
         "calorie_options": [],
-        "cuisine_style": "Polish, Mediterranean, mixed",
+        "cuisine_style": "Mixed - Polish, Mediterranean, Asian",
         "dietary_restrictions": [
           "vegan",
           "vegetarian",
+          "fish-based",
           "gluten-free",
           "lactose-free",
-          "low-carb",
-          "low-fodmap"
+          "low-FODMAP",
+          "keto",
+          "low-carb"
         ]
       },
       "delivery": {
         "delivery_model": "own_fleet",
         "delivery_cities": [
-          "cała Polska"
+          "Białystok"
         ],
-        "delivery_time": "20:00-6:00, gwarancja do 9:00",
+        "delivery_time": "20:00-6:00 (gwarancja dostawy najpóźniej do godz. 9:00), na obrzeżach miast wojewódzkich w północno-zachodniej Polsce 22:00-9:00",
         "weekend_delivery": true
       },
       "technology": {
@@ -2257,17 +2224,17 @@
       },
       "contact": {
         "city": null,
-        "phone": null,
-        "email": null,
+        "phone": "117502783",
+        "email": "biuro@kuchniavikinga.pl",
         "nip": null
       },
       "unique_differentiator": "Kuchnia Vikinga wyróżnia się współpracą z Jakubem Mauriczem (ekspertem dietetyki), siecią ponad 38 000 miejscowości w całej Polsce oraz własnym systemem logistycznym gwarantującym dostawę świeżych posiłków w nocy i nad ranem.",
       "_extraction": {
         "model": "claude-haiku-4-5-20251001",
-        "inputTokens": 6734,
-        "outputTokens": 814,
-        "costUsd": 0.0086,
-        "extractedAt": "2026-04-05T06:39:22.051Z"
+        "inputTokens": 7747,
+        "outputTokens": 1576,
+        "costUsd": 0.0125,
+        "extractedAt": "2026-04-05T07:20:46.285Z"
       },
       "context": {
         "nip": "5423314760",
@@ -2279,20 +2246,20 @@
         "mediaArticles": [],
         "influencers": [],
         "uniqueFeatures": [
-          "Szeroka paleta 13 gotowych diet plus 5 wersji z wyborem posiłków",
-          "Darmowe wymiany posiłków i konsultacje dietetyczne",
-          "Współpraca z wykwalifikowanymi dietetykami dla zbilansowanego odżywiania",
-          "Dodatki jak soki, shake'i i posiłki restauracyjne",
-          "Obsługa ponad 5400 miejscowości w Polsce"
+          "Współpraca z dietetykami przy tworzeniu 13 zbilansowanych diet",
+          "Obsługa ponad 5400 miejscowości z darmowymi dostawami",
+          "Oferta dodatkowych soków, shake'ów i posiłków restauracyjnych",
+          "Surowce najwyższej jakości od lokalnych producentów",
+          "Darmowe wymiany posiłków i konsultacje dietetyczne"
         ],
-        "currentStatus": "Firma osiągnęła w ostatnim okresie przychody 489,3 mln zł, zysk 69,1 mln zł i aktywa 190,6 mln zł, będąc liderem w dostawach diet pudełkowych obsługującym ponad 5400 miejscowości.",
+        "currentStatus": "Firma dynamicznie rozwija się w 2025 roku z przychodami na poziomie 489,3 mln zł i zyskiem 69,1 mln zł, obsługując ponad 5400 miejscowości w segmencie diet pudełkowych.",
         "recentNews": [],
         "competitivePosition": null,
         "trajectory": "growing",
         "awards": [],
         "b2bOffering": false,
         "uniqueInsight": null,
-        "fetchedAt": "2026-04-05T06:39:40.785Z"
+        "fetchedAt": "2026-04-05T07:21:20.581Z"
       },
       "_discovery": {
         "nip": "5423314760",
@@ -2301,7 +2268,7 @@
         "krs": null,
         "legalForm": null,
         "orgName": null,
-        "discoveredAt": "2026-04-05T06:40:09.231Z"
+        "discoveredAt": "2026-04-05T07:21:48.842Z"
       },
       "social": {
         "profiles": [
@@ -2309,7 +2276,7 @@
             "platform": "instagram",
             "url": "https://www.instagram.com/kuchniavikinga/",
             "handle": "kuchniavikinga",
-            "followers": 84648,
+            "followers": 84652,
             "posts": 1326,
             "verified": false
           },
@@ -2325,15 +2292,15 @@
             "handle": "UCjwQThJo793mDN5l_rIjN-A"
           }
         ],
-        "totalFollowers": 217149,
+        "totalFollowers": 217153,
         "platformCount": 3,
-        "fetchedAt": "2026-04-05T06:40:11.808Z",
+        "fetchedAt": "2026-04-05T07:21:52.142Z",
         "method": "apify+perplexity",
         "instagram": {
           "platform": "instagram",
           "url": "https://www.instagram.com/kuchniavikinga/",
           "handle": "kuchniavikinga",
-          "followers": 84648,
+          "followers": 84652,
           "posts": 1326,
           "verified": false,
           "bio": "Dołącz do największej społeczności Vikingów! ⚔️👇🏻",
@@ -2349,7 +2316,7 @@
               "newest": "2026-04-04"
             },
             "postingFrequency": "1.7 posts/week",
-            "avgLikesRecent": 199,
+            "avgLikesRecent": 201,
             "avgLikesHistorical": 665,
             "avgCommentsRecent": 9,
             "avgCommentsHistorical": 21,
@@ -2432,7 +2399,7 @@
                   "#kuchniavikinga",
                   "#święta"
                 ],
-                "likes": 263,
+                "likes": 270,
                 "comments": 8,
                 "url": "https://www.instagram.com/p/DWs8h8mDUT6/",
                 "sampleBucket": "recent"
@@ -2479,7 +2446,7 @@
                   "#jedzenie",
                   "#podlasie"
                 ],
-                "likes": 255,
+                "likes": 258,
                 "comments": 17,
                 "url": "https://www.instagram.com/p/DWnsnWpFGGp/",
                 "sampleBucket": "recent"
@@ -2761,7 +2728,7 @@
           "positivePercent": 95
         },
         "sentiment": "positive",
-        "fetchedAt": "2026-04-05T06:42:31.689Z",
+        "fetchedAt": "2026-04-05T07:24:55.094Z",
         "method": "apify"
       },
       "finance": {
@@ -2788,8 +2755,15 @@
           "ulica": "Handlowa"
         },
         "share_capital": null,
-        "status": null,
-        "board_members": [],
+        "status": {
+          "wykreslona": false,
+          "w_likwidacji": false,
+          "w_upadlosci": false,
+          "wielkosc": "duza_srednia"
+        },
+        "board_members": [
+          "Łukasz Dawidziuk"
+        ],
         "shareholders": [],
         "financial_statements": [
           {
@@ -2928,7 +2902,7 @@
         "years_available": 3,
         "years_fetched": 3,
         "cost_pln": 3.1,
-        "fetchedAt": "2026-04-05T06:43:09.681Z",
+        "fetchedAt": "2026-04-05T07:25:43.204Z",
         "revenue": 486747232.73,
         "revenuePrevious": 266770519.92,
         "netIncome": 69102130.95,
@@ -2950,10 +2924,100 @@
           "currentRatio": 2.3091,
           "revenueGrowth": 0.8246
         }
+      },
+      "messaging": {
+        "headline": "Poznaj smak kuchni Vikinga",
+        "subheadline": "5 świeżych dań z dostawą pod Twoje drzwi już od 39,99!",
+        "primary_cta": "Zamów",
+        "value_proposition": "Zbilansowana dieta, pełen wybór i dostawa pod drzwi za darmo",
+        "social_proof_type": "celebrities",
+        "emotional_register": "friendly",
+        "claims": [
+          "5 świeżych dań",
+          "dostawa pod drzwi",
+          "18 kompletnych diet w ofercie",
+          "40 różnorodnych i pysznych posiłków w wyborze menu",
+          "Obsługujemy ponad 38000 miejscowości w całej Polsce",
+          "diety zbilansowane",
+          "dostawa za darmo"
+        ],
+        "cliche_score": 7
+      },
+      "seo": {
+        "title_tag": "Zdrowa dieta pudełkowa | Kuchnia Vikinga",
+        "meta_description": null,
+        "h1": "Poznaj smak kuchni Vikinga",
+        "keyword_focus": [
+          "dieta pudełkowa",
+          "catering dietetyczny",
+          "dieta zbilansowana",
+          "dostawa diety",
+          "dieta keto",
+          "dieta low carb",
+          "dieta vegan",
+          "dieta fodmap"
+        ],
+        "has_local_seo": true,
+        "content_strategy": "occasional"
+      },
+      "website_structure": {
+        "page_count_estimate": 12,
+        "has_blog": true,
+        "has_calculator": true,
+        "has_live_chat": false,
+        "ordering_ux": "on-site",
+        "tech_signals": [
+          "custom",
+          "mobile app"
+        ]
+      },
+      "content_marketing": {
+        "has_lead_magnet": false,
+        "has_newsletter": true,
+        "has_youtube": false
+      },
+      "customer_acquisition": {
+        "referral_program": false,
+        "affiliate_program": false,
+        "b2b_offering": false,
+        "dietly_promoted": false
+      },
+      "differentiators": {
+        "unique_claims": [
+          "Dieta Fodmap dla osób zmagających się z problemami jelitowymi",
+          "Dieta Hashi Low Gluten & Lactose rekomendowana dla osób z chorobami autoimmunologicznymi",
+          "Własne punkty stacjonarne Viking Point",
+          "System zdobywania punktów w skarbonce",
+          "Ambasadorzy marki: Cezary Pazura, Klaudia Halejcio, Jakub Mauricz"
+        ],
+        "competitive_advantage_type": "niche",
+        "niche_focus": "osoby ze specjalnymi potrzebami dietetycznymi (Fodmap, autoimmunologiczne, low-FODMAP), osoby aktywne, kobiety"
+      },
+      "_cost_context": {
+        "usd": 0.01,
+        "calls": 2,
+        "provider": "perplexity"
+      },
+      "_cost_discovery": {
+        "pln": 0.05,
+        "usd": 0.013,
+        "calls": 1,
+        "provider": "rejestr.io"
+      },
+      "_cost_social": {
+        "usd": 0.125,
+        "apifyCalls": 3,
+        "pplxCalls": 1,
+        "provider": "apify+perplexity"
+      },
+      "_cost_reviews": {
+        "usd": 0.04,
+        "apifyCalls": 1,
+        "provider": "apify"
       }
     },
-    "lastScanId": "b34524a9-b074-43c4-82ce-baba23642929",
-    "lastScannedAt": "2026-04-05T06:44:11.747Z",
+    "lastScanId": "b96261e4-bd1d-4236-a9db-5468bc20cb32",
+    "lastScannedAt": "2026-04-05T07:26:56.092Z",
     "nip": "5423314760",
     "krs": "0000970748",
     "financials": {
@@ -2980,8 +3044,15 @@
         "ulica": "Handlowa"
       },
       "share_capital": null,
-      "status": null,
-      "board_members": [],
+      "status": {
+        "wykreslona": false,
+        "w_likwidacji": false,
+        "w_upadlosci": false,
+        "wielkosc": "duza_srednia"
+      },
+      "board_members": [
+        "Łukasz Dawidziuk"
+      ],
       "shareholders": [],
       "financial_statements": [
         {
@@ -3120,7 +3191,7 @@
       "years_available": 3,
       "years_fetched": 3,
       "cost_pln": 3.1,
-      "fetchedAt": "2026-04-05T06:43:09.681Z",
+      "fetchedAt": "2026-04-05T07:25:43.204Z",
       "revenue": 486747232.73,
       "revenuePrevious": 266770519.92,
       "netIncome": 69102130.95,
@@ -3328,7 +3399,7 @@
         "crawlerType": "curl",
         "subpagesCrawled": 0,
         "contentLength": 6874,
-        "crawledAt": "2026-04-05T06:39:12.675Z"
+        "crawledAt": "2026-04-05T07:20:30.792Z"
       },
       "_social_urls": {
         "instagram": "https://instagram.com/maczfit",
@@ -3342,99 +3413,22 @@
       },
       "brand_identity": {
         "brand_name": "Maczfit",
-        "tagline": "Catering dietetyczny Warszawa",
-        "positioning": "Maczfit kieruje się do osób aktywnych i świadomych zdrowotnie w całej Polsce, oferując gotowe, zbilansowane diety pudełkowe opracowane przez dietetyków z opcją wyboru spośród 45 dań wysokiej jakości.",
-        "emotional_register": "friendly",
+        "tagline": "Catering dietetyczny Warszawa | 🥗 Dieta pudełkowa",
+        "positioning": "Maczfit oferuje zdrowe, zbilansowane posiłki pudełkowe dostarczone do domu dla osób aktywnych i zdrowotnie świadomych, którzy chcą jeść smacznie bez konieczności gotowania.",
         "language": "pl"
       },
       "pricing": {
-        "price_range_pln": "46-91 PLN/dzień",
-        "cheapest_daily": 46,
-        "most_expensive_daily": 91,
-        "trial_offer": "zestawy próbne dostępne (maksymalnie 3 zestawy próbne per klient)",
+        "price_range_pln": "49.50-90 PLN/dzień",
+        "cheapest_daily": 49.5,
+        "most_expensive_daily": 90,
+        "trial_offer": "3 zestawy próbne (limit 3 zestawy próbne per klient)",
         "subscription_discount": true,
-        "diet_prices": [
-          {
-            "diet_name": "Smart Start",
-            "price_per_day_pln": 66,
-            "kcal": null
-          },
-          {
-            "diet_name": "Everyday 1200 kcal",
-            "price_per_day_pln": 74,
-            "kcal": "1200"
-          },
-          {
-            "diet_name": "Everyday 1500 kcal",
-            "price_per_day_pln": 83,
-            "kcal": "1500"
-          },
-          {
-            "diet_name": "Everyday 1800 kcal",
-            "price_per_day_pln": 87,
-            "kcal": "1800"
-          },
-          {
-            "diet_name": "Top Sellers",
-            "price_per_day_pln": 80,
-            "kcal": null
-          },
-          {
-            "diet_name": "Fit 1200 kcal",
-            "price_per_day_pln": 77.99,
-            "kcal": "1200"
-          },
-          {
-            "diet_name": "Fit 1500 kcal",
-            "price_per_day_pln": 87.99,
-            "kcal": "1500"
-          },
-          {
-            "diet_name": "Fit 1800 kcal",
-            "price_per_day_pln": 89.99,
-            "kcal": "1800"
-          },
-          {
-            "diet_name": "Vege",
-            "price_per_day_pln": 73.99,
-            "kcal": null
-          },
-          {
-            "diet_name": "100% Roślinnie",
-            "price_per_day_pln": 75.99,
-            "kcal": null
-          },
-          {
-            "diet_name": "Slim 1000 kcal",
-            "price_per_day_pln": 60,
-            "kcal": "1000"
-          },
-          {
-            "diet_name": "Slim 1300 kcal",
-            "price_per_day_pln": 60,
-            "kcal": "1300"
-          },
-          {
-            "diet_name": "Slim 1500 kcal",
-            "price_per_day_pln": 60,
-            "kcal": "1500"
-          },
-          {
-            "diet_name": "FIT 1800 kcal",
-            "price_per_day_pln": 74,
-            "kcal": "1800"
-          },
-          {
-            "diet_name": "FIT 3000 kcal",
-            "price_per_day_pln": 91,
-            "kcal": "3000"
-          }
-        ],
-        "price_1500kcal": 83,
-        "price_2000kcal": 87,
+        "diet_prices": [],
+        "price_1500kcal": null,
+        "price_2000kcal": null,
         "_fallback": "perplexity",
-        "price_source": "https://maczfit.pl (search results [1]-[9])",
-        "_pricing_fallback_done": "2026-04-05T06:40:04.580Z"
+        "price_source": "https://maczfit.pl i https://najlepszycatering.pl/maczfit/",
+        "_pricing_fallback_done": "2026-04-05T07:21:44.207Z"
       },
       "menu": {
         "diet_types": [
@@ -3443,13 +3437,13 @@
           "Trio"
         ],
         "calorie_options": [],
-        "cuisine_style": "polski",
+        "cuisine_style": "Polish",
         "dietary_restrictions": []
       },
       "delivery": {
         "delivery_model": "own_fleet",
         "delivery_cities": [
-          "cała Polska"
+          "Warszawa"
         ],
         "delivery_time": null,
         "weekend_delivery": true
@@ -3470,52 +3464,55 @@
       },
       "contact": {
         "city": "Warszawa",
-        "phone": null,
-        "email": "email@maczfit.pl",
+        "phone": "793378137",
+        "email": "kontakt@maczfit.pl",
         "nip": null
       },
       "unique_differentiator": "Maczfit wyróżnia się największym zespołem dietetyków w Polsce, dostępnością w ponad 5000 miejscowościach, elastycznym systemem wyboru spośród 45 dań oraz aplikacją mobilną synchronizowaną z Google Fit i Apple Health.",
       "_extraction": {
         "model": "claude-haiku-4-5-20251001",
-        "inputTokens": 3442,
-        "outputTokens": 595,
-        "costUsd": 0.0051,
-        "extractedAt": "2026-04-05T06:39:27.705Z"
+        "inputTokens": 4455,
+        "outputTokens": 1282,
+        "costUsd": 0.0087,
+        "extractedAt": "2026-04-05T07:20:57.589Z"
       },
       "context": {
         "nip": "9512471196",
-        "legalName": "FRESH MEALS FACTORY SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",
-        "founder": null,
+        "legalName": "FRESH MEALS FACTORY SP. Z O.O.",
+        "founder": "Nicolas Jedraszak",
         "foundedYear": 2018,
-        "legalOwner": null,
-        "employeeRange": "200+",
+        "legalOwner": "Lifestyle Solutions sp. z o.o.",
+        "employeeRange": "51-200",
         "mediaArticles": [
-          "https://pap-mediaroom.pl/zdrowie-i-styl-zycia/maczfit-juz-dekada-zdrowych-wyborow",
+          "https://www.wirtualnemedia.pl/maczfit-diety-pudelkowe-promocja-reklama-zaczynasz-od-nowa,7176131104753281a",
           "https://marketerplus.pl/historia-marki-maczfit/",
-          "https://biznes.newseria.pl/biuro-prasowe/maczfit-przede-wszystkim,b1963488530",
-          "https://pl.cloudity.digital/blog-post/maczfit-digitalizuje-relacje-z-klientami-dzieki-salesforce-cloudity/",
-          "https://wyborcza.biz/biznes/7,159911,29380536,praca-po-12-godzin-6-dni-w-tygodniu-burza-wokol-oferty-pracy.html"
+          "https://biznes.newseria.pl/biuro-prasowe/media_i_pr/maczfit-przede-wszystkim,b1963488530",
+          "https://www.press.pl/tresc/89279,maczfit--przypomina-o-smakach-dziecinstwa",
+          "https://www.wiadomoscihandlowe.pl/konsument-i-trendy-zakupowe/maczfit-na-retail-trends-jak-lider-rynku-cateringu-dietetycznego-odpowiada-na-potrzeby-klienta-jutra-2533158"
         ],
         "influencers": [],
         "uniqueFeatures": [
-          "Szeroka oferta ponad 50 diet specjalistycznych",
-          "Dostawy w całej Polsce z szybką logistyką",
-          "Program lojalnościowy z nagrodami dla klientów",
-          "Wysoka jakość składników i personalizacja menu",
-          "Integracja z aplikacją mobilną do zarządzania dietą"
+          "Szeroka oferta diet pudełkowych z personalizacją",
+          "Aplikacja mobilna do zarządzania zamówieniami",
+          "Dostawy w całej Polsce",
+          "Wysoka jakość składników i różnorodność menu",
+          "Usługi B2B dla firm"
         ],
-        "currentStatus": "Firma działa aktywnie w 2024/2025 jako lider rynku cateringu dietetycznego w Polsce pod marką Maczfit, z siedzibą w Warszawie i rozbudowaną ofertą diet pudełkowych.",
+        "currentStatus": "W lipcu 2025 r. działalność cateringu dietetycznego Maczfit została przeniesiona na spółkę Lifestyle Solutions sp. z o.o., przy czym Fresh Meals Factory sp. z o.o. pozostaje aktywna.",
         "recentNews": [
-          "Maczfit obchodzi 10-lecie działalności, dostarczając tysiące posiłków dziennie do ponad 4500 lokalizacji.",
-          "Firma stała się częścią Grupy Żabka w 2021 roku.",
-          "Wdrożenie Salesforce Marketing Cloud jako jedyny dostawca cateringu dietetycznego w Polsce."
+          "Kampania reklamowa 'Zaczynasz od nowa? Zacznij od Maczfit' na początek 2025 z zasięgiem ogólnopolskim, w tym influencerzy i YouTube[1][7]",
+          "Kampania 'Smaki dzieciństwa' we wrześniu 2025 z influencerami i materiałami promocyjnymi[4][9]",
+          "Prezentacja na Retail Trends w marcu 2026 o rynku wartym 3,5 mld zł[6]"
         ],
-        "competitivePosition": "Maczfit pozycjonuje się jako lider polskiego rynku cateringu dietetycznego, wyróżniając się jakością restauracyjną, szeroką ofertą 10-13 diet specjalistycznych, elastycznym wyborem menu i zasięgiem do ponad 5500 lokalizacji.",
-        "trajectory": "growing",
-        "awards": [],
+        "competitivePosition": "Maczfit pozycjonuje się jako lider polskiego rynku cateringu dietetycznego o wartości 3,5 mld zł, dzięki skali dostaw, wysokiej jakości i skutecznym kampaniom[2][3][6].",
+        "trajectory": "stable",
+        "awards": [
+          "Nagrody i wyróżnienia klientów co roku za rygorystyczne normy HACCP i certyfikaty jakości[5]",
+          "Wysoki wskaźnik NPS powyżej 80%[3]"
+        ],
         "b2bOffering": true,
-        "uniqueInsight": "Maczfit, założony w 2015 przez Macieja Lubiaka, osiągnął pozycję lidera dzięki integracji z Grupą Żabka i unikalnemu wdrożeniu Salesforce Marketing Cloud do digitalizacji relacji z klientami.",
-        "fetchedAt": "2026-04-05T06:39:49.694Z"
+        "uniqueInsight": "Firma założona przez Macieja Lubiaka w 2015 roku osiągnęła pozycję lidera w 9 lat dzięki pasji, innowacjom jak platforma 'Mmm… Maczfit' i NPS powyżej 80%[2][3].",
+        "fetchedAt": "2026-04-05T07:21:28.798Z"
       },
       "_discovery": {
         "nip": "9512471196",
@@ -3524,7 +3521,7 @@
         "krs": null,
         "legalForm": null,
         "orgName": null,
-        "discoveredAt": "2026-04-05T06:40:10.496Z"
+        "discoveredAt": "2026-04-05T07:21:50.250Z"
       },
       "social": {
         "profiles": [
@@ -3532,7 +3529,7 @@
             "platform": "instagram",
             "url": "https://instagram.com/maczfit",
             "handle": "maczfit",
-            "followers": 64305,
+            "followers": 64301,
             "posts": 2780,
             "verified": false
           },
@@ -3547,15 +3544,15 @@
             "handle": "UCOwLB2l-sLCUFDoYfm_S7-w"
           }
         ],
-        "totalFollowers": 64305,
+        "totalFollowers": 64301,
         "platformCount": 3,
-        "fetchedAt": "2026-04-05T06:40:54.267Z",
+        "fetchedAt": "2026-04-05T07:22:29.835Z",
         "method": "apify+perplexity",
         "instagram": {
           "platform": "instagram",
           "url": "https://instagram.com/maczfit",
           "handle": "maczfit",
-          "followers": 64305,
+          "followers": 64301,
           "posts": 2780,
           "verified": false,
           "bio": "Smak, który kochają Polacy! 😋🫜\n45 dań dziennie z Wyborem Menu 🍽️\n11 Gotowych Diet 🍝🍔\nTrio 🥗🍕\nGotowe posiłki z dostawą do domu👇🏻",
@@ -3650,7 +3647,7 @@
                 "type": "Video",
                 "caption": "🫜\nMała różnica, duża zmiana 👀\n\n🍣 Sushi: ~55 zł + dostawa\n🥗 Cały dzień jedzenia: od 44,22 zł (bez kosztów dostawy!)\n\nKilka posiłków vs jeden. Co wybierasz? 😏🥊",
                 "hashtags": [],
-                "likes": 0,
+                "likes": 1,
                 "comments": 0,
                 "url": "https://www.instagram.com/p/DWvW7UfI0aS/",
                 "sampleBucket": "recent"
@@ -3956,7 +3953,7 @@
           "positivePercent": 92
         },
         "sentiment": "positive",
-        "fetchedAt": "2026-04-05T06:42:48.727Z",
+        "fetchedAt": "2026-04-05T07:25:20.681Z",
         "method": "apify"
       },
       "finance": {
@@ -3983,8 +3980,15 @@
           "ulica": ""
         },
         "share_capital": null,
-        "status": null,
-        "board_members": [],
+        "status": {
+          "wykreslona": false,
+          "w_likwidacji": false,
+          "w_upadlosci": false,
+          "wielkosc": "duza_srednia"
+        },
+        "board_members": [
+          "Nicolas Jedraszak"
+        ],
         "shareholders": [],
         "financial_statements": [
           {
@@ -4123,7 +4127,7 @@
         "years_available": 6,
         "years_fetched": 3,
         "cost_pln": 3.1,
-        "fetchedAt": "2026-04-05T06:43:15.209Z",
+        "fetchedAt": "2026-04-05T07:25:48.464Z",
         "revenue": 409585713.81,
         "revenuePrevious": 330568896.58,
         "netIncome": -10195446.27,
@@ -4145,10 +4149,100 @@
           "currentRatio": 0.4794,
           "revenueGrowth": 0.239
         }
+      },
+      "messaging": {
+        "headline": "Smak, który kochają Polacy!",
+        "subheadline": "Bo dobre jedzenie to coś więcej niż dieta — to przyjemność odkrywania nowych smaków i kolorów, które każdego dnia trafiają do Twojej torby z logo Maczfit.",
+        "primary_cta": "ZAMAWIAM",
+        "value_proposition": "Gotowe, zbilansowane posiłki wysokiej jakości dostarczone do domu, opracowane przez dietetyków, bez konieczności gotowania.",
+        "social_proof_type": "reviews",
+        "emotional_register": "friendly",
+        "claims": [
+          "zbilansowane posiłki",
+          "opracowane przez dietetyków",
+          "45 dań najwyższej jakości",
+          "dowozimy do ponad 5000 miejscowości w całej Polsce",
+          "produkty i składniki najwyższej jakości, od sprawdzonych dostawców",
+          "10% w aplikacji na pierwsze zamówienie",
+          "zdrowe i smaczne posiłki"
+        ],
+        "cliche_score": 7
+      },
+      "seo": {
+        "title_tag": "Maczfit | Catering dietetyczny Warszawa | 🥗 Dieta pudełkowa",
+        "meta_description": null,
+        "h1": "Smak, który kochają Polacy!",
+        "keyword_focus": [
+          "catering dietetyczny Warszawa",
+          "dieta pudełkowa",
+          "zdrowe posiłki",
+          "zbilansowana dieta"
+        ],
+        "has_local_seo": false,
+        "content_strategy": "occasional"
+      },
+      "website_structure": {
+        "page_count_estimate": 8,
+        "has_blog": false,
+        "has_calculator": true,
+        "has_live_chat": false,
+        "ordering_ux": "on-site",
+        "tech_signals": [
+          "custom"
+        ]
+      },
+      "content_marketing": {
+        "has_lead_magnet": true,
+        "has_newsletter": true,
+        "has_youtube": false
+      },
+      "customer_acquisition": {
+        "referral_program": true,
+        "affiliate_program": false,
+        "b2b_offering": false,
+        "dietly_promoted": false
+      },
+      "differentiators": {
+        "unique_claims": [
+          "11 zbilansowanych diet opracowanych przez dietetyków",
+          "45 dań z opcją wyboru menu",
+          "dostawa do ponad 5000 miejscowości w Polsce",
+          "największy zespół dietetyków, technologów żywności i kucharzy w Polsce",
+          "gwarancja jakości potwierdzona certyfikatem TÜV"
+        ],
+        "competitive_advantage_type": "quality",
+        "niche_focus": null
+      },
+      "_cost_context": {
+        "usd": 0.01,
+        "calls": 2,
+        "provider": "perplexity"
+      },
+      "_cost_pricing": {
+        "usd": 0.005,
+        "calls": 1,
+        "provider": "perplexity"
+      },
+      "_cost_discovery": {
+        "pln": 0.05,
+        "usd": 0.013,
+        "calls": 1,
+        "provider": "rejestr.io"
+      },
+      "_cost_social": {
+        "usd": 0.125,
+        "apifyCalls": 3,
+        "pplxCalls": 1,
+        "provider": "apify+perplexity"
+      },
+      "_cost_reviews": {
+        "usd": 0.04,
+        "apifyCalls": 1,
+        "provider": "apify"
       }
     },
-    "lastScanId": "b34524a9-b074-43c4-82ce-baba23642929",
-    "lastScannedAt": "2026-04-05T06:44:11.747Z",
+    "lastScanId": "b96261e4-bd1d-4236-a9db-5468bc20cb32",
+    "lastScannedAt": "2026-04-05T07:26:56.092Z",
     "nip": "9512471196",
     "krs": "0000752666",
     "financials": {
@@ -4175,8 +4269,15 @@
         "ulica": ""
       },
       "share_capital": null,
-      "status": null,
-      "board_members": [],
+      "status": {
+        "wykreslona": false,
+        "w_likwidacji": false,
+        "w_upadlosci": false,
+        "wielkosc": "duza_srednia"
+      },
+      "board_members": [
+        "Nicolas Jedraszak"
+      ],
       "shareholders": [],
       "financial_statements": [
         {
@@ -4315,7 +4416,7 @@
       "years_available": 6,
       "years_fetched": 3,
       "cost_pln": 3.1,
-      "fetchedAt": "2026-04-05T06:43:15.209Z",
+      "fetchedAt": "2026-04-05T07:25:48.464Z",
       "revenue": 409585713.81,
       "revenuePrevious": 330568896.58,
       "netIncome": -10195446.27,
@@ -6221,7 +6322,7 @@
         "crawlerType": "curl",
         "subpagesCrawled": 0,
         "contentLength": 6368,
-        "crawledAt": "2026-04-05T06:39:13.711Z"
+        "crawledAt": "2026-04-05T07:20:31.885Z"
       },
       "_social_urls": {
         "facebook": "https://www.facebook.com/ntfypl",
@@ -6236,58 +6337,82 @@
       "brand_identity": {
         "brand_name": "Nice To Fit You",
         "tagline": "Dieta z wyborem menu - Wybieraj codziennie z 70 posiłków",
-        "positioning": "Catering dietetyczny dla osób prowadzących intensywny tryb życia, które chcą jeść zdrowo i smacznie bez wysiłku, z możliwością codziennego wyboru z bogatego menu.",
-        "emotional_register": "friendly",
+        "positioning": "Catering dietetyczny dla osób pragnących zdrowszego stylu życia z możliwością codziennego wyboru z bogatej oferty posiłków, bez konieczności liczenia kalorii.",
         "language": "pl"
       },
       "pricing": {
-        "price_range_pln": "69.99-103.49 PLN/dzień",
-        "cheapest_daily": 69.99,
-        "most_expensive_daily": 103.49,
-        "trial_offer": "Kod EASTER21 (ważny do 05.04)",
+        "price_range_pln": "59,99-89,99 PLN/dzień",
+        "cheapest_daily": 59.99,
+        "most_expensive_daily": 89.99,
+        "trial_offer": "Kod EASTER21 - promocja do 05.04 (wyłącza program lojalnościowy, nie obowiązuje na ofertę Select)",
         "subscription_discount": true,
         "diet_prices": [
           {
-            "diet_name": "niski ig",
+            "diet_name": "Dieta 1",
+            "price_per_day_pln": 59.99,
+            "kcal": null
+          },
+          {
+            "diet_name": "Dieta 2",
             "price_per_day_pln": 69.99,
             "kcal": null
           },
           {
-            "diet_name": "longevity",
+            "diet_name": "Dieta 3",
+            "price_per_day_pln": 79.99,
+            "kcal": null
+          },
+          {
+            "diet_name": "Dieta 4",
+            "price_per_day_pln": 89.99,
+            "kcal": null
+          },
+          {
+            "diet_name": "Dieta 5",
+            "price_per_day_pln": 67.99,
+            "kcal": null
+          },
+          {
+            "diet_name": "Dieta 6",
             "price_per_day_pln": 88.99,
             "kcal": null
           },
           {
-            "diet_name": "2500 kcal (pełen wybór, 8 dań)",
-            "price_per_day_pln": 103.49,
-            "kcal": "2500"
+            "diet_name": "Dieta 7",
+            "price_per_day_pln": 68.99,
+            "kcal": null
           },
           {
-            "diet_name": "2500 kcal (7 dań)",
-            "price_per_day_pln": 93.49,
-            "kcal": "2500"
+            "diet_name": "Dieta 8",
+            "price_per_day_pln": 78.99,
+            "kcal": null
           },
           {
-            "diet_name": "2500 kcal (4 posiłki)",
-            "price_per_day_pln": 88.99,
-            "kcal": "2500"
+            "diet_name": "Dieta 9",
+            "price_per_day_pln": 78.99,
+            "kcal": null
           },
           {
-            "diet_name": "2500 kcal (2 propozycje)",
-            "price_per_day_pln": 79.4,
-            "kcal": "2500"
+            "diet_name": "Dieta 10",
+            "price_per_day_pln": 67.99,
+            "kcal": null
           },
           {
-            "diet_name": "Veggy",
-            "price_per_day_pln": 74.29,
-            "kcal": "2000"
+            "diet_name": "Dieta 11",
+            "price_per_day_pln": 78.99,
+            "kcal": null
+          },
+          {
+            "diet_name": "Dieta 12",
+            "price_per_day_pln": 67.99,
+            "kcal": null
           }
         ],
         "price_1500kcal": null,
-        "price_2000kcal": 74.29,
+        "price_2000kcal": null,
         "_fallback": "perplexity",
-        "price_source": "YouTube transcript [1] and ntfy.pl [7]",
-        "_pricing_fallback_done": "2026-04-05T06:40:07.791Z"
+        "price_source": "https://ntfy.pl/miasto/krakow/warszawskie",
+        "_pricing_fallback_done": "2026-04-05T07:21:47.647Z"
       },
       "menu": {
         "diet_types": [
@@ -6301,18 +6426,17 @@
           "Bez glutenu",
           "Bez nabiału",
           "Dla mam",
-          "Longevity"
+          "Dieta Longevity",
+          "Select"
         ],
         "calorie_options": [],
         "cuisine_style": "Kuchnia z całego świata",
         "dietary_restrictions": [
-          "wegetariańskie",
-          "bez mięsa",
-          "bez glutenu",
+          "wegetariańska",
+          "bezglutenowa",
           "bez nabiału",
-          "dla mam i kobiet w ciąży",
-          "niskowęglowodanowe",
-          "bez cukru (niski IG)"
+          "keto",
+          "dla kobiet w ciąży"
         ]
       },
       "delivery": {
@@ -6328,7 +6452,7 @@
         "payment_methods": []
       },
       "social_proof": {
-        "testimonials_visible": false,
+        "testimonials_visible": true,
         "media_mentions": [],
         "certifications": [
           "Go Green"
@@ -6337,21 +6461,21 @@
       },
       "contact": {
         "city": null,
-        "phone": "+48 728 604 000",
-        "email": "[email protected]",
+        "phone": "-427321191",
+        "email": "e26dfba6a24d421a98ecf7cf17133b5c@s.ntfy.tech",
         "nip": null
       },
       "unique_differentiator": "Codziennie wybieraj z 70 różnych posiłków z kuchni światowej, wspieraj lokalnych dostawców, a opakowania będą odebrane przez kuriera - wszystko bez liczenia kalorii.",
       "_extraction": {
         "model": "claude-haiku-4-5-20251001",
-        "inputTokens": 3111,
-        "outputTokens": 713,
-        "costUsd": 0.0053,
-        "extractedAt": "2026-04-05T06:39:34.204Z"
+        "inputTokens": 4124,
+        "outputTokens": 1560,
+        "costUsd": 0.0095,
+        "extractedAt": "2026-04-05T07:21:11.181Z"
       },
       "context": {
         "nip": "7010485250",
-        "legalName": "NTFY Spółka z ograniczoną odpowiedzialnością",
+        "legalName": "NTFY SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",
         "founder": "Jacek Jeżak, Radosław M. Jeżak, Sebastian K. Rabiej",
         "foundedYear": 2021,
         "legalOwner": "Better Future Fund Fundacja Rodzinna, Fit & Delicious sp. z o.o.",
@@ -6361,20 +6485,19 @@
         ],
         "influencers": [],
         "uniqueFeatures": [
-          "Personalizacja diet i posiłków poprzez konfigurację online",
-          "Aplikacja mobilna do zarządzania zamówieniami",
-          "Program lojalnościowy zintegrowany z regulaminem",
-          "Szeroki wybór zestawów dietetycznych",
-          "Dostawy w modelu dieta pudełkowa"
+          "Program lojalnościowy zintegrowany w aplikacji mobilnej",
+          "Szeroki wybór diet pudełkowych z personalizacją",
+          "Marki chronione prawnie: 'NTFY' i 'Nice to Fit You'",
+          "Szybka transformacja prawna z S.K.A. na sp. z o.o. w 2023 r."
         ],
-        "currentStatus": "Firma aktywna w 2025 r., z ostatnią zmianą w KRS 3 czerwca 2025 r., prowadząca działalność w zakresie wytwarzania gotowych posiłków i dań.",
+        "currentStatus": "Firma aktywna w 2025 r., z ostatnią zmianą w KRS 3 czerwca 2025 r., prowadząca działalność w produkcji gotowych posiłków i dań.",
         "recentNews": [],
-        "competitivePosition": "Nice To Fit You pozycjonuje się jako lider w segmencie wysokiej jakości diet pudełkowych w Polsce, z innowacyjnym wyborem menu i ekspansją na Czechy i Niemcy, wzmocniony inwestycją MCI w 55% udziałów[1].",
+        "competitivePosition": "Nice To Fit You pozycjonuje się jako lider w segmencie wysokiej jakości diet pudełkowych w Polsce, z obecnością w Czechach i Niemczech, wyróżniając się opcją wyboru menu i wsparciem inwestora MCI.[1]",
         "trajectory": "stable",
         "awards": [],
         "b2bOffering": false,
-        "uniqueInsight": "Największa historyczna inwestycja MCI (ok. 186 mln PLN) w NTFY podkreśla jej potencjał jako najsilniejszej cyfrowej marki w polskim e-commerce żywnościowym z planami ekspansji międzynarodowej[1].",
-        "fetchedAt": "2026-04-05T06:39:56.171Z"
+        "uniqueInsight": "Najważniejsze jest przejęcie 55% udziałów przez fundusz MCI za ok. 186 mln PLN, co czyni to największą inwestycją funduszu i umożliwia ekspansję międzynarodową w dynamicznie rosnącym rynku diet pudełkowych.[1]",
+        "fetchedAt": "2026-04-05T07:21:36.378Z"
       },
       "_discovery": {
         "nip": "7010485250",
@@ -6383,7 +6506,7 @@
         "krs": null,
         "legalForm": null,
         "orgName": null,
-        "discoveredAt": "2026-04-05T06:40:11.798Z"
+        "discoveredAt": "2026-04-05T07:21:52.120Z"
       },
       "social": {
         "profiles": [
@@ -6391,7 +6514,7 @@
             "platform": "instagram",
             "url": "https://www.instagram.com/ntfy.pl/",
             "handle": "ntfy.pl",
-            "followers": 49585,
+            "followers": 49584,
             "posts": 2034,
             "verified": false
           },
@@ -6407,15 +6530,15 @@
             "handle": "UCeAn2e_4SLMLTSJMws2Yz3g"
           }
         ],
-        "totalFollowers": 113960,
+        "totalFollowers": 113959,
         "platformCount": 3,
-        "fetchedAt": "2026-04-05T06:41:29.159Z",
+        "fetchedAt": "2026-04-05T07:23:34.566Z",
         "method": "apify+perplexity",
         "instagram": {
           "platform": "instagram",
           "url": "https://www.instagram.com/ntfy.pl/",
           "handle": "ntfy.pl",
-          "followers": 49585,
+          "followers": 49584,
           "posts": 2034,
           "verified": false,
           "bio": "Miło mądrze jeść! 💛\n🥗 Zbilansowane, różnorodne posiłki\n🔁 Elastyczny wybór do 70 dań\n📲 Nowa aplikacja mobilna\n👌🏻 Restauracyjna jakość\nWybierz dietę ⤵️",
@@ -6521,7 +6644,7 @@
                 "type": "Image",
                 "caption": "Małe kroki = Wielkie efekty. 👣\nNie musisz zmieniać wszystkiego naraz. Wybierz jedną rzecz, którą wprowadzisz do swojej rutyny już dzisiaj:\n\n💧 Piję o 0,5l wody więcej\n🌳 15 min spaceru po obiedzie\n📖 Książka zamiast przeglądania telefonu przed snem\n\nSpójrz na swoje trampki i ruszaj po lepsze samopoczucie. 👟\n\nNapisz w komentarzu: co wybierasz woda, spacer czy książka? 💬\n\nNice To Fit You . Zdrowe nawyki . Dobre wybory . Dieta pudełkowa . Miło Mądrze Jeść",
                 "hashtags": [],
-                "likes": 40,
+                "likes": 42,
                 "comments": 3,
                 "url": "https://www.instagram.com/p/DWqWTAcDzrq/",
                 "sampleBucket": "recent"
@@ -6532,7 +6655,7 @@
                 "type": "Video",
                 "caption": "Gdy żyjesz intensywnie, zasługujesz na to, by jedzenie było czystą przyjemnością, a nie kolejnym punktem na liście zadań. Zobacz, jak smakuje dzień, w którym jedyną decyzją jest: „na co mam dziś ochotę? 😊\n\nKtóre z tych dań najchętniej zobaczyłbyś jutro pod swoimi drzwiami? 👇\n1️⃣ Spaghetti 🍝\n2️⃣ Brownie 🍫\n3️⃣ Mus z matcha 🍵\n\nDieta pudełkowa • Nice To Fit You • Catering dietetyczny • Niski IG • Longevity • Hashimoto • Wege • Flexitarian • Keto • Dla Mam • Bez nabiału • Less Gluten",
                 "hashtags": [],
-                "likes": 68,
+                "likes": 70,
                 "comments": 2,
                 "url": "https://www.instagram.com/p/DWouctus4ZC/",
                 "sampleBucket": "recent"
@@ -6797,7 +6920,7 @@
           "positivePercent": 0
         },
         "sentiment": "very_positive",
-        "fetchedAt": "2026-04-05T06:43:04.342Z",
+        "fetchedAt": "2026-04-05T07:25:37.965Z",
         "method": "apify"
       },
       "finance": {
@@ -6824,8 +6947,15 @@
           "ulica": "Marszałkowska"
         },
         "share_capital": null,
-        "status": null,
-        "board_members": [],
+        "status": {
+          "wykreslona": false,
+          "w_likwidacji": false,
+          "w_upadlosci": false,
+          "wielkosc": "duza_srednia"
+        },
+        "board_members": [
+          "Paweł Borys"
+        ],
         "shareholders": [],
         "financial_statements": [
           {
@@ -6920,7 +7050,7 @@
         "years_available": 2,
         "years_fetched": 2,
         "cost_pln": 2.1,
-        "fetchedAt": "2026-04-05T06:59:25.967Z",
+        "fetchedAt": "2026-04-05T07:25:52.224Z",
         "revenue": 308048193.22,
         "revenuePrevious": 44023156.5,
         "netIncome": 20374155.98,
@@ -6942,10 +7072,109 @@
           "currentRatio": 1.0057,
           "revenueGrowth": 5.9974
         }
+      },
+      "messaging": {
+        "headline": "Zyskaj czas na to, co najważniejsze",
+        "subheadline": "Poświęć go rodzinie i świątecznej atmosferze. Zdrowo, smacznie i bez wysiłku.",
+        "primary_cta": "Zamów teraz",
+        "value_proposition": "Zbilansowane posiłki z wyborem nawet z 70 dań dziennie, ze składników najwyższej jakości, bez wysiłku i liczenia kalorii.",
+        "social_proof_type": "reviews",
+        "emotional_register": "friendly",
+        "claims": [
+          "Składniki najwyższej jakości",
+          "Dokładnie weryfikujemy wszystkich naszych dostawców",
+          "Rygorystyczne kontrole jakościowe",
+          "Wybór nawet z 70 dań dziennie",
+          "Restauracyjne smaki",
+          "Kuchnia z całego świata",
+          "Lokalni dostawcy",
+          "Sezonowe i świeże produkty",
+          "Wspieramy startupy",
+          "Tysiące zadowolonych klientów",
+          "Bezpłatna konsultacja dietetyczna",
+          "Zbilansowane posiłki – bez liczenia kalorii",
+          "Różnorodne menu, które się nie nudzi"
+        ],
+        "cliche_score": 6
+      },
+      "seo": {
+        "title_tag": "Nice To Fit You - Dieta z wyborem menu - Wybieraj codziennie z 70 posiłków",
+        "meta_description": null,
+        "h1": "Zyskaj czas na to, co najważniejsze",
+        "keyword_focus": [
+          "dieta pudełkowa",
+          "catering dietetyczny",
+          "diet delivery",
+          "dieta z wyborem",
+          "posiłki na dietę"
+        ],
+        "has_local_seo": false,
+        "content_strategy": "occasional"
+      },
+      "website_structure": {
+        "page_count_estimate": 8,
+        "has_blog": false,
+        "has_calculator": false,
+        "has_live_chat": false,
+        "ordering_ux": "on-site",
+        "tech_signals": [
+          "aplikacja mobilna",
+          "panel klienta"
+        ]
+      },
+      "content_marketing": {
+        "has_lead_magnet": false,
+        "has_newsletter": false,
+        "has_youtube": false
+      },
+      "customer_acquisition": {
+        "referral_program": false,
+        "affiliate_program": false,
+        "b2b_offering": false,
+        "dietly_promoted": false
+      },
+      "differentiators": {
+        "unique_claims": [
+          "Wybór nawet z 70 dań dziennie",
+          "Opcja Select - samodzielne komponowanie menu z pojedynczych posiłków w aplikacji mobilnej",
+          "Pakiety elastyczne zawierające wszystkie posiłki z pakietów niższych",
+          "Program Go Green - odbieranie opakowań do recyklingu przez kuriera",
+          "Menu dostępne na 10 dni do przodu",
+          "Bezpłatna konsultacja dietetyczna"
+        ],
+        "competitive_advantage_type": "convenience",
+        "niche_focus": "osoby dbające o zdrowy styl życia bez ograniczeń, kobiety w ciąży i mamy, sportowcy, osoby świadome ekologicznie"
+      },
+      "_cost_context": {
+        "usd": 0.01,
+        "calls": 2,
+        "provider": "perplexity"
+      },
+      "_cost_pricing": {
+        "usd": 0.005,
+        "calls": 1,
+        "provider": "perplexity"
+      },
+      "_cost_discovery": {
+        "pln": 0.05,
+        "usd": 0.013,
+        "calls": 1,
+        "provider": "rejestr.io"
+      },
+      "_cost_social": {
+        "usd": 0.125,
+        "apifyCalls": 3,
+        "pplxCalls": 1,
+        "provider": "apify+perplexity"
+      },
+      "_cost_reviews": {
+        "usd": 0.04,
+        "apifyCalls": 1,
+        "provider": "apify"
       }
     },
-    "lastScanId": "957e26eb-59a5-41c9-8faa-aa47fc2df229",
-    "lastScannedAt": "2026-04-05T06:59:25.996Z",
+    "lastScanId": "b96261e4-bd1d-4236-a9db-5468bc20cb32",
+    "lastScannedAt": "2026-04-05T07:26:56.092Z",
     "nip": "7010485250",
     "krs": "0001066845",
     "financials": {
@@ -6972,8 +7201,15 @@
         "ulica": "Marszałkowska"
       },
       "share_capital": null,
-      "status": null,
-      "board_members": [],
+      "status": {
+        "wykreslona": false,
+        "w_likwidacji": false,
+        "w_upadlosci": false,
+        "wielkosc": "duza_srednia"
+      },
+      "board_members": [
+        "Paweł Borys"
+      ],
       "shareholders": [],
       "financial_statements": [
         {
@@ -7068,7 +7304,7 @@
       "years_available": 2,
       "years_fetched": 2,
       "cost_pln": 2.1,
-      "fetchedAt": "2026-04-05T06:59:25.967Z",
+      "fetchedAt": "2026-04-05T07:25:52.224Z",
       "revenue": 308048193.22,
       "revenuePrevious": 44023156.5,
       "netIncome": 20374155.98,

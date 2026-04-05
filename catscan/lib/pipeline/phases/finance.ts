@@ -219,8 +219,15 @@ export async function enrichFinance(entity: EntityRecord): Promise<EntityRecord>
 
     // Extract org metadata
     const krsRejestry = (orgData.krs_rejestry || {}) as Record<string, string>;
-    const krsOrgany = (orgData.krs_organy || {}) as Record<string, unknown>;
-    const wspolnicy = (orgData.krs_wspolnicy || []) as Array<Record<string, unknown>>;
+    const glownaOsoba = orgData.glowna_osoba as Record<string, string> | null;
+    const metadane = (orgData.metadane || {}) as Record<string, string>;
+
+    // Board members: rejestr.io basic API returns glowna_osoba only.
+    // For full board/shareholders, KRS scraping would be needed.
+    const boardMembers: string[] = [];
+    if (glownaOsoba?.imiona_i_nazwisko) {
+      boardMembers.push(glownaOsoba.imiona_i_nazwisko);
+    }
 
     const financeData = {
       krs_number: krsNumber,
@@ -233,15 +240,16 @@ export async function enrichFinance(entity: EntityRecord): Promise<EntityRecord>
       pkd: stan.pkd_przewazajace_dzial || null,
       pkd_code: (stan.pkd_przewazajace || null) as string | null,
       address: orgData.adres || null,
-      share_capital: stan.kapital_zakladowy || null,
-      status: stan.status || null,
-      // Board / management
-      board_members: Array.isArray(krsOrgany.zarzad) ? (krsOrgany.zarzad as Array<Record<string, string>>).map(m => m.imiona_i_nazwisko || m.nazwa).filter(Boolean) : [],
-      shareholders: wspolnicy.map((w: Record<string, unknown>) => ({
-        name: w.imiona_i_nazwisko || w.nazwa || null,
-        shares: w.liczba_udzialow || null,
-        value: w.wartosc_udzialow || null,
-      })),
+      share_capital: stan.kapital_zakladowy ?? null,
+      status: {
+        wykreslona: stan.czy_wykreslona ?? false,
+        w_likwidacji: stan.w_likwidacji ?? false,
+        w_upadlosci: stan.w_upadlosci ?? false,
+        wielkosc: stan.wielkosc || null,
+      },
+      // Board: glowna_osoba from rejestr.io (limited — full list needs KRS scraping)
+      board_members: boardMembers,
+      shareholders: [],  // Not available via rejestr.io basic API
       // Financial statements with ratios
       financial_statements: statementsWithRatios,
       years_available: periods.length,
