@@ -634,7 +634,35 @@ async function runPipeline(scanId: string, enabledPhases: string[]) {
     const missing = EXPECTED_DIMS.filter(d => !dims.includes(d));
     if (missing.length > 0) {
       incomplete++;
+      // Find related errors for each missing dimension
+      const reasons: string[] = [];
+      for (const dim of missing) {
+        // Map dimension → phase name(s) that produce it
+        const relatedErrors = entity.errors.filter((e: string) => {
+          const el = e.toLowerCase();
+          if (dim === 'social' || dim === 'social_proof') return el.includes('social');
+          if (dim === 'ads') return el.includes('ads') || el.includes('meta');
+          if (dim === 'finance') return el.includes('finance') || el.includes('krs') || el.includes('rejestr');
+          if (dim === 'reviews') return el.includes('review') || el.includes('google');
+          if (dim === 'context') return el.includes('context') || el.includes('perplexity');
+          if (dim === 'visual_identity') return el.includes('visual') || el.includes('screenshot');
+          if (dim === 'pricing') return el.includes('pricing') || el.includes('dietly');
+          return el.includes(dim.replace('_', ''));
+        });
+        if (relatedErrors.length > 0) {
+          reasons.push(`${dim}: ${relatedErrors[0]}`);
+        }
+      }
       log(scan, `⚠ INCOMPLETE: ${entity.name} — missing ${missing.length}: [${missing.join(', ')}]`);
+      if (reasons.length > 0) {
+        for (const r of reasons) {
+          log(scan, `    ↳ ${r}`);
+        }
+      } else if (entity.errors.length > 0) {
+        log(scan, `    ↳ errors during scan: ${entity.errors.join(' | ')}`);
+      } else {
+        log(scan, `    ↳ no errors recorded — phase may have returned empty data`);
+      }
     }
   }
   if (incomplete === 0) {

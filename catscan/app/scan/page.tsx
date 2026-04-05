@@ -34,7 +34,7 @@ interface DbStats {
   incompleteBrands: number;
   financialYears: number;
   socialPosts: number;
-  incompleteList: Array<{ slug: string; name: string; dims: number; missing: string[] }>;
+  incompleteList: Array<{ slug: string; name: string; dims: number; missing: string[]; errors: string[] }>;
   recentScans: Array<{ slug: string; phase_count: number; updated_at: string }>;
 }
 
@@ -317,15 +317,24 @@ export default function ScanDashboard() {
               </div>
               <div className="divide-y divide-red-100">
                 {stats.incompleteList.map(b => (
-                  <div key={b.slug} className="p-3 flex items-center justify-between">
-                    <div>
-                      <span className="font-mono text-cs-sm font-semibold">{b.name}</span>
-                      <span className="font-mono text-cs-xs text-cs-silver ml-2">{b.slug}</span>
+                  <div key={b.slug} className="p-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="font-mono text-cs-sm font-semibold">{b.name}</span>
+                        <span className="font-mono text-cs-xs text-cs-silver ml-2">{b.slug}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="font-mono text-cs-xs text-red-500">{b.dims}/19</span>
+                        <div className="font-mono text-[0.5rem] text-red-400">{b.missing.join(', ')}</div>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className="font-mono text-cs-xs text-red-500">{b.dims}/19</span>
-                      <div className="font-mono text-[0.5rem] text-red-400">{b.missing.join(', ')}</div>
-                    </div>
+                    {b.errors && b.errors.length > 0 && (
+                      <div className="mt-1 ml-2 border-l-2 border-red-200 pl-2">
+                        {b.errors.map((err, i) => (
+                          <div key={i} className="font-mono text-[0.5rem] text-red-500">↳ {err}</div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
