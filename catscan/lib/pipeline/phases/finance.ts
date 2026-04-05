@@ -16,6 +16,7 @@
  */
 
 import { execSync } from 'child_process';
+import { writeFileSync, unlinkSync } from 'fs';
 import type { EntityRecord } from '@/lib/db/store';
 
 const REJESTR_IO_BASE = 'https://rejestr.io/api/v2';
@@ -80,9 +81,50 @@ export async function enrichFinance(entity: EntityRecord): Promise<EntityRecord>
     || (entity.data as Record<string, Record<string, string>>)?._contact_raw?.nip;
 
   if (!nip) {
+    // No NIP — try Perplexity fallback for revenue estimate only
+    const pplxKey = process.env.PERPLEXITY_API_KEY;
+    if (pplxKey) {
+      console.log(`[finance] No NIP for ${entity.name} — using Perplexity-only fallback`);
+      const pe = callPerplexityFinance(
+        FINANCE_FALLBACK_PROMPT(entity.name, null, null),
+        pplxKey
+      );
+      if (pe) {
+        const financeData: Record<string, unknown> = {
+          krs_number: null,
+          org_name: null,
+          nip: null,
+          revenue_source: 'perplexity-estimate',
+          revenue: (pe.revenue_2024 as number | null) ?? (pe.estimated_annual_revenue as number | null) ?? null,
+          revenuePrevious: (pe.revenue_2023 as number | null) ?? null,
+          netIncome: (pe.net_income_2024 as number | null) ?? null,
+          perplexity_estimate: {
+            operating_entity_name: pe.operating_entity_name ?? null,
+            operating_entity_nip: pe.operating_entity_nip ?? null,
+            revenue_2024: pe.revenue_2024 ?? null,
+            revenue_2023: pe.revenue_2023 ?? null,
+            revenue_2022: pe.revenue_2022 ?? null,
+            net_income_2024: pe.net_income_2024 ?? null,
+            net_income_2023: pe.net_income_2023 ?? null,
+            net_income_2022: pe.net_income_2022 ?? null,
+            employee_count: pe.employee_count ?? null,
+            estimated_annual_revenue: pe.estimated_annual_revenue ?? null,
+            revenue_source_detail: pe.revenue_source ?? null,
+            confidence: pe.confidence ?? 'low',
+            notes: pe.notes ?? null,
+          },
+          cost_usd_perplexity: 0.005,
+          fetchedAt: new Date().toISOString(),
+        };
+        return {
+          ...entity,
+          data: { ...entity.data, finance: financeData },
+        };
+      }
+    }
     return {
       ...entity,
-      data: { ...entity.data, finance: { skipped: true, reason: 'No NIP available' } },
+      data: { ...entity.data, finance: { skipped: true, reason: 'No NIP available, Perplexity fallback failed or unavailable' } },
     };
   }
 
@@ -257,7 +299,35 @@ export async function enrichFinance(entity: EntityRecord): Promise<EntityRecord>
     // Extract org metadata
     const krsRejestry = (orgData.krs_rejestry || {}) as Record<string, string>;
 
-    const financeData = {
+    // Check if any year has revenue from KRS
+    const hasKrsRevenue = yearlyData.some(y => y.revenue != null && y.revenue !== 0);
+
+    // Perplexity fallback when KRS has no revenue data
+    let perplexityEstimate: Record<string, unknown> | null = null;
+    let costUsdPerplexity = 0;
+    if (!hasKrsRevenue) {
+      const pplxKey = process.env.PERPLEXITY_API_KEY;
+      if (pplxKey) {
+        const legalName = nazwy.pelna || nazwy.skrocona || null;
+        console.log(`[finance] No KRS revenue for ${entity.name} — calling Perplexity fallback`);
+        perplexityEstimate = callPerplexityFinance(
+          FINANCE_FALLBACK_PROMPT(entity.name, legalName, cleanNip),
+          pplxKey
+        );
+        costUsdPerplexity = 0.005;
+        if (perplexityEstimate) {
+          console.log(`[finance] Perplexity fallback returned data (confidence: ${perplexityEstimate.confidence})`);
+        }
+      } else {
+        console.warn(`[finance] No KRS revenue and PERPLEXITY_API_KEY not set — cannot estimate`);
+      }
+    }
+
+    // Build final revenue figures: KRS first, then Perplexity estimate
+    const revenueSource = hasKrsRevenue ? 'krs' : (perplexityEstimate ? 'perplexity-estimate' : 'unavailable');
+    const pe = perplexityEstimate || {};
+
+    const financeData: Record<string, unknown> = {
       krs_number: krsNumber,
       org_name: nazwy.pelna || nazwy.skrocona || null,
       org_name_short: nazwy.skrocona || null,
@@ -267,7 +337,6 @@ export async function enrichFinance(entity: EntityRecord): Promise<EntityRecord>
       registration_date: krsRejestry.rejestr_przedsiebiorcow_data_wpisu || null,
       pkd: stan.pkd_przewazajace_dzial || null,
       address: orgData.adres || null,
-      // share_capital from Bilans (stan.kapital_zakladowy not in basic API)
       share_capital: latest.shareCapital ?? null,
       status: {
         wykreslona: stan.czy_wykreslona ?? false,
@@ -277,16 +346,17 @@ export async function enrichFinance(entity: EntityRecord): Promise<EntityRecord>
       },
       board_members: boardMembers,
       shareholders,
-      // Financial statements with ratios
       financial_statements: statementsWithRatios,
       years_available: periods.length,
       years_fetched: statementsWithRatios.length,
       cost_pln: costPln,
+      cost_usd_perplexity: costUsdPerplexity,
       fetchedAt: new Date().toISOString(),
-      // Top-level figures from latest year
-      revenue: latest.revenue ?? null,
-      revenuePrevious: latest.revenuePrevious ?? null,
-      netIncome: latest.netIncome ?? null,
+      revenue_source: revenueSource,
+      // Top-level figures: KRS data or Perplexity estimates
+      revenue: latest.revenue ?? (pe.revenue_2024 as number | null) ?? (pe.estimated_annual_revenue as number | null) ?? null,
+      revenuePrevious: latest.revenuePrevious ?? (pe.revenue_2023 as number | null) ?? null,
+      netIncome: latest.netIncome ?? (pe.net_income_2024 as number | null) ?? null,
       totalAssets: latest.totalAssets ?? null,
       equity: latest.equity ?? null,
       operatingProfit: latest.operatingProfit ?? null,
@@ -295,9 +365,27 @@ export async function enrichFinance(entity: EntityRecord): Promise<EntityRecord>
       totalLiabilities: latest.totalLiabilities ?? null,
       wages: latest.wages ?? null,
       depreciation: latest.depreciation ?? null,
-      // Computed ratios for latest year
       ratios: latestRatios,
     };
+
+    // Attach Perplexity estimates as separate block for transparency
+    if (perplexityEstimate) {
+      financeData.perplexity_estimate = {
+        operating_entity_name: pe.operating_entity_name ?? null,
+        operating_entity_nip: pe.operating_entity_nip ?? null,
+        revenue_2024: pe.revenue_2024 ?? null,
+        revenue_2023: pe.revenue_2023 ?? null,
+        revenue_2022: pe.revenue_2022 ?? null,
+        net_income_2024: pe.net_income_2024 ?? null,
+        net_income_2023: pe.net_income_2023 ?? null,
+        net_income_2022: pe.net_income_2022 ?? null,
+        employee_count: pe.employee_count ?? null,
+        estimated_annual_revenue: pe.estimated_annual_revenue ?? null,
+        revenue_source_detail: pe.revenue_source ?? null,
+        confidence: pe.confidence ?? 'low',
+        notes: pe.notes ?? null,
+      };
+    }
 
     return {
       ...entity,
@@ -526,4 +614,75 @@ function computeRatios(year: Record<string, unknown>): Record<string, number | n
     currentRatio: ratio(currentAssets, shortTermDebt), // Current Ratio
     revenueGrowth: revenuePrev && revenue ? Math.round(((revenue - revenuePrev) / revenuePrev) * 10000) / 10000 : null,
   };
+}
+
+// ── Perplexity fallback for revenue estimation ──
+
+const FINANCE_FALLBACK_PROMPT = (brandName: string, legalName: string | null, nip: string | null) => `
+Jesteś analitykiem finansowym. Podaj dane finansowe firmy cateringowej "${brandName}"${legalName ? ` (nazwa prawna: ${legalName})` : ''}${nip ? ` NIP: ${nip}` : ''} z Polski.
+
+WAŻNE: Wiele marek cateringowych działa pod innym podmiotem prawnym niż marka (np. holding/licencja).
+Jeśli ${legalName || brandName} to holding/spółka-matka z zerowymi przychodami, znajdź PODMIOT OPERACYJNY który faktycznie prowadzi catering i podaj JEGO przychody.
+Szukaj nazwy operacyjnej spółki w KRS, aleo.com, rejestr.io, InfoVeriti, artykułach prasowych.
+
+Potrzebuję przychody netto ze sprzedaży za 3 ostatnie lata obrotowe (2022, 2023, 2024 lub najbliższe dostępne).
+
+Odpowiedz WYŁĄCZNIE poprawnym JSON (bez markdown):
+{
+  "operating_entity_name": "<nazwa podmiotu operacyjnego jeśli inna niż ${legalName || brandName}>",
+  "operating_entity_nip": "<NIP podmiotu operacyjnego jeśli znaleziony>",
+  "revenue_2024": <number|null>,
+  "revenue_2023": <number|null>,
+  "revenue_2022": <number|null>,
+  "net_income_2024": <number|null>,
+  "net_income_2023": <number|null>,
+  "net_income_2022": <number|null>,
+  "employee_count": <number|null>,
+  "estimated_annual_revenue": <number|null>,
+  "revenue_source": "<skąd ta informacja — link lub nazwa źródła>",
+  "confidence": "<high|medium|low>",
+  "notes": "<dodatkowe informacje o finansach firmy, struktura właścicielska>"
+}
+
+Kwoty w PLN (grosze po kropce). Jeśli znasz tylko przybliżone wartości lub szacunki z artykułów, podaj je z confidence "low".
+Jeśli nie masz żadnych danych finansowych, wstaw null wszędzie ale KONIECZNIE opisz w notes co wiesz o skali działalności.
+`.trim();
+
+function callPerplexityFinance(prompt: string, apiKey: string): Record<string, unknown> | null {
+  const requestBody = {
+    model: 'sonar',
+    messages: [{ role: 'user', content: prompt }],
+    temperature: 0.1,
+  };
+
+  const inputFile = `/tmp/pplx_fin_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.json`;
+  writeFileSync(inputFile, JSON.stringify(requestBody));
+
+  try {
+    const raw = execSync(
+      `curl -s -m 60 'https://api.perplexity.ai/chat/completions' -H "Authorization: Bearer ${apiKey}" -H 'Content-Type: application/json' -d @${inputFile}`,
+      { maxBuffer: 5 * 1024 * 1024, timeout: 70000 }
+    ).toString('utf-8');
+
+    try { unlinkSync(inputFile); } catch { /* ignore */ }
+
+    const response = JSON.parse(raw);
+    if (response.error) {
+      console.warn(`[finance] Perplexity error:`, response.error);
+      return null;
+    }
+
+    const choices = response.choices as Array<{ message?: { content?: string } }> | undefined;
+    const content = choices?.[0]?.message?.content || '';
+
+    let jsonStr = content;
+    const match = content.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (match) jsonStr = match[1];
+
+    return JSON.parse(jsonStr.trim());
+  } catch (err) {
+    try { unlinkSync(inputFile); } catch { /* ignore */ }
+    console.warn(`[finance] Perplexity fallback failed:`, err instanceof Error ? err.message : err);
+    return null;
+  }
 }

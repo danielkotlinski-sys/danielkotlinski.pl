@@ -6842,342 +6842,36 @@
         "provider": "apify"
       },
       "finance": {
-        "krs_number": "0000461720",
-        "org_name": "BEDIET GROUP SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",
-        "org_name_short": "BEDIET GROUP",
-        "legal_form": "SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",
-        "nip": "5252554605",
-        "regon": "146671161",
-        "registration_date": "2013-05-11",
-        "pkd": "Produkcja artykułów spożywczych",
-        "address": {
-          "kod": "02-677",
-          "miejscowosc": "Warszawa",
-          "nr_domu": "13",
-          "nr_mieszkania": "19",
-          "panstwo": "Polska",
-          "poczta": "Warszawa",
-          "teryt": {
-            "gmina": "146501",
-            "powiat": "1465",
-            "wojewodztwo": "14"
-          },
-          "ulica": "Cybernetyki"
+        "krs_number": null,
+        "org_name": null,
+        "nip": null,
+        "revenue_source": "perplexity-estimate",
+        "revenue": 42000000,
+        "revenuePrevious": 0,
+        "netIncome": null,
+        "perplexity_estimate": {
+          "operating_entity_name": "BEDIET GROUP SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",
+          "operating_entity_nip": "5252554605",
+          "revenue_2024": null,
+          "revenue_2023": 0,
+          "revenue_2022": 0,
+          "net_income_2024": null,
+          "net_income_2023": -4500,
+          "net_income_2022": -2500,
+          "employee_count": null,
+          "estimated_annual_revenue": 42000000,
+          "revenue_source_detail": "aleo.com [1], money.pl (szacunek miesięczny 3.5 mln zł przy 2-3 tys. dostaw dziennie) [2]",
+          "confidence": "low",
+          "notes": "BEDIET GROUP (KRS 0000461720) to podmiot prawny marki BeDiet Catering, z zerowymi przychodami operacyjnymi w 2021-2023 i stratami (2023: -4.5 tys. zł, 2022: -2.5 tys. zł). Brak danych o innym podmiocie operacyjnym w KRS/aleo/rejestr.io. Artykuł money.pl szacuje miesięczny przychód ~3.5 mln zł (rocznie ~42 mln zł), ale bez potwierdzenia w sprawozdaniach. Prezes: Eleftherios Kavoukis. Działalność: wytwarzanie posiłków i catering."
         },
-        "share_capital": 0,
-        "status": {
-          "wykreslona": false,
-          "w_likwidacji": false,
-          "w_upadlosci": false,
-          "wielkosc": "mikro"
-        },
-        "board_members": [
-          "Wojciech Roman Kosmalewski (CZŁONEK ZARZĄDU)",
-          "Karol Jan Kozieł (CZŁONEK ZARZĄDU)",
-          "Katarzyna Anna Zięba Wójcik (CZŁONEK ZARZĄDU)",
-          "Ewa Chodakowska Kavoukis (WICEPREZES ZARZĄDU)",
-          "Eleftherios Kavoukis (PREZES ZARZĄDU)"
-        ],
-        "shareholders": [
-          {
-            "name": "Ewa Chodakowska Kavoukis",
-            "since": "2016-05-31"
-          },
-          {
-            "name": "Eleftherios Kavoukis",
-            "since": "2013-05-11"
-          }
-        ],
-        "financial_statements": [
-          {
-            "periodStart": "2024-01-01",
-            "periodEnd": "2024-12-31",
-            "incomeTax": 0,
-            "netIncome": -473.07,
-            "netIncomePrevious": -4500.34,
-            "depreciation": 0,
-            "wages": 0,
-            "totalAssets": 2304.45,
-            "totalAssetsPrevious": 2779.82,
-            "fixedAssets": 0,
-            "currentAssets": 2304.45,
-            "inventory": 0,
-            "receivables": 0,
-            "equity": -18728.94,
-            "equityPrevious": -18253.57,
-            "shareCapital": 0,
-            "totalLiabilities": 21033.39,
-            "totalLiabilitiesPrevious": 21033.39,
-            "provisions": 21033.39,
-            "ratios": {
-              "netMargin": null,
-              "operatingMargin": null,
-              "grossMargin": null,
-              "roe": 0.0253,
-              "roa": -0.2053,
-              "debtToEquity": -1.123,
-              "currentRatio": null,
-              "revenueGrowth": null
-            }
-          },
-          {
-            "periodStart": "2023-01-01",
-            "periodEnd": "2023-12-31",
-            "incomeTax": 0,
-            "netIncome": -4500.34,
-            "netIncomePrevious": -2476.57,
-            "depreciation": 0,
-            "wages": 0,
-            "totalAssets": 2779.82,
-            "totalAssetsPrevious": 7277.86,
-            "fixedAssets": 0,
-            "currentAssets": 2779.82,
-            "inventory": 0,
-            "receivables": 0,
-            "equity": -18253.57,
-            "equityPrevious": -13755.53,
-            "shareCapital": 0,
-            "totalLiabilities": 21033.39,
-            "totalLiabilitiesPrevious": 21033.39,
-            "provisions": 21033.39,
-            "ratios": {
-              "netMargin": null,
-              "operatingMargin": null,
-              "grossMargin": null,
-              "roe": 0.2465,
-              "roa": -1.6189,
-              "debtToEquity": -1.1523,
-              "currentRatio": null,
-              "revenueGrowth": null
-            }
-          },
-          {
-            "periodStart": "2022-01-01",
-            "periodEnd": "2022-12-31",
-            "incomeTax": 0,
-            "depreciation": 0,
-            "wages": 0,
-            "totalAssets": 7277.86,
-            "totalAssetsPrevious": 9754.43,
-            "fixedAssets": 0,
-            "currentAssets": 7277.86,
-            "inventory": 0,
-            "receivables": 0,
-            "equity": -13755.53,
-            "equityPrevious": -11278.96,
-            "shareCapital": 0,
-            "totalLiabilities": 21033.39,
-            "totalLiabilitiesPrevious": 21033.39,
-            "provisions": 21033.39,
-            "ratios": {
-              "netMargin": null,
-              "operatingMargin": null,
-              "grossMargin": null,
-              "roe": null,
-              "roa": null,
-              "debtToEquity": -1.5291,
-              "currentRatio": null,
-              "revenueGrowth": null
-            }
-          }
-        ],
-        "years_available": 8,
-        "years_fetched": 3,
-        "cost_pln": 3.15,
-        "fetchedAt": "2026-04-05T12:17:04.895Z",
-        "revenue": null,
-        "revenuePrevious": null,
-        "netIncome": -473.07,
-        "totalAssets": 2304.45,
-        "equity": -18728.94,
-        "operatingProfit": null,
-        "grossProfit": null,
-        "cash": null,
-        "totalLiabilities": 21033.39,
-        "wages": 0,
-        "depreciation": 0,
-        "ratios": {
-          "netMargin": null,
-          "operatingMargin": null,
-          "grossMargin": null,
-          "roe": 0.0253,
-          "roa": -0.2053,
-          "debtToEquity": -1.123,
-          "currentRatio": null,
-          "revenueGrowth": null
-        }
+        "cost_usd_perplexity": 0.005,
+        "fetchedAt": "2026-04-05T12:29:49.362Z"
       }
     },
-    "lastScanId": "b4aab7eb-2f12-4eb1-b62f-f59c4bb5e6ec",
-    "lastScannedAt": "2026-04-05T12:17:46.926Z",
+    "lastScanId": "2b9edec0-1383-46b2-9b47-4464054a3e34",
+    "lastScannedAt": "2026-04-05T12:29:49.396Z",
     "nip": "5252554605",
-    "krs": "0000461720",
-    "financials": {
-      "krs_number": "0000461720",
-      "org_name": "BEDIET GROUP SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",
-      "org_name_short": "BEDIET GROUP",
-      "legal_form": "SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",
-      "nip": "5252554605",
-      "regon": "146671161",
-      "registration_date": "2013-05-11",
-      "pkd": "Produkcja artykułów spożywczych",
-      "address": {
-        "kod": "02-677",
-        "miejscowosc": "Warszawa",
-        "nr_domu": "13",
-        "nr_mieszkania": "19",
-        "panstwo": "Polska",
-        "poczta": "Warszawa",
-        "teryt": {
-          "gmina": "146501",
-          "powiat": "1465",
-          "wojewodztwo": "14"
-        },
-        "ulica": "Cybernetyki"
-      },
-      "share_capital": 0,
-      "status": {
-        "wykreslona": false,
-        "w_likwidacji": false,
-        "w_upadlosci": false,
-        "wielkosc": "mikro"
-      },
-      "board_members": [
-        "Wojciech Roman Kosmalewski (CZŁONEK ZARZĄDU)",
-        "Karol Jan Kozieł (CZŁONEK ZARZĄDU)",
-        "Katarzyna Anna Zięba Wójcik (CZŁONEK ZARZĄDU)",
-        "Ewa Chodakowska Kavoukis (WICEPREZES ZARZĄDU)",
-        "Eleftherios Kavoukis (PREZES ZARZĄDU)"
-      ],
-      "shareholders": [
-        {
-          "name": "Ewa Chodakowska Kavoukis",
-          "since": "2016-05-31"
-        },
-        {
-          "name": "Eleftherios Kavoukis",
-          "since": "2013-05-11"
-        }
-      ],
-      "financial_statements": [
-        {
-          "periodStart": "2024-01-01",
-          "periodEnd": "2024-12-31",
-          "incomeTax": 0,
-          "netIncome": -473.07,
-          "netIncomePrevious": -4500.34,
-          "depreciation": 0,
-          "wages": 0,
-          "totalAssets": 2304.45,
-          "totalAssetsPrevious": 2779.82,
-          "fixedAssets": 0,
-          "currentAssets": 2304.45,
-          "inventory": 0,
-          "receivables": 0,
-          "equity": -18728.94,
-          "equityPrevious": -18253.57,
-          "shareCapital": 0,
-          "totalLiabilities": 21033.39,
-          "totalLiabilitiesPrevious": 21033.39,
-          "provisions": 21033.39,
-          "ratios": {
-            "netMargin": null,
-            "operatingMargin": null,
-            "grossMargin": null,
-            "roe": 0.0253,
-            "roa": -0.2053,
-            "debtToEquity": -1.123,
-            "currentRatio": null,
-            "revenueGrowth": null
-          }
-        },
-        {
-          "periodStart": "2023-01-01",
-          "periodEnd": "2023-12-31",
-          "incomeTax": 0,
-          "netIncome": -4500.34,
-          "netIncomePrevious": -2476.57,
-          "depreciation": 0,
-          "wages": 0,
-          "totalAssets": 2779.82,
-          "totalAssetsPrevious": 7277.86,
-          "fixedAssets": 0,
-          "currentAssets": 2779.82,
-          "inventory": 0,
-          "receivables": 0,
-          "equity": -18253.57,
-          "equityPrevious": -13755.53,
-          "shareCapital": 0,
-          "totalLiabilities": 21033.39,
-          "totalLiabilitiesPrevious": 21033.39,
-          "provisions": 21033.39,
-          "ratios": {
-            "netMargin": null,
-            "operatingMargin": null,
-            "grossMargin": null,
-            "roe": 0.2465,
-            "roa": -1.6189,
-            "debtToEquity": -1.1523,
-            "currentRatio": null,
-            "revenueGrowth": null
-          }
-        },
-        {
-          "periodStart": "2022-01-01",
-          "periodEnd": "2022-12-31",
-          "incomeTax": 0,
-          "depreciation": 0,
-          "wages": 0,
-          "totalAssets": 7277.86,
-          "totalAssetsPrevious": 9754.43,
-          "fixedAssets": 0,
-          "currentAssets": 7277.86,
-          "inventory": 0,
-          "receivables": 0,
-          "equity": -13755.53,
-          "equityPrevious": -11278.96,
-          "shareCapital": 0,
-          "totalLiabilities": 21033.39,
-          "totalLiabilitiesPrevious": 21033.39,
-          "provisions": 21033.39,
-          "ratios": {
-            "netMargin": null,
-            "operatingMargin": null,
-            "grossMargin": null,
-            "roe": null,
-            "roa": null,
-            "debtToEquity": -1.5291,
-            "currentRatio": null,
-            "revenueGrowth": null
-          }
-        }
-      ],
-      "years_available": 8,
-      "years_fetched": 3,
-      "cost_pln": 3.15,
-      "fetchedAt": "2026-04-05T12:17:04.895Z",
-      "revenue": null,
-      "revenuePrevious": null,
-      "netIncome": -473.07,
-      "totalAssets": 2304.45,
-      "equity": -18728.94,
-      "operatingProfit": null,
-      "grossProfit": null,
-      "cash": null,
-      "totalLiabilities": 21033.39,
-      "wages": 0,
-      "depreciation": 0,
-      "ratios": {
-        "netMargin": null,
-        "operatingMargin": null,
-        "grossMargin": null,
-        "roe": 0.0253,
-        "roa": -0.2053,
-        "debtToEquity": -1.123,
-        "currentRatio": null,
-        "revenueGrowth": null
-      }
-    }
+    "krs": "0000461720"
   },
   {
     "slug": "fitway.pl",
