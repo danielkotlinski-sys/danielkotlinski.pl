@@ -21,13 +21,14 @@ const ALL_PHASES = [
   'social', 'ads', 'reviews', 'finance', 'interpret'
 ];
 
-/** POST /api/scan — start a new scan or resume an existing one */
+/** POST /api/scan — start a new scan, resume, or batch from unscanned brands */
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { companies, phases, resume: resumeScanId } = body as {
+  const { companies, phases, resume: resumeScanId, batch } = body as {
     companies?: Array<{ name: string; url: string; nip?: string }>;
     phases?: string[];
     resume?: string;  // scan ID to resume
+    batch?: number;   // pull N unscanned brands from SQLite
   };
 
   // --- RESUME MODE ---
@@ -71,10 +72,79 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  // --- BATCH MODE: pull next N unscanned brands from SQLite ---
+  if (batch && batch > 0) {
+    const batchSize = Math.min(batch, 20); // hard cap at 20
+    const { db } = await import('@/lib/db/sqlite');
+    const unscanned = db.prepare(`
+      SELECT b.slug, b.name, b.url, b.domain
+      FROM brands b
+      LEFT JOIN scan_results sr ON b.slug = sr.slug
+      WHERE sr.slug IS NULL AND b.url IS NOT NULL AND b.url != ''
+      ORDER BY b.slug
+      LIMIT ?
+    `).all(batchSize) as Array<{ slug: string; name: string; url: string; domain: string }>;
+
+    if (unscanned.length === 0) {
+      const total = (db.prepare('SELECT COUNT(*) as c FROM brands').get() as { c: number }).c;
+      const scanned = (db.prepare('SELECT COUNT(*) as c FROM scan_results').get() as { c: number }).c;
+      return NextResponse.json({ message: `All brands scanned (${scanned}/${total})`, status: 'all_done' });
+    }
+
+    // Convert to companies array and fall through to normal scan creation
+    const batchCompanies = unscanned.map(b => ({ name: b.name, url: b.url }));
+
+    const enabledPhases = phases || ALL_PHASES;
+    const scanId = randomUUID();
+    const entities: EntityRecord[] = batchCompanies.map((c) => ({
+      id: randomUUID(),
+      name: c.name,
+      url: c.url,
+      nip: undefined,
+      domain: undefined,
+      data: {},
+      status: 'pending' as const,
+      errors: [],
+    }));
+
+    const scan: ScanRecord = {
+      id: scanId,
+      status: 'running',
+      sectorId: 'catering-pl',
+      entities,
+      phasesCompleted: [],
+      currentPhase: 'crawl',
+      log: [],
+      totalCostUsd: 0,
+      createdAt: new Date().toISOString(),
+      completedAt: null,
+    };
+
+    log(scan, `BATCH scan started — ${entities.length} entities (batch mode), phases: ${enabledPhases.join(', ')}`);
+    saveScan(scan);
+
+    runPipeline(scanId, enabledPhases).catch((err) => {
+      const s = getScan(scanId);
+      if (s) {
+        s.status = 'failed';
+        log(s, `Pipeline error: ${err.message}`);
+        saveScan(s);
+      }
+    });
+
+    return NextResponse.json({
+      scanId,
+      status: 'running',
+      mode: 'batch',
+      entityCount: entities.length,
+      brands: batchCompanies.map(c => c.name),
+    });
+  }
+
   // --- NEW SCAN MODE ---
   if (!companies || !Array.isArray(companies) || companies.length === 0) {
     return NextResponse.json(
-      { error: 'Provide companies array with name and url, or resume: scanId' },
+      { error: 'Provide companies array with name and url, or resume: scanId, or batch: N' },
       { status: 400 }
     );
   }

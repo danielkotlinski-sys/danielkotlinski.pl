@@ -16,7 +16,7 @@
 import { execSync } from 'child_process';
 import { writeFileSync, unlinkSync } from 'fs';
 import type { EntityRecord } from '@/lib/db/store';
-import { getBrands } from '@/lib/db/store';
+import { db, stmts } from '@/lib/db/sqlite';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -456,13 +456,9 @@ export async function enrichPricingFallback(entity: EntityRecord): Promise<Entit
   // -----------------------------------------------------------------------
   // Path A: Dietly brands — extract structure + direct API pricing (FREE)
   // -----------------------------------------------------------------------
-  const brands = getBrands();
   const entityDomain = entity.domain || (() => { try { return new URL(entity.url).hostname.replace('www.', ''); } catch { return ''; } })();
-  const brandRecord = brands.find(b => {
-    const bDomain = (b.domain || '');
-    return bDomain === entityDomain || bDomain === `www.${entityDomain}`;
-  });
-  const dietlySlug = brandRecord?.dietlySlug as string | undefined;
+  const brandRow = stmts.getBrandByDomain.get(entityDomain, entityDomain) as Record<string, unknown> | undefined;
+  const dietlySlug = (brandRow?.dietly_slug as string) || undefined;
 
   if (dietlySlug) {
     dietlyExtract = extractDietlyData(dietlySlug);
