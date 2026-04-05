@@ -1,18 +1,26 @@
 /**
- * Phase: Pricing Fallback — use Perplexity to fill missing pricing data.
+ * Phase: Pricing Fallback — benchmark pricing via Dietly SSR + Perplexity.
  *
- * Runs after extract. Two cases:
- *   1. No prices at all (JS-rendered sites) → full pricing query
- *   2. Has min/max but no diet_prices breakdown → kcal pricing query
+ * Strategy:
+ *   1. Dietly brands (177/239): curl Dietly page → extract diet structure from
+ *      __NEXT_DATA__ → find "Wybór menu"/"Standard" diet → get calorie options →
+ *      targeted Perplexity query for price at 1500 + 2000 kcal.
+ *   2. Non-Dietly brands (62/239): generic Perplexity benchmark query.
+ *   3. If extract already got prices, just compute benchmarks — no API calls.
  *
- * Also computes normalized benchmark prices: price_1500kcal, price_2000kcal
+ * Also fills: calorie_options in menu dimension, price_range_pln fallback.
  *
- * Requires PERPLEXITY_API_KEY. ~$0.005/query.
+ * Requires PERPLEXITY_API_KEY. ~$0.005-0.01/brand.
  */
 
 import { execSync } from 'child_process';
 import { writeFileSync, unlinkSync } from 'fs';
 import type { EntityRecord } from '@/lib/db/store';
+import { getBrands } from '@/lib/db/store';
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
 interface DietPrice {
   diet_name: string;
@@ -20,18 +28,50 @@ interface DietPrice {
   kcal: string | null;
 }
 
+interface DietlyCalorie {
+  dietCaloriesId: number;
+  calories: number;
+}
+
+interface DietlyDietOption {
+  dietOptionId: number;
+  name: string;
+  dietOptionTag: string;
+  dietCalories: DietlyCalorie[];
+}
+
+interface DietlyTier {
+  tierId: number;
+  name: string;
+  minPrice: string;
+  dietOptions: DietlyDietOption[];
+}
+
+interface DietlyDiet {
+  dietId: number;
+  name: string;
+  dietOptions: DietlyDietOption[];
+  dietTiers: DietlyTier[];
+}
+
+interface DietlyExtract {
+  diets: DietlyDiet[];
+  priceRange: string | null;
+  benchmarkDiet: string | null;    // Name of the chosen benchmark diet
+  calorieOptions: number[];         // All unique kcal options
+  tierPricing: string;              // Human-readable tier min prices for Perplexity context
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function shellEscape(s: string): string {
+  return "'" + s.replace(/'/g, "'\\''") + "'";
+}
+
 function getPricing(entity: EntityRecord): Record<string, unknown> {
   return (entity.data as Record<string, Record<string, unknown>>)?.pricing || {};
-}
-
-function hasPricing(entity: EntityRecord): boolean {
-  const p = getPricing(entity);
-  return !!(p.cheapest_daily || p.price_range_pln);
-}
-
-function hasDietPrices(entity: EntityRecord): boolean {
-  const p = getPricing(entity);
-  return Array.isArray(p.diet_prices) && p.diet_prices.length > 0;
 }
 
 function callPerplexity(prompt: string, apiKey: string): Record<string, unknown> | null {
@@ -69,187 +109,273 @@ function callPerplexity(prompt: string, apiKey: string): Record<string, unknown>
   }
 }
 
-const FULL_PRICING_PROMPT = (name: string, url: string) =>
-  `${name} (${url}) — catering dietetyczny / dieta pudełkowa, Polska.
+// ---------------------------------------------------------------------------
+// Step 1: Extract diet structure from Dietly SSR
+// ---------------------------------------------------------------------------
 
-Ile kosztuje dzienna dieta? Sprawdź aktualny cennik na stronie ${url} lub w wynikach wyszukiwania.
+function extractDietlyData(dietlySlug: string): DietlyExtract | null {
+  try {
+    const url = `https://dietly.pl/catering-dietetyczny-firma/${dietlySlug}`;
+    const html = execSync(
+      `curl -sL -m 20 ${shellEscape(url)}`,
+      { maxBuffer: 10 * 1024 * 1024, timeout: 25000 }
+    ).toString('utf-8');
 
-Odpowiedz WYŁĄCZNIE poprawnym JSON (bez markdown):
-{
-  "price_range_pln": "string — np. '45-89 PLN/dzień'",
-  "cheapest_daily": number — najtańsza dzienna cena w PLN lub null,
-  "most_expensive_daily": number — najdroższa dzienna cena w PLN lub null,
-  "trial_offer": "string — opis oferty próbnej/rabatu na start lub null",
-  "subscription_discount": true/false — czy są zniżki za dłuższe zamówienie,
-  "price_source": "string — skąd masz te dane (url lub 'AI knowledge')",
-  "diet_prices": [
-    {"diet_name": "string", "price_per_day_pln": number, "kcal": "string or null"}
-  ]
-}
+    // Extract __NEXT_DATA__
+    const nextDataMatch = html.match(/<script id="__NEXT_DATA__" type="application\/json">([\s\S]*?)<\/script>/);
+    if (!nextDataMatch) return null;
 
-WAŻNE: W diet_prices podaj KAŻDĄ dostępną dietę z ceną i wariantem kalorycznym.
-Jeśli firma oferuje np. 1200/1500/2000/2500 kcal — wymień każdą osobno z ceną.
-Podaj realne ceny, nie zgaduj. Jeśli nie możesz znaleźć — wstaw null.`;
+    const nextData = JSON.parse(nextDataMatch[1]);
+    const queries = nextData?.props?.pageProps?.initialState?.dietlyApi?.queries;
+    if (!queries) return null;
 
-const DIET_PRICES_PROMPT = (name: string, url: string) =>
-  `${name} (${url}) — catering dietetyczny, Polska.
+    // Find the company details query
+    const queryKey = Object.keys(queries).find(k => k.includes('getApiCompanyFullDetails'));
+    if (!queryKey) return null;
 
-Podaj szczegółowy cennik diet pudełkowych z rozbiciem na warianty kaloryczne.
-Sprawdź aktualny cennik na stronie ${url}.
+    const companyData = queries[queryKey]?.data;
+    if (!companyData) return null;
 
-Odpowiedz WYŁĄCZNIE poprawnym JSON (bez markdown):
-{
-  "diet_prices": [
-    {"diet_name": "string — nazwa diety", "price_per_day_pln": number, "kcal": "string — np. '1500'"}
-  ],
-  "price_source": "string — url źródła"
-}
+    const diets = (companyData.companyDiets || []) as DietlyDiet[];
+    const priceRange = companyData.contactDetails?.priceRangeInfo || null;
 
-WAŻNE: Wymień KAŻDY wariant kaloryczny osobno (1200, 1500, 1800, 2000, 2500, 3000 kcal itd.)
-z odpowiadającą ceną za dzień. Jeśli firma ma kilka typów diet (Standard, Vege, Sport) —
-wymień każdy z cenami. Podaj realne ceny.`;
-
-const CALORIE_OPTIONS_PROMPT = (name: string, url: string) =>
-  `${name} (${url}) — catering dietetyczny / dieta pudełkowa, Polska.
-
-Jakie warianty kaloryczne (kcal dziennie) oferuje ten catering? Sprawdź na stronie ${url} lub w wynikach wyszukiwania.
-Szukam DZIENNYCH opcji kalorycznych, np. 1200, 1500, 1800, 2000, 2500, 3000 kcal.
-Wiele firm oferuje te opcje na stronie zamówienia lub na Dietly.pl.
-
-Odpowiedz WYŁĄCZNIE poprawnym JSON (bez markdown):
-{
-  "calorie_options": [1200, 1500, 2000, 2500],
-  "source": "string — skąd masz te dane"
-}
-
-WAŻNE: Podaj TYLKO warianty, które firma faktycznie oferuje. Nie zgaduj.
-Typowe warianty to: 1200, 1500, 1800, 2000, 2500, 3000, 3500, 4000 kcal.`;
-
-/**
- * Compute normalized benchmark prices from diet_prices array.
- * Finds closest match to 1500 and 2000 kcal.
- */
-function computeBenchmarkPrices(dietPrices: DietPrice[]): {
-  price_1500kcal: number | null;
-  price_2000kcal: number | null;
-} {
-  if (!dietPrices || dietPrices.length === 0) {
-    return { price_1500kcal: null, price_2000kcal: null };
-  }
-
-  function findClosest(targetKcal: number): number | null {
-    let bestPrice: number | null = null;
-    let bestDist = Infinity;
-
-    for (const dp of dietPrices) {
-      if (!dp.kcal || !dp.price_per_day_pln) continue;
-      // Parse kcal — handle "1500", "1200-1500", "ok. 1500" etc.
-      const kcalMatch = dp.kcal.match(/(\d{3,4})/);
-      if (!kcalMatch) continue;
-      const kcal = parseInt(kcalMatch[1], 10);
-      const dist = Math.abs(kcal - targetKcal);
-      // Only accept if within 300 kcal
-      if (dist < bestDist && dist <= 300) {
-        bestDist = dist;
-        bestPrice = dp.price_per_day_pln;
+    // Collect all unique calorie options across all diets
+    const allKcal = new Set<number>();
+    for (const diet of diets) {
+      // From tiers
+      for (const tier of (diet.dietTiers || [])) {
+        for (const opt of (tier.dietOptions || [])) {
+          for (const cal of (opt.dietCalories || [])) {
+            if (cal.calories) allKcal.add(cal.calories);
+          }
+        }
+      }
+      // From top-level options
+      for (const opt of (diet.dietOptions || [])) {
+        for (const cal of (opt.dietCalories || [])) {
+          if (cal.calories) allKcal.add(cal.calories);
+        }
       }
     }
 
-    return bestPrice;
-  }
+    // Find the benchmark diet: prefer "Wybór menu", then "Standard", then "Klasyczna", then first
+    const benchmarkPatterns = [
+      /wyb[oó]r\s*menu/i,
+      /standard/i,
+      /klasyczn/i,
+      /basic/i,
+    ];
 
-  return {
-    price_1500kcal: findClosest(1500),
-    price_2000kcal: findClosest(2000),
-  };
+    let benchmarkDiet: DietlyDiet | null = null;
+    for (const pattern of benchmarkPatterns) {
+      benchmarkDiet = diets.find(d => pattern.test(d.name)) || null;
+      if (!benchmarkDiet) {
+        // Also check tier names
+        for (const d of diets) {
+          const matchingTier = d.dietTiers?.find(t => pattern.test(t.name));
+          if (matchingTier) { benchmarkDiet = d; break; }
+        }
+      }
+      if (benchmarkDiet) break;
+    }
+    if (!benchmarkDiet && diets.length > 0) benchmarkDiet = diets[0];
+
+    // Build tier pricing info string for Perplexity context
+    let tierPricing = '';
+    if (benchmarkDiet) {
+      const tiers = benchmarkDiet.dietTiers || [];
+      if (tiers.length > 0) {
+        const parts = tiers.map(t => `${t.name}: od ${t.minPrice}`);
+        tierPricing = parts.join(', ');
+      }
+    }
+
+    return {
+      diets,
+      priceRange,
+      benchmarkDiet: benchmarkDiet?.name || null,
+      calorieOptions: Array.from(allKcal).sort((a, b) => a - b),
+      tierPricing,
+    };
+  } catch {
+    return null;
+  }
 }
+
+// ---------------------------------------------------------------------------
+// Step 2: Perplexity prompts — targeted benchmark pricing
+// ---------------------------------------------------------------------------
+
+const BENCHMARK_PRICE_PROMPT_DIETLY = (
+  name: string, dietlySlug: string, benchmarkDiet: string, kcalOptions: number[],
+  tierInfo: string
+) =>
+  `${name} — catering dietetyczny, Polska. Dostępna na dietly.pl/catering-dietetyczny-firma/${dietlySlug}
+
+Interesuje mnie TYLKO cena dziennej diety "${benchmarkDiet}" w wariancie 1500 kcal i 2000 kcal.
+Firma oferuje warianty: ${kcalOptions.join(', ')} kcal.
+${tierInfo ? `Znane ceny minimalne z Dietly (najniższa kaloryczność): ${tierInfo}` : ''}
+
+Sprawdź aktualny cennik na dietly.pl lub stronie firmy. Ceny zależą od kaloryczności — wyższe kcal = wyższa cena.
+
+Odpowiedz WYŁĄCZNIE poprawnym JSON (bez markdown):
+{
+  "benchmark_diet_name": "${benchmarkDiet}",
+  "price_1500kcal": number — cena PLN/dzień za 1500 kcal lub null,
+  "price_2000kcal": number — cena PLN/dzień za 2000 kcal lub null,
+  "price_range_pln": "string — ogólny zakres cenowy np. '49-89 PLN/dzień' lub null",
+  "cheapest_daily": number — najtańsza dostępna dieta PLN/dzień lub null,
+  "source": "string — skąd masz te dane"
+}
+
+WAŻNE: Podaj realne, aktualne ceny. Jeśli nie możesz znaleźć — wstaw null. NIE zgaduj.`;
+
+const BENCHMARK_PRICE_PROMPT_GENERIC = (name: string, url: string) =>
+  `${name} (${url}) — catering dietetyczny / dieta pudełkowa, Polska.
+
+Interesuje mnie cena dziennej diety pudełkowej. Szukam:
+- Cena najtańszej standardowej diety (np. "Dieta z wyborem menu", "Standard", "Klasyczna") w wariancie 1500 kcal
+- Cena tej samej diety w wariancie 2000 kcal
+- Ogólny zakres cenowy firmy (od-do PLN/dzień)
+
+Sprawdź na ${url}, dietly.pl lub w wynikach wyszukiwania.
+
+Odpowiedz WYŁĄCZNIE poprawnym JSON (bez markdown):
+{
+  "benchmark_diet_name": "string — nazwa diety którą sprawdziłeś",
+  "price_1500kcal": number — cena PLN/dzień za 1500 kcal lub null,
+  "price_2000kcal": number — cena PLN/dzień za 2000 kcal lub null,
+  "price_range_pln": "string — np. '45-89 PLN/dzień' lub null",
+  "cheapest_daily": number — najtańsza dieta PLN/dzień lub null,
+  "calorie_options": [1200, 1500, ...] — dostępne warianty kcal lub [],
+  "source": "string — skąd masz te dane"
+}
+
+WAŻNE: Podaj realne ceny. Jeśli nie znajdziesz — null. NIE zgaduj.`;
+
+// ---------------------------------------------------------------------------
+// Main export
+// ---------------------------------------------------------------------------
 
 export async function enrichPricingFallback(entity: EntityRecord): Promise<EntityRecord> {
   const apiKey = process.env.PERPLEXITY_API_KEY;
   if (!apiKey) return entity;
 
   const existingPricing = getPricing(entity);
-  const needsFullPricing = !hasPricing(entity);
-  const needsDietPrices = !hasDietPrices(entity);
+  const existingMenu = (entity.data as Record<string, Record<string, unknown>>)?.menu || {};
 
-  // If we have everything, just compute benchmarks from existing data
-  if (!needsFullPricing && !needsDietPrices) {
-    const dietPrices = existingPricing.diet_prices as DietPrice[];
-    const benchmarks = computeBenchmarkPrices(dietPrices);
+  // Already have benchmark prices? Just mark as done.
+  if (existingPricing.price_1500kcal && existingPricing.price_2000kcal) {
     return {
       ...entity,
       data: {
         ...entity.data,
-        pricing: { ...existingPricing, ...benchmarks, _pricing_fallback_done: new Date().toISOString() },
-        _cost_pricing: { usd: 0, calls: 0, provider: 'perplexity' },
+        pricing: { ...existingPricing, _pricing_fallback_done: new Date().toISOString() },
+        _cost_pricing: { usd: 0, calls: 0, provider: 'none' },
       },
     };
   }
 
-  let parsed: Record<string, unknown> | null = null;
   let pplxCalls = 0;
+  let benchmarkResult: Record<string, unknown> | null = null;
+  let dietlyExtract: DietlyExtract | null = null;
 
-  if (needsFullPricing) {
-    parsed = callPerplexity(FULL_PRICING_PROMPT(entity.name, entity.url), apiKey);
-    if (parsed) pplxCalls++;
-  } else if (needsDietPrices) {
-    parsed = callPerplexity(DIET_PRICES_PROMPT(entity.name, entity.url), apiKey);
-    if (parsed) pplxCalls++;
+  // -----------------------------------------------------------------------
+  // Path A: Dietly brands — extract structure, then targeted query
+  // -----------------------------------------------------------------------
+  // Find dietlySlug from brands.json seed data
+  const brands = getBrands();
+  const entityDomain = entity.domain || (() => { try { return new URL(entity.url).hostname.replace('www.', ''); } catch { return ''; } })();
+  const brandRecord = brands.find(b => {
+    const bDomain = (b.domain || '');
+    return bDomain === entityDomain || bDomain === `www.${entityDomain}`;
+  });
+  const dietlySlug = brandRecord?.dietlySlug as string | undefined;
+
+  if (dietlySlug) {
+    dietlyExtract = extractDietlyData(dietlySlug);
+
+    if (dietlyExtract && dietlyExtract.benchmarkDiet) {
+      benchmarkResult = callPerplexity(
+        BENCHMARK_PRICE_PROMPT_DIETLY(
+          entity.name,
+          dietlySlug,
+          dietlyExtract.benchmarkDiet,
+          dietlyExtract.calorieOptions,
+          dietlyExtract.tierPricing
+        ),
+        apiKey
+      );
+      pplxCalls++;
+    }
   }
 
-  if (!parsed) return entity;
-
-  // Build diet_prices from response
-  const newDietPrices = Array.isArray(parsed.diet_prices) ? parsed.diet_prices as DietPrice[] : [];
-
-  // Compute benchmark prices
-  const benchmarks = computeBenchmarkPrices(newDietPrices);
-
-  // Merge
-  const mergedPricing: Record<string, unknown> = {
-    ...existingPricing,
-    diet_prices: newDietPrices.length > 0 ? newDietPrices : (existingPricing.diet_prices || []),
-    ...benchmarks,
-  };
-
-  if (needsFullPricing && parsed) {
-    mergedPricing.price_range_pln = existingPricing.price_range_pln || parsed.price_range_pln || null;
-    mergedPricing.cheapest_daily = existingPricing.cheapest_daily || (typeof parsed.cheapest_daily === 'number' ? parsed.cheapest_daily : null);
-    mergedPricing.most_expensive_daily = existingPricing.most_expensive_daily || (typeof parsed.most_expensive_daily === 'number' ? parsed.most_expensive_daily : null);
-    mergedPricing.trial_offer = existingPricing.trial_offer || parsed.trial_offer || null;
-    mergedPricing.subscription_discount = existingPricing.subscription_discount ?? parsed.subscription_discount ?? null;
-    mergedPricing._fallback = 'perplexity';
+  // -----------------------------------------------------------------------
+  // Path B: Non-Dietly brands or Dietly extraction failed — generic query
+  // -----------------------------------------------------------------------
+  if (!benchmarkResult) {
+    benchmarkResult = callPerplexity(
+      BENCHMARK_PRICE_PROMPT_GENERIC(entity.name, entity.url),
+      apiKey
+    );
+    pplxCalls++;
   }
 
-  if (parsed.price_source) {
-    mergedPricing.price_source = parsed.price_source;
+  // -----------------------------------------------------------------------
+  // Merge results
+  // -----------------------------------------------------------------------
+  const mergedPricing: Record<string, unknown> = { ...existingPricing };
+
+  if (benchmarkResult) {
+    // Benchmark prices — the key output
+    if (typeof benchmarkResult.price_1500kcal === 'number') {
+      mergedPricing.price_1500kcal = benchmarkResult.price_1500kcal;
+    }
+    if (typeof benchmarkResult.price_2000kcal === 'number') {
+      mergedPricing.price_2000kcal = benchmarkResult.price_2000kcal;
+    }
+    if (benchmarkResult.benchmark_diet_name) {
+      mergedPricing.benchmark_diet_name = benchmarkResult.benchmark_diet_name;
+    }
+
+    // Fill basic pricing if missing
+    if (!mergedPricing.price_range_pln && benchmarkResult.price_range_pln) {
+      mergedPricing.price_range_pln = benchmarkResult.price_range_pln;
+    }
+    if (!mergedPricing.cheapest_daily && typeof benchmarkResult.cheapest_daily === 'number') {
+      mergedPricing.cheapest_daily = benchmarkResult.cheapest_daily;
+    }
+
+    mergedPricing.price_source = benchmarkResult.source || mergedPricing.price_source || null;
+    mergedPricing._fallback = dietlySlug ? 'dietly+perplexity' : 'perplexity';
+  }
+
+  // Fill Dietly price range from SSR if we have it
+  if (!mergedPricing.price_range_pln && dietlyExtract?.priceRange) {
+    mergedPricing.price_range_pln = dietlyExtract.priceRange;
   }
 
   mergedPricing._pricing_fallback_done = new Date().toISOString();
 
-  // Also fill calorie_options in menu if empty
-  const existingMenu = (entity.data as Record<string, Record<string, unknown>>)?.menu || {};
-  const hasCalorieOptions = Array.isArray(existingMenu.calorie_options) && existingMenu.calorie_options.length > 0;
-  let updatedMenu = existingMenu;
+  // -----------------------------------------------------------------------
+  // Calorie options — from Dietly structure (free) or Perplexity response
+  // -----------------------------------------------------------------------
+  let updatedMenu = { ...existingMenu };
+  const hasCalorieOptions = Array.isArray(existingMenu.calorie_options) && (existingMenu.calorie_options as number[]).length > 0;
 
   if (!hasCalorieOptions) {
-    // Try to derive from diet_prices kcal values
-    const dietPrices = (mergedPricing.diet_prices || []) as DietPrice[];
-    const kcalSet = new Set<number>();
-    for (const dp of dietPrices) {
-      if (!dp.kcal) continue;
-      const m = String(dp.kcal).match(/(\d{3,4})/);
-      if (m) kcalSet.add(parseInt(m[1], 10));
-    }
-
-    if (kcalSet.size > 0) {
-      updatedMenu = { ...existingMenu, calorie_options: Array.from(kcalSet).sort((a, b) => a - b) };
+    if (dietlyExtract && dietlyExtract.calorieOptions.length > 0) {
+      // Free from Dietly SSR — no API call needed
+      updatedMenu.calorie_options = dietlyExtract.calorieOptions;
+    } else if (benchmarkResult && Array.isArray(benchmarkResult.calorie_options) && (benchmarkResult.calorie_options as number[]).length > 0) {
+      // From Perplexity generic response
+      updatedMenu.calorie_options = benchmarkResult.calorie_options;
     } else {
-      // Dedicated Perplexity query for calorie options
+      // Standalone calorie query as last resort
       const kcalResult = callPerplexity(CALORIE_OPTIONS_PROMPT(entity.name, entity.url), apiKey);
       pplxCalls++;
-      if (kcalResult && Array.isArray(kcalResult.calorie_options) && kcalResult.calorie_options.length > 0) {
-        updatedMenu = { ...existingMenu, calorie_options: kcalResult.calorie_options };
+      if (kcalResult && Array.isArray(kcalResult.calorie_options) && (kcalResult.calorie_options as number[]).length > 0) {
+        updatedMenu.calorie_options = kcalResult.calorie_options;
       }
     }
   }
@@ -260,7 +386,29 @@ export async function enrichPricingFallback(entity: EntityRecord): Promise<Entit
       ...entity.data,
       pricing: mergedPricing,
       menu: updatedMenu,
-      _cost_pricing: { usd: pplxCalls * 0.005, calls: pplxCalls, provider: 'perplexity' },
+      _dietly_extract: dietlyExtract ? {
+        dietCount: dietlyExtract.diets.length,
+        benchmarkDiet: dietlyExtract.benchmarkDiet,
+        calorieOptions: dietlyExtract.calorieOptions,
+        priceRange: dietlyExtract.priceRange,
+        tierPricing: dietlyExtract.tierPricing || undefined,
+      } : undefined,
+      _cost_pricing: { usd: pplxCalls * 0.005, calls: pplxCalls, provider: dietlySlug ? 'dietly+perplexity' : 'perplexity' },
     },
   };
 }
+
+// Kept for backwards compat in calorie fallback
+const CALORIE_OPTIONS_PROMPT = (name: string, url: string) =>
+  `${name} (${url}) — catering dietetyczny / dieta pudełkowa, Polska.
+
+Jakie warianty kaloryczne (kcal dziennie) oferuje ten catering? Sprawdź na stronie ${url} lub dietly.pl lub w wynikach wyszukiwania.
+
+Odpowiedz WYŁĄCZNIE poprawnym JSON (bez markdown):
+{
+  "calorie_options": [1200, 1500, 2000, 2500],
+  "source": "string — skąd masz te dane"
+}
+
+WAŻNE: Podaj TYLKO warianty, które firma faktycznie oferuje. Nie zgaduj.
+Typowe warianty to: 1200, 1500, 1800, 2000, 2500, 3000, 3500, 4000 kcal.`;

@@ -2119,7 +2119,7 @@
         "crawlerType": "curl",
         "subpagesCrawled": 0,
         "contentLength": 14654,
-        "crawledAt": "2026-04-05T08:32:36.330Z"
+        "crawledAt": "2026-04-05T09:04:59.629Z"
       },
       "_social_urls": {
         "facebook": "https://www.facebook.com/Kuchniavikinga",
@@ -2138,50 +2138,24 @@
         "language": "pl"
       },
       "pricing": {
-        "price_range_pln": "39,99-79,99 PLN/dzień",
-        "cheapest_daily": 39.99,
-        "most_expensive_daily": 79.99,
-        "trial_offer": "Odbierz -5 zł za każdy dzień zamówienia przy zamówieniu powyżej 5 dni",
-        "subscription_discount": true
+        "benchmark_diet_name": "Wybór menu",
+        "cheapest_daily": 57.99,
+        "price_source": "kuchniavikinga.pl (various diet pages, regular prices)",
+        "_fallback": "dietly+perplexity",
+        "price_range_pln": "Od 48,99zł do 101,99zł",
+        "_pricing_fallback_done": "2026-04-05T09:05:09.095Z"
       },
       "menu": {
-        "diet_types": [
-          "Standard",
-          "Active Pro",
-          "Light",
-          "Śródziemnomorska",
-          "Low Carb & IG",
-          "Fish Low Carb & IG",
-          "Keto",
-          "Hashi Low Gluten & Lactose",
-          "Fodmap",
-          "Ekonomiczna",
-          "Ekonomiczna Wege",
-          "Detoks sokowy",
-          "Basic",
-          "Comfort",
-          "Supreme",
-          "Ladies Vibes",
-          "Keto Fusion",
-          "Types of Vege"
-        ],
         "calorie_options": [
+          1000,
           1200,
           1500,
           1800,
           2000,
+          2200,
           2500,
-          3000
-        ],
-        "cuisine_style": "polska klasyczna i śródziemnomorska",
-        "dietary_restrictions": [
-          "vegan",
-          "wegetariańskie",
-          "low carb",
-          "gluten-free",
-          "lactose-free",
-          "fodmap",
-          "keto"
+          3000,
+          3500
         ]
       },
       "delivery": {
@@ -3048,11 +3022,28 @@
       "_cost_pricing": {
         "usd": 0.005,
         "calls": 1,
-        "provider": "perplexity"
+        "provider": "dietly+perplexity"
+      },
+      "_dietly_extract": {
+        "dietCount": 13,
+        "benchmarkDiet": "Wybór menu",
+        "calorieOptions": [
+          1000,
+          1200,
+          1500,
+          1800,
+          2000,
+          2200,
+          2500,
+          3000,
+          3500
+        ],
+        "priceRange": "Od 48,99zł do 101,99zł",
+        "tierPricing": "BASIC: od 65.99 zł, COMFORT: od 68.99 zł, SUPREME: od 72.99 zł, LADIES VIBES: od 68.99 zł, KETO FUSION: od 71.99 zł, TYPES OF VEGE: od 66.99 zł"
       }
     },
-    "lastScanId": "54f02994-924a-468b-a59b-a90129fb73be",
-    "lastScannedAt": "2026-04-05T08:34:08.004Z",
+    "lastScanId": "63c60ce1-80cd-4f57-bbdb-b6eb0edadcc8",
+    "lastScannedAt": "2026-04-05T09:05:24.685Z",
     "nip": "5423314760",
     "krs": "0000970748",
     "financials": {
@@ -3450,7 +3441,7 @@
         "crawlerType": "curl",
         "subpagesCrawled": 0,
         "contentLength": 6874,
-        "crawledAt": "2026-04-05T08:10:43.244Z"
+        "crawledAt": "2026-04-05T09:05:02.872Z"
       },
       "_social_urls": {
         "instagram": "https://instagram.com/maczfit",
@@ -3469,34 +3460,27 @@
         "language": "pl"
       },
       "pricing": {
-        "price_range_pln": "49,50-90 PLN/dzień",
-        "cheapest_daily": 49.5,
-        "most_expensive_daily": 90,
-        "trial_offer": "Zestawy próbne dostępne, limit 3 zestawy próbne na klienta",
-        "subscription_discount": true,
-        "diet_prices": [],
-        "price_1500kcal": null,
-        "price_2000kcal": null,
-        "_fallback": "perplexity",
-        "price_source": "https://www.maczfit.pl/kocialkowa-gorka, https://www.maczfit.pl/nadrozno, https://najlepszycatering.pl/maczfit/",
-        "_pricing_fallback_done": "2026-04-05T08:11:23.452Z"
+        "price_1500kcal": 83,
+        "price_2000kcal": 89,
+        "benchmark_diet_name": "Everyday",
+        "price_range_pln": "66-95 PLN/dzień",
+        "cheapest_daily": 66,
+        "price_source": "maczfit.pl — oficjalna strona firmy (cennik i opcje diet)",
+        "_fallback": "dietly+perplexity",
+        "_pricing_fallback_done": "2026-04-05T09:05:15.189Z"
       },
       "menu": {
-        "diet_types": [
-          "Gotowe Diety",
-          "Diety z Wyborem Menu",
-          "Trio"
-        ],
         "calorie_options": [
+          900,
+          1100,
           1200,
+          1400,
           1500,
           1800,
           2000,
           2500,
           3000
-        ],
-        "cuisine_style": "polska",
-        "dietary_restrictions": []
+        ]
       },
       "delivery": {
         "delivery_model": "own_fleet",
@@ -4291,9 +4275,9 @@
         "provider": "perplexity"
       },
       "_cost_pricing": {
-        "usd": 0.01,
-        "calls": 2,
-        "provider": "perplexity"
+        "usd": 0.005,
+        "calls": 1,
+        "provider": "dietly+perplexity"
       },
       "_cost_discovery": {
         "pln": 0.05,
@@ -4337,10 +4321,26 @@
         "inputTokens": 1093,
         "outputTokens": 150,
         "provider": "apify+anthropic"
+      },
+      "_dietly_extract": {
+        "dietCount": 13,
+        "benchmarkDiet": "Wybór menu",
+        "calorieOptions": [
+          900,
+          1100,
+          1200,
+          1400,
+          1500,
+          1800,
+          2000,
+          2500,
+          3000
+        ],
+        "priceRange": "Od 46,00zł do 123,00zł"
       }
     },
-    "lastScanId": "354af24e-8c54-43da-bbde-1429dc981630",
-    "lastScannedAt": "2026-04-05T08:11:33.456Z",
+    "lastScanId": "63c60ce1-80cd-4f57-bbdb-b6eb0edadcc8",
+    "lastScannedAt": "2026-04-05T09:05:24.685Z",
     "nip": "9512471196",
     "krs": "0000752666",
     "financials": {
@@ -6392,7 +6392,7 @@
         "crawlerType": "curl",
         "subpagesCrawled": 0,
         "contentLength": 6368,
-        "crawledAt": "2026-04-05T08:32:37.302Z"
+        "crawledAt": "2026-04-05T09:05:04.053Z"
       },
       "_social_urls": {
         "facebook": "https://www.facebook.com/ntfypl",
@@ -6411,44 +6411,17 @@
         "language": "pl"
       },
       "pricing": {
-        "price_range_pln": null,
-        "cheapest_daily": null,
-        "most_expensive_daily": null,
-        "trial_offer": "Kod EASTER21 (ważny do 05.04, wyłącza program lojalnościowy)",
-        "subscription_discount": false,
-        "diet_prices": [],
-        "price_1500kcal": null,
-        "price_2000kcal": null,
+        "benchmark_diet_name": "Mini 10 dań",
+        "price_range_pln": "59,99-89,99 PLN/dzień",
+        "cheapest_daily": 59.99,
+        "price_source": "ntfy.pl (strony miejskie i pakiety wyboru menu)",
         "_fallback": "perplexity",
-        "price_source": "search results (no prices found)",
-        "_pricing_fallback_done": "2026-04-05T08:20:46.796Z"
+        "_pricing_fallback_done": "2026-04-05T09:05:17.691Z"
       },
       "menu": {
-        "diet_types": [
-          "Mini",
-          "Basic",
-          "Plus",
-          "Super",
-          "Wegetariańska",
-          "Hashimoto",
-          "Sportowa",
-          "Keto",
-          "Flexitarian",
-          "Niski IG",
-          "Bez glutenu",
-          "Bez nabiału",
-          "Dla mam",
-          "Longevity"
-        ],
-        "calorie_options": [],
-        "cuisine_style": "Kuchnia z całego świata",
-        "dietary_restrictions": [
-          "wegetariańska",
-          "bez glutenu",
-          "bez nabiału",
-          "keto",
-          "niskoglikemiczna",
-          "sportowa"
+        "calorie_options": [
+          1200,
+          1500
         ]
       },
       "delivery": {
@@ -7210,8 +7183,8 @@
         "provider": "apify+anthropic"
       }
     },
-    "lastScanId": "54f02994-924a-468b-a59b-a90129fb73be",
-    "lastScannedAt": "2026-04-05T08:34:08.004Z",
+    "lastScanId": "63c60ce1-80cd-4f57-bbdb-b6eb0edadcc8",
+    "lastScannedAt": "2026-04-05T09:05:24.685Z",
     "nip": "7010485250",
     "krs": "0001066845",
     "financials": {
