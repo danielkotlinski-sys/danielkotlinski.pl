@@ -13,26 +13,71 @@ import { enrichContext } from '@/lib/pipeline/phases/context';
 import { interpretDataset } from '@/lib/pipeline/phases/interpret';
 import { enrichPricingFallback } from '@/lib/pipeline/phases/pricing-fallback';
 
-/** POST /api/scan — start a new scan */
+// All phases in order. Context before discovery (provides legalName for rejestr.io).
+const ALL_PHASES = [
+  'crawl', 'extract', 'context', 'pricing_fallback', 'discovery',
+  'social', 'ads', 'reviews', 'finance', 'interpret'
+];
+
+/** POST /api/scan — start a new scan or resume an existing one */
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { companies, phases } = body as {
-    companies: Array<{ name: string; url: string; nip?: string }>;
+  const { companies, phases, resume: resumeScanId } = body as {
+    companies?: Array<{ name: string; url: string; nip?: string }>;
     phases?: string[];
+    resume?: string;  // scan ID to resume
   };
 
+  // --- RESUME MODE ---
+  if (resumeScanId) {
+    const existing = getScan(resumeScanId);
+    if (!existing) {
+      return NextResponse.json({ error: `Scan ${resumeScanId} not found` }, { status: 404 });
+    }
+    if (existing.status === 'completed') {
+      return NextResponse.json({ error: 'Scan already completed', scanId: resumeScanId }, { status: 400 });
+    }
+    if (existing.status === 'running') {
+      return NextResponse.json({ error: 'Scan already running (if stuck, PATCH to reset)', scanId: resumeScanId }, { status: 409 });
+    }
+
+    // Determine which phases still need to run
+    const enabledPhases = phases || ALL_PHASES;
+    const remainingPhases = enabledPhases.filter(p => !existing.phasesCompleted.includes(p));
+
+    existing.status = 'running';
+    log(existing, `--- RESUME --- phases done: [${existing.phasesCompleted.join(', ')}], remaining: [${remainingPhases.join(', ')}]`);
+    saveScan(existing);
+
+    runPipeline(resumeScanId, remainingPhases).catch((err) => {
+      const s = getScan(resumeScanId);
+      if (s) {
+        s.status = 'failed';
+        log(s, `Pipeline error: ${err.message}`);
+        saveScan(s);
+      }
+    });
+
+    const done = existing.entities.filter(e => e.status !== 'pending').length;
+    return NextResponse.json({
+      scanId: resumeScanId,
+      status: 'resuming',
+      entityCount: existing.entities.length,
+      entitiesProcessed: done,
+      phasesCompleted: existing.phasesCompleted,
+      remainingPhases,
+    });
+  }
+
+  // --- NEW SCAN MODE ---
   if (!companies || !Array.isArray(companies) || companies.length === 0) {
     return NextResponse.json(
-      { error: 'Provide companies array with name and url' },
+      { error: 'Provide companies array with name and url, or resume: scanId' },
       { status: 400 }
     );
   }
 
-  // Default: all phases. Can be overridden to run subset.
-  // Order matters: context before discovery (provides legalName for rejestr.io search)
-  const enabledPhases = phases || [
-    'crawl', 'extract', 'context', 'pricing_fallback', 'discovery', 'social', 'ads', 'reviews', 'finance', 'interpret'
-  ];
+  const enabledPhases = phases || ALL_PHASES;
 
   const scanId = randomUUID();
   const entities: EntityRecord[] = companies.map((c) => ({
@@ -75,6 +120,37 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ scanId, status: 'running', entityCount: entities.length });
 }
 
+/** PATCH /api/scan — reset a stuck 'running' scan so it can be resumed */
+export async function PATCH(req: NextRequest) {
+  const body = await req.json();
+  const { scanId } = body as { scanId: string };
+
+  if (!scanId) {
+    return NextResponse.json({ error: 'Provide scanId' }, { status: 400 });
+  }
+
+  const scan = getScan(scanId);
+  if (!scan) {
+    return NextResponse.json({ error: 'Scan not found' }, { status: 404 });
+  }
+
+  if (scan.status !== 'running') {
+    return NextResponse.json({ error: `Scan is ${scan.status}, not stuck` }, { status: 400 });
+  }
+
+  scan.status = 'failed';
+  log(scan, `--- RESET: marked as failed (was stuck at ${scan.currentPhase}) ---`);
+  saveScan(scan);
+
+  return NextResponse.json({
+    scanId,
+    status: 'failed',
+    currentPhase: scan.currentPhase,
+    phasesCompleted: scan.phasesCompleted,
+    message: 'Scan reset to failed. POST with { resume: scanId } to continue.',
+  });
+}
+
 /** GET /api/scan — list all scans */
 export async function GET(req: NextRequest) {
   const full = req.nextUrl.searchParams.get('full') === '1';
@@ -113,6 +189,26 @@ function log(scan: ScanRecord, message: string) {
   scan.log.push(`[${timestamp}] ${message}`);
 }
 
+/**
+ * Check if an entity already has data from a given phase.
+ * Used for resume: skip entities that were already processed before crash.
+ */
+function entityHasPhaseData(entity: EntityRecord, phaseName: string): boolean {
+  const d = entity.data as Record<string, unknown>;
+  switch (phaseName) {
+    case 'crawl':           return !!d._meta;
+    case 'extract':         return !!d._extraction;
+    case 'context':         return !!d.context;
+    case 'pricing_fallback': return !!(d.pricing && (d.pricing as Record<string, unknown>)._pricing_fallback_done);
+    case 'discovery':       return !!d._discovery;
+    case 'social':          return !!(d.social && !(d.social as Record<string, unknown>).skipped);
+    case 'ads':             return !!d.ads;
+    case 'reviews':         return !!d.reviews;
+    case 'finance':         return !!(d.finance && !(d.finance as Record<string, unknown>).skipped);
+    default:                return false;
+  }
+}
+
 /** Run a phase for each entity, with logging and error handling */
 async function runEntityPhase(
   scan: ScanRecord,
@@ -131,10 +227,21 @@ async function runEntityPhase(
     return;
   }
 
+  // Count how many entities already have data from this phase (resume)
+  const alreadyDone = scan.entities.filter(e => entityHasPhaseData(e, phaseName)).length;
+  if (alreadyDone > 0) {
+    log(scan, `Resuming: ${alreadyDone}/${scan.entities.length} entities already have ${phaseName} data`);
+  }
+
   for (let i = 0; i < scan.entities.length; i++) {
     const entity = scan.entities[i];
     if (opts?.skipFailed && entity.status === 'failed') {
       log(scan, `Skipping ${entity.name} (previous failure)`);
+      continue;
+    }
+
+    // Skip entities that already have data from this phase (resume support)
+    if (entityHasPhaseData(entity, phaseName)) {
       continue;
     }
 

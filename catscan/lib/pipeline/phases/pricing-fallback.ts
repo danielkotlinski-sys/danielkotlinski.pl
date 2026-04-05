@@ -164,7 +164,7 @@ export async function enrichPricingFallback(entity: EntityRecord): Promise<Entit
       ...entity,
       data: {
         ...entity.data,
-        pricing: { ...existingPricing, ...benchmarks },
+        pricing: { ...existingPricing, ...benchmarks, _pricing_fallback_done: new Date().toISOString() },
       },
     };
   }
@@ -206,6 +206,8 @@ export async function enrichPricingFallback(entity: EntityRecord): Promise<Entit
   if (parsed.price_source) {
     mergedPricing.price_source = parsed.price_source;
   }
+
+  mergedPricing._pricing_fallback_done = new Date().toISOString();
 
   return {
     ...entity,
