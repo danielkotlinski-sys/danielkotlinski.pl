@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
-import { saveScan, getScan, getScans } from '@/lib/db/store';
+import { saveScan, getScan, getScans, mergeScanIntoBrands } from '@/lib/db/store';
 import type { ScanRecord, EntityRecord } from '@/lib/db/store';
 import { crawlEntity } from '@/lib/pipeline/phases/crawl';
 import { extractEntity } from '@/lib/pipeline/phases/extract';
@@ -325,6 +325,10 @@ async function runEntityPhase(
 
   scan.phasesCompleted.push(phaseName);
   saveScan(scan);
+
+  // Persist partial results to brands.json after each phase
+  // So even if the server crashes mid-pipeline, completed phases are saved
+  mergeScanIntoBrands(scan);
 }
 
 async function runPipeline(scanId: string, enabledPhases: string[]) {
@@ -438,5 +442,10 @@ async function runPipeline(scanId: string, enabledPhases: string[]) {
 
   const succeeded = scan.entities.filter((e) => e.status !== 'failed').length;
   log(scan, `--- SCAN COMPLETE: ${succeeded}/${scan.entities.length} entities, $${scan.totalCostUsd.toFixed(4)} ---`);
+
+  // Persist results into brands.json (survives redeploy, lives in git)
+  const merged = mergeScanIntoBrands(scan);
+  log(scan, `--- MERGED: ${merged} brands updated in brands.json ---`);
+
   saveScan(scan);
 }

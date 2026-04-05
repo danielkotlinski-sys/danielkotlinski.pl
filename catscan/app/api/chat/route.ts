@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { execSync } from 'child_process';
 import { writeFileSync, unlinkSync } from 'fs';
-import { getScans } from '@/lib/db/store';
+import { getScans, getBrands } from '@/lib/db/store';
 
 function shellEscape(s: string): string {
   return "'" + s.replace(/'/g, "'\\''") + "'";
@@ -45,6 +45,24 @@ export async function POST(req: NextRequest) {
       seen.add(key);
       return true;
     });
+
+  // Fallback: if no scan results, read enriched brands from brands.json
+  if (entities.length === 0) {
+    const brands = getBrands();
+    brands
+      .filter((b) => b.data && Object.keys(b.data as Record<string, unknown>).length > 0)
+      .forEach((b) => {
+        entities.push({
+          name: b.name,
+          url: b.url,
+          domain: b.domain,
+          nip: b.nip,
+          krs: b.krs,
+          ...(b.data as Record<string, unknown>),
+          financials: b.financials,
+        } as typeof entities[0]);
+      });
+  }
 
   if (entities.length === 0) {
     return NextResponse.json({
