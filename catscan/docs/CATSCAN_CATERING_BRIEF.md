@@ -339,11 +339,12 @@ Uwaga: realnie 50-100 z 239 marek będzie aktywnych na TikToku.
 - new_products_signals: array[text]
 - competitive_moves: array[text] — ostatnie ruchy strategiczne
 
-### WYMIAR 21: DANE REJESTROWE I FINANSOWE (KRS)
+### WYMIAR 21: DANE REJESTROWE I FINANSOWE (KRS + Perplexity fallback)
 Źródło: API KRS (darmowe) + RDF/rejestr.io (sprawozdania finansowe) + `/krs-powiazania` (zarząd/udziałowcy).
+Fallback: Perplexity sonar gdy KRS nie ma przychodów (holdingi, mikro-spółki, JDG) — szuka podmiotu operacyjnego i szacuje revenue z publicznych źródeł (aleo.com, money.pl, artykuły).
 Szczegółowy pipeline: patrz `CATSCAN_KRS_SUPPLEMENT.md`.
-Coverage: ~70% dane rejestrowe, ~50-60% dane finansowe (JDG nie składają).
-Koszt: ~$70 za 239 marek (~$0.30/brand).
+Coverage: ~70% dane rejestrowe, ~85% revenue (KRS + Perplexity fallback).
+Koszt: ~$74 za 239 marek (~$0.31/brand).
 - legal_name: text — pełna nazwa prawna ("FIT CATERING SP. Z O.O.")
 - krs_number: text
 - nip: text
@@ -359,6 +360,7 @@ Koszt: ~$70 za 239 marek (~$0.30/brand).
 - hq_address: text
 - has_debt_entries: boolean — zaległości w KRS (dział 4)
 - is_in_liquidation: boolean
+- revenue_source: enum [krs, perplexity-estimate, unavailable] — skąd dane o przychodach
 - revenue_2022: number — przychody netto (PLN)
 - revenue_2023: number
 - revenue_2024: number
@@ -372,6 +374,12 @@ Koszt: ~$70 za 239 marek (~$0.30/brand).
 - net_margin_pct: number — marża netto %
 - financial_health: enum [strong, moderate, weak, critical]
 - financial_data_source: enum [rdf_xml, rejestr_io, estimated, unavailable]
+- perplexity_estimate: object|null — gdy `revenue_source = 'perplexity-estimate'`:
+  - operating_entity_name: text — nazwa podmiotu operacyjnego (jeśli inna niż KRS entity)
+  - operating_entity_nip: text
+  - estimated_annual_revenue: number (PLN)
+  - confidence: enum [high, medium, low]
+  - notes: text — kontekst i źródło szacunku
 
 ---
 
@@ -527,27 +535,33 @@ Implementacja: `lib/pipeline/phases/reviews.ts`
 Czas: 1-2h
 Koszt: ~$10-15
 
-### Faza 9: FINANCE (KRS + rejestr.io) ✅ GOTOWE — rozszerzona ekstrakcja
+### Faza 9: FINANCE (KRS + rejestr.io + Perplexity fallback) ✅ GOTOWE — rozszerzona ekstrakcja
 
 Wejście: NIP z fazy discovery
-Wyjście: wymiar 21 (rozszerzony: pełny RZiS + Bilans + wskaźniki)
-Narzędzie: rejestr.io API (primary) + KRS API (free) + RDF fallback
+Wyjście: wymiar 21 (rozszerzony: pełny RZiS + Bilans + wskaźniki + revenue fallback)
+Narzędzie: rejestr.io API (primary) + Perplexity sonar (fallback) + KRS API (free)
 Implementacja: `lib/pipeline/phases/finance.ts`
 Connector: `lib/connectors/rejestr-io.ts`
 Pipeline (szczegóły: CATSCAN_KRS_SUPPLEMENT.md):
   1. Discovery: nazwa → NIP/KRS (faza 5, po context)
   2. rejestr.io: dane rejestrowe + sprawozdania finansowe (~$0.05-0.50/req)
   3. `/krs-powiazania`: pełny zarząd z rolami + udziałowcy
-  4. Fallback: KRS API (free) + RDF XML
+  4. **Revenue check**: czy KRS ma przychody w jakimkolwiek roku?
+  5. **Perplexity fallback** (gdy brak revenue): szuka podmiotu operacyjnego (holding vs operating entity),
+     szacuje przychody z publicznych źródeł (aleo.com, money.pl, artykuły prasowe, InfoVeriti)
+  6. **No-NIP path**: gdy brak NIP → Perplexity-only estimation
 Rozszerzona ekstrakcja:
   - RZiS: COGS, zysk brutto (regex: "Zysk (strata) ze sprzedaży"), koszty sprzedaży, koszty administracyjne, przychody/koszty finansowe, zysk pre-tax, podatek, amortyzacja, wynagrodzenia
   - Bilans: aktywa trwałe/obrotowe, zapasy, należności, gotówka, kapitał zakładowy (z parsowania Bilansu), zyski zatrzymane, zadłużenie krótko/długoterminowe
   - Wskaźniki: net/operating/gross margin, ROE, ROA, debt/equity ratio, current ratio, revenue growth
   - KRS: członkowie zarządu z rolami, udziałowcy (name + share_pct) — via `/krs-powiazania`
-  - Przykład: Maczfit → shareholders: [Żabka Polska], board: 3 members, grossProfit: 2.8M PLN
+  - **Perplexity fallback**: revenue_2022/2023/2024, net_income, employee_count, operating_entity_name/nip, confidence (high/medium/low)
+  - Pole `revenue_source`: `'krs'` | `'perplexity-estimate'` | `'unavailable'`
+  - Przykład: Maczfit → shareholders: [Żabka Polska], board: 3 members, grossProfit: 2.8M PLN (source: krs)
+  - Przykład: BeDiet → KRS holding 0 PLN revenue, Perplexity: ~42M PLN/rok z money.pl (source: perplexity-estimate, confidence: low)
 Czas: 3-5h
-Koszt: ~$0.30/brand, ~$70 za 239 marek
-Coverage: ~70% rejestrowe, ~50-60% finansowe
+Koszt: ~$0.31/brand (~$0.30 rejestr.io + ~$0.005 Perplexity fallback), ~$74 za 239 marek
+Coverage: ~70% rejestrowe, ~85% revenue (KRS + Perplexity fallback)
 
 ### Faza 10: INTERPRETATION ✅ GOTOWE
 
@@ -562,7 +576,7 @@ Koszt: ~$10-15
 ### TOTAL PIPELINE:
 - Faz: 12 (seed + 11 faz per-scan). Wszystkie zaimplementowane.
 - Kolejność: crawl → extract → **visual** → context → pricing_fallback → discovery → social → ads → reviews → finance → interpret
-- Kluczowa zmiana v0.8: **Dietly calculate-price API** — pełna mapa cenowa per kcal (FREE, 100% accurate) dla 177 marek + **TikTok auto-discovery** + stratified sampling (30→12 postów)
+- Kluczowa zmiana v0.8: **Dietly calculate-price API** (pełna mapa cenowa per kcal, FREE), **TikTok auto-discovery** (slug + Apify, 30→12 postów), **Finance Perplexity fallback** (revenue estimation gdy KRS nie ma danych)
 - Kluczowa zmiana v0.7: nowa faza `visual` między extract i context (Apify screenshot + Haiku vision)
 - Kluczowa zmiana v0.6: context PRZED discovery (Perplexity dostarcza legalName → trafniejsze wyszukiwanie w rejestr.io)
 - Czas: 3-4 dni (z testowaniem i poprawkami, jednorazowo)
@@ -883,7 +897,7 @@ System generuje raport z gotowymi insightami.
 - social: ~$0.15 (Apify Instagram/TikTok + Perplexity)
 - ads: skipped (waiting for Meta API)
 - reviews: ~$0.04 (Apify Google Maps)
-- finance: ~$0.30 (rejestr.io, multiple doc fetches)
+- finance: ~$0.31 (rejestr.io + Perplexity fallback gdy brak revenue w KRS)
 - interpret: ~$0.06 per brand (shared Sonnet call)
 - social/tiktok: ~$0.04 (Apify TikTok: discovery + 30 posts → 12 stratified)
 - **Total: ~$0.69/brand, ~$165 za 239 marek**
@@ -922,7 +936,7 @@ System generuje raport z gotowymi insightami.
 
 *CATSCAN_OS // v0.8 // CATERING_DIETETYCZNY*
 *Updated: 2026-04-05*
-*Changelog v0.8: Dietly calculate-price API — pełna mapa cenowa per kcal (`price_by_kcal`) dla 177 marek Dietly (FREE, 100% accurate, reverse-engineered z Next.js SSR), `cheapest_daily` + `benchmark_diet_name` + `price_source: dietly-api`, pricing_fallback bez requireKey (Dietly brands nie potrzebują Perplexity). TikTok auto-discovery via Apify slug candidates (bez Perplexity) + stratified sampling 30→12 postów (4 recent + 8 historical), content analysis (posting frequency, engagement trend views-based, top hashtags), updated costs: ~$0.69/brand, ~$165 za 239 marek*
+*Changelog v0.8: Dietly calculate-price API — pełna mapa cenowa per kcal (`price_by_kcal`) dla 177 marek Dietly (FREE, 100% accurate, reverse-engineered z Next.js SSR), `cheapest_daily` + `benchmark_diet_name` + `price_source: dietly-api`, pricing_fallback bez requireKey (Dietly brands nie potrzebują Perplexity). TikTok auto-discovery via Apify slug candidates (bez Perplexity) + stratified sampling 30→12 postów (4 recent + 8 historical), content analysis (posting frequency, engagement trend views-based, top hashtags). Finance Perplexity fallback: gdy KRS nie ma revenue (holdingi, mikro, JDG) → Perplexity szuka podmiotu operacyjnego i szacuje przychody z publicznych źródeł; `revenue_source` field (krs/perplexity-estimate/unavailable); `perplexity_estimate` block z operating_entity_name, confidence, notes; no-NIP path (Perplexity-only). Coverage revenue: ~85% (vs ~50-60% bez fallbacka). Updated costs: ~$0.70/brand, ~$167 za 239 marek*
 *Changelog v0.7: nowa faza Visual Identity (wymiar 05 — Apify screenshot + Claude Haiku 4.5 vision, 8 atrybutów wizualnych, ~$0.05/brand), brand data cleanup (256→239: 46 bad names fixed, 15 non-brand removed, 2 deduplicated), calorie_options w pricing-fallback (derive z diet_prices lub Perplexity query), finance: usunięto pkd_code, dodano /krs-powiazania (board_members z rolami + shareholders), fixed grossProfit regex ("Zysk (strata) ze sprzedaży"), share_capital z Bilansu, pipeline order: crawl→extract→visual→context→pricing_fallback→discovery→social→ads→reviews→finance→interpret (11 faz), updated costs: ~$0.65/brand, ~$155 za 239 marek*
 *Changelog v0.6: pipeline resume po crash/restart (PATCH reset + POST resume, entityHasPhaseData markery), persistence wyników do brands.json po każdej fazie (brands.json = jedyne źródło prawdy, przeżywa redeploy), fallback reads w /api/entities i /api/chat (czytają z brands.json gdy scans.json zaginął), Railway jako deploy target (nie Vercel), zaktualizowane koszty operacyjne*
 *Changelog v0.5: Instagram stratified sampling (6 recent + 14 historical), kcal benchmark pricing (1500/2000 + diet_prices breakdown), pricing-fallback faza (Perplexity dla JS sites), NIP discovery rewrite (rejestr.io search + Perplexity fallback + 5-krokowy chain), zmiana kolejności faz (context przed discovery — legalName bridge), rozszerzona ekstrakcja finansowa (pełny RZiS + Bilans + wskaźniki + zarząd/udziałowcy), Data Explorer UI (/explore — 14 tabs, sort, filter, slide-out), YouTube via Perplexity, Perplexity social fallback, Anthropic SDK→curl migration, CATSCAN_PRODUCT_INSIGHT.md (decision maps), context dwuprzebiegowy (core + media intelligence)*
