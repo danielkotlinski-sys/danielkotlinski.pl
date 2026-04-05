@@ -165,7 +165,8 @@ function stratifySample(rawPosts: Array<Record<string, unknown>>): IgPost[] {
     .slice(RECENT_COUNT)
     .filter(p => p._date >= sixMonthsAgo);
 
-  let historical: typeof parsed = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let historical: any[] = [];
 
   if (historicalPool.length <= HISTORICAL_COUNT) {
     // Take all if we have fewer than 14
@@ -205,7 +206,7 @@ function stratifySample(rawPosts: Array<Record<string, unknown>>): IgPost[] {
 
 function extractHashtags(caption: string): string[] {
   const matches = caption.match(/#[\w\u00C0-\u024Fа-яА-Я]+/g);
-  return matches ? [...new Set(matches.map(h => h.toLowerCase()))] : [];
+  return matches ? Array.from(new Set(matches.map(h => h.toLowerCase()))) : [];
 }
 
 /**
@@ -257,7 +258,7 @@ function analyzeContent(posts: IgPost[], followers: number | undefined): IgConte
       hashtagCounts.set(tag, (hashtagCounts.get(tag) || 0) + 1);
     }
   }
-  const topHashtags = [...hashtagCounts.entries()]
+  const topHashtags = Array.from(hashtagCounts.entries())
     .sort((a, b) => b[1] - a[1])
     .slice(0, 15)
     .map(([tag, count]) => ({ tag, count }));

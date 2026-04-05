@@ -12,10 +12,12 @@ import { enrichFinance } from '@/lib/pipeline/phases/finance';
 import { enrichContext } from '@/lib/pipeline/phases/context';
 import { interpretDataset } from '@/lib/pipeline/phases/interpret';
 import { enrichPricingFallback } from '@/lib/pipeline/phases/pricing-fallback';
+import { extractVisualIdentity } from '@/lib/pipeline/phases/visual';
 
 // All phases in order. Context before discovery (provides legalName for rejestr.io).
+// Visual runs after crawl (needs URL), uses Apify screenshot + Haiku vision.
 const ALL_PHASES = [
-  'crawl', 'extract', 'context', 'pricing_fallback', 'discovery',
+  'crawl', 'extract', 'visual', 'context', 'pricing_fallback', 'discovery',
   'social', 'ads', 'reviews', 'finance', 'interpret'
 ];
 
@@ -198,6 +200,7 @@ function entityHasPhaseData(entity: EntityRecord, phaseName: string): boolean {
   switch (phaseName) {
     case 'crawl':           return !!d._meta;
     case 'extract':         return !!d._extraction;
+    case 'visual':          return !!(d.visual_identity && !(d.visual_identity as Record<string, unknown>).skipped);
     case 'context':         return !!d.context;
     case 'pricing_fallback': return !!(d.pricing && (d.pricing as Record<string, unknown>)._pricing_fallback_done);
     case 'discovery':       return !!d._discovery;
@@ -282,6 +285,10 @@ async function runEntityPhase(
       } else if (phaseName === 'extract') {
         const ext = d._extraction as Record<string, number> | undefined;
         detail = ext ? `$${ext.costUsd?.toFixed(4)}` : '';
+      } else if (phaseName === 'visual') {
+        const vis = d.visual_identity as Record<string, unknown> | undefined;
+        if (vis?.skipped) detail = `skipped: ${vis.reason}`;
+        else if (vis) detail = `aesthetic: ${vis.overall_aesthetic}, quality: ${vis.visual_quality_score}/10, colors: ${(vis.dominant_colors as string[] || []).length}`;
       } else if (phaseName === 'social') {
         const social = d.social as Record<string, unknown> | undefined;
         if (social) detail = `${social.platformCount} platforms, ${social.totalFollowers} followers`;
@@ -353,6 +360,14 @@ async function runPipeline(scanId: string, enabledPhases: string[]) {
     await runEntityPhase(scan, 'extract', extractEntity, {
       skipFailed: true,
       requireKey: 'ANTHROPIC_API_KEY',
+    });
+  }
+
+  // Phase 2b: Visual identity — screenshot + Claude vision
+  if (has('visual')) {
+    await runEntityPhase(scan, 'visual', extractVisualIdentity, {
+      skipFailed: true,
+      requireKey: 'APIFY_API_TOKEN',
     });
   }
 
