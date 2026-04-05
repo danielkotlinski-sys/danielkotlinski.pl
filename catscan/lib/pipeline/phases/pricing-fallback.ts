@@ -109,6 +109,22 @@ WAŻNE: Wymień KAŻDY wariant kaloryczny osobno (1200, 1500, 1800, 2000, 2500, 
 z odpowiadającą ceną za dzień. Jeśli firma ma kilka typów diet (Standard, Vege, Sport) —
 wymień każdy z cenami. Podaj realne ceny.`;
 
+const CALORIE_OPTIONS_PROMPT = (name: string, url: string) =>
+  `${name} (${url}) — catering dietetyczny / dieta pudełkowa, Polska.
+
+Jakie warianty kaloryczne (kcal dziennie) oferuje ten catering? Sprawdź na stronie ${url} lub w wynikach wyszukiwania.
+Szukam DZIENNYCH opcji kalorycznych, np. 1200, 1500, 1800, 2000, 2500, 3000 kcal.
+Wiele firm oferuje te opcje na stronie zamówienia lub na Dietly.pl.
+
+Odpowiedz WYŁĄCZNIE poprawnym JSON (bez markdown):
+{
+  "calorie_options": [1200, 1500, 2000, 2500],
+  "source": "string — skąd masz te dane"
+}
+
+WAŻNE: Podaj TYLKO warianty, które firma faktycznie oferuje. Nie zgaduj.
+Typowe warianty to: 1200, 1500, 1800, 2000, 2500, 3000, 3500, 4000 kcal.`;
+
 /**
  * Compute normalized benchmark prices from diet_prices array.
  * Finds closest match to 1500 and 2000 kcal.
@@ -211,11 +227,39 @@ export async function enrichPricingFallback(entity: EntityRecord): Promise<Entit
 
   mergedPricing._pricing_fallback_done = new Date().toISOString();
 
+  // Also fill calorie_options in menu if empty
+  const existingMenu = (entity.data as Record<string, Record<string, unknown>>)?.menu || {};
+  const hasCalorieOptions = Array.isArray(existingMenu.calorie_options) && existingMenu.calorie_options.length > 0;
+  let updatedMenu = existingMenu;
+
+  if (!hasCalorieOptions) {
+    // Try to derive from diet_prices kcal values
+    const dietPrices = (mergedPricing.diet_prices || []) as DietPrice[];
+    const kcalSet = new Set<number>();
+    for (const dp of dietPrices) {
+      if (!dp.kcal) continue;
+      const m = String(dp.kcal).match(/(\d{3,4})/);
+      if (m) kcalSet.add(parseInt(m[1], 10));
+    }
+
+    if (kcalSet.size > 0) {
+      updatedMenu = { ...existingMenu, calorie_options: Array.from(kcalSet).sort((a, b) => a - b) };
+    } else {
+      // Dedicated Perplexity query for calorie options
+      const kcalResult = callPerplexity(CALORIE_OPTIONS_PROMPT(entity.name, entity.url), apiKey);
+      pplxCalls++;
+      if (kcalResult && Array.isArray(kcalResult.calorie_options) && kcalResult.calorie_options.length > 0) {
+        updatedMenu = { ...existingMenu, calorie_options: kcalResult.calorie_options };
+      }
+    }
+  }
+
   return {
     ...entity,
     data: {
       ...entity.data,
       pricing: mergedPricing,
+      menu: updatedMenu,
       _cost_pricing: { usd: pplxCalls * 0.005, calls: pplxCalls, provider: 'perplexity' },
     },
   };

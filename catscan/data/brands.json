@@ -67,7 +67,7 @@
   },
   {
     "slug": "awokadocatering.pl",
-    "name": "AWOKADO catering dietetyczny Częstochowa",
+    "name": "AWOKADO",
     "domain": "awokadocatering.pl",
     "url": "https://awokadocatering.pl",
     "dietlySlug": "awokado",
@@ -485,7 +485,7 @@
   },
   {
     "slug": "codograma.pl",
-    "name": "Co do grama - catering dietetyczny s.c.",
+    "name": "Co Do Grama",
     "domain": "codograma.pl",
     "url": "https://codograma.pl",
     "dietlySlug": "codograma",
@@ -1277,7 +1277,7 @@
   },
   {
     "slug": "fit-dieta.com",
-    "name": "Fit-Dieta Catering Dietetyczny",
+    "name": "Fit-Dieta",
     "domain": "fit-dieta.com",
     "url": "https://fit-dieta.com",
     "dietlySlug": "fitdieta",
@@ -1296,28 +1296,6 @@
       "awarded": false
     },
     "seededAt": "2026-04-04T10:29:34.149Z"
-  },
-  {
-    "slug": "fitdietapl",
-    "name": "Fit-Dieta.pl",
-    "domain": null,
-    "url": null,
-    "dietlySlug": "fitdietapl",
-    "dietlyUrl": "https://dietly.pl/catering-dietetyczny-firma/fitdietapl",
-    "source": "dietly",
-    "dietly": {
-      "rating": 0,
-      "reviewCount": 0,
-      "positivePercent": 0,
-      "priceRange": "Od 2,00zł do 85,00zł",
-      "city": null,
-      "email": "bok@fit-dieta.pl",
-      "description": "Fit-Dieta.pl to catering dietetyczny stworzony z myślą o osobach, które chcą zadbać o zdrową i zbilansowaną dietę bez konieczności codziennego gotowania. Oferujemy szeroki wybór diet dostosowanych do różnych potrzeb – od standardowych diet redukcyjnych, przez opcje dla sportowców, po diety wegetariańskie i bez laktozy. Każdy posiłek przygotowywany jest przez doświadczonych kucharzy we współpracy z dietetykami, aby zapewnić nie tylko odpowiednią kaloryczność, ale także bogactwo składników odżywcz",
-      "dietCount": 8,
-      "badge": null,
-      "awarded": false
-    },
-    "seededAt": "2026-04-04T10:31:43.806Z"
   },
   {
     "slug": "fit-meal.pl",
@@ -1387,7 +1365,7 @@
   },
   {
     "slug": "fitlifedieta.pl",
-    "name": "FitLife- catering dietetyczny",
+    "name": "FitLife",
     "domain": "fitlifedieta.pl",
     "url": "https://fitlifedieta.pl",
     "dietlySlug": "fitlife",
@@ -2003,7 +1981,7 @@
   },
   {
     "slug": "idz.do",
-    "name": "Kluska i kompot - catering domowy",
+    "name": "Kluska i Kompot",
     "domain": "idz.do",
     "url": "https://idz.do",
     "dietlySlug": "kluskaikompot",
@@ -3305,7 +3283,7 @@
   },
   {
     "slug": "lightmenu.pl",
-    "name": "Light Menu - catering dietetyczny",
+    "name": "Light Menu",
     "domain": "lightmenu.pl",
     "url": "https://lightmenu.pl",
     "dietlySlug": "lightmenu",
@@ -4618,7 +4596,7 @@
   },
   {
     "slug": "mojcatering.com.pl",
-    "name": "Mój Catering - Pierwszy tak jakościowy catering dietetyczny!",
+    "name": "Mój Catering",
     "domain": "mojcatering.com.pl",
     "url": "https://mojcatering.com.pl",
     "dietlySlug": "mojcatering",
@@ -4926,7 +4904,7 @@
   },
   {
     "slug": "pomidorirukola.pl",
-    "name": "POMIDOR & RUKOLA- catering dietetyczny",
+    "name": "Pomidor & Rukola",
     "domain": "pomidorirukola.pl",
     "url": "https://pomidorirukola.pl",
     "dietlySlug": "pomidorirukola",
@@ -5014,7 +4992,7 @@
   },
   {
     "slug": "readyfordiet.pl",
-    "name": "Ready for Diet Catering Dietetyczny Michał Rowiecki",
+    "name": "Ready for Diet",
     "domain": "readyfordiet.pl",
     "url": "https://readyfordiet.pl",
     "dietlySlug": "readyfordiet",
@@ -5960,7 +5938,7 @@
   },
   {
     "slug": "zielonypuzzel.pl",
-    "name": "Zielony Puzzel - Catering Dietetyczny",
+    "name": "Zielony Puzzel",
     "domain": "zielonypuzzel.pl",
     "url": "https://zielonypuzzel.pl",
     "dietlySlug": "zielonypuzzelcatering",
@@ -6025,18 +6003,8 @@
     "seededAt": "2026-04-04T10:30:15.081Z"
   },
   {
-    "slug": "awokadocatering.pl",
-    "name": "AWOKADO catering dietetyczny | Częstochowa i okolice",
-    "domain": "awokadocatering.pl",
-    "url": "https://awokadocatering.pl/",
-    "dietlySlug": null,
-    "dietlyUrl": null,
-    "source": "search",
-    "seededAt": "2026-04-04T10:39:24.989Z"
-  },
-  {
     "slug": "powermeal.pl",
-    "name": "Catering dietetyczny Elbląg ? Dieta pudełkowa z wymianą ...",
+    "name": "Powermeal",
     "domain": "powermeal.pl",
     "url": "https://powermeal.pl/catering-dietetyczny/elblag/",
     "dietlySlug": null,
@@ -6059,16 +6027,6 @@
     "name": "Catering dietetyczny Jastrzębie",
     "domain": "dietyodrekina.pl",
     "url": "https://dietyodrekina.pl/catering-dietetyczny/jastrzebie-zdroj/",
-    "dietlySlug": null,
-    "dietlyUrl": null,
-    "source": "search",
-    "seededAt": "2026-04-04T10:39:24.989Z"
-  },
-  {
-    "slug": "eatfitcatering.pl",
-    "name": "Catering dietetyczny Kielce",
-    "domain": "eatfitcatering.pl",
-    "url": "https://eatfitcatering.pl/catering-dietetyczny/kielce/?srsltid=AfmBOooQfQ5ROnk6bRGiHWfVwZrfayUkBis-vQ_NazeH9_emgaPSWxp1",
     "dietlySlug": null,
     "dietlyUrl": null,
     "source": "search",
@@ -6136,7 +6094,7 @@
   },
   {
     "slug": "medidieta.pl",
-    "name": "Catering dietetyczny Lublin — dieta opracowana przez ...",
+    "name": "Medidieta",
     "domain": "medidieta.pl",
     "url": "https://medidieta.pl/lublin",
     "dietlySlug": null,
@@ -6176,7 +6134,7 @@
   },
   {
     "slug": "republikasmakoszy.pl",
-    "name": "Catering dietetyczny Opole 🥑 dieta pudełkowa I ...",
+    "name": "Republika Smakoszy",
     "domain": "republikasmakoszy.pl",
     "url": "https://republikasmakoszy.pl/miasto/opole?srsltid=AfmBOop8Xni7s8VV97m0Bzd7BAGrRg4UphM_dJDC2cZ21dHjFGSa85YT",
     "dietlySlug": null,
@@ -6206,7 +6164,7 @@
   },
   {
     "slug": "fitgar.pl",
-    "name": "Catering dietetyczny Słupsk - FITGAR - Doskonałe, smaczne ...",
+    "name": "FITGAR",
     "domain": "fitgar.pl",
     "url": "https://fitgar.pl/",
     "dietlySlug": null,
@@ -6216,7 +6174,7 @@
   },
   {
     "slug": "fitpapu.com",
-    "name": "Catering dietetyczny Tychy, dieta pudełkowa - Fitpapu Śląsk",
+    "name": "Fitpapu",
     "domain": "fitpapu.com",
     "url": "https://www.fitpapu.com/",
     "dietlySlug": null,
@@ -6225,18 +6183,8 @@
     "seededAt": "2026-04-04T10:39:24.989Z"
   },
   {
-    "slug": "najlepszycatering.pl",
-    "name": "Catering dietetyczny Warszawa ⭐️ Ranking 2026 ...",
-    "domain": "najlepszycatering.pl",
-    "url": "https://najlepszycatering.pl/warszawa/",
-    "dietlySlug": null,
-    "dietlyUrl": null,
-    "source": "search",
-    "seededAt": "2026-04-04T10:39:24.989Z"
-  },
-  {
     "slug": "zdrowelove.com.pl",
-    "name": "Catering dietetyczny Zielona Góra - ZdroweLove - Zielona ...",
+    "name": "ZdroweLove",
     "domain": "zdrowelove.com.pl",
     "url": "https://zdrowelove.com.pl/",
     "dietlySlug": null,
@@ -6245,18 +6193,8 @@
     "seededAt": "2026-04-04T10:39:24.989Z"
   },
   {
-    "slug": "natu.care",
-    "name": "Catering dietetyczny, dieta pudełkowa Warszawa: ranking ...",
-    "domain": "natu.care",
-    "url": "https://natu.care/pl/catering-dietetyczny/warszawa",
-    "dietlySlug": null,
-    "dietlyUrl": null,
-    "source": "search",
-    "seededAt": "2026-04-04T10:39:24.989Z"
-  },
-  {
     "slug": "ciabattasquad.pl",
-    "name": "Catering Mysłowice - Obsługa Imprez i Firm ... - Ciabatta SQUAD",
+    "name": "Ciabatta SQUAD",
     "domain": "ciabattasquad.pl",
     "url": "https://ciabattasquad.pl/catering/",
     "dietlySlug": null,
@@ -6266,7 +6204,7 @@
   },
   {
     "slug": "nawidelcu.fit",
-    "name": "Catering nie tylko Dietetyczy - Augustów, Suwałki - Na Widelcu",
+    "name": "Na Widelcu",
     "domain": "nawidelcu.fit",
     "url": "https://nawidelcu.fit/",
     "dietlySlug": null,
@@ -6276,7 +6214,7 @@
   },
   {
     "slug": "czystamicha.com",
-    "name": "Czysta Micha: Catering dietetyczny, dieta pudełkowa Białystok",
+    "name": "Czysta Micha",
     "domain": "czystamicha.com",
     "url": "https://czystamicha.com/",
     "dietlySlug": null,
@@ -6306,7 +6244,7 @@
   },
   {
     "slug": "ntfy.pl",
-    "name": "Dieta pudełkowa Kraków zamów catering dietetyczny z ...",
+    "name": "NTFY",
     "domain": "ntfy.pl",
     "url": "https://ntfy.pl/miasto/krakow",
     "dietlySlug": null,
@@ -7350,7 +7288,7 @@
   },
   {
     "slug": "fatway.pl",
-    "name": "Fatway Catering: Catering dietetyczny Słupsk, Koszalin, Gdańsk",
+    "name": "Fatway Catering",
     "domain": "fatway.pl",
     "url": "https://fatway.pl/",
     "dietlySlug": null,
@@ -7412,7 +7350,7 @@
   },
   {
     "slug": "kuzniazdrowia.pl",
-    "name": "Kuźnia Zdrowia: catering dietetyczny, dieta pudełkowa",
+    "name": "Kuźnia Zdrowia",
     "domain": "kuzniazdrowia.pl",
     "url": "https://www.kuzniazdrowia.pl/",
     "dietlySlug": null,
@@ -7442,7 +7380,7 @@
   },
   {
     "slug": "lookfit.pl",
-    "name": "Mapa",
+    "name": "Look Fit",
     "domain": "lookfit.pl",
     "url": "http://lookfit.pl/",
     "dietlySlug": null,
@@ -7452,7 +7390,7 @@
   },
   {
     "slug": "freshlab.pl",
-    "name": "Mapa",
+    "name": "Fresh Lab",
     "domain": "freshlab.pl",
     "url": "https://freshlab.pl/",
     "dietlySlug": null,
@@ -7462,7 +7400,7 @@
   },
   {
     "slug": "foodiebox.com.pl",
-    "name": "Mapa",
+    "name": "Foodie Box",
     "domain": "foodiebox.com.pl",
     "url": "http://www.foodiebox.com.pl/",
     "dietlySlug": null,
@@ -7472,7 +7410,7 @@
   },
   {
     "slug": "dietific.pl",
-    "name": "Mapa",
+    "name": "Dietific",
     "domain": "dietific.pl",
     "url": "https://www.dietific.pl/",
     "dietlySlug": null,
@@ -7482,7 +7420,7 @@
   },
   {
     "slug": "pracowniasmakucatering.pl",
-    "name": "Mapa",
+    "name": "Pracownia Smaku Catering",
     "domain": "pracowniasmakucatering.pl",
     "url": "https://pracowniasmakucatering.pl/",
     "dietlySlug": null,
@@ -7492,7 +7430,7 @@
   },
   {
     "slug": "loveatcatering.pl",
-    "name": "Mapa",
+    "name": "Love At Catering",
     "domain": "loveatcatering.pl",
     "url": "https://loveatcatering.pl/",
     "dietlySlug": null,
@@ -7502,7 +7440,7 @@
   },
   {
     "slug": "wygodnadieta.pl",
-    "name": "Mapa",
+    "name": "Wygodna Dieta",
     "domain": "wygodnadieta.pl",
     "url": "http://www.wygodnadieta.pl/",
     "dietlySlug": null,
@@ -7512,7 +7450,7 @@
   },
   {
     "slug": "rukolacatering.pl",
-    "name": "Mapa",
+    "name": "Rukola Catering",
     "domain": "rukolacatering.pl",
     "url": "https://rukolacatering.pl/",
     "dietlySlug": null,
@@ -7522,7 +7460,7 @@
   },
   {
     "slug": "smak-fit.pl",
-    "name": "Mapa",
+    "name": "Smak Fit",
     "domain": "smak-fit.pl",
     "url": "http://www.smak-fit.pl/",
     "dietlySlug": null,
@@ -7532,7 +7470,7 @@
   },
   {
     "slug": "lekkikes.pl",
-    "name": "Mapa",
+    "name": "Lekki Kęs",
     "domain": "lekkikes.pl",
     "url": "https://lekkikes.pl/",
     "dietlySlug": null,
@@ -7542,7 +7480,7 @@
   },
   {
     "slug": "vikingpoint.pl",
-    "name": "Mapa",
+    "name": "Viking Point",
     "domain": "vikingpoint.pl",
     "url": "http://www.vikingpoint.pl/",
     "dietlySlug": null,
@@ -7552,7 +7490,7 @@
   },
   {
     "slug": "localnycatering.pl",
-    "name": "Mapa",
+    "name": "Lokalny Catering",
     "domain": "localnycatering.pl",
     "url": "https://localnycatering.pl/",
     "dietlySlug": null,
@@ -7562,7 +7500,7 @@
   },
   {
     "slug": "greenfitcatering.pl",
-    "name": "Mapa",
+    "name": "Green Fit Catering",
     "domain": "greenfitcatering.pl",
     "url": "https://greenfitcatering.pl/",
     "dietlySlug": null,
@@ -7572,7 +7510,7 @@
   },
   {
     "slug": "4fitcatering.pl",
-    "name": "Mapa",
+    "name": "4Fit Catering",
     "domain": "4fitcatering.pl",
     "url": "https://4fitcatering.pl/",
     "dietlySlug": null,
@@ -7582,7 +7520,7 @@
   },
   {
     "slug": "fitfactor.pl",
-    "name": "Mapa",
+    "name": "Fit Factor",
     "domain": "fitfactor.pl",
     "url": "http://fitfactor.pl/",
     "dietlySlug": null,
@@ -7592,7 +7530,7 @@
   },
   {
     "slug": "balansbox.pl",
-    "name": "Mapa",
+    "name": "Balans Box",
     "domain": "balansbox.pl",
     "url": "https://balansbox.pl/",
     "dietlySlug": null,
@@ -7602,7 +7540,7 @@
   },
   {
     "slug": "food2fit.pl",
-    "name": "Mapa",
+    "name": "Food2Fit",
     "domain": "food2fit.pl",
     "url": "http://www.food2fit.pl/",
     "dietlySlug": null,
@@ -7612,7 +7550,7 @@
   },
   {
     "slug": "misjazdrowie.pl",
-    "name": "Mapa",
+    "name": "Misja Zdrowie",
     "domain": "misjazdrowie.pl",
     "url": "http://misjazdrowie.pl/",
     "dietlySlug": null,
@@ -7622,7 +7560,7 @@
   },
   {
     "slug": "pitayacatering.com",
-    "name": "Mapa",
+    "name": "Pitaya Catering",
     "domain": "pitayacatering.com",
     "url": "https://www.pitayacatering.com/",
     "dietlySlug": null,
@@ -7631,18 +7569,8 @@
     "seededAt": "2026-04-04T10:39:24.989Z"
   },
   {
-    "slug": "m.facebook.com",
-    "name": "Mapa",
-    "domain": "m.facebook.com",
-    "url": "https://m.facebook.com/Zdrowie_marzenia_motywacja_-103873214417773/?__tn__=,g",
-    "dietlySlug": null,
-    "dietlyUrl": null,
-    "source": "search",
-    "seededAt": "2026-04-04T10:39:24.989Z"
-  },
-  {
     "slug": "cateringkoszalin.pl",
-    "name": "Mapa",
+    "name": "Catering Koszalin",
     "domain": "cateringkoszalin.pl",
     "url": "https://cateringkoszalin.pl/",
     "dietlySlug": null,
@@ -7652,7 +7580,7 @@
   },
   {
     "slug": "cateringdomino.pl",
-    "name": "Mapa",
+    "name": "Catering Domino",
     "domain": "cateringdomino.pl",
     "url": "http://www.cateringdomino.pl/",
     "dietlySlug": null,
@@ -7662,7 +7590,7 @@
   },
   {
     "slug": "food2door.pl",
-    "name": "Mapa",
+    "name": "Food2Door",
     "domain": "food2door.pl",
     "url": "http://www.food2door.pl/",
     "dietlySlug": null,
@@ -7672,19 +7600,9 @@
   },
   {
     "slug": "cateringzdrowazmiana.pl",
-    "name": "Mapa",
+    "name": "Catering Zdrowa Zmiana",
     "domain": "cateringzdrowazmiana.pl",
     "url": "http://www.cateringzdrowazmiana.pl/",
-    "dietlySlug": null,
-    "dietlyUrl": null,
-    "source": "search",
-    "seededAt": "2026-04-04T10:39:24.989Z"
-  },
-  {
-    "slug": "najlepszadietapudelkowa.pl",
-    "name": "Najlepsza Dieta Pudełkowa – Ogólnopolskie Wyróżnienia 2026",
-    "domain": "najlepszadietapudelkowa.pl",
-    "url": "https://najlepszadietapudelkowa.pl/",
     "dietlySlug": null,
     "dietlyUrl": null,
     "source": "search",
@@ -7711,86 +7629,6 @@
     "seededAt": "2026-04-04T10:39:24.988Z"
   },
   {
-    "slug": "kobieta.onet.pl",
-    "name": "ranking",
-    "domain": "kobieta.onet.pl",
-    "url": "https://kobieta.onet.pl/dom/najlepszy-catering-dietetyczny-ranking-dieta-pudelkowa-nasze-top-4/eev54mk",
-    "dietlySlug": null,
-    "dietlyUrl": null,
-    "source": "search",
-    "seededAt": "2026-04-04T10:39:24.989Z"
-  },
-  {
-    "slug": "trojmiasto.pl",
-    "name": "Ranking 2025: najlepszy catering dietetyczny w Trójmieście",
-    "domain": "trojmiasto.pl",
-    "url": "https://www.trojmiasto.pl/kulinaria/Ranking-2025-najlepszy-catering-dietetyczny-w-Trojmiescie-n202446.html",
-    "dietlySlug": null,
-    "dietlyUrl": null,
-    "source": "search",
-    "seededAt": "2026-04-04T10:39:24.989Z"
-  },
-  {
-    "slug": "cateringidietetyczne.pl",
-    "name": "Ranking cateringów dietetycznych | Ranking diet ...",
-    "domain": "cateringidietetyczne.pl",
-    "url": "https://www.cateringidietetyczne.pl/",
-    "dietlySlug": null,
-    "dietlyUrl": null,
-    "source": "search",
-    "seededAt": "2026-04-04T10:39:24.989Z"
-  },
-  {
-    "slug": "rankingiproduktow.pl",
-    "name": "Ranking cateringów dietetycznych 2026 Najlepsze cateringi",
-    "domain": "rankingiproduktow.pl",
-    "url": "https://rankingiproduktow.pl/ranking-cateringow-dietetycznych/",
-    "dietlySlug": null,
-    "dietlyUrl": null,
-    "source": "search",
-    "seededAt": "2026-04-04T10:39:24.989Z"
-  },
-  {
-    "slug": "ranking-cateringow.pl",
-    "name": "Ranking cateringów dietetycznych i diety pudełkowej w 2026 ...",
-    "domain": "ranking-cateringow.pl",
-    "url": "https://www.ranking-cateringow.pl/",
-    "dietlySlug": null,
-    "dietlyUrl": null,
-    "source": "search",
-    "seededAt": "2026-04-04T10:39:24.989Z"
-  },
-  {
-    "slug": "foodango.pl",
-    "name": "Ranking cateringów dietetycznych premium – Foodango.pl...",
-    "domain": "foodango.pl",
-    "url": "https://foodango.pl/blog/ranking-cateringow-premium?srsltid=AfmBOoogvfwPMRKXMqG235Rr2HJhK3fBnz4TGv_0NKt_uERVY7SAmk3x",
-    "dietlySlug": null,
-    "dietlyUrl": null,
-    "source": "search",
-    "seededAt": "2026-04-04T10:39:24.989Z"
-  },
-  {
-    "slug": "wellbestudio.pl",
-    "name": "Ranking diet pudełkowych 2025: które cateringi są ...",
-    "domain": "wellbestudio.pl",
-    "url": "https://wellbestudio.pl/rankingi/ranking-diet-pudelkowych-2025-sprawdz-ktore-cateringi-sa-najlepsze-w-polsce/",
-    "dietlySlug": null,
-    "dietlyUrl": null,
-    "source": "search",
-    "seededAt": "2026-04-04T10:39:24.989Z"
-  },
-  {
-    "slug": "jadka.pl",
-    "name": "Ranking diet pudełkowych 2026 - JaDka",
-    "domain": "jadka.pl",
-    "url": "https://jadka.pl/ranking-diet-pudelkowych-2026/",
-    "dietlySlug": null,
-    "dietlyUrl": null,
-    "source": "search",
-    "seededAt": "2026-04-04T10:39:24.989Z"
-  },
-  {
     "slug": "fitelita.pl",
     "name": "Strona Główna",
     "domain": "fitelita.pl",
@@ -7805,26 +7643,6 @@
     "name": "Tani catering dietetyczny",
     "domain": "gastropaczka.pl",
     "url": "https://gastropaczka.pl/lokalizacja/krakow/_/",
-    "dietlySlug": null,
-    "dietlyUrl": null,
-    "source": "search",
-    "seededAt": "2026-04-04T10:39:24.989Z"
-  },
-  {
-    "slug": "businessinsider.com.pl",
-    "name": "Top 5 najlepszych Cateringów Dietetycznych z opcją ...",
-    "domain": "businessinsider.com.pl",
-    "url": "https://businessinsider.com.pl/biznes/top-5-najlepszych-cateringow-dietetycznych-z-opcja-wyboru-menu/q54ylbk",
-    "dietlySlug": null,
-    "dietlyUrl": null,
-    "source": "search",
-    "seededAt": "2026-04-04T10:39:24.989Z"
-  },
-  {
-    "slug": "lodz.pl",
-    "name": "TOP 7 najlepszych cateringów dietetycznych w Łodzi. ...",
-    "domain": "lodz.pl",
-    "url": "https://lodz.pl/artykul/top-7-najlepszych-cateringow-dietetycznych-w-lodzi-oceny-lodzian-mowia-same-za-siebie-ranking-65881/",
     "dietlySlug": null,
     "dietlyUrl": null,
     "source": "search",

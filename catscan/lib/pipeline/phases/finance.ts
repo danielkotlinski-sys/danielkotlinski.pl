@@ -147,6 +147,43 @@ export async function enrichFinance(entity: EntityRecord): Promise<EntityRecord>
     const nazwy = (orgData.nazwy || {}) as Record<string, string>;
     const stan = (orgData.stan || {}) as Record<string, unknown>;
     const krsNumber = numery.krs || String(orgData.id || '');
+    const glownaOsoba = orgData.glowna_osoba as Record<string, string> | null;
+
+    // Step 1b: Get board members + shareholders from krs-powiazania
+    let boardMembers: string[] = [];
+    let shareholders: Array<{ name: string; role?: string; since?: string }> = [];
+    try {
+      const powiazania = rejestrFetch(`/org/${orgId}/krs-powiazania`, apiKey) as Array<Record<string, unknown>>;
+      costPln += 0.05;
+      if (Array.isArray(powiazania)) {
+        for (const p of powiazania) {
+          const roles = (p.krs_powiazania_kwerendowane || []) as Array<Record<string, string>>;
+          const identity = p.tozsamosc as Record<string, string> | undefined;
+          const personName = identity?.imiona_i_nazwisko;
+          // Organization shareholders (e.g. holding companies)
+          const orgNames = p.nazwy as Record<string, string> | undefined;
+          const entityName = personName || orgNames?.skrocona || orgNames?.pelna || 'unknown';
+
+          for (const r of roles) {
+            if (r.typ === 'KRS_BOARD' && r.kierunek === 'AKTYWNY') {
+              boardMembers.push(r.opis ? `${entityName} (${r.opis})` : entityName);
+            }
+            if (r.typ === 'KRS_SHAREHOLDER' && r.kierunek === 'AKTYWNY') {
+              shareholders.push({
+                name: entityName,
+                role: r.opis || undefined,
+                since: r.data_start || undefined,
+              });
+            }
+          }
+        }
+      }
+    } catch {
+      // Non-critical — fall back to glowna_osoba
+      if (glownaOsoba?.imiona_i_nazwisko) {
+        boardMembers = [glownaOsoba.imiona_i_nazwisko];
+      }
+    }
 
     // Step 2: List financial periods + documents
     let periods: Period[] = [];
@@ -219,15 +256,6 @@ export async function enrichFinance(entity: EntityRecord): Promise<EntityRecord>
 
     // Extract org metadata
     const krsRejestry = (orgData.krs_rejestry || {}) as Record<string, string>;
-    const glownaOsoba = orgData.glowna_osoba as Record<string, string> | null;
-    const metadane = (orgData.metadane || {}) as Record<string, string>;
-
-    // Board members: rejestr.io basic API returns glowna_osoba only.
-    // For full board/shareholders, KRS scraping would be needed.
-    const boardMembers: string[] = [];
-    if (glownaOsoba?.imiona_i_nazwisko) {
-      boardMembers.push(glownaOsoba.imiona_i_nazwisko);
-    }
 
     const financeData = {
       krs_number: krsNumber,
@@ -238,18 +266,17 @@ export async function enrichFinance(entity: EntityRecord): Promise<EntityRecord>
       regon: numery.regon || null,
       registration_date: krsRejestry.rejestr_przedsiebiorcow_data_wpisu || null,
       pkd: stan.pkd_przewazajace_dzial || null,
-      pkd_code: (stan.pkd_przewazajace || null) as string | null,
       address: orgData.adres || null,
-      share_capital: stan.kapital_zakladowy ?? null,
+      // share_capital from Bilans (stan.kapital_zakladowy not in basic API)
+      share_capital: latest.shareCapital ?? null,
       status: {
         wykreslona: stan.czy_wykreslona ?? false,
         w_likwidacji: stan.w_likwidacji ?? false,
         w_upadlosci: stan.w_upadlosci ?? false,
         wielkosc: stan.wielkosc || null,
       },
-      // Board: glowna_osoba from rejestr.io (limited — full list needs KRS scraping)
       board_members: boardMembers,
-      shareholders: [],  // Not available via rejestr.io basic API
+      shareholders,
       // Financial statements with ratios
       financial_statements: statementsWithRatios,
       years_available: periods.length,
@@ -331,11 +358,12 @@ function parseRZiS(doc: Record<string, unknown>): Record<string, unknown> {
     result.costOfGoodsSold = pln(cogs.pln_rok_obrotowy_biezacy);
   }
 
-  // Zysk brutto ze sprzedaży
-  const grossProfit = findNode(root, /zysk.*brutto.*sprzeda/i);
-  if (grossProfit) {
-    result.grossProfit = pln(grossProfit.pln_rok_obrotowy_biezacy);
-    result.grossProfitPrevious = pln(grossProfit.pln_rok_obrotowy_poprzedni);
+  // Zysk (strata) ze sprzedaży — gross profit from sales
+  const grossSales = findNode(root, /zysk.*strata.*ze sprzeda[żz]/i)
+    || findNode(root, /zysk.*brutto.*sprzeda/i);
+  if (grossSales) {
+    result.grossProfit = pln(grossSales.pln_rok_obrotowy_biezacy);
+    result.grossProfitPrevious = pln(grossSales.pln_rok_obrotowy_poprzedni);
   }
 
   // Koszty sprzedaży
