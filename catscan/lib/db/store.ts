@@ -150,10 +150,27 @@ export function mergeScanIntoBrands(scan: ScanRecord): number {
     if (entity.krs) brand.krs = entity.krs;
     if (entity.domain) brand.domain = entity.domain;
 
-    // Merge entity.data into brand.data (deep merge top-level keys)
+    // Merge entity.data into brand.data — only overwrite if new data is non-empty.
+    // Prevents partial scans from wiping out data from previous scans.
     const existingData = (brand.data || {}) as Record<string, unknown>;
-    const newData = entity.data || {};
-    brand.data = { ...existingData, ...newData };
+    const newData = (entity.data || {}) as Record<string, unknown>;
+    const merged = { ...existingData };
+    for (const [key, value] of Object.entries(newData)) {
+      // Skip empty objects/arrays that would overwrite richer existing data
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        const obj = value as Record<string, unknown>;
+        const isEmpty = Object.keys(obj).length === 0
+          || (Object.keys(obj).length === 1 && obj.skipped);
+        if (isEmpty && existingData[key] && typeof existingData[key] === 'object') {
+          continue; // Keep existing richer data
+        }
+      }
+      if (Array.isArray(value) && value.length === 0 && Array.isArray(existingData[key]) && (existingData[key] as unknown[]).length > 0) {
+        continue; // Keep existing non-empty array
+      }
+      merged[key] = value;
+    }
+    brand.data = merged;
 
     if (entity.financials) brand.financials = entity.financials;
     brand.lastScanId = scan.id;

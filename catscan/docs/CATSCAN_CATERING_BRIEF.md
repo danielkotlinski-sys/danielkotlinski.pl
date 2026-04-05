@@ -1,20 +1,20 @@
 # CATSCAN // CATERING INTELLIGENCE ENGINE
-## Brief produktowy — v0.6
+## Brief produktowy — v0.7
 
 ---
 
 ## 1. CO TO JEST
 
 Sektorowa baza wiedzy o rynku cateringów dietetycznych w Polsce.
-**256 marek w bazie = pełne pokrycie rynku.** 21 wymiarów analizy per marka. 175 atrybutów per marka = ~44,800 data points.
+**239 marek w bazie = pełne pokrycie rynku (po cleanup).** 21 wymiarów analizy per marka. 175 atrybutów per marka = ~41,825 data points.
 Dane komunikacyjne + finansowe + reklamowe + social + reputacja.
 Odświeżane cyklicznie. Odpytywane w języku naturalnym.
 
 Produkt docelowy: interfejs typu "zapytaj o cokolwiek w tej branży".
 Produkt MVP: raport sektorowy + prosta wyszukiwarka + chat AI.
 
-**Status:** MVP zbudowany — pipeline 9 faz, scan engine UI, query interface, audit page.
-Baza: 256 marek (177 Dietly + 78 Google search + 1 Dietly-city) = pełne pokrycie rynku.
+**Status:** MVP zbudowany — pipeline 11 faz, scan engine UI, query interface, audit page.
+Baza: 239 marek (po cleanup: 256 → 239, usunięto 15 non-brand + 2 duplikaty, naprawiono 46 nazw).
 
 Patrz też: `CATSCAN_KRS_SUPPLEMENT.md` — szczegóły pozyskania danych z KRS.
 Patrz też: `CATSCAN_PRODUCT_INSIGHT.md` — design produktowy (decision maps, nie raporty).
@@ -27,7 +27,7 @@ Patrz też: `CATSCAN_PRODUCT_INSIGHT.md` — design produktowy (decision maps, n
 
 Dietly to największa platforma do zamawiania cateringów w Polsce.
 Kataloguje marki z danymi strukturalnymi. Scraper zbudowany — parsuje sitemap Dietly.
-**Aktualnie:** 177 marek z Dietly + 78 z Google search = 256 w `data/brands.json`.
+**Aktualnie:** 177 marek z Dietly + 78 z Google search = 256 → **239 po cleanup** w `data/brands.json`.
 
 Dane dostępne z Dietly per marka:
 - Nazwa firmy
@@ -102,11 +102,11 @@ Atrybuty mają typy: text, number, enum, boolean, array, date.
 - TikTok: 10 ostatnich filmów (views, likes, style)
 - Meta Ads: wszystkie aktywne reklamy (typowo 5-30, niektóre 100+)
 
-### Volume łączne przy 256 markach (est.):
-- Atrybuty structured: 256 × 175 = **~44,800 data points**
-- Social posts: ~10,000 (nie wszystkie marki na każdej platformie; TikTok ~50-80 aktywnych)
-- Ad creatives: ~3,800 (256 × ~15 avg aktywnych reklam)
-- Sprawozdania finansowe: ~400 (130 sp. z o.o. × 3 lata)
+### Volume łączne przy 239 markach (est.):
+- Atrybuty structured: 239 × 175 = **~41,825 data points**
+- Social posts: ~9,500 (nie wszystkie marki na każdej platformie; TikTok ~50-80 aktywnych)
+- Ad creatives: ~3,600 (239 × ~15 avg aktywnych reklam)
+- Sprawozdania finansowe: ~360 (120 sp. z o.o. × 3 lata)
 
 ### WYMIAR 01: IDENTYFIKACJA
 - name: text — nazwa marki
@@ -150,11 +150,16 @@ Atrybuty mają typy: text, number, enum, boolean, array, date.
 - cliche_score: number 0-10 — jak bardzo generyczny messaging
 
 ### WYMIAR 05: IDENTYFIKACJA WIZUALNA
-- dominant_colors: array[text] — hex kolory
+Źródło: Apify screenshot-url actor (1440x900, 3s wait) + Claude Haiku 4.5 (multimodal vision).
+Nowa faza `visual` w pipeline — automatyczna analiza screenshota homepage.
+- dominant_colors: array[text] — hex kolory (z vision analysis)
+- color_palette_type: text — typ palety kolorów
 - typography_class: enum [sans-serif, serif, mixed, handwritten]
 - image_style: enum [food-photography, lifestyle, minimal, illustrative]
 - layout_pattern: enum [hero-image, split, video-bg, text-first, carousel]
 - overall_aesthetic: enum [premium, clean, bold, playful, clinical, budget]
+- logo_description: text — opis logo z vision analysis
+- visual_quality_score: number 1-10 — ocena jakości wizualnej (AI)
 - screenshot_url: text — URL screenshota homepage
 
 ### WYMIAR 06: WEBSITE STRUCTURE
@@ -177,7 +182,7 @@ Atrybuty mają typy: text, number, enum, boolean, array, date.
 ### WYMIAR 08: REKLAMY (META)
 Źródło: Meta Ad Library API (darmowe, publiczne, WSZYSTKIE aktywne reklamy).
 Typowa marka: 5-30 aktywnych reklam. Niektóre 0, niektóre 100+.
-256 marek x ~15 avg = ~3,800 kreacji do przeanalizowania. Koszt API: $0.
+239 marek x ~15 avg = ~3,600 kreacji do przeanalizowania. Koszt API: $0.
 - active_ads_count: number
 - ad_formats: array[enum] — [image, video, carousel, stories]
 - ad_hooks: array[text] — pierwsze zdania reklam (top 10)
@@ -192,7 +197,7 @@ Typowa marka: 5-30 aktywnych reklam. Niektóre 0, niektóre 100+.
 
 ### WYMIAR 09: INSTAGRAM
 Źródło: Apify instagram-profile-scraper (Call #1) + instagram-scraper posts (Call #2, stratified).
-Zbieramy: profil + 20 próbkowych postów per marka (6 recent + 14 historical). Koszt: ~$15-20 za 256 marek.
+Zbieramy: profil + 20 próbkowych postów per marka (6 recent + 14 historical). Koszt: ~$15-20 za 239 marek.
 - ig_handle: text
 - ig_followers: number
 - ig_following: number
@@ -212,7 +217,7 @@ Zbieramy: profil + 20 próbkowych postów per marka (6 recent + 14 historical). 
 - ig_recent_posts: array[IgPost] — 20 próbkowych (6 recent + 14 historical), per post: caption (500 zn.), likes, comments, typ, data, hashtagi, sampleBucket
 
 ### WYMIAR 10: FACEBOOK
-Źródło: Apify facebook-pages-scraper. Ostatnie 15 postów. Koszt: ~$10-15 za 256 marek.
+Źródło: Apify facebook-pages-scraper. Ostatnie 15 postów. Koszt: ~$10-15 za 239 marek.
 - fb_page_url: text
 - fb_page_name: text
 - fb_followers: number
@@ -226,7 +231,7 @@ Zbieramy: profil + 20 próbkowych postów per marka (6 recent + 14 historical). 
 - fb_community_size: number — członkowie grupy (jeśli jest)
 
 ### WYMIAR 11: TIKTOK
-Źródło: Apify tiktok-scraper. Ostatnie 10 filmów. Koszt: ~$10-15 za 256 marek.
+Źródło: Apify tiktok-scraper. Ostatnie 10 filmów. Koszt: ~$10-15 za 239 marek.
 Uwaga: realnie 100-150 z 500 będzie aktywnych na TikToku.
 - tiktok_handle: text
 - tiktok_followers: number
@@ -305,20 +310,20 @@ Uwaga: realnie 100-150 z 500 będzie aktywnych na TikToku.
 - competitive_moves: array[text] — ostatnie ruchy strategiczne
 
 ### WYMIAR 21: DANE REJESTROWE I FINANSOWE (KRS)
-Źródło: API KRS (darmowe) + RDF/rejestr.io (sprawozdania finansowe).
+Źródło: API KRS (darmowe) + RDF/rejestr.io (sprawozdania finansowe) + `/krs-powiazania` (zarząd/udziałowcy).
 Szczegółowy pipeline: patrz `CATSCAN_KRS_SUPPLEMENT.md`.
 Coverage: ~70% dane rejestrowe, ~50-60% dane finansowe (JDG nie składają).
-Koszt: ~$35-45 za 256 marek.
+Koszt: ~$70 za 239 marek (~$0.30/brand).
 - legal_name: text — pełna nazwa prawna ("FIT CATERING SP. Z O.O.")
 - krs_number: text
 - nip: text
 - regon: text
 - legal_form: enum [sp_zoo, sa, jdg, sc, sk, other]
 - registration_date: date — kiedy firma powstała
-- share_capital: number — kapitał zakładowy (PLN)
-- shareholders: array[{name, share_pct}] — udziałowcy
+- share_capital: number — kapitał zakładowy (PLN, z parsowania Bilansu)
+- shareholders: array[{name, share_pct}] — udziałowcy (z `/krs-powiazania`)
 - is_sole_owner: boolean
-- board_members: array[{name, role}] — zarząd
+- board_members: array[{name, role}] — zarząd z rolami (z `/krs-powiazania`)
 - board_size: number
 - pkd_primary: text — główny kod PKD
 - hq_address: text
@@ -348,7 +353,7 @@ Wejście: Dietly.pl sitemap + Apify Google Search ("catering dietetyczny [miasto
 Wyjście: lista marek + Dietly URL + metryki z Dietly + domeny www
 Narzędzie: Custom scraper (parsuje sitemap Dietly) + Apify Google Search
 Implementacja: `lib/pipeline/phases/seed.ts`
-Aktualny wynik: **256 marek** (177 Dietly + 78 search + 1 city)
+Aktualny wynik: **239 marek** (256 raw → cleanup: -15 non-brand, -2 duplikaty, 46 nazw naprawionych)
 
 Wynik: encje z wymiarami 01 (częściowo), 02 (częściowo),
        03 (częściowo), 13 (Dietly dane), 14 (częściowo), 18 (częściowo)
@@ -372,6 +377,19 @@ Implementacja: `lib/pipeline/phases/extract.ts`
 Czas: 30 min (parallel)
 Koszt: ~$3-5
 
+### Faza 3.5: VISUAL IDENTITY ✅ GOTOWE (nowa)
+
+Wejście: URL homepage marki
+Wyjście: wymiar 05 (identyfikacja wizualna — 8 atrybutów z vision AI)
+Narzędzia:
+  - Apify screenshot-url actor: screenshot homepage 1440x900px, 3s wait
+  - Claude Haiku 4.5 (multimodal vision): analiza screenshota
+Implementacja: `lib/pipeline/phases/visual.ts`
+Atrybuty: dominant_colors (hex), color_palette_type, typography_class, image_style, layout_pattern, overall_aesthetic, logo_description, visual_quality_score (1-10)
+Koszt: ~$0.05/brand (Apify screenshot + Haiku vision call)
+Resume marker: `visual_identity`
+Przykład: Maczfit → dominant_colors: ["#00B341", "#FFFFFF"], overall_aesthetic: "clean", visual_quality_score: 8
+
 ### Faza 4: CONTEXT (Perplexity) ✅ GOTOWE — przesunieta przed discovery
 
 Wejście: nazwa marki + kontekst rynkowy
@@ -379,20 +397,25 @@ Wyjście: founder, rok założenia, media mentions, influencerzy, unikalne cechy
 Narzędzie: Perplexity sonar model (~$0.005/query)
 Implementacja: `lib/pipeline/phases/context.ts`
 Wymaga: `PERPLEXITY_API_KEY`
-Czas: 1-2h (256 marek)
+Czas: 1-2h (239 marek)
 Koszt: ~$2.50
 Dwuprzebiegowy: pass 1 = core business data, pass 2 = media intelligence.
 Dodatkowe pola: employeeRange, uniqueInsight, legalName (backfill do discovery).
 
-### Faza 4.5: PRICING FALLBACK ✅ GOTOWE (nowa)
+### Faza 4.5: PRICING FALLBACK ✅ GOTOWE (rozszerzona)
 
 Wejście: encje bez diet_prices (JS-rendered sites: Maczfit, NTFY, FitBox, etc.)
-Wyjście: diet_prices[], price_1500kcal, price_2000kcal, price_source
+Wyjście: diet_prices[], price_1500kcal, price_2000kcal, price_source, **calorie_options[]**
 Narzędzie: Perplexity sonar model
 Implementacja: `lib/pipeline/phases/pricing-fallback.ts`
 Logika: benchmarki 1500/2000 kcal obliczane z diet_prices (closest match ±300 kcal).
 Dwa tryby: full pricing (brak jakichkolwiek cen) vs diet breakdown only (jest min/max, brak rozbicia).
-Koszt: ~$1-2
+**Calorie options:** teraz też wypełnia `menu.calorie_options`:
+  1. Najpierw próbuje wyciągnąć z diet_prices (wartości kcal)
+  2. Fallback: dedykowane zapytanie Perplexity: "Jakie warianty kaloryczne oferuje [brand]?"
+  3. Koszt dodatkowego query: ~$0.005/brand
+  4. Przykład: Maczfit → [1200, 1500, 1800, 2000, 2500, 3000]
+Koszt: ~$0.01/brand (1-2 Perplexity calls)
 
 ### Faza 5: DISCOVERY (NIP/KRS) ✅ GOTOWE — przepisana
 
@@ -423,7 +446,7 @@ Implementacja: `lib/pipeline/phases/social.ts`
 Connector: `lib/connectors/apify.ts`
 Czas: 2-4h
 Koszt: ~$35-50
-Volume: 256 profili x 4 platformy, ~10,000 postów total
+Volume: 239 profili x 4 platformy, ~9,500 postów total
 
 ### Faza 7: REKLAMY (META) ✅ GOTOWE
 
@@ -455,14 +478,16 @@ Connector: `lib/connectors/rejestr-io.ts`
 Pipeline (szczegóły: CATSCAN_KRS_SUPPLEMENT.md):
   1. Discovery: nazwa → NIP/KRS (faza 5, po context)
   2. rejestr.io: dane rejestrowe + sprawozdania finansowe (~$0.05-0.50/req)
-  3. Fallback: KRS API (free) + RDF XML
+  3. `/krs-powiazania`: pełny zarząd z rolami + udziałowcy
+  4. Fallback: KRS API (free) + RDF XML
 Rozszerzona ekstrakcja:
-  - RZiS: COGS, zysk brutto, koszty sprzedaży, koszty administracyjne, przychody/koszty finansowe, zysk pre-tax, podatek, amortyzacja, wynagrodzenia
-  - Bilans: aktywa trwałe/obrotowe, zapasy, należności, gotówka, kapitał zakładowy, zyski zatrzymane, zadłużenie krótko/długoterminowe
+  - RZiS: COGS, zysk brutto (regex: "Zysk (strata) ze sprzedaży"), koszty sprzedaży, koszty administracyjne, przychody/koszty finansowe, zysk pre-tax, podatek, amortyzacja, wynagrodzenia
+  - Bilans: aktywa trwałe/obrotowe, zapasy, należności, gotówka, kapitał zakładowy (z parsowania Bilansu), zyski zatrzymane, zadłużenie krótko/długoterminowe
   - Wskaźniki: net/operating/gross margin, ROE, ROA, debt/equity ratio, current ratio, revenue growth
-  - KRS: członkowie zarządu, udziałowcy (name + share_pct)
+  - KRS: członkowie zarządu z rolami, udziałowcy (name + share_pct) — via `/krs-powiazania`
+  - Przykład: Maczfit → shareholders: [Żabka Polska], board: 3 members, grossProfit: 2.8M PLN
 Czas: 3-5h
-Koszt: ~$35-45 (zależy od coverage)
+Koszt: ~$0.30/brand, ~$70 za 239 marek
 Coverage: ~70% rejestrowe, ~50-60% finansowe
 
 ### Faza 10: INTERPRETATION ✅ GOTOWE
@@ -476,13 +501,14 @@ Czas: 15-30 min
 Koszt: ~$10-15
 
 ### TOTAL PIPELINE:
-- Faz: 11 (seed + 10 faz per-scan). Wszystkie zaimplementowane.
-- Kolejność: crawl → extract → context → pricing_fallback → discovery → social → ads → reviews → finance → interpret
-- Kluczowa zmiana: context PRZED discovery (Perplexity dostarcza legalName → trafniejsze wyszukiwanie w rejestr.io)
+- Faz: 12 (seed + 11 faz per-scan). Wszystkie zaimplementowane.
+- Kolejność: crawl → extract → **visual** → context → pricing_fallback → discovery → social → ads → reviews → finance → interpret
+- Kluczowa zmiana v0.7: nowa faza `visual` między extract i context (Apify screenshot + Haiku vision)
+- Kluczowa zmiana v0.6: context PRZED discovery (Perplexity dostarcza legalName → trafniejsze wyszukiwanie w rejestr.io)
 - Czas: 3-4 dni (z testowaniem i poprawkami, jednorazowo)
-- Koszt: ~$100-150 (w tym ~$55 rejestr.io API za dane finansowe)
-- Wynik: 256 encji x 175+ atrybutów = ~44,800+ data points
-- Plus: ~3,800 kreacji reklamowych, ~10,000 postów social (w tym 20 stratified IG per marka), ~400 sprawozdań finansowych
+- Koszt: ~$155 za 239 marek (~$0.65/brand)
+- Wynik: 239 encji x 175+ atrybutów = ~41,825+ data points
+- Plus: ~3,600 kreacji reklamowych, ~9,500 postów social (w tym 20 stratified IG per marka), ~360 sprawozdań finansowych
 - Orchestrator: `app/api/scan/route.ts` — async, per-entity, z error handling i cost tracking
 - AI backend: curl do Claude API (zamiast Anthropic SDK — SDK timeout w sandbox, curl działa stabilnie)
 - **Resume**: pipeline potrafi wznowić się po crashu/restarcie serwera (patrz sekcja 4.1)
@@ -519,6 +545,7 @@ Markery per faza:
 |------|---------------------|
 | crawl | `_meta` |
 | extract | `_extraction` |
+| visual | `visual_identity` |
 | context | `context` |
 | pricing_fallback | `pricing._pricing_fallback_done` |
 | discovery | `_discovery` |
@@ -540,7 +567,7 @@ Deploy: Railway (persistent container)
 Dane w git: tak — commit `brands.json` po scanie = trwałe dane
 
 **Architektura:**
-- `brands.json` — 256 marek z seed data + enriched data ze skanów. **Przeżywa redeploy** (w git).
+- `brands.json` — 239 marek z seed data + enriched data ze skanów. **Przeżywa redeploy** (w git).
 - `scans.json` — working state pipeline (ephemeral). Może zginąć przy redeploy — nieważne, bo wyniki mergowane do `brands.json` po każdej fazie.
 
 **Struktura brandu po scanie:**
@@ -554,6 +581,7 @@ Dane w git: tak — commit `brands.json` po scanie = trwałe dane
   "data": {
     "_meta": { /* crawl */ },
     "_extraction": { /* extract cost/tokens */ },
+    "visual_identity": { /* visual: dominant_colors, aesthetic, quality_score */ },
     "context": { /* perplexity: founder, trajectory, legalName */ },
     "pricing": { /* ceny, diet_prices, benchmarki 1500/2000 kcal */ },
     "_discovery": { /* NIP, KRS, forma prawna */ },
@@ -586,7 +614,7 @@ Schema przygotowany: `lib/db/schema.sql`
 Migracja ma sens gdy: diff engine (porównanie skanów), multi-user access, albo >1000 marek.
 
 ### Rozmiar:
-- 256 encji x ~5KB JSON = 1.3MB per snapshot (brands.json po full scanie ~1.5-2MB)
+- 239 encji x ~5KB JSON = 1.2MB per snapshot (brands.json po full scanie ~1.5-2MB)
 - Screenshoty (Cloudflare R2): ~500MB per snapshot — do zbudowania
 
 ---
@@ -606,7 +634,7 @@ Trzy główne nawigacje:
 Pełny interfejs do uruchamiania scanów:
   - Tabela input: dodaj firmy po NAME, URL, NIP (opcjonalnie)
   - 3 presetowe firmy (Maczfit, Kuchnia Vikinga, Cateromarket)
-  - Wybór faz do uruchomienia (domyślnie: wszystkie 9)
+  - Wybór faz do uruchomienia (domyślnie: wszystkie 11)
   - Start scan → async pipeline w tle
   - Real-time progress (polling 2s):
     - Aktualna faza
@@ -738,13 +766,14 @@ System generuje raport z gotowymi insightami.
 ### FAZA 0: Extraction schema + seed data ✅ DONE
 - ✅ Schema TypeScript (types w `lib/db/store.ts`, `lib/pipeline/types.ts`)
 - ✅ Scraper Dietly sitemap → 177 marek
-- ✅ Google search discovery → +78 marek = **256 total**
+- ✅ Google search discovery → +78 marek = 256 raw
+- ✅ Brand data cleanup: 256 → **239 clean brands** (46 bad names fixed, 15 non-brand removed, 2 deduplicated)
 - ✅ `data/brands.json` z metadanymi Dietly (rating, reviews, ceny, diety)
 - ✅ Domeny www per marka
-- 256 marek = pełne pokrycie rynku
+- 239 marek = pełne pokrycie rynku
 
 ### FAZA 1: Pipeline + scan engine ✅ DONE
-- ✅ 10-fazowy pipeline: crawl → extract → context → pricing_fallback → discovery → social → ads → reviews → finance → interpret
+- ✅ 11-fazowy pipeline: crawl → extract → visual → context → pricing_fallback → discovery → social → ads → reviews → finance → interpret
 - ✅ Async orchestrator z error handling per entity (`app/api/scan/route.ts`)
 - ✅ Cost tracking per scan (USD)
 - ✅ Logging z timestampami
@@ -752,7 +781,7 @@ System generuje raport z gotowymi insightami.
 - ✅ Pipeline resume po crash/restart (PATCH reset + POST resume)
 - ✅ Persistence: wyniki mergowane do `brands.json` po każdej fazie
 - ✅ Fallback reads: Explorer/Chat czytają z `brands.json` gdy `scans.json` zaginął
-- Brakuje: pierwszy full scan 256 marek
+- Brakuje: pierwszy full scan 239 marek
 
 ### FAZA 2: Query interface ✅ DONE
 - ✅ Chat UI z Claude Sonnet jako analitykiem
@@ -784,9 +813,23 @@ System generuje raport z gotowymi insightami.
 
 ## 9. KOSZTY (REALNIE)
 
+### Koszt per brand (przybliżony):
+- crawl: free
+- extract: ~$0.01 (Haiku)
+- visual: ~$0.05 (Apify screenshot + Haiku vision)
+- context: ~$0.005 (Perplexity)
+- pricing_fallback: ~$0.01 (Perplexity, 1-2 calls)
+- discovery: ~$0.013 (rejestr.io)
+- social: ~$0.15 (Apify Instagram/TikTok + Perplexity)
+- ads: skipped (waiting for Meta API)
+- reviews: ~$0.04 (Apify Google Maps)
+- finance: ~$0.30 (rejestr.io, multiple doc fetches)
+- interpret: ~$0.06 per brand (shared Sonnet call)
+- **Total: ~$0.65/brand, ~$155 za 239 marek**
+
 ### Setup (jednorazowo):
 - Infrastruktura: $0 (free tiers)
-- Pierwszy full scan (21 wymiarów + KRS): ~$100-150
+- Pierwszy full scan (21 wymiarów + KRS): ~$155
 - Czas: 5-7 tygodni dev
 
 ### Operacyjne (miesięcznie):
@@ -807,17 +850,18 @@ System generuje raport z gotowymi insightami.
 
 ## 10. PIERWSZY RUCH
 
-1. ~~Zbuduj dataset (faza 0-1)~~ ✅ Seed ready (256 marek), pipeline gotowy
-2. Uruchom pierwszy full scan 256 marek (wszystkie 9 faz, ~$100-150)
+1. ~~Zbuduj dataset (faza 0-1)~~ ✅ Seed ready (239 marek), pipeline gotowy
+2. Uruchom pierwszy full scan 239 marek (wszystkie 11 faz, ~$155)
 4. Wygeneruj sample report: "TOP 50 cateringów w Polsce — kto naprawdę się wyróżnia"
 5. Opublikuj fragment na LinkedIn (5 insightów z danych)
 6. Wyślij pełny sample do 10 największych cateringów
-6. "Pełny raport z 256 markami + dostęp do bazy: 12,000 PLN"
+6. "Pełny raport z 239 markami + dostęp do bazy: 12,000 PLN"
 
 ---
 
-*CATSCAN_OS // v0.6 // CATERING_DIETETYCZNY*
+*CATSCAN_OS // v0.7 // CATERING_DIETETYCZNY*
 *Updated: 2026-04-05*
+*Changelog v0.7: nowa faza Visual Identity (wymiar 05 — Apify screenshot + Claude Haiku 4.5 vision, 8 atrybutów wizualnych, ~$0.05/brand), brand data cleanup (256→239: 46 bad names fixed, 15 non-brand removed, 2 deduplicated), calorie_options w pricing-fallback (derive z diet_prices lub Perplexity query), finance: usunięto pkd_code, dodano /krs-powiazania (board_members z rolami + shareholders), fixed grossProfit regex ("Zysk (strata) ze sprzedaży"), share_capital z Bilansu, pipeline order: crawl→extract→visual→context→pricing_fallback→discovery→social→ads→reviews→finance→interpret (11 faz), updated costs: ~$0.65/brand, ~$155 za 239 marek*
 *Changelog v0.6: pipeline resume po crash/restart (PATCH reset + POST resume, entityHasPhaseData markery), persistence wyników do brands.json po każdej fazie (brands.json = jedyne źródło prawdy, przeżywa redeploy), fallback reads w /api/entities i /api/chat (czytają z brands.json gdy scans.json zaginął), Railway jako deploy target (nie Vercel), zaktualizowane koszty operacyjne*
 *Changelog v0.5: Instagram stratified sampling (6 recent + 14 historical), kcal benchmark pricing (1500/2000 + diet_prices breakdown), pricing-fallback faza (Perplexity dla JS sites), NIP discovery rewrite (rejestr.io search + Perplexity fallback + 5-krokowy chain), zmiana kolejności faz (context przed discovery — legalName bridge), rozszerzona ekstrakcja finansowa (pełny RZiS + Bilans + wskaźniki + zarząd/udziałowcy), Data Explorer UI (/explore — 14 tabs, sort, filter, slide-out), YouTube via Perplexity, Perplexity social fallback, Anthropic SDK→curl migration, CATSCAN_PRODUCT_INSIGHT.md (decision maps), context dwuprzebiegowy (core + media intelligence)*
 *Changelog v0.4: 256 marek = 100% pokrycia rynku (nie 500), przeliczone koszty i volume danych, pipeline hardening (URL escaping, JSON safety, temp file cleanup, safe API access)*

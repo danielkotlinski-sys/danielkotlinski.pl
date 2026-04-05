@@ -2119,7 +2119,7 @@
         "crawlerType": "curl",
         "subpagesCrawled": 0,
         "contentLength": 14654,
-        "crawledAt": "2026-04-05T07:20:27.975Z"
+        "crawledAt": "2026-04-05T08:32:36.330Z"
       },
       "_social_urls": {
         "facebook": "https://www.facebook.com/Kuchniavikinga",
@@ -2134,14 +2134,14 @@
       "brand_identity": {
         "brand_name": "Kuchnia Vikinga",
         "tagline": "Zdrowa dieta pudełkowa",
-        "positioning": "Kuchnia Vikinga obsługuje osoby poszukujące zdrowej, zbilansowanej diety pudełkowej dostarczanej pod drzwi, oferując 18 kompletnych diet z bogatym wyborem posiłków.",
+        "positioning": "Kuchnia Vikinga obsługuje osoby szukające zbilansowanej diety pudełkowej z szerokim wyborem wariantów dietetycznych, dostarczanej pod drzwi w ponad 38 000 miejscowościach w Polsce.",
         "language": "pl"
       },
       "pricing": {
         "price_range_pln": "39,99-79,99 PLN/dzień",
         "cheapest_daily": 39.99,
         "most_expensive_daily": 79.99,
-        "trial_offer": "Rabat -5 zł za każdy dzień zamówienia przy zamówieniu powyżej 5 dni",
+        "trial_offer": "Odbierz -5 zł za każdy dzień zamówienia przy zamówieniu powyżej 5 dni",
         "subscription_discount": true
       },
       "menu": {
@@ -2165,25 +2165,31 @@
           "Keto Fusion",
           "Types of Vege"
         ],
-        "calorie_options": [],
-        "cuisine_style": "Mixed - Polish, Mediterranean, Asian",
+        "calorie_options": [
+          1200,
+          1500,
+          1800,
+          2000,
+          2500,
+          3000
+        ],
+        "cuisine_style": "polska klasyczna i śródziemnomorska",
         "dietary_restrictions": [
           "vegan",
-          "vegetarian",
-          "fish-based",
+          "wegetariańskie",
+          "low carb",
           "gluten-free",
           "lactose-free",
-          "low-FODMAP",
-          "keto",
-          "low-carb"
+          "fodmap",
+          "keto"
         ]
       },
       "delivery": {
         "delivery_model": "own_fleet",
         "delivery_cities": [
-          "Białystok"
+          "ponad 38000 miejscowości w całej Polsce"
         ],
-        "delivery_time": "20:00-6:00 (gwarancja dostawy najpóźniej do godz. 9:00), na obrzeżach miast wojewódzkich w północno-zachodniej Polsce 22:00-9:00",
+        "delivery_time": "20:00 do 6:00 (z gwarancją dostawy najpóźniej do godz. 9:00); na obrzeżach miast wojewódzkich w północno-zachodniej Polsce 22:00 do 9:00",
         "weekend_delivery": true
       },
       "technology": {
@@ -2196,7 +2202,7 @@
         "testimonials_visible": true,
         "media_mentions": [],
         "certifications": [
-          "Świadectwo Czystszej Produkcji"
+          "Certyfikat Świadectwa Czystszej Produkcji"
         ],
         "dietitian_team": true
       },
@@ -2210,9 +2216,9 @@
       "_extraction": {
         "model": "claude-haiku-4-5-20251001",
         "inputTokens": 7747,
-        "outputTokens": 1576,
-        "costUsd": 0.0125,
-        "extractedAt": "2026-04-05T07:20:46.285Z"
+        "outputTokens": 1675,
+        "costUsd": 0.0129,
+        "extractedAt": "2026-04-05T08:19:09.912Z"
       },
       "context": {
         "nip": "5423314760",
@@ -2718,7 +2724,6 @@
         "regon": "380164402",
         "registration_date": "2022-05-10",
         "pkd": "Produkcja artykułów spożywczych",
-        "pkd_code": null,
         "address": {
           "kod": "15-399",
           "miejscowosc": "Białystok",
@@ -2732,7 +2737,7 @@
           },
           "ulica": "Handlowa"
         },
-        "share_capital": null,
+        "share_capital": 5000,
         "status": {
           "wykreslona": false,
           "w_likwidacji": false,
@@ -2740,15 +2745,28 @@
           "wielkosc": "duza_srednia"
         },
         "board_members": [
-          "Łukasz Dawidziuk"
+          "Marcin Żukowski (CZŁONEK ZARZĄDU)",
+          "Łukasz Zielinko (CZŁONEK ZARZĄDU)",
+          "Łukasz Dawidziuk (PREZES ZARZĄDU)"
         ],
-        "shareholders": [],
+        "shareholders": [
+          {
+            "name": "Łukasz Dawidziuk",
+            "since": "2022-05-10"
+          },
+          {
+            "name": "Paweł Fiedoruk",
+            "since": "2022-05-10"
+          }
+        ],
         "financial_statements": [
           {
             "periodStart": "2024-01-01",
             "periodEnd": "2024-12-31",
             "revenue": 486747232.73,
             "revenuePrevious": 266770519.92,
+            "grossProfit": 71847676.13,
+            "grossProfitPrevious": 43737809.39,
             "operatingProfit": 72144244.5,
             "operatingProfitPrevious": 43777140.93,
             "operatingCosts": 414899556.6,
@@ -2780,7 +2798,7 @@
             "ratios": {
               "netMargin": 0.142,
               "operatingMargin": 0.1482,
-              "grossMargin": null,
+              "grossMargin": 0.1476,
               "roe": 0.7703,
               "roa": 0.3626,
               "debtToEquity": 1.1244,
@@ -2793,6 +2811,8 @@
             "periodEnd": "2023-12-31",
             "revenue": 266770519.92,
             "revenuePrevious": 78426059.18,
+            "grossProfit": 43737809.39,
+            "grossProfitPrevious": 11892498.04,
             "operatingProfit": 43777140.93,
             "operatingProfitPrevious": 12013974.57,
             "operatingCosts": 223032710.53,
@@ -2824,7 +2844,7 @@
             "ratios": {
               "netMargin": 0.1398,
               "operatingMargin": 0.1641,
-              "grossMargin": null,
+              "grossMargin": 0.164,
               "roe": 1.2762,
               "roa": 0.391,
               "debtToEquity": 2.2642,
@@ -2837,6 +2857,8 @@
             "periodEnd": "2022-12-31",
             "revenue": 78426059.18,
             "revenuePrevious": 46646680.46,
+            "grossProfit": 11892498.04,
+            "grossProfitPrevious": 8569695.85,
             "operatingProfit": 12013974.57,
             "operatingProfitPrevious": 8601321.42,
             "operatingCosts": 66533561.14,
@@ -2868,7 +2890,7 @@
             "ratios": {
               "netMargin": 0.1207,
               "operatingMargin": 0.1532,
-              "grossMargin": null,
+              "grossMargin": 0.1516,
               "roe": 1.0467,
               "roa": 0.4198,
               "debtToEquity": 1.4932,
@@ -2879,15 +2901,15 @@
         ],
         "years_available": 3,
         "years_fetched": 3,
-        "cost_pln": 3.1,
-        "fetchedAt": "2026-04-05T07:25:43.204Z",
+        "cost_pln": 3.15,
+        "fetchedAt": "2026-04-05T08:20:55.686Z",
         "revenue": 486747232.73,
         "revenuePrevious": 266770519.92,
         "netIncome": 69102130.95,
         "totalAssets": 190569118.55,
         "equity": 89703326.2,
         "operatingProfit": 72144244.5,
-        "grossProfit": null,
+        "grossProfit": 71847676.13,
         "cash": 54851318.67,
         "totalLiabilities": 100865792.35,
         "wages": 61163297.07,
@@ -2895,7 +2917,7 @@
         "ratios": {
           "netMargin": 0.142,
           "operatingMargin": 0.1482,
-          "grossMargin": null,
+          "grossMargin": 0.1476,
           "roe": 0.7703,
           "roa": 0.3626,
           "debtToEquity": 1.1244,
@@ -2905,19 +2927,21 @@
       },
       "messaging": {
         "headline": "Poznaj smak kuchni Vikinga",
-        "subheadline": "5 świeżych dań z dostawą pod Twoje drzwi już od 39,99!",
+        "subheadline": "5 świeżych dań z dostawa pod Twoje dzwi już od 39,99!",
         "primary_cta": "Zamów",
-        "value_proposition": "Zbilansowana dieta, pełen wybór i dostawa pod drzwi za darmo",
+        "value_proposition": "Zbilansowana dieta, pełen wybór i dostawa pod drzwi za darmo.",
         "social_proof_type": "celebrities",
         "emotional_register": "friendly",
         "claims": [
           "5 świeżych dań",
           "dostawa pod drzwi",
+          "od 39,99",
           "18 kompletnych diet w ofercie",
           "40 różnorodnych i pysznych posiłków w wyborze menu",
-          "Obsługujemy ponad 38000 miejscowości w całej Polsce",
-          "diety zbilansowane",
-          "dostawa za darmo"
+          "ponad 38000 miejscowości obsługujemy",
+          "Własne punkty stacjonarne Viking Point",
+          "Dołącz do tysięcy zadowolonych Vikingów",
+          "Ty wybierasz dietę i kaloryczność – my dostarczamy ją za darmo pod Twoje drzwi"
         ],
         "cliche_score": 7
       },
@@ -2928,25 +2952,24 @@
         "keyword_focus": [
           "dieta pudełkowa",
           "catering dietetyczny",
-          "dieta zbilansowana",
           "dostawa diety",
+          "zbilansowana dieta",
           "dieta keto",
-          "dieta low carb",
+          "dieta wegetariańska",
           "dieta vegan",
-          "dieta fodmap"
+          "diet pudełkowa Polska"
         ],
         "has_local_seo": true,
-        "content_strategy": "occasional"
+        "content_strategy": "regular"
       },
       "website_structure": {
-        "page_count_estimate": 12,
+        "page_count_estimate": 15,
         "has_blog": true,
         "has_calculator": true,
         "has_live_chat": false,
         "ordering_ux": "on-site",
         "tech_signals": [
-          "custom",
-          "mobile app"
+          "custom"
         ]
       },
       "content_marketing": {
@@ -2962,14 +2985,17 @@
       },
       "differentiators": {
         "unique_claims": [
-          "Dieta Fodmap dla osób zmagających się z problemami jelitowymi",
-          "Dieta Hashi Low Gluten & Lactose rekomendowana dla osób z chorobami autoimmunologicznymi",
           "Własne punkty stacjonarne Viking Point",
-          "System zdobywania punktów w skarbonce",
-          "Ambasadorzy marki: Cezary Pazura, Klaudia Halejcio, Jakub Mauricz"
+          "Obsługujemy ponad 38000 miejscowości w całej Polsce",
+          "18 kompletnych diet w ofercie",
+          "40 różnorodnych posiłków w wyborze menu",
+          "Dieta FODMAP dla problemów jelitowych",
+          "Dieta Hashi dla osób z chorobami autoimmunologicznymi",
+          "Program punktów skarbonka za każdą aktywność",
+          "Ambasadorzy znani (Cezary Pazura, Klaudia Halejcio, Jakub Mauricz)"
         ],
-        "competitive_advantage_type": "niche",
-        "niche_focus": "osoby ze specjalnymi potrzebami dietetycznymi (Fodmap, autoimmunologiczne, low-FODMAP), osoby aktywne, kobiety"
+        "competitive_advantage_type": "convenience",
+        "niche_focus": "osoby zajmujące się sportem, osoby z nietolerancjami pokarmowymi, kobiety, osoby aktywne zawodowo"
       },
       "_cost_context": {
         "usd": 0.01,
@@ -2992,10 +3018,41 @@
         "usd": 0.04,
         "apifyCalls": 1,
         "provider": "apify"
+      },
+      "visual_identity": {
+        "dominant_colors": [
+          "#FFC107",
+          "#FFFFFF",
+          "#2C2C2C",
+          "#F5F5F5",
+          "#E8E8E8"
+        ],
+        "color_palette_type": "vibrant",
+        "typography_class": "sans-serif",
+        "image_style": "mixed",
+        "layout_pattern": "hero-centric",
+        "overall_aesthetic": "modern",
+        "logo_description": "Text-based logo with stylized lettering, appears to feature 'Kuchnia Vikinga' with a playful, rounded sans-serif font in dark color with possible icon element",
+        "visual_quality_score": 7,
+        "analyzedAt": "2026-04-05T08:33:33.355Z",
+        "screenshot_url": "https://api.apify.com/v2/key-value-stores/Lk485WQXsq7fLRvao/records/screenshot_https___kuchniavikinga_pl_38e3a84750ff271dd8e05aa494592d55?signature=e6cJVbSTJ03PrKUsrXpY&disableRedirect=true"
+      },
+      "_cost_visual": {
+        "usd": 0.042,
+        "apifyCalls": 1,
+        "haikuCalls": 1,
+        "inputTokens": 1603,
+        "outputTokens": 170,
+        "provider": "apify+anthropic"
+      },
+      "_cost_pricing": {
+        "usd": 0.005,
+        "calls": 1,
+        "provider": "perplexity"
       }
     },
-    "lastScanId": "b96261e4-bd1d-4236-a9db-5468bc20cb32",
-    "lastScannedAt": "2026-04-05T07:26:56.092Z",
+    "lastScanId": "54f02994-924a-468b-a59b-a90129fb73be",
+    "lastScannedAt": "2026-04-05T08:34:08.004Z",
     "nip": "5423314760",
     "krs": "0000970748",
     "financials": {
@@ -3007,7 +3064,6 @@
       "regon": "380164402",
       "registration_date": "2022-05-10",
       "pkd": "Produkcja artykułów spożywczych",
-      "pkd_code": null,
       "address": {
         "kod": "15-399",
         "miejscowosc": "Białystok",
@@ -3021,7 +3077,7 @@
         },
         "ulica": "Handlowa"
       },
-      "share_capital": null,
+      "share_capital": 5000,
       "status": {
         "wykreslona": false,
         "w_likwidacji": false,
@@ -3029,15 +3085,28 @@
         "wielkosc": "duza_srednia"
       },
       "board_members": [
-        "Łukasz Dawidziuk"
+        "Marcin Żukowski (CZŁONEK ZARZĄDU)",
+        "Łukasz Zielinko (CZŁONEK ZARZĄDU)",
+        "Łukasz Dawidziuk (PREZES ZARZĄDU)"
       ],
-      "shareholders": [],
+      "shareholders": [
+        {
+          "name": "Łukasz Dawidziuk",
+          "since": "2022-05-10"
+        },
+        {
+          "name": "Paweł Fiedoruk",
+          "since": "2022-05-10"
+        }
+      ],
       "financial_statements": [
         {
           "periodStart": "2024-01-01",
           "periodEnd": "2024-12-31",
           "revenue": 486747232.73,
           "revenuePrevious": 266770519.92,
+          "grossProfit": 71847676.13,
+          "grossProfitPrevious": 43737809.39,
           "operatingProfit": 72144244.5,
           "operatingProfitPrevious": 43777140.93,
           "operatingCosts": 414899556.6,
@@ -3069,7 +3138,7 @@
           "ratios": {
             "netMargin": 0.142,
             "operatingMargin": 0.1482,
-            "grossMargin": null,
+            "grossMargin": 0.1476,
             "roe": 0.7703,
             "roa": 0.3626,
             "debtToEquity": 1.1244,
@@ -3082,6 +3151,8 @@
           "periodEnd": "2023-12-31",
           "revenue": 266770519.92,
           "revenuePrevious": 78426059.18,
+          "grossProfit": 43737809.39,
+          "grossProfitPrevious": 11892498.04,
           "operatingProfit": 43777140.93,
           "operatingProfitPrevious": 12013974.57,
           "operatingCosts": 223032710.53,
@@ -3113,7 +3184,7 @@
           "ratios": {
             "netMargin": 0.1398,
             "operatingMargin": 0.1641,
-            "grossMargin": null,
+            "grossMargin": 0.164,
             "roe": 1.2762,
             "roa": 0.391,
             "debtToEquity": 2.2642,
@@ -3126,6 +3197,8 @@
           "periodEnd": "2022-12-31",
           "revenue": 78426059.18,
           "revenuePrevious": 46646680.46,
+          "grossProfit": 11892498.04,
+          "grossProfitPrevious": 8569695.85,
           "operatingProfit": 12013974.57,
           "operatingProfitPrevious": 8601321.42,
           "operatingCosts": 66533561.14,
@@ -3157,7 +3230,7 @@
           "ratios": {
             "netMargin": 0.1207,
             "operatingMargin": 0.1532,
-            "grossMargin": null,
+            "grossMargin": 0.1516,
             "roe": 1.0467,
             "roa": 0.4198,
             "debtToEquity": 1.4932,
@@ -3168,15 +3241,15 @@
       ],
       "years_available": 3,
       "years_fetched": 3,
-      "cost_pln": 3.1,
-      "fetchedAt": "2026-04-05T07:25:43.204Z",
+      "cost_pln": 3.15,
+      "fetchedAt": "2026-04-05T08:20:55.686Z",
       "revenue": 486747232.73,
       "revenuePrevious": 266770519.92,
       "netIncome": 69102130.95,
       "totalAssets": 190569118.55,
       "equity": 89703326.2,
       "operatingProfit": 72144244.5,
-      "grossProfit": null,
+      "grossProfit": 71847676.13,
       "cash": 54851318.67,
       "totalLiabilities": 100865792.35,
       "wages": 61163297.07,
@@ -3184,7 +3257,7 @@
       "ratios": {
         "netMargin": 0.142,
         "operatingMargin": 0.1482,
-        "grossMargin": null,
+        "grossMargin": 0.1476,
         "roe": 0.7703,
         "roa": 0.3626,
         "debtToEquity": 1.1244,
@@ -6319,7 +6392,7 @@
         "crawlerType": "curl",
         "subpagesCrawled": 0,
         "contentLength": 6368,
-        "crawledAt": "2026-04-05T07:20:31.885Z"
+        "crawledAt": "2026-04-05T08:32:37.302Z"
       },
       "_social_urls": {
         "facebook": "https://www.facebook.com/ntfypl",
@@ -6332,88 +6405,30 @@
         "phone": "-427321191"
       },
       "brand_identity": {
-        "brand_name": "Nice To Fit You",
+        "brand_name": "NTFY (Nice To Fit You)",
         "tagline": "Dieta z wyborem menu - Wybieraj codziennie z 70 posiłków",
-        "positioning": "Catering dietetyczny dla osób pragnących zdrowszego stylu życia z możliwością codziennego wyboru z bogatej oferty posiłków, bez konieczności liczenia kalorii.",
+        "positioning": "Catering dietetyczny dla osób, które chcą jeść zdrowo i smacznie bez ograniczeń, z możliwością codziennego wyboru spośród 70 posiłków.",
         "language": "pl"
       },
       "pricing": {
-        "price_range_pln": "59,99-89,99 PLN/dzień",
-        "cheapest_daily": 59.99,
-        "most_expensive_daily": 89.99,
-        "trial_offer": "Kod EASTER21 - promocja do 05.04 (wyłącza program lojalnościowy, nie obowiązuje na ofertę Select)",
-        "subscription_discount": true,
-        "diet_prices": [
-          {
-            "diet_name": "Dieta 1",
-            "price_per_day_pln": 59.99,
-            "kcal": null
-          },
-          {
-            "diet_name": "Dieta 2",
-            "price_per_day_pln": 69.99,
-            "kcal": null
-          },
-          {
-            "diet_name": "Dieta 3",
-            "price_per_day_pln": 79.99,
-            "kcal": null
-          },
-          {
-            "diet_name": "Dieta 4",
-            "price_per_day_pln": 89.99,
-            "kcal": null
-          },
-          {
-            "diet_name": "Dieta 5",
-            "price_per_day_pln": 67.99,
-            "kcal": null
-          },
-          {
-            "diet_name": "Dieta 6",
-            "price_per_day_pln": 88.99,
-            "kcal": null
-          },
-          {
-            "diet_name": "Dieta 7",
-            "price_per_day_pln": 68.99,
-            "kcal": null
-          },
-          {
-            "diet_name": "Dieta 8",
-            "price_per_day_pln": 78.99,
-            "kcal": null
-          },
-          {
-            "diet_name": "Dieta 9",
-            "price_per_day_pln": 78.99,
-            "kcal": null
-          },
-          {
-            "diet_name": "Dieta 10",
-            "price_per_day_pln": 67.99,
-            "kcal": null
-          },
-          {
-            "diet_name": "Dieta 11",
-            "price_per_day_pln": 78.99,
-            "kcal": null
-          },
-          {
-            "diet_name": "Dieta 12",
-            "price_per_day_pln": 67.99,
-            "kcal": null
-          }
-        ],
+        "price_range_pln": null,
+        "cheapest_daily": null,
+        "most_expensive_daily": null,
+        "trial_offer": "Kod EASTER21 (ważny do 05.04, wyłącza program lojalnościowy)",
+        "subscription_discount": false,
+        "diet_prices": [],
         "price_1500kcal": null,
         "price_2000kcal": null,
         "_fallback": "perplexity",
-        "price_source": "https://ntfy.pl/miasto/krakow/warszawskie",
-        "_pricing_fallback_done": "2026-04-05T07:21:47.647Z"
+        "price_source": "search results (no prices found)",
+        "_pricing_fallback_done": "2026-04-05T08:20:46.796Z"
       },
       "menu": {
         "diet_types": [
-          "Pakiety wyboru menu (Mini, Basic, Plus, Super)",
+          "Mini",
+          "Basic",
+          "Plus",
+          "Super",
           "Wegetariańska",
           "Hashimoto",
           "Sportowa",
@@ -6423,17 +6438,17 @@
           "Bez glutenu",
           "Bez nabiału",
           "Dla mam",
-          "Dieta Longevity",
-          "Select"
+          "Longevity"
         ],
         "calorie_options": [],
         "cuisine_style": "Kuchnia z całego świata",
         "dietary_restrictions": [
           "wegetariańska",
-          "bezglutenowa",
+          "bez glutenu",
           "bez nabiału",
           "keto",
-          "dla kobiet w ciąży"
+          "niskoglikemiczna",
+          "sportowa"
         ]
       },
       "delivery": {
@@ -6465,10 +6480,10 @@
       "unique_differentiator": "Codziennie wybieraj z 70 różnych posiłków z kuchni światowej, wspieraj lokalnych dostawców, a opakowania będą odebrane przez kuriera - wszystko bez liczenia kalorii.",
       "_extraction": {
         "model": "claude-haiku-4-5-20251001",
-        "inputTokens": 4124,
-        "outputTokens": 1560,
-        "costUsd": 0.0095,
-        "extractedAt": "2026-04-05T07:21:11.181Z"
+        "inputTokens": 4122,
+        "outputTokens": 1480,
+        "costUsd": 0.0092,
+        "extractedAt": "2026-04-05T08:19:23.262Z"
       },
       "context": {
         "nip": "7010485250",
@@ -6929,7 +6944,6 @@
         "regon": "361567098",
         "registration_date": "2023-11-02",
         "pkd": "Produkcja artykułów spożywczych",
-        "pkd_code": null,
         "address": {
           "kod": "00-545",
           "miejscowosc": "Warszawa",
@@ -6943,7 +6957,7 @@
           },
           "ulica": "Marszałkowska"
         },
-        "share_capital": null,
+        "share_capital": 50000,
         "status": {
           "wykreslona": false,
           "w_likwidacji": false,
@@ -6951,7 +6965,9 @@
           "wielkosc": "duza_srednia"
         },
         "board_members": [
-          "Paweł Borys"
+          "Tomasz Angowski (CZŁONEK ZARZĄDU)",
+          "Paweł Borys (PREZES ZARZĄDU (CEO))",
+          "Maciej Magnuszewski (CZŁONEK ZARZĄDU (CFO))"
         ],
         "shareholders": [],
         "financial_statements": [
@@ -6960,6 +6976,8 @@
             "periodEnd": "2024-12-31",
             "revenue": 308048193.22,
             "revenuePrevious": 44023156.5,
+            "grossProfit": 58599537.62,
+            "grossProfitPrevious": 9628950.15,
             "operatingProfit": 35885933.96,
             "operatingProfitPrevious": 9607654.31,
             "operatingCosts": 249448655.6,
@@ -6991,7 +7009,7 @@
             "ratios": {
               "netMargin": 0.0661,
               "operatingMargin": 0.1165,
-              "grossMargin": null,
+              "grossMargin": 0.1902,
               "roe": 0.289,
               "roa": 0.1424,
               "debtToEquity": 1.0299,
@@ -7004,6 +7022,8 @@
             "periodEnd": "2023-12-31",
             "revenue": 44023156.5,
             "revenuePrevious": 0,
+            "grossProfit": 9628950.15,
+            "grossProfitPrevious": 0,
             "operatingProfit": 9607654.31,
             "operatingProfitPrevious": 0,
             "operatingCosts": 34394206.35,
@@ -7035,7 +7055,7 @@
             "ratios": {
               "netMargin": 0.1635,
               "operatingMargin": 0.2182,
-              "grossMargin": null,
+              "grossMargin": 0.2187,
               "roe": 0.144,
               "roa": 0.0729,
               "debtToEquity": 0.9759,
@@ -7046,15 +7066,15 @@
         ],
         "years_available": 2,
         "years_fetched": 2,
-        "cost_pln": 2.1,
-        "fetchedAt": "2026-04-05T07:25:52.224Z",
+        "cost_pln": 2.15,
+        "fetchedAt": "2026-04-05T08:21:00.136Z",
         "revenue": 308048193.22,
         "revenuePrevious": 44023156.5,
         "netIncome": 20374155.98,
         "totalAssets": 143110120.13,
         "equity": 70501044.01,
         "operatingProfit": 35885933.96,
-        "grossProfit": null,
+        "grossProfit": 58599537.62,
         "cash": 13908412.5,
         "totalLiabilities": 72609076.12,
         "wages": 31236754.28,
@@ -7062,7 +7082,7 @@
         "ratios": {
           "netMargin": 0.0661,
           "operatingMargin": 0.1165,
-          "grossMargin": null,
+          "grossMargin": 0.1902,
           "roe": 0.289,
           "roa": 0.1424,
           "debtToEquity": 1.0299,
@@ -7071,52 +7091,47 @@
         }
       },
       "messaging": {
-        "headline": "Zyskaj czas na to, co najważniejsze",
-        "subheadline": "Poświęć go rodzinie i świątecznej atmosferze. Zdrowo, smacznie i bez wysiłku.",
+        "headline": "Nice To Fit You - Dieta z wyborem menu - Wybieraj codziennie z 70 posiłków",
+        "subheadline": "Zyskaj czas na to, co najważniejsze Poświęć go rodzinie i świątecznej atmosferze. Zdrowo, smacznie i bez wysiłku.",
         "primary_cta": "Zamów teraz",
-        "value_proposition": "Zbilansowane posiłki z wyborem nawet z 70 dań dziennie, ze składników najwyższej jakości, bez wysiłku i liczenia kalorii.",
+        "value_proposition": "Zbilansowane posiłki z wyborem nawet z 70 dań dziennie, przygotowane ze składników najwyższej jakości, bez konieczności liczenia kalorii.",
         "social_proof_type": "reviews",
         "emotional_register": "friendly",
         "claims": [
           "Składniki najwyższej jakości",
-          "Dokładnie weryfikujemy wszystkich naszych dostawców",
-          "Rygorystyczne kontrole jakościowe",
           "Wybór nawet z 70 dań dziennie",
           "Restauracyjne smaki",
-          "Kuchnia z całego świata",
           "Lokalni dostawcy",
-          "Sezonowe i świeże produkty",
-          "Wspieramy startupy",
           "Tysiące zadowolonych klientów",
           "Bezpłatna konsultacja dietetyczna",
-          "Zbilansowane posiłki – bez liczenia kalorii",
-          "Różnorodne menu, które się nie nudzi"
+          "Sezonowe i świeże produkty",
+          "Zbilansowane posiłki – bez liczenia kalorii"
         ],
-        "cliche_score": 6
+        "cliche_score": 7
       },
       "seo": {
-        "title_tag": "Nice To Fit You - Dieta z wyborem menu - Wybieraj codziennie z 70 posiłków",
+        "title_tag": null,
         "meta_description": null,
-        "h1": "Zyskaj czas na to, co najważniejsze",
+        "h1": "Nice To Fit You - Dieta z wyborem menu - Wybieraj codziennie z 70 posiłków",
         "keyword_focus": [
           "dieta pudełkowa",
           "catering dietetyczny",
-          "diet delivery",
-          "dieta z wyborem",
-          "posiłki na dietę"
+          "dieta z wyborem menu",
+          "catering keto",
+          "dieta wegetariańska"
         ],
         "has_local_seo": false,
         "content_strategy": "occasional"
       },
       "website_structure": {
-        "page_count_estimate": 8,
+        "page_count_estimate": 12,
         "has_blog": false,
         "has_calculator": false,
         "has_live_chat": false,
         "ordering_ux": "on-site",
         "tech_signals": [
-          "aplikacja mobilna",
-          "panel klienta"
+          "custom",
+          "mobile app"
         ]
       },
       "content_marketing": {
@@ -7133,14 +7148,14 @@
       "differentiators": {
         "unique_claims": [
           "Wybór nawet z 70 dań dziennie",
-          "Opcja Select - samodzielne komponowanie menu z pojedynczych posiłków w aplikacji mobilnej",
-          "Pakiety elastyczne zawierające wszystkie posiłki z pakietów niższych",
-          "Program Go Green - odbieranie opakowań do recyklingu przez kuriera",
-          "Menu dostępne na 10 dni do przodu",
-          "Bezpłatna konsultacja dietetyczna"
+          "Lokalni dostawcy i wspieranie startupów",
+          "Program Go Green z odbiorem opakowań przez kuriera",
+          "Bezpłatna konsultacja dietetyczna",
+          "Dieta Longevity wspierająca spowolnienie procesów starzenia",
+          "Opcja Select - samodzielne komponowanie menu z pojedynczych posiłków w aplikacji"
         ],
         "competitive_advantage_type": "convenience",
-        "niche_focus": "osoby dbające o zdrowy styl życia bez ograniczeń, kobiety w ciąży i mamy, sportowcy, osoby świadome ekologicznie"
+        "niche_focus": "osoby szukające elastyczności i różnorodności w menu dietetycznym, kobiety w ciąży, sportowcy, wegetarianie"
       },
       "_cost_context": {
         "usd": 0.01,
@@ -7148,8 +7163,8 @@
         "provider": "perplexity"
       },
       "_cost_pricing": {
-        "usd": 0.005,
-        "calls": 1,
+        "usd": 0.01,
+        "calls": 2,
         "provider": "perplexity"
       },
       "_cost_discovery": {
@@ -7168,10 +7183,35 @@
         "usd": 0.04,
         "apifyCalls": 1,
         "provider": "apify"
+      },
+      "visual_identity": {
+        "dominant_colors": [
+          "#1a1a1a",
+          "#ffd700",
+          "#ffffff",
+          "#2a2a2a"
+        ],
+        "color_palette_type": "complementary",
+        "typography_class": "sans-serif",
+        "image_style": "mixed",
+        "layout_pattern": "scroll-story",
+        "overall_aesthetic": "modern",
+        "logo_description": "Simple wordmark 'nice' in lowercase with a circular yellow accent element",
+        "visual_quality_score": 8,
+        "analyzedAt": "2026-04-05T08:34:07.970Z",
+        "screenshot_url": "https://api.apify.com/v2/key-value-stores/LctMi1pkCGoIidOfe/records/screenshot_https___ntfy_pl_6d4c4e77a24ead0ead3fbd3444bada74?signature=pe3DFPudpdpgHqHTFeu6&disableRedirect=true"
+      },
+      "_cost_visual": {
+        "usd": 0.0418,
+        "apifyCalls": 1,
+        "haikuCalls": 1,
+        "inputTokens": 1595,
+        "outputTokens": 135,
+        "provider": "apify+anthropic"
       }
     },
-    "lastScanId": "b96261e4-bd1d-4236-a9db-5468bc20cb32",
-    "lastScannedAt": "2026-04-05T07:26:56.092Z",
+    "lastScanId": "54f02994-924a-468b-a59b-a90129fb73be",
+    "lastScannedAt": "2026-04-05T08:34:08.004Z",
     "nip": "7010485250",
     "krs": "0001066845",
     "financials": {
@@ -7183,7 +7223,6 @@
       "regon": "361567098",
       "registration_date": "2023-11-02",
       "pkd": "Produkcja artykułów spożywczych",
-      "pkd_code": null,
       "address": {
         "kod": "00-545",
         "miejscowosc": "Warszawa",
@@ -7197,7 +7236,7 @@
         },
         "ulica": "Marszałkowska"
       },
-      "share_capital": null,
+      "share_capital": 50000,
       "status": {
         "wykreslona": false,
         "w_likwidacji": false,
@@ -7205,7 +7244,9 @@
         "wielkosc": "duza_srednia"
       },
       "board_members": [
-        "Paweł Borys"
+        "Tomasz Angowski (CZŁONEK ZARZĄDU)",
+        "Paweł Borys (PREZES ZARZĄDU (CEO))",
+        "Maciej Magnuszewski (CZŁONEK ZARZĄDU (CFO))"
       ],
       "shareholders": [],
       "financial_statements": [
@@ -7214,6 +7255,8 @@
           "periodEnd": "2024-12-31",
           "revenue": 308048193.22,
           "revenuePrevious": 44023156.5,
+          "grossProfit": 58599537.62,
+          "grossProfitPrevious": 9628950.15,
           "operatingProfit": 35885933.96,
           "operatingProfitPrevious": 9607654.31,
           "operatingCosts": 249448655.6,
@@ -7245,7 +7288,7 @@
           "ratios": {
             "netMargin": 0.0661,
             "operatingMargin": 0.1165,
-            "grossMargin": null,
+            "grossMargin": 0.1902,
             "roe": 0.289,
             "roa": 0.1424,
             "debtToEquity": 1.0299,
@@ -7258,6 +7301,8 @@
           "periodEnd": "2023-12-31",
           "revenue": 44023156.5,
           "revenuePrevious": 0,
+          "grossProfit": 9628950.15,
+          "grossProfitPrevious": 0,
           "operatingProfit": 9607654.31,
           "operatingProfitPrevious": 0,
           "operatingCosts": 34394206.35,
@@ -7289,7 +7334,7 @@
           "ratios": {
             "netMargin": 0.1635,
             "operatingMargin": 0.2182,
-            "grossMargin": null,
+            "grossMargin": 0.2187,
             "roe": 0.144,
             "roa": 0.0729,
             "debtToEquity": 0.9759,
@@ -7300,15 +7345,15 @@
       ],
       "years_available": 2,
       "years_fetched": 2,
-      "cost_pln": 2.1,
-      "fetchedAt": "2026-04-05T07:25:52.224Z",
+      "cost_pln": 2.15,
+      "fetchedAt": "2026-04-05T08:21:00.136Z",
       "revenue": 308048193.22,
       "revenuePrevious": 44023156.5,
       "netIncome": 20374155.98,
       "totalAssets": 143110120.13,
       "equity": 70501044.01,
       "operatingProfit": 35885933.96,
-      "grossProfit": null,
+      "grossProfit": 58599537.62,
       "cash": 13908412.5,
       "totalLiabilities": 72609076.12,
       "wages": 31236754.28,
@@ -7316,7 +7361,7 @@
       "ratios": {
         "netMargin": 0.0661,
         "operatingMargin": 0.1165,
-        "grossMargin": null,
+        "grossMargin": 0.1902,
         "roe": 0.289,
         "roa": 0.1424,
         "debtToEquity": 1.0299,

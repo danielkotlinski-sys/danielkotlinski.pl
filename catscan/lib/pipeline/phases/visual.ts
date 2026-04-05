@@ -10,8 +10,38 @@
  */
 
 import { execSync } from 'child_process';
-import { writeFileSync, unlinkSync, readFileSync } from 'fs';
+import { writeFileSync, unlinkSync } from 'fs';
 import type { EntityRecord } from '@/lib/db/store';
+
+// Claude vision max: 8000px per dimension. We crop to 4000px for the above-the-fold content.
+const MAX_IMAGE_HEIGHT = 4000;
+
+/**
+ * Crop image to MAX_IMAGE_HEIGHT if taller, using sharp.
+ * Returns the (possibly cropped) buffer.
+ */
+function resizeIfNeeded(imgBuffer: Buffer): Buffer {
+  try {
+    // sharp is sync-capable via its .toBuffer() but we need sync here.
+    // Use execSync with a small Node script to avoid async issues.
+    const tmpIn = `/tmp/vis_resize_in_${Date.now()}.png`;
+    const tmpOut = `/tmp/vis_resize_out_${Date.now()}.png`;
+    writeFileSync(tmpIn, imgBuffer);
+
+    execSync(
+      `node -e "const sharp = require('sharp'); sharp('${tmpIn}').metadata().then(m => { if (m.height > ${MAX_IMAGE_HEIGHT}) { sharp('${tmpIn}').extract({ left: 0, top: 0, width: m.width, height: ${MAX_IMAGE_HEIGHT} }).toFile('${tmpOut}').then(() => process.exit(0)); } else { require('fs').copyFileSync('${tmpIn}', '${tmpOut}'); process.exit(0); } });"`,
+      { timeout: 15000 }
+    );
+
+    const result = require('fs').readFileSync(tmpOut);
+    try { unlinkSync(tmpIn); } catch { /* ignore */ }
+    try { unlinkSync(tmpOut); } catch { /* ignore */ }
+    return result;
+  } catch {
+    // If resize fails, return original — Claude will error but we log it
+    return imgBuffer;
+  }
+}
 
 interface VisualIdentity {
   dominant_colors: string[];
@@ -105,7 +135,10 @@ function takeScreenshot(
       || item.url as string | undefined;
 
     if (base64) {
-      return { base64, screenshotUrl: imageUrl || null };
+      // Resize if base64 decodes to an oversized image
+      const buf = Buffer.from(base64, 'base64');
+      const resized = resizeIfNeeded(buf);
+      return { base64: resized.toString('base64'), screenshotUrl: imageUrl || null };
     }
 
     // If we got a URL but no base64, download the image
@@ -115,8 +148,9 @@ function takeScreenshot(
           `curl -s -m 30 -L ${shellEscape(imageUrl)}`,
           { maxBuffer: 20 * 1024 * 1024, timeout: 35000 }
         );
+        const resized = resizeIfNeeded(imgBuffer);
         return {
-          base64: imgBuffer.toString('base64'),
+          base64: resized.toString('base64'),
           screenshotUrl: imageUrl,
         };
       } catch {
@@ -134,10 +168,13 @@ function takeScreenshot(
             `curl -s -m 30 -L ${shellEscape(screenshot)}`,
             { maxBuffer: 20 * 1024 * 1024, timeout: 35000 }
           );
-          return { base64: imgBuffer.toString('base64'), screenshotUrl: screenshot };
+          const resized = resizeIfNeeded(imgBuffer);
+          return { base64: resized.toString('base64'), screenshotUrl: screenshot };
         } catch { /* fall through */ }
       } else {
-        return { base64: screenshot, screenshotUrl: null };
+        const buf = Buffer.from(screenshot, 'base64');
+        const resized = resizeIfNeeded(buf);
+        return { base64: resized.toString('base64'), screenshotUrl: null };
       }
     }
 
