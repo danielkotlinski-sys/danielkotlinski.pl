@@ -138,6 +138,10 @@ export async function enrichContext(entity: EntityRecord): Promise<EntityRecord>
     if (/^\d{10}$/.test(cleaned)) parsedNip = cleaned;
   }
 
+  // Cost: ~$0.005/query x (1 or 2 passes)
+  const perplexityCalls = (pass1 ? 1 : 0) + (pass2 ? 1 : 0);
+  const costUsd = perplexityCalls * 0.005;
+
   const contextData: ContextData = {
     nip: parsedNip,
     legalName: (p1.legalName as string) || null,
@@ -168,6 +172,7 @@ export async function enrichContext(entity: EntityRecord): Promise<EntityRecord>
     data: {
       ...entity.data,
       context: contextData,
+      _cost_context: { usd: costUsd, calls: perplexityCalls, provider: 'perplexity' },
     },
   };
 }

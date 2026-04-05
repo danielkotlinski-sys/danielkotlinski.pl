@@ -251,10 +251,18 @@ async function runEntityPhase(
     try {
       scan.entities[i] = await fn(entity);
 
-      // Track extraction cost
-      const ext = scan.entities[i].data._extraction as Record<string, number> | undefined;
-      if (ext?.costUsd) {
-        scan.totalCostUsd += ext.costUsd;
+      // Track costs from all phases
+      const eData = scan.entities[i].data as Record<string, unknown>;
+      const ext = eData._extraction as Record<string, number> | undefined;
+      if (ext?.costUsd) scan.totalCostUsd += ext.costUsd;
+      // Aggregate _cost_* fields (context, pricing, discovery, social, reviews, finance)
+      const costKey = `_cost_${phaseName}`;
+      const phaseCost = eData[costKey] as Record<string, number> | undefined;
+      if (phaseCost?.usd) scan.totalCostUsd += phaseCost.usd;
+      // Finance tracks in PLN, convert
+      if (phaseName === 'finance') {
+        const fin = eData.finance as Record<string, number> | undefined;
+        if (fin?.cost_pln) scan.totalCostUsd += fin.cost_pln * 0.25;
       }
 
       const e = scan.entities[i];

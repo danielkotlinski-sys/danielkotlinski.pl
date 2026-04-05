@@ -184,11 +184,14 @@ export async function enrichReviews(entity: EntityRecord): Promise<EntityRecord>
     method: apiToken ? 'apify' : 'dietly-only',
   };
 
+  const apifyCalls = apiToken ? 1 : 0;
+
   return {
     ...entity,
     data: {
       ...entity.data,
       reviews: reviewData,
+      _cost_reviews: { usd: apifyCalls * 0.04, apifyCalls, provider: 'apify' },
     },
   };
 }

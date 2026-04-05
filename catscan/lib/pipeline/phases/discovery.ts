@@ -176,6 +176,7 @@ export async function discoverEntity(entity: EntityRecord): Promise<EntityRecord
   let krs: string | undefined;
   let legalForm: string | undefined;
   let orgName: string | undefined;
+  let rejestrCalls = 0;
 
   // Validate existing NIP
   if (nip && !validateNip(nip)) {
@@ -196,6 +197,7 @@ export async function discoverEntity(entity: EntityRecord): Promise<EntityRecord
     // Try legalName first (most accurate), then brand name (fallback)
     const searchNames = [contextLegalName, entity.name].filter(Boolean) as string[];
     for (const name of searchNames) {
+      rejestrCalls++;
       const result = await searchRejestrIo(name, apiKey);
       if (result?.nip) {
         nip = result.nip;
@@ -221,6 +223,7 @@ export async function discoverEntity(entity: EntityRecord): Promise<EntityRecord
   // If we found NIP via legal pages but have rejestr.io key, enrich with org data
   if (nip && !krs && apiKey) {
     try {
+      rejestrCalls++;
       const result = await searchRejestrIo(nip, apiKey);
       if (result) {
         krs = result.krs;
@@ -252,6 +255,7 @@ export async function discoverEntity(entity: EntityRecord): Promise<EntityRecord
         orgName: orgName || null,
         discoveredAt: new Date().toISOString(),
       },
+      _cost_discovery: { pln: rejestrCalls * 0.05, usd: rejestrCalls * 0.013, calls: rejestrCalls, provider: 'rejestr.io' },
     },
   };
 }

@@ -363,6 +363,8 @@ export async function enrichSocial(entity: EntityRecord): Promise<EntityRecord> 
   }
 
   const socialUrls = extractSocialUrls(entity);
+  let apifyCalls = 0;
+  let pplxCalls = 0;
   const socialData: SocialData = {
     profiles: [],
     totalFollowers: 0,
@@ -383,7 +385,7 @@ export async function enrichSocial(entity: EntityRecord): Promise<EntityRecord> 
         directUrls: [`https://www.instagram.com/${handle}/`],
         resultsType: 'details',
         resultsLimit: 1,
-      }, apiToken);
+      }, apiToken); apifyCalls++;
 
       if (profileItems.length > 0) {
         const data = profileItems[0] as Record<string, unknown>;
@@ -427,7 +429,7 @@ export async function enrichSocial(entity: EntityRecord): Promise<EntityRecord> 
             directUrls: [`https://www.instagram.com/${handle}/`],
             resultsType: 'posts',
             resultsLimit: 50,
-          }, apiToken, 240000); // 4 min timeout for posts
+          }, apiToken, 240000); apifyCalls++; // 4 min timeout for posts
 
           if (postItems.length > 0) {
             const sample = stratifySample(postItems as Array<Record<string, unknown>>);
@@ -447,7 +449,7 @@ export async function enrichSocial(entity: EntityRecord): Promise<EntityRecord> 
     const fbItems = runApifyActor('apify~facebook-pages-scraper', {
       startUrls: [{ url: socialUrls.facebook }],
       resultsLimit: 1,
-    }, apiToken);
+    }, apiToken); apifyCalls++;
 
     if (fbItems.length > 0) {
       const data = fbItems[0] as Record<string, unknown>;
@@ -479,7 +481,7 @@ export async function enrichSocial(entity: EntityRecord): Promise<EntityRecord> 
         profiles: [handle],
         resultsPerPage: 1,
         shouldDownloadCovers: false,
-      }, apiToken);
+      }, apiToken); apifyCalls++;
 
       if (ttItems.length > 0) {
         const data = ttItems[0] as Record<string, unknown>;
@@ -506,6 +508,7 @@ export async function enrichSocial(entity: EntityRecord): Promise<EntityRecord> 
   const fbMissing = socialUrls.facebook && !socialData.facebook;
 
   if (igMissing || fbMissing) {
+    pplxCalls++;
     const pplxData = perplexitySocialFallback(entity.name, socialUrls);
     if (pplxData) {
       usedPerplexity = true;
@@ -556,6 +559,7 @@ export async function enrichSocial(entity: EntityRecord): Promise<EntityRecord> 
 
   // YouTube from Perplexity even if no other fallback needed
   if (socialUrls.youtube && !socialData.youtube && !usedPerplexity) {
+    pplxCalls++;
     const pplxData = perplexitySocialFallback(entity.name, { youtube: socialUrls.youtube });
     if (pplxData?.youtube) {
       usedPerplexity = true;
@@ -581,11 +585,16 @@ export async function enrichSocial(entity: EntityRecord): Promise<EntityRecord> 
     ? (socialData.profiles.some(p => p.platform === 'instagram' && socialData.instagram?.avgLikes) ? 'apify+perplexity' : 'perplexity')
     : 'apify';
 
+  // Apify cost: ~$0.04 per actor run (compute units vary by scraper)
+  const apifyCostUsd = apifyCalls * 0.04;
+  const pplxCostUsd = pplxCalls * 0.005;
+
   return {
     ...entity,
     data: {
       ...entity.data,
       social: socialData,
+      _cost_social: { usd: apifyCostUsd + pplxCostUsd, apifyCalls, pplxCalls, provider: 'apify+perplexity' },
     },
   };
 }

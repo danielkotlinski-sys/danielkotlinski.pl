@@ -165,18 +165,20 @@ export async function enrichPricingFallback(entity: EntityRecord): Promise<Entit
       data: {
         ...entity.data,
         pricing: { ...existingPricing, ...benchmarks, _pricing_fallback_done: new Date().toISOString() },
+        _cost_pricing: { usd: 0, calls: 0, provider: 'perplexity' },
       },
     };
   }
 
   let parsed: Record<string, unknown> | null = null;
+  let pplxCalls = 0;
 
   if (needsFullPricing) {
-    // Case 1: No prices at all — get everything
     parsed = callPerplexity(FULL_PRICING_PROMPT(entity.name, entity.url), apiKey);
+    if (parsed) pplxCalls++;
   } else if (needsDietPrices) {
-    // Case 2: Has min/max but no diet breakdown — just get diet_prices
     parsed = callPerplexity(DIET_PRICES_PROMPT(entity.name, entity.url), apiKey);
+    if (parsed) pplxCalls++;
   }
 
   if (!parsed) return entity;
@@ -214,6 +216,7 @@ export async function enrichPricingFallback(entity: EntityRecord): Promise<Entit
     data: {
       ...entity.data,
       pricing: mergedPricing,
+      _cost_pricing: { usd: pplxCalls * 0.005, calls: pplxCalls, provider: 'perplexity' },
     },
   };
 }
