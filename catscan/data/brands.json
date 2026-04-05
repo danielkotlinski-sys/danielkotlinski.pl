@@ -2131,7 +2131,1018 @@
       "badge": null,
       "awarded": false
     },
-    "seededAt": "2026-04-04T10:30:53.860Z"
+    "seededAt": "2026-04-04T10:30:53.860Z",
+    "data": {
+      "_meta": {
+        "title": "Zdrowa dieta pudełkowa | Kuchnia Vikinga",
+        "description": "Kuchnia Vikinga, to zdrowa dieta pudełkowa tworzona z pasją do aktywnego trybu życia oraz zbilansowanego i regularnego jedzenia.",
+        "ogImage": "https://kuchniavikinga.pl/wp-content/uploads/2025/09/ogg.jpg",
+        "crawledUrl": "https://kuchniavikinga.pl",
+        "crawlerType": "curl",
+        "subpagesCrawled": 0,
+        "contentLength": 14654,
+        "crawledAt": "2026-04-05T06:39:10.359Z"
+      },
+      "_social_urls": {
+        "facebook": "https://www.facebook.com/Kuchniavikinga",
+        "instagram": "https://www.instagram.com/kuchniavikinga/",
+        "youtube": "https://www.youtube.com/channel/UCjwQThJo793mDN5l_rIjN-A"
+      },
+      "_contact_raw": {
+        "nip": null,
+        "email": "biuro@kuchniavikinga.pl",
+        "phone": "117502783"
+      },
+      "brand_identity": {
+        "brand_name": "Kuchnia Vikinga",
+        "tagline": "Zdrowa dieta pudełkowa",
+        "positioning": "Kuchnia Vikinga obsługuje osoby pragnące zdrowego, zbilansowanego jedzenia dostarczonego pod drzwi w całej Polsce, oferując 18 diet i szerokie możliwości personalizacji.",
+        "emotional_register": "friendly",
+        "language": "pl"
+      },
+      "pricing": {
+        "price_range_pln": "48,99-79,99 PLN/dzień",
+        "cheapest_daily": 48.99,
+        "most_expensive_daily": 79.99,
+        "trial_offer": "Odbierz -5 zł za każdy dzień zamówienia przy zamówieniu powyżej 5 dni",
+        "subscription_discount": true,
+        "diet_prices": [
+          {
+            "diet_name": "Basic 1200 kcal",
+            "price_per_day_pln": 65.99
+          },
+          {
+            "diet_name": "Basic 1500 kcal",
+            "price_per_day_pln": 72.99
+          },
+          {
+            "diet_name": "Basic 1800 kcal",
+            "price_per_day_pln": 75.99
+          },
+          {
+            "diet_name": "Basic 2000 kcal",
+            "price_per_day_pln": 77.99
+          },
+          {
+            "diet_name": "Basic 2200 kcal",
+            "price_per_day_pln": 81.99
+          },
+          {
+            "diet_name": "Basic 2500 kcal",
+            "price_per_day_pln": 85.99
+          },
+          {
+            "diet_name": "Basic 3000 kcal",
+            "price_per_day_pln": 91.99
+          }
+        ],
+        "price_1500kcal": null,
+        "price_2000kcal": null,
+        "price_source": "https://kuchniavikinga.pl/cennik/",
+        "_pricing_fallback_done": "2026-04-05T06:39:59.399Z"
+      },
+      "menu": {
+        "diet_types": [
+          "Standard",
+          "Active Pro",
+          "Light",
+          "Śródziemnomorska",
+          "Low Carb & IG",
+          "Fish Low Carb & IG",
+          "Keto",
+          "Hashi Low Gluten & Lactose",
+          "Fodmap",
+          "Ekonomiczna",
+          "Ekonomiczna Wege",
+          "Detoks sokowy",
+          "Basic",
+          "Comfort",
+          "Supreme",
+          "Ladies Vibes",
+          "Keto Fusion",
+          "Types of Vege"
+        ],
+        "calorie_options": [],
+        "cuisine_style": "Polish, Mediterranean, mixed",
+        "dietary_restrictions": [
+          "vegan",
+          "vegetarian",
+          "gluten-free",
+          "lactose-free",
+          "low-carb",
+          "low-fodmap"
+        ]
+      },
+      "delivery": {
+        "delivery_model": "own_fleet",
+        "delivery_cities": [
+          "cała Polska"
+        ],
+        "delivery_time": "20:00-6:00, gwarancja do 9:00",
+        "weekend_delivery": true
+      },
+      "technology": {
+        "has_online_ordering": true,
+        "has_mobile_app": true,
+        "has_meal_customization": true,
+        "payment_methods": []
+      },
+      "social_proof": {
+        "testimonials_visible": true,
+        "media_mentions": [],
+        "certifications": [
+          "Świadectwo Czystszej Produkcji"
+        ],
+        "dietitian_team": true
+      },
+      "contact": {
+        "city": null,
+        "phone": null,
+        "email": null,
+        "nip": null
+      },
+      "unique_differentiator": "Kuchnia Vikinga wyróżnia się współpracą z Jakubem Mauriczem (ekspertem dietetyki), siecią ponad 38 000 miejscowości w całej Polsce oraz własnym systemem logistycznym gwarantującym dostawę świeżych posiłków w nocy i nad ranem.",
+      "_extraction": {
+        "model": "claude-haiku-4-5-20251001",
+        "inputTokens": 6734,
+        "outputTokens": 814,
+        "costUsd": 0.0086,
+        "extractedAt": "2026-04-05T06:39:22.051Z"
+      },
+      "context": {
+        "nip": "5423314760",
+        "legalName": "WSCHODNI FRONT SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",
+        "founder": "Łukasz Dawidziuk",
+        "foundedYear": 2021,
+        "legalOwner": null,
+        "employeeRange": "51-200",
+        "mediaArticles": [],
+        "influencers": [],
+        "uniqueFeatures": [
+          "Szeroka paleta 13 gotowych diet plus 5 wersji z wyborem posiłków",
+          "Darmowe wymiany posiłków i konsultacje dietetyczne",
+          "Współpraca z wykwalifikowanymi dietetykami dla zbilansowanego odżywiania",
+          "Dodatki jak soki, shake'i i posiłki restauracyjne",
+          "Obsługa ponad 5400 miejscowości w Polsce"
+        ],
+        "currentStatus": "Firma osiągnęła w ostatnim okresie przychody 489,3 mln zł, zysk 69,1 mln zł i aktywa 190,6 mln zł, będąc liderem w dostawach diet pudełkowych obsługującym ponad 5400 miejscowości.",
+        "recentNews": [],
+        "competitivePosition": null,
+        "trajectory": "growing",
+        "awards": [],
+        "b2bOffering": false,
+        "uniqueInsight": null,
+        "fetchedAt": "2026-04-05T06:39:40.785Z"
+      },
+      "_discovery": {
+        "nip": "5423314760",
+        "nipValid": true,
+        "nipSource": "existing",
+        "krs": null,
+        "legalForm": null,
+        "orgName": null,
+        "discoveredAt": "2026-04-05T06:40:09.231Z"
+      },
+      "social": {
+        "profiles": [
+          {
+            "platform": "instagram",
+            "url": "https://www.instagram.com/kuchniavikinga/",
+            "handle": "kuchniavikinga",
+            "followers": 84648,
+            "posts": 1326,
+            "verified": false
+          },
+          {
+            "platform": "facebook",
+            "url": "https://www.facebook.com/Kuchniavikinga",
+            "handle": "Kuchnia Vikinga",
+            "followers": 132501
+          },
+          {
+            "platform": "youtube",
+            "url": "https://www.youtube.com/channel/UCjwQThJo793mDN5l_rIjN-A",
+            "handle": "UCjwQThJo793mDN5l_rIjN-A"
+          }
+        ],
+        "totalFollowers": 217149,
+        "platformCount": 3,
+        "fetchedAt": "2026-04-05T06:40:11.808Z",
+        "method": "apify+perplexity",
+        "instagram": {
+          "platform": "instagram",
+          "url": "https://www.instagram.com/kuchniavikinga/",
+          "handle": "kuchniavikinga",
+          "followers": 84648,
+          "posts": 1326,
+          "verified": false,
+          "bio": "Dołącz do największej społeczności Vikingów! ⚔️👇🏻",
+          "avgLikes": 489,
+          "avgComments": 22,
+          "engagementRate": 0.6,
+          "content": {
+            "sampleSize": 20,
+            "recentPosts": 6,
+            "historicalPosts": 14,
+            "dateRange": {
+              "oldest": "2026-01-11",
+              "newest": "2026-04-04"
+            },
+            "postingFrequency": "1.7 posts/week",
+            "avgLikesRecent": 199,
+            "avgLikesHistorical": 665,
+            "avgCommentsRecent": 9,
+            "avgCommentsHistorical": 21,
+            "engagementTrend": "declining",
+            "topHashtags": [
+              {
+                "tag": "#kuchniavikinga",
+                "count": 17
+              },
+              {
+                "tag": "#mecz",
+                "count": 2
+              },
+              {
+                "tag": "#zosialewandowska",
+                "count": 2
+              },
+              {
+                "tag": "#wielkanoc",
+                "count": 1
+              },
+              {
+                "tag": "#święta",
+                "count": 1
+              },
+              {
+                "tag": "#perfumy",
+                "count": 1
+              },
+              {
+                "tag": "#premium",
+                "count": 1
+              },
+              {
+                "tag": "#bogactwo",
+                "count": 1
+              },
+              {
+                "tag": "#slay",
+                "count": 1
+              },
+              {
+                "tag": "#prank",
+                "count": 1
+              },
+              {
+                "tag": "#mazurek",
+                "count": 1
+              },
+              {
+                "tag": "#bartoszmazurek",
+                "count": 1
+              },
+              {
+                "tag": "#jedzenie",
+                "count": 1
+              },
+              {
+                "tag": "#podlasie",
+                "count": 1
+              },
+              {
+                "tag": "#primaaprilis",
+                "count": 1
+              }
+            ],
+            "contentMix": {
+              "Image": 10,
+              "Video": 8,
+              "Sidecar": 2
+            },
+            "posts": [
+              {
+                "id": "3867732395600725242",
+                "timestamp": "2026-04-04T08:00:53.000Z",
+                "type": "Image",
+                "caption": "Który Sławek jest Wam najbliższy w te Święta? 👀\n\n#wielkanoc #kuchniavikinga #święta",
+                "hashtags": [
+                  "#wielkanoc",
+                  "#kuchniavikinga",
+                  "#święta"
+                ],
+                "likes": 263,
+                "comments": 8,
+                "url": "https://www.instagram.com/p/DWs8h8mDUT6/",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "3867158804949640461",
+                "timestamp": "2026-04-03T13:03:23.000Z",
+                "type": "Video",
+                "caption": "Skarpety po treningu, kokos czy bogactwo - tak według naszych ankietowanych pachną ,,perfumy” Vikinga! XD A Wy jakie nuty zapachowe byście tutaj widzieli? 😀\n\n#perfumy #premium #bogactwo #slay #prank",
+                "hashtags": [
+                  "#perfumy",
+                  "#premium",
+                  "#bogactwo",
+                  "#slay",
+                  "#prank"
+                ],
+                "likes": 94,
+                "comments": 9,
+                "url": "https://www.instagram.com/p/DWq6HGrDCUN/",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "3866989299015100478",
+                "timestamp": "2026-04-03T07:24:28.000Z",
+                "type": "Sidecar",
+                "caption": "Dlaczego nasz Mazurek jest „Florencki”? 🤔\n\nInspiracją był niesamowity wyczyn @b_mazurek86, który w meczu @jagielloniabialystok – Fiorentina ustrzelił hat tricka.🔥 Obiecaliśmy niespodziankę z tej okazji i jak zwykle nasza cukiernia nie zawodzi. 🫶\n\nZjedzone już ciacho? Poczuliście już Święta? 😀\n\n#kuchniavikinga #mazurek #bartoszmazurek",
+                "hashtags": [
+                  "#kuchniavikinga",
+                  "#mazurek",
+                  "#bartoszmazurek"
+                ],
+                "likes": 132,
+                "comments": 5,
+                "url": "https://www.instagram.com/p/DWqTkd-CCg-/",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "3866255023538463145",
+                "timestamp": "2026-04-02T07:06:09.000Z",
+                "type": "Video",
+                "caption": "Mamy własny zakład mięsny 🥩 \n\nJako jeden z największych dostawców dań gotowych w Polsce kontrolujemy cały proces: od surowca aż po gotowy produkt - bo jakość zaczyna się od podstaw.\n\nMięso? Tylko od polskich dostawców 🇵🇱\n\nZostaw 💛 jeśli stawiasz na jakość i koniecznie daj znać czy tak sobie wyobrażałeś zakład mięsny 🫣👇\n#kuchniavikinga #jedzenie #podlasie",
+                "hashtags": [
+                  "#kuchniavikinga",
+                  "#jedzenie",
+                  "#podlasie"
+                ],
+                "likes": 255,
+                "comments": 17,
+                "url": "https://www.instagram.com/p/DWnsnWpFGGp/",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "3865510765365068491",
+                "timestamp": "2026-04-01T06:26:55.000Z",
+                "type": "Image",
+                "caption": "Dziś łamiemy zasady – bo mamy coś ważnego do ogłoszenia! 📣\n\nNasza kuchnia testowa naprawdę przeszła samą siebie! 🤯 Zamiast klasycznego sosu… żelek, który rozpuszcza się pod wpływem temperatury. I najlepsze? Ty decydujesz, ile sosu chcesz – trochę, więcej albo wcale.\n\nPasuje taka opcja? 👀\n\n#kuchniavikinga #primaaprilis",
+                "hashtags": [
+                  "#kuchniavikinga",
+                  "#primaaprilis"
+                ],
+                "likes": 399,
+                "comments": 11,
+                "url": "https://www.instagram.com/p/DWlDY-NCILL/",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "3865104935826619499",
+                "timestamp": "2026-03-31T17:00:35.000Z",
+                "type": "Image",
+                "caption": "Lepszej okazji nie będzie... 😇 Jaki wynik dziś obstawiacie? 👀 \n\n#kuchniavikinga #mecz #meczpolskaszwecja #reprezetacja",
+                "hashtags": [
+                  "#kuchniavikinga",
+                  "#mecz",
+                  "#meczpolskaszwecja",
+                  "#reprezetacja"
+                ],
+                "likes": 51,
+                "comments": 6,
+                "url": "https://www.instagram.com/p/DWjnHX_jfxr/",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "3807576111941894182",
+                "timestamp": "2026-01-11T08:01:43.000Z",
+                "type": "Video",
+                "caption": "Robi wrażenie? 😎 Szczerze? Czasem sami niedowierzamy, ile osób codziennie znajduje na swojej wycieraczce żółte torby z naszym logo. Dla nas to więcej niż liczby, to potwierdzenie, że dostarczamy Wam posiłki, które pokochaliście.  ⚔️\n\n#kuchniavikinga #produkcja #firma #ciekawostki",
+                "hashtags": [
+                  "#kuchniavikinga",
+                  "#produkcja",
+                  "#firma",
+                  "#ciekawostki"
+                ],
+                "likes": 4372,
+                "comments": 150,
+                "url": "https://www.instagram.com/p/DTXOkznj0Am/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3836690508278186210",
+                "timestamp": "2026-02-20T12:06:11.000Z",
+                "type": "Sidecar",
+                "caption": "W pakiecie supreme macie 40 dań do wyboru CODZIENNIE. 🤯 Kto by chciał wylądować w takim niebie? 😌\n\n___\n👉 Jeśli marzy Ci się takie niebo – pakiet supreme zamówisz szybko i wygodnie w aplikacji lub na kuchniavikinga.pl. \n\n#kuchniavikinga #pakietsupreme",
+                "hashtags": [
+                  "#kuchniavikinga",
+                  "#pakietsupreme"
+                ],
+                "likes": 68,
+                "comments": 0,
+                "url": "https://www.instagram.com/p/DU-qbCLCMDi/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3836899542717781253",
+                "timestamp": "2026-02-20T19:02:11.000Z",
+                "type": "Video",
+                "caption": "Jakby ktoś się zastanawiał, jak wyglądała nasza impreza firmowa w tym roku… 😎\n\nMinęły już dwa miesiące, a my nadal wracamy do tego niesamowitego czasu. Bo u nas zasada jest prosta – albo robimy coś na 100%, albo wcale. Po raz kolejny spotkaliśmy się w pięknym @majatek.howieny – miejscu, które na dobre wpisało się w naszą historię. Trudno byłoby znaleźć drugą przestrzeń, która pomieści ponad 1000 Vikingów 🤯Wśród nich byli nasi pracownicy, ale też przyjaciele, goście i sympatycy. \n\nNie mogło zab",
+                "hashtags": [
+                  "#kuchniavikinga"
+                ],
+                "likes": 319,
+                "comments": 28,
+                "url": "https://www.instagram.com/p/DU_Z84qjVUF/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3838711182018862400",
+                "timestamp": "2026-02-23T07:00:54.000Z",
+                "type": "Image",
+                "caption": "Wszyscy obudzą się z formą na lato, Ty weź się do pracy już teraz! ⚔️ \n\nPrawdziwy kaloryfer potrzebuje nie tylko mocy, ale przede wszystkim regularności. Także dawaj, szlifujemy formę z Vikingiem, żeby nie było siary, gdy słoneczko konkretnie przygrzeje. 😅\n\n✅ KOD: WFORMIE15 – na dobry start, żeby się ciutkę spocić. Dla Vikingów zamawiających na 10 dni lub więcej.\n💥KOD: WFORMIE25 – dla konkretnych graczy, którzy celują w zamówienia na 25 dni lub dłużej. \n\nDowieziemy formę razem! 😉 Zamów wygodn",
+                "hashtags": [
+                  "#kuchniavikinga",
+                  "#idziewiosna",
+                  "#promocja",
+                  "#forma"
+                ],
+                "likes": 336,
+                "comments": 5,
+                "url": "https://www.instagram.com/p/DVF13tPjd1A/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3838892188792624283",
+                "timestamp": "2026-02-23T13:00:32.000Z",
+                "type": "Image",
+                "caption": "To nie możesz być gorszy 😏\n\nSławek na swoją imprezę wybrał cztery nowe Party Boxy i… trudno się dziwić temu zestawowi:\n\n1️⃣ Hot Dog Box\n2️⃣ Smash Burger Box\n3️⃣ Sushi Box – Pieczony Łosoś\n4️⃣ Brownie Box\n\nKtóry party box wziąłbyś na wspólną imprezę ze Sławkiem? 🔥 Burgerowy konkret, sushi vibe czy coś na słodko? 🤔\n\n____\nChcesz mieć taki zestaw u siebie? ⚔️\n\nWejdź do aplikacji mobilnej Kuchni Vikinga albo zaloguj się na 👉 www.kuchniavikinga.pl\nZnajdziesz je w sekcji dodatków – możesz dodać je ",
+                "hashtags": [
+                  "#kuchniavikinga",
+                  "#partyboxy"
+                ],
+                "likes": 260,
+                "comments": 0,
+                "url": "https://www.instagram.com/p/DVGfBs8AZSb/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3840190006879072720",
+                "timestamp": "2026-02-25T07:59:05.000Z",
+                "type": "Image",
+                "caption": "Nikt nie mówił, że będzie łatwo… 😬 Twoja idealna dieta – z czego by się składała?\n\n____\n👉 Jeśli kuszą Cię takie dania, możesz bez problemu dodać je jako dodatek do swojego aktualnego lub nowego zamówienia – przez aplikację mobilną albo na stronie kuchniavikinga.pl 🫶\n\n#kuchniavikinga",
+                "hashtags": [
+                  "#kuchniavikinga"
+                ],
+                "likes": 320,
+                "comments": 25,
+                "url": "https://www.instagram.com/p/DVLGHcOCDHQ/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3840958791797986828",
+                "timestamp": "2026-02-26T09:26:58.000Z",
+                "type": "Video",
+                "caption": "Poznajcie Zosię – prawdziwą Wojowniczkę. Zosia walczy z nowotworem wątroby IV stopnia. Jej szansą jest innowacyjna terapia w USA – przełomowe leczenie, które daje realną nadzieję w tej nierównej walce. Dlatego po raz drugi organizujemy Bal Charytatywny, będący częścią naszej zbiórki i tu potrzebujemy Waszego wsparcia. Koszt leczenia jest ogromny – musimy zebrać aż 2 miliony złotych, ale wiemy, że z Waszą pomocą się uda. ⚔️\n\n6 marca spotykamy się na 2. Balu Charytatywnym „Drzewo Życia”. Wtedy Maj",
+                "hashtags": [
+                  "#kuchniavikinga",
+                  "#zosialewandowska",
+                  "#zbiórka",
+                  "#balcharytatywny"
+                ],
+                "likes": 1111,
+                "comments": 41,
+                "url": "https://www.instagram.com/p/DVN06u-CFYM/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3841020999928458125",
+                "timestamp": "2026-02-26T11:30:06.000Z",
+                "type": "Image",
+                "caption": "Tak tylko mówimy… 😅 Co jeszcze dobrego dziś jecie? 👀\n\n#kuchniavikinga",
+                "hashtags": [
+                  "#kuchniavikinga"
+                ],
+                "likes": 149,
+                "comments": 13,
+                "url": "https://www.instagram.com/p/DVODD-zjSuN/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3841741049777900025",
+                "timestamp": "2026-02-27T11:21:04.000Z",
+                "type": "Video",
+                "caption": "Jeżeli chcesz się spotkać i porozmawiać na żywo z takimi osobami jak: Cezary Pazura, Klaudia Halejcio, Krzysztof Stanowski czy posłuchać na żywo LemOn, Ani Dąbrowskiej oraz Sw@dy i Niczos, to nie może cię zabraknąć na naszym 2. Balu Charytatywnym! \n\nTo wieczór, w którym przyjemnie spędzony czas ma realną moc pomagania ⚔️ W tym roku łączymy siły dla 8-letniej Zosi, która walczy ze złośliwym nowotworem wątroby. Jej szansą jest nowoczesna terapia CAR-T Cell w USA – ogromna nadzieja, ale też ogromne",
+                "hashtags": [
+                  "#zosialewandowska",
+                  "#kuchniavikinga"
+                ],
+                "likes": 429,
+                "comments": 6,
+                "url": "https://www.instagram.com/p/DVQmyFfDEn5/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3846321778158839135",
+                "timestamp": "2026-03-05T19:03:17.000Z",
+                "type": "Video",
+                "caption": "To nie jest łatwa historia.\n\nPoznajcie Zosię – naszą Małą Wojowniczkę, która od kilku lat mierzy się z nowotworem wątroby IV stopnia. To trudna walka i dla niej, i dla całej rodziny, która każdego dnia robi wszystko, żeby pomóc jej wrócić do zdrowia.\n\nW tym materiale możecie poznać historię Zosi opowiedzianą oczami jej rodziców. \n\nPS. Cały czas trwa zbiórka dla Zosi 👉 siepomaga.pl/vikingowie-razem-po-zdrowie-zosi\nJeśli możecie dorzucić choć małą cegiełkę – będzie to ogromna pomoc. Każda wpłata ",
+                "hashtags": [],
+                "likes": 270,
+                "comments": 6,
+                "url": "https://www.instagram.com/p/DVg4UdPAaVf/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3849738548375529684",
+                "timestamp": "2026-03-10T12:10:45.000Z",
+                "type": "Video",
+                "caption": "Umiesz kibicować lepiej niż my (XD) i chcesz to pokazać? 📣 A przy okazji zgarnąć dwie wejściówki na mecz Polska – Albania? Weź udział w naszym konkursie, który startuje już jutro (11.03)!\n\nSzukamy najbardziej kreatywnych okrzyków kibicowskich, które poniosą stadion! \n\nJak wziąć udział?\n\nWejdź na stronę 👉 krzyczjakviking.pl i wyślij swój bojowy okrzyk – możesz nagrać go prosto z telefonu albo z komputera. WAŻNE❗Na stronie można przesyłać zgłoszenia 11.03 w godz. 08:00–19:00.\n\nA jeśli akurat jes",
+                "hashtags": [
+                  "#kuchniavikinga",
+                  "#mecz",
+                  "#polskaalbania",
+                  "#reprezentacja",
+                  "#dzieńmężczyzn"
+                ],
+                "likes": 204,
+                "comments": 0,
+                "url": "https://www.instagram.com/p/DVtBNAeDSjU/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3854052303099695591",
+                "timestamp": "2026-03-16T11:00:59.000Z",
+                "type": "Image",
+                "caption": "Ptaszki ćwierkają, że coś nadchodzi… 🤭 I nie mówimy tylko o tej długo wyczekiwanej porze roku, ale też o promocji, która właśnie wpadła w ten piękny, słoneczny poniedziałek! ☀️\n\nA to jeszcze nie wszystko. Oprócz wiosennej promki z kartą Vikinga możesz zgarnąć nawet do -5,5% zwrotu na swoje konto ZEN! 🤯 Szczegóły akcji znajdziesz tutaj: kuchniavikinga.pl/zen/\n\nA tu czekają na Ciebie kodziki:\n 🌸 WIOSNA20 – 20% rabatu na wszystko, bez limitu\n 🌸 WIOSNA30 – 30% rabatu przy zamówieniu na min. 25 d",
+                "hashtags": [
+                  "#wiosna",
+                  "#kuchniavikinga",
+                  "#promka"
+                ],
+                "likes": 165,
+                "comments": 5,
+                "url": "https://www.instagram.com/p/DV8WCZoCJHn/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3857585504854576475",
+                "timestamp": "2026-03-21T08:00:49.000Z",
+                "type": "Image",
+                "caption": "Człowiek już prawie schował kurtkę, już się nastawił na słońce i dłuższe dni…a tu nagle pogoda znowu robi swoje XD XD Dajcie znać, jak u Was –  wpisujcie miasta i pogodę 😀👇\n\nAle żeby trochę ocieplić ten marzec, dorzucamy coś od siebie:\n🌸WIOSNA20 – 20% rabatu na wszystko, bez limitu\n🌸WIOSNA30 – 30% rabatu przy zamówieniu na min. 25 dni\n\nZamów wygodnie w aplikacji lub na www.kuchniavikinga.pl 🤝\n_______\n★ Kody rabatowe nie łączą się z innymi zniżkami i promocjami.\n★ Promocja trwa do 31.03.2026",
+                "hashtags": [],
+                "likes": 88,
+                "comments": 4,
+                "url": "https://www.instagram.com/p/DWI5ZQLjY1b/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3861965059492722782",
+                "timestamp": "2026-03-27T09:02:14.000Z",
+                "type": "Image",
+                "caption": "Są historie, które zostają w nas na długo. Historia Klaudii i Filipa jest jedną z nich. 🥺\n\nRodzeństwo, które niemal w tym samym czasie usłyszało najtrudniejszą diagnozę. Klaudia – od czterech lat walczy z guzem mózgu i wodogłowiem. Filip – zmierzył się z ostrą białaczką limfoblastyczną. Dwie ogromne walki, prowadzone równolegle, dzień po dniu. \n\nWe wrześniu 2024 roku, z okazji naszych 6 urodzin razem z Wami zrobiliśmy coś niezwykłego – zebraliśmy ponad 200 000 zł na ich leczenie. Dzięki temu Fi",
+                "hashtags": [
+                  "#kuchniavikinga",
+                  "#fundacjavikingstory"
+                ],
+                "likes": 1221,
+                "comments": 8,
+                "url": "https://www.instagram.com/p/DWYdMKSCLhe/",
+                "sampleBucket": "historical"
+              }
+            ]
+          }
+        },
+        "facebook": {
+          "platform": "facebook",
+          "url": "https://www.facebook.com/Kuchniavikinga",
+          "handle": "Kuchnia Vikinga",
+          "followers": 132501,
+          "likes": 132501
+        },
+        "youtube": {
+          "platform": "youtube",
+          "url": "https://www.youtube.com/channel/UCjwQThJo793mDN5l_rIjN-A",
+          "handle": "UCjwQThJo793mDN5l_rIjN-A"
+        }
+      },
+      "ads": {
+        "activeAdsCount": 0,
+        "ads": [],
+        "platforms": {},
+        "avgAdDurationDays": 0,
+        "longestRunningAdDays": 0,
+        "adCopySnippets": [],
+        "estimatedIntensity": "none",
+        "fetchedAt": "2026-04-05T06:42:15.378Z",
+        "method": "ad_library_search"
+      },
+      "reviews": {
+        "google": {
+          "rating": 4.3,
+          "reviewCount": 7119,
+          "mapsUrl": "https://www.google.com/maps/search/?api=1&query=Kuchnia%20Vikinga%20-%20producent%20%C5%9Bwie%C5%BCych%20da%C5%84%20gotowych&query_place_id=ChIJTVpWOvr_H0cRq0JAR1ads_0",
+          "address": "Handlowa 5, 15-399 Białystok, Polska",
+          "category": "Jedzenie z dostawą do domu",
+          "snippets": [
+            "Znaleźliście czas zeby napisac sms, ze posiłki przed świętami wielkanocnymi beda takie same w piątek i sobote, ale juz, ze w ogóle ich nie bedzie w niedziele i poniedziałek to zabrakło znaków w smsie?",
+            "Wszystko smaczne, świeże - polecam w 100%.",
+            "Korzystam od kilku miesięcy, w sumie to zdarzają się niedociągnięcia typu skorupka jaka w sałatce z jajek, niedogotowane ziemniaki, otwarta torba z jedzeniem. Nie poruszałbym tego gdyby nie fakt otrzy",
+            "Korzystałem od kilku miesięcy z jedzenia. Dziś za kłamstwo jest opinia. Brak dostawy, zgłosiłem, dostaje odpowiedź ze zdjęciem z nałożoną datą że dostarczone poprawnie, tylko, że otoczenie się nie zga",
+            "Od siedmiu miesięcy jestem na diecie i nie mogę powiedzieć że wszystkie posiłki są bardzo smaczne.Pozdrawiam",
+            "Nie maja diety w 100% wykluczającej białka mleka. Także szału nie ma.",
+            "Serdecznie polecam Kuchnię Wikinga. Dania są zróżnicowane i bardzo smaczne. Osobiście jestem bardzo zadowolona. Jest pysznie i zdrowo!"
+          ]
+        },
+        "dietly": {
+          "rating": 4.8,
+          "reviewCount": 19362,
+          "positivePercent": 95
+        },
+        "sentiment": "positive",
+        "fetchedAt": "2026-04-05T06:42:31.689Z",
+        "method": "apify"
+      },
+      "finance": {
+        "krs_number": "0000970748",
+        "org_name": "WSCHODNI FRONT SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",
+        "org_name_short": "WSCHODNI FRONT",
+        "legal_form": "SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",
+        "nip": "5423314760",
+        "regon": "380164402",
+        "registration_date": "2022-05-10",
+        "pkd": "Produkcja artykułów spożywczych",
+        "pkd_code": null,
+        "address": {
+          "kod": "15-399",
+          "miejscowosc": "Białystok",
+          "nr_domu": "5",
+          "panstwo": "Polska",
+          "poczta": "Białystok",
+          "teryt": {
+            "gmina": "206101",
+            "powiat": "2061",
+            "wojewodztwo": "20"
+          },
+          "ulica": "Handlowa"
+        },
+        "share_capital": null,
+        "status": null,
+        "board_members": [],
+        "shareholders": [],
+        "financial_statements": [
+          {
+            "periodStart": "2024-01-01",
+            "periodEnd": "2024-12-31",
+            "revenue": 486747232.73,
+            "revenuePrevious": 266770519.92,
+            "operatingProfit": 72144244.5,
+            "operatingProfitPrevious": 43777140.93,
+            "operatingCosts": 414899556.6,
+            "operatingCostsPrevious": 223032710.53,
+            "financialRevenue": 1220761.75,
+            "financialCosts": 2133075.3,
+            "preTaxProfit": 71231930.95,
+            "incomeTax": 2129800,
+            "netIncome": 69102130.95,
+            "netIncomePrevious": 37306036.42,
+            "depreciation": 6404278.06,
+            "wages": 61163297.07,
+            "totalAssets": 190569118.55,
+            "totalAssetsPrevious": 95422354.26,
+            "fixedAssets": 109992935.42,
+            "currentAssets": 80576183.13,
+            "inventory": 5795002.05,
+            "receivables": 16151041.78,
+            "cash": 54851318.67,
+            "equity": 89703326.2,
+            "equityPrevious": 29232782.25,
+            "shareCapital": 5000,
+            "retainedEarnings": 0,
+            "totalLiabilities": 100865792.35,
+            "totalLiabilitiesPrevious": 66189572.01,
+            "longTermDebt": 21143464.6,
+            "shortTermDebt": 34895095.7,
+            "provisions": 100865792.35,
+            "ratios": {
+              "netMargin": 0.142,
+              "operatingMargin": 0.1482,
+              "grossMargin": null,
+              "roe": 0.7703,
+              "roa": 0.3626,
+              "debtToEquity": 1.1244,
+              "currentRatio": 2.3091,
+              "revenueGrowth": 0.8246
+            }
+          },
+          {
+            "periodStart": "2023-01-01",
+            "periodEnd": "2023-12-31",
+            "revenue": 266770519.92,
+            "revenuePrevious": 78426059.18,
+            "operatingProfit": 43777140.93,
+            "operatingProfitPrevious": 12013974.57,
+            "operatingCosts": 223032710.53,
+            "operatingCostsPrevious": 66533561.14,
+            "financialRevenue": 82787.57,
+            "financialCosts": 1821533.08,
+            "preTaxProfit": 42038395.42,
+            "incomeTax": 4732359,
+            "netIncome": 37306036.42,
+            "netIncomePrevious": 9469237.83,
+            "depreciation": 4211699.22,
+            "wages": 38915766.91,
+            "totalAssets": 95422354.26,
+            "totalAssetsPrevious": 22555080.42,
+            "fixedAssets": 66267348.27,
+            "currentAssets": 29155005.99,
+            "inventory": 4781182.07,
+            "receivables": 9450330.67,
+            "cash": 13994894.43,
+            "equity": 29232782.25,
+            "equityPrevious": 9046510.11,
+            "shareCapital": 0,
+            "retainedEarnings": -4797351.28,
+            "totalLiabilities": 66189572.01,
+            "totalLiabilitiesPrevious": 13508570.31,
+            "longTermDebt": 21917167.44,
+            "shortTermDebt": 19939559.45,
+            "provisions": 66189572.01,
+            "ratios": {
+              "netMargin": 0.1398,
+              "operatingMargin": 0.1641,
+              "grossMargin": null,
+              "roe": 1.2762,
+              "roa": 0.391,
+              "debtToEquity": 2.2642,
+              "currentRatio": 1.4622,
+              "revenueGrowth": 2.4016
+            }
+          },
+          {
+            "periodStart": "2022-05-10",
+            "periodEnd": "2022-12-31",
+            "revenue": 78426059.18,
+            "revenuePrevious": 46646680.46,
+            "operatingProfit": 12013974.57,
+            "operatingProfitPrevious": 8601321.42,
+            "operatingCosts": 66533561.14,
+            "operatingCostsPrevious": 38076984.61,
+            "financialRevenue": 11983.86,
+            "financialCosts": 392929.6,
+            "preTaxProfit": 11633028.83,
+            "incomeTax": 2163791,
+            "netIncome": 9469237.83,
+            "netIncomePrevious": 8565491.26,
+            "depreciation": 370756.08,
+            "wages": 11974312.16,
+            "totalAssets": 22555080.42,
+            "totalAssetsPrevious": 7702219.78,
+            "fixedAssets": 11300315.12,
+            "currentAssets": 11254765.3,
+            "inventory": 1912907.11,
+            "receivables": 3473769.32,
+            "cash": 5620529.72,
+            "equity": 9046510.11,
+            "equityPrevious": 4082331.36,
+            "shareCapital": 5000,
+            "retainedEarnings": 5578582.92,
+            "totalLiabilities": 13508570.31,
+            "totalLiabilitiesPrevious": 3619888.42,
+            "longTermDebt": 6616193.44,
+            "shortTermDebt": 6892376.87,
+            "provisions": 13508570.31,
+            "ratios": {
+              "netMargin": 0.1207,
+              "operatingMargin": 0.1532,
+              "grossMargin": null,
+              "roe": 1.0467,
+              "roa": 0.4198,
+              "debtToEquity": 1.4932,
+              "currentRatio": 1.6329,
+              "revenueGrowth": 0.6813
+            }
+          }
+        ],
+        "years_available": 3,
+        "years_fetched": 3,
+        "cost_pln": 3.1,
+        "fetchedAt": "2026-04-05T06:43:09.681Z",
+        "revenue": 486747232.73,
+        "revenuePrevious": 266770519.92,
+        "netIncome": 69102130.95,
+        "totalAssets": 190569118.55,
+        "equity": 89703326.2,
+        "operatingProfit": 72144244.5,
+        "grossProfit": null,
+        "cash": 54851318.67,
+        "totalLiabilities": 100865792.35,
+        "wages": 61163297.07,
+        "depreciation": 6404278.06,
+        "ratios": {
+          "netMargin": 0.142,
+          "operatingMargin": 0.1482,
+          "grossMargin": null,
+          "roe": 0.7703,
+          "roa": 0.3626,
+          "debtToEquity": 1.1244,
+          "currentRatio": 2.3091,
+          "revenueGrowth": 0.8246
+        }
+      }
+    },
+    "lastScanId": "b34524a9-b074-43c4-82ce-baba23642929",
+    "lastScannedAt": "2026-04-05T06:44:11.747Z",
+    "nip": "5423314760",
+    "krs": "0000970748",
+    "financials": {
+      "krs_number": "0000970748",
+      "org_name": "WSCHODNI FRONT SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",
+      "org_name_short": "WSCHODNI FRONT",
+      "legal_form": "SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",
+      "nip": "5423314760",
+      "regon": "380164402",
+      "registration_date": "2022-05-10",
+      "pkd": "Produkcja artykułów spożywczych",
+      "pkd_code": null,
+      "address": {
+        "kod": "15-399",
+        "miejscowosc": "Białystok",
+        "nr_domu": "5",
+        "panstwo": "Polska",
+        "poczta": "Białystok",
+        "teryt": {
+          "gmina": "206101",
+          "powiat": "2061",
+          "wojewodztwo": "20"
+        },
+        "ulica": "Handlowa"
+      },
+      "share_capital": null,
+      "status": null,
+      "board_members": [],
+      "shareholders": [],
+      "financial_statements": [
+        {
+          "periodStart": "2024-01-01",
+          "periodEnd": "2024-12-31",
+          "revenue": 486747232.73,
+          "revenuePrevious": 266770519.92,
+          "operatingProfit": 72144244.5,
+          "operatingProfitPrevious": 43777140.93,
+          "operatingCosts": 414899556.6,
+          "operatingCostsPrevious": 223032710.53,
+          "financialRevenue": 1220761.75,
+          "financialCosts": 2133075.3,
+          "preTaxProfit": 71231930.95,
+          "incomeTax": 2129800,
+          "netIncome": 69102130.95,
+          "netIncomePrevious": 37306036.42,
+          "depreciation": 6404278.06,
+          "wages": 61163297.07,
+          "totalAssets": 190569118.55,
+          "totalAssetsPrevious": 95422354.26,
+          "fixedAssets": 109992935.42,
+          "currentAssets": 80576183.13,
+          "inventory": 5795002.05,
+          "receivables": 16151041.78,
+          "cash": 54851318.67,
+          "equity": 89703326.2,
+          "equityPrevious": 29232782.25,
+          "shareCapital": 5000,
+          "retainedEarnings": 0,
+          "totalLiabilities": 100865792.35,
+          "totalLiabilitiesPrevious": 66189572.01,
+          "longTermDebt": 21143464.6,
+          "shortTermDebt": 34895095.7,
+          "provisions": 100865792.35,
+          "ratios": {
+            "netMargin": 0.142,
+            "operatingMargin": 0.1482,
+            "grossMargin": null,
+            "roe": 0.7703,
+            "roa": 0.3626,
+            "debtToEquity": 1.1244,
+            "currentRatio": 2.3091,
+            "revenueGrowth": 0.8246
+          }
+        },
+        {
+          "periodStart": "2023-01-01",
+          "periodEnd": "2023-12-31",
+          "revenue": 266770519.92,
+          "revenuePrevious": 78426059.18,
+          "operatingProfit": 43777140.93,
+          "operatingProfitPrevious": 12013974.57,
+          "operatingCosts": 223032710.53,
+          "operatingCostsPrevious": 66533561.14,
+          "financialRevenue": 82787.57,
+          "financialCosts": 1821533.08,
+          "preTaxProfit": 42038395.42,
+          "incomeTax": 4732359,
+          "netIncome": 37306036.42,
+          "netIncomePrevious": 9469237.83,
+          "depreciation": 4211699.22,
+          "wages": 38915766.91,
+          "totalAssets": 95422354.26,
+          "totalAssetsPrevious": 22555080.42,
+          "fixedAssets": 66267348.27,
+          "currentAssets": 29155005.99,
+          "inventory": 4781182.07,
+          "receivables": 9450330.67,
+          "cash": 13994894.43,
+          "equity": 29232782.25,
+          "equityPrevious": 9046510.11,
+          "shareCapital": 0,
+          "retainedEarnings": -4797351.28,
+          "totalLiabilities": 66189572.01,
+          "totalLiabilitiesPrevious": 13508570.31,
+          "longTermDebt": 21917167.44,
+          "shortTermDebt": 19939559.45,
+          "provisions": 66189572.01,
+          "ratios": {
+            "netMargin": 0.1398,
+            "operatingMargin": 0.1641,
+            "grossMargin": null,
+            "roe": 1.2762,
+            "roa": 0.391,
+            "debtToEquity": 2.2642,
+            "currentRatio": 1.4622,
+            "revenueGrowth": 2.4016
+          }
+        },
+        {
+          "periodStart": "2022-05-10",
+          "periodEnd": "2022-12-31",
+          "revenue": 78426059.18,
+          "revenuePrevious": 46646680.46,
+          "operatingProfit": 12013974.57,
+          "operatingProfitPrevious": 8601321.42,
+          "operatingCosts": 66533561.14,
+          "operatingCostsPrevious": 38076984.61,
+          "financialRevenue": 11983.86,
+          "financialCosts": 392929.6,
+          "preTaxProfit": 11633028.83,
+          "incomeTax": 2163791,
+          "netIncome": 9469237.83,
+          "netIncomePrevious": 8565491.26,
+          "depreciation": 370756.08,
+          "wages": 11974312.16,
+          "totalAssets": 22555080.42,
+          "totalAssetsPrevious": 7702219.78,
+          "fixedAssets": 11300315.12,
+          "currentAssets": 11254765.3,
+          "inventory": 1912907.11,
+          "receivables": 3473769.32,
+          "cash": 5620529.72,
+          "equity": 9046510.11,
+          "equityPrevious": 4082331.36,
+          "shareCapital": 5000,
+          "retainedEarnings": 5578582.92,
+          "totalLiabilities": 13508570.31,
+          "totalLiabilitiesPrevious": 3619888.42,
+          "longTermDebt": 6616193.44,
+          "shortTermDebt": 6892376.87,
+          "provisions": 13508570.31,
+          "ratios": {
+            "netMargin": 0.1207,
+            "operatingMargin": 0.1532,
+            "grossMargin": null,
+            "roe": 1.0467,
+            "roa": 0.4198,
+            "debtToEquity": 1.4932,
+            "currentRatio": 1.6329,
+            "revenueGrowth": 0.6813
+          }
+        }
+      ],
+      "years_available": 3,
+      "years_fetched": 3,
+      "cost_pln": 3.1,
+      "fetchedAt": "2026-04-05T06:43:09.681Z",
+      "revenue": 486747232.73,
+      "revenuePrevious": 266770519.92,
+      "netIncome": 69102130.95,
+      "totalAssets": 190569118.55,
+      "equity": 89703326.2,
+      "operatingProfit": 72144244.5,
+      "grossProfit": null,
+      "cash": 54851318.67,
+      "totalLiabilities": 100865792.35,
+      "wages": 61163297.07,
+      "depreciation": 6404278.06,
+      "ratios": {
+        "netMargin": 0.142,
+        "operatingMargin": 0.1482,
+        "grossMargin": null,
+        "roe": 0.7703,
+        "roa": 0.3626,
+        "debtToEquity": 1.1244,
+        "currentRatio": 2.3091,
+        "revenueGrowth": 0.8246
+      }
+    }
   },
   {
     "slug": "kukulahealthyfood.pl",
@@ -2307,7 +3318,1026 @@
       "badge": "dietly-awards",
       "awarded": true
     },
-    "seededAt": "2026-04-04T10:29:10.188Z"
+    "seededAt": "2026-04-04T10:29:10.188Z",
+    "data": {
+      "_meta": {
+        "title": "Maczfit | Catering dietetyczny Warszawa | 🥗 Dieta pudełkowa",
+        "description": "Catering dietetyczny Maczfit dostarczany do Warszawy i prawie 3 000 innych miejsc w Polsce. 🥕 Zamów pyszną i zdrową dietę pudełkową już dziś!",
+        "ogImage": "",
+        "crawledUrl": "https://maczfit.pl",
+        "crawlerType": "curl",
+        "subpagesCrawled": 0,
+        "contentLength": 6874,
+        "crawledAt": "2026-04-05T06:39:12.675Z"
+      },
+      "_social_urls": {
+        "instagram": "https://instagram.com/maczfit",
+        "facebook": "https://www.facebook.com/maczfit",
+        "youtube": "https://www.youtube.com/channel/UCOwLB2l-sLCUFDoYfm_S7-w/videos"
+      },
+      "_contact_raw": {
+        "nip": null,
+        "email": "kontakt@maczfit.pl",
+        "phone": "793378137"
+      },
+      "brand_identity": {
+        "brand_name": "Maczfit",
+        "tagline": "Catering dietetyczny Warszawa",
+        "positioning": "Maczfit kieruje się do osób aktywnych i świadomych zdrowotnie w całej Polsce, oferując gotowe, zbilansowane diety pudełkowe opracowane przez dietetyków z opcją wyboru spośród 45 dań wysokiej jakości.",
+        "emotional_register": "friendly",
+        "language": "pl"
+      },
+      "pricing": {
+        "price_range_pln": "46-91 PLN/dzień",
+        "cheapest_daily": 46,
+        "most_expensive_daily": 91,
+        "trial_offer": "zestawy próbne dostępne (maksymalnie 3 zestawy próbne per klient)",
+        "subscription_discount": true,
+        "diet_prices": [
+          {
+            "diet_name": "Smart Start",
+            "price_per_day_pln": 66,
+            "kcal": null
+          },
+          {
+            "diet_name": "Everyday 1200 kcal",
+            "price_per_day_pln": 74,
+            "kcal": "1200"
+          },
+          {
+            "diet_name": "Everyday 1500 kcal",
+            "price_per_day_pln": 83,
+            "kcal": "1500"
+          },
+          {
+            "diet_name": "Everyday 1800 kcal",
+            "price_per_day_pln": 87,
+            "kcal": "1800"
+          },
+          {
+            "diet_name": "Top Sellers",
+            "price_per_day_pln": 80,
+            "kcal": null
+          },
+          {
+            "diet_name": "Fit 1200 kcal",
+            "price_per_day_pln": 77.99,
+            "kcal": "1200"
+          },
+          {
+            "diet_name": "Fit 1500 kcal",
+            "price_per_day_pln": 87.99,
+            "kcal": "1500"
+          },
+          {
+            "diet_name": "Fit 1800 kcal",
+            "price_per_day_pln": 89.99,
+            "kcal": "1800"
+          },
+          {
+            "diet_name": "Vege",
+            "price_per_day_pln": 73.99,
+            "kcal": null
+          },
+          {
+            "diet_name": "100% Roślinnie",
+            "price_per_day_pln": 75.99,
+            "kcal": null
+          },
+          {
+            "diet_name": "Slim 1000 kcal",
+            "price_per_day_pln": 60,
+            "kcal": "1000"
+          },
+          {
+            "diet_name": "Slim 1300 kcal",
+            "price_per_day_pln": 60,
+            "kcal": "1300"
+          },
+          {
+            "diet_name": "Slim 1500 kcal",
+            "price_per_day_pln": 60,
+            "kcal": "1500"
+          },
+          {
+            "diet_name": "FIT 1800 kcal",
+            "price_per_day_pln": 74,
+            "kcal": "1800"
+          },
+          {
+            "diet_name": "FIT 3000 kcal",
+            "price_per_day_pln": 91,
+            "kcal": "3000"
+          }
+        ],
+        "price_1500kcal": 83,
+        "price_2000kcal": 87,
+        "_fallback": "perplexity",
+        "price_source": "https://maczfit.pl (search results [1]-[9])",
+        "_pricing_fallback_done": "2026-04-05T06:40:04.580Z"
+      },
+      "menu": {
+        "diet_types": [
+          "Gotowe Diety",
+          "Diety z Wyborem Menu",
+          "Trio"
+        ],
+        "calorie_options": [],
+        "cuisine_style": "polski",
+        "dietary_restrictions": []
+      },
+      "delivery": {
+        "delivery_model": "own_fleet",
+        "delivery_cities": [
+          "cała Polska"
+        ],
+        "delivery_time": null,
+        "weekend_delivery": true
+      },
+      "technology": {
+        "has_online_ordering": true,
+        "has_mobile_app": true,
+        "has_meal_customization": true,
+        "payment_methods": []
+      },
+      "social_proof": {
+        "testimonials_visible": true,
+        "media_mentions": [],
+        "certifications": [
+          "TÜV"
+        ],
+        "dietitian_team": true
+      },
+      "contact": {
+        "city": "Warszawa",
+        "phone": null,
+        "email": "email@maczfit.pl",
+        "nip": null
+      },
+      "unique_differentiator": "Maczfit wyróżnia się największym zespołem dietetyków w Polsce, dostępnością w ponad 5000 miejscowościach, elastycznym systemem wyboru spośród 45 dań oraz aplikacją mobilną synchronizowaną z Google Fit i Apple Health.",
+      "_extraction": {
+        "model": "claude-haiku-4-5-20251001",
+        "inputTokens": 3442,
+        "outputTokens": 595,
+        "costUsd": 0.0051,
+        "extractedAt": "2026-04-05T06:39:27.705Z"
+      },
+      "context": {
+        "nip": "9512471196",
+        "legalName": "FRESH MEALS FACTORY SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",
+        "founder": null,
+        "foundedYear": 2018,
+        "legalOwner": null,
+        "employeeRange": "200+",
+        "mediaArticles": [
+          "https://pap-mediaroom.pl/zdrowie-i-styl-zycia/maczfit-juz-dekada-zdrowych-wyborow",
+          "https://marketerplus.pl/historia-marki-maczfit/",
+          "https://biznes.newseria.pl/biuro-prasowe/maczfit-przede-wszystkim,b1963488530",
+          "https://pl.cloudity.digital/blog-post/maczfit-digitalizuje-relacje-z-klientami-dzieki-salesforce-cloudity/",
+          "https://wyborcza.biz/biznes/7,159911,29380536,praca-po-12-godzin-6-dni-w-tygodniu-burza-wokol-oferty-pracy.html"
+        ],
+        "influencers": [],
+        "uniqueFeatures": [
+          "Szeroka oferta ponad 50 diet specjalistycznych",
+          "Dostawy w całej Polsce z szybką logistyką",
+          "Program lojalnościowy z nagrodami dla klientów",
+          "Wysoka jakość składników i personalizacja menu",
+          "Integracja z aplikacją mobilną do zarządzania dietą"
+        ],
+        "currentStatus": "Firma działa aktywnie w 2024/2025 jako lider rynku cateringu dietetycznego w Polsce pod marką Maczfit, z siedzibą w Warszawie i rozbudowaną ofertą diet pudełkowych.",
+        "recentNews": [
+          "Maczfit obchodzi 10-lecie działalności, dostarczając tysiące posiłków dziennie do ponad 4500 lokalizacji.",
+          "Firma stała się częścią Grupy Żabka w 2021 roku.",
+          "Wdrożenie Salesforce Marketing Cloud jako jedyny dostawca cateringu dietetycznego w Polsce."
+        ],
+        "competitivePosition": "Maczfit pozycjonuje się jako lider polskiego rynku cateringu dietetycznego, wyróżniając się jakością restauracyjną, szeroką ofertą 10-13 diet specjalistycznych, elastycznym wyborem menu i zasięgiem do ponad 5500 lokalizacji.",
+        "trajectory": "growing",
+        "awards": [],
+        "b2bOffering": true,
+        "uniqueInsight": "Maczfit, założony w 2015 przez Macieja Lubiaka, osiągnął pozycję lidera dzięki integracji z Grupą Żabka i unikalnemu wdrożeniu Salesforce Marketing Cloud do digitalizacji relacji z klientami.",
+        "fetchedAt": "2026-04-05T06:39:49.694Z"
+      },
+      "_discovery": {
+        "nip": "9512471196",
+        "nipValid": true,
+        "nipSource": "existing",
+        "krs": null,
+        "legalForm": null,
+        "orgName": null,
+        "discoveredAt": "2026-04-05T06:40:10.496Z"
+      },
+      "social": {
+        "profiles": [
+          {
+            "platform": "instagram",
+            "url": "https://instagram.com/maczfit",
+            "handle": "maczfit",
+            "followers": 64305,
+            "posts": 2780,
+            "verified": false
+          },
+          {
+            "platform": "facebook",
+            "url": "https://www.facebook.com/maczfit",
+            "handle": "maczfit"
+          },
+          {
+            "platform": "youtube",
+            "url": "https://www.youtube.com/channel/UCOwLB2l-sLCUFDoYfm_S7-w/videos",
+            "handle": "UCOwLB2l-sLCUFDoYfm_S7-w"
+          }
+        ],
+        "totalFollowers": 64305,
+        "platformCount": 3,
+        "fetchedAt": "2026-04-05T06:40:54.267Z",
+        "method": "apify+perplexity",
+        "instagram": {
+          "platform": "instagram",
+          "url": "https://instagram.com/maczfit",
+          "handle": "maczfit",
+          "followers": 64305,
+          "posts": 2780,
+          "verified": false,
+          "bio": "Smak, który kochają Polacy! 😋🫜\n45 dań dziennie z Wyborem Menu 🍽️\n11 Gotowych Diet 🍝🍔\nTrio 🥗🍕\nGotowe posiłki z dostawą do domu👇🏻",
+          "avgLikes": 63,
+          "avgComments": 12,
+          "engagementRate": 0.12,
+          "content": {
+            "sampleSize": 20,
+            "recentPosts": 6,
+            "historicalPosts": 14,
+            "dateRange": {
+              "oldest": "2026-02-24",
+              "newest": "2026-04-05"
+            },
+            "postingFrequency": "3.5 posts/week",
+            "avgLikesRecent": 1530,
+            "avgLikesHistorical": 606,
+            "avgCommentsRecent": 13,
+            "avgCommentsHistorical": 13,
+            "engagementTrend": "rising",
+            "topHashtags": [
+              {
+                "tag": "#maczfit",
+                "count": 3
+              },
+              {
+                "tag": "#catering",
+                "count": 2
+              },
+              {
+                "tag": "#dieta",
+                "count": 2
+              },
+              {
+                "tag": "#wspolpracaambasadorska",
+                "count": 1
+              },
+              {
+                "tag": "#czaswolny",
+                "count": 1
+              },
+              {
+                "tag": "#konie",
+                "count": 1
+              },
+              {
+                "tag": "#jazdakonna",
+                "count": 1
+              },
+              {
+                "tag": "#współpracareklamowa",
+                "count": 1
+              },
+              {
+                "tag": "#momhack",
+                "count": 1
+              },
+              {
+                "tag": "#macierzyństwo",
+                "count": 1
+              },
+              {
+                "tag": "#współpracapłatna",
+                "count": 1
+              },
+              {
+                "tag": "#dzieńkobiet",
+                "count": 1
+              },
+              {
+                "tag": "#odchudzanie",
+                "count": 1
+              },
+              {
+                "tag": "#funny",
+                "count": 1
+              },
+              {
+                "tag": "#tata",
+                "count": 1
+              }
+            ],
+            "contentMix": {
+              "Video": 15,
+              "Image": 4,
+              "Sidecar": 1
+            },
+            "posts": [
+              {
+                "id": "3868411438404159122",
+                "timestamp": "2026-04-05T06:30:00.000Z",
+                "type": "Video",
+                "caption": "🫜\nMała różnica, duża zmiana 👀\n\n🍣 Sushi: ~55 zł + dostawa\n🥗 Cały dzień jedzenia: od 44,22 zł (bez kosztów dostawy!)\n\nKilka posiłków vs jeden. Co wybierasz? 😏🥊",
+                "hashtags": [],
+                "likes": 0,
+                "comments": 0,
+                "url": "https://www.instagram.com/p/DWvW7UfI0aS/",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "3867671872892871791",
+                "timestamp": "2026-04-04T06:00:38.000Z",
+                "type": "Image",
+                "caption": "Co kojarzy się z domowymi smakami, wolnym popołudniem i pierwszymi oznakami wiosny? ✨\n\nMy myślimy, że właśnie to danie... Kopytka w kremowym sosie z pieczoną dynią, natką pietruszki, serem i pieczoną cukinią 💚",
+                "hashtags": [],
+                "likes": 3,
+                "comments": 0,
+                "url": "https://www.instagram.com/p/DWsuxObjKRv/",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "3866272964094600891",
+                "timestamp": "2026-04-02T07:41:33.000Z",
+                "type": "Video",
+                "caption": "🫜\nSoczysty kurczak, chrupiące warzywa, słodycz ananasa i delikatny sos curry, który spina wszystko w jedną, piękną całość 🥗 A może wytrawne muffinki z fetą i oliwkami, ciepłe, aromatyczne, zanurzone w pomidorowym sosie? 🍅\n\nMałe rzeczy. Dobre smaki. Chwila tylko dla siebie. To coś, co lubimy najbardziej ✨",
+                "hashtags": [],
+                "likes": 10,
+                "comments": 0,
+                "url": "https://www.instagram.com/p/DWnwsbFjia7/",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "3865527995474109882",
+                "timestamp": "2026-04-01T07:01:08.000Z",
+                "type": "Image",
+                "caption": "🇵🇱 BREAKING NEWS: Jamie Oliver przeprowadza się do Polski 🇵🇱\n\nTak, dobrze czytacie. Jamie… ten Jamie. Właśnie pakuje najcenniejsze rzeczy i wkrótce uda się na dworzec.\n\nW międzyczasie postanowiliśmy nauczyć Jamiego kilku najważniejszych rzeczy, żeby pomóc mu zaaklimatyzować się w nowym kraju:\n\n🥟 jak poprawnie powiedzieć „pierogi” (spoiler: nie „pierodżi”)\n🍲 czym różni się żurek od barszczu (i dlaczego oba są ważne)\n🥗 co to właściwie znaczy „lekki lunch”, kiedy wchodzi schabowy\n\nPodobno pi",
+                "hashtags": [],
+                "likes": 9087,
+                "comments": 72,
+                "url": "https://www.instagram.com/p/DWlHTs_j-W6/",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "3864017604751231284",
+                "timestamp": "2026-03-30T05:00:15.000Z",
+                "type": "Image",
+                "caption": "🫜\nŁagodny jogurtowy serek, czy klasyczna czekolada? 😏 Co wybierasz? 😃\n\nPytamy, bo dzisiaj wypada Dzień Muffinki! 🧁 I z tej okazji postanowiliśmy zrobić mały pojedynek: Co wybierasz? Klasyczna kakaowa, czy nieco lżejsza jogurtowo-serowa?",
+                "hashtags": [],
+                "likes": 15,
+                "comments": 2,
+                "url": "https://www.instagram.com/p/DWfv4oBDYk0/",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "3863411388126900788",
+                "timestamp": "2026-03-29T08:59:30.000Z",
+                "type": "Video",
+                "caption": "[reklama Maczfit] Od zawsze miałam w sobie dużo ambicji, jeśli chodzi o ruch. Lubię widzieć progres, bo lubię czuć, że idę dalej.\nAle uczę się też czegoś, co wcale nie przyszło mi naturalnie, czyli odpuszczania kontroli tam, gdzie nie muszę jej mieć.\nNie wszystko zawsze musimy robić sami, żeby robić to dobrze z czasem zaczęłam bardziej słuchać swojego ciała i tego, czego naprawdę potrzebuje, nie tylko na macie.\nOd stycznia to była jedna z lepszych decyzji. Oddałam jedzenie i swoją dietę w ręce @",
+                "hashtags": [
+                  "#wspolpracaambasadorska"
+                ],
+                "likes": 66,
+                "comments": 4,
+                "url": "https://www.instagram.com/p/DWdmDAygLI0/",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "3839730098098572189",
+                "timestamp": "2026-02-24T16:47:02.000Z",
+                "type": "Video",
+                "caption": "Pół dnia w stajni - treningi, obowiązki. \nI zero czasu na stanie przy garach 🫣\nDlatego ostatnio zawsze mam ze sobą catering od @maczfit I szczerze? To jedna z tych rzeczy, które naprawdę ułatwiły mi życie.\n\nNie jem już przypadkowo.\nNie chodzę głodna między treningami.\nNie wydaję pieniędzy na szybkie „coś na mieście”, bo nie zdążyłam przygotować jedzenia.\n\nWybieram dni. Wybieram dania. Dopasowuję wszystko pod swój grafik.\nPrzy takim trybie życia wygoda to podstawa🤍\n\nW lutym z kodem horbatiuk35 ",
+                "hashtags": [
+                  "#maczfit",
+                  "#catering",
+                  "#czaswolny",
+                  "#konie",
+                  "#jazdakonna"
+                ],
+                "likes": 1158,
+                "comments": 18,
+                "url": "https://www.instagram.com/p/DVJdi4yioud/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3840958769962857999",
+                "timestamp": "2026-02-26T09:26:28.000Z",
+                "type": "Image",
+                "caption": "🫜\nCO WYBIERASZ? 🥤 \n\nMleczny shake 🤍\nczy\nOwocowy koktajl 🍊\n\nJeden kremowy i otulający.\nDrugi lekki i orzeźwiający.\n\nDwa różne klimaty, dwa różne nastroje.\n\nNapisz w komentarzu:\n👉 SHAKE\n👉 KOKTAJL\n\nJesteśmy mega ciekawi, która opcja ma więcej fanów 👀✨",
+                "hashtags": [],
+                "likes": 11,
+                "comments": 1,
+                "url": "https://www.instagram.com/p/DVN06aojrYP/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3843403532967895001",
+                "timestamp": "2026-03-01T18:29:07.000Z",
+                "type": "Video",
+                "caption": "Co robię, żeby nie zwariować 🤹‍♀️🤪 jako świeżo upieczona mama dwójki ✌🏻\n\nNowa seria, w której pokazuję, jak ułatwiam sobie codzienność z niemowlakiem na pokładzie 👶🏼\n\nW tej rolce:\n👗 chustonoszenie \n👝 podręczny zestaw do przewijania w salonie \n🥗 @maczfit czyli gotowy catering dietetyczny, który każdego poranka czeka na mnie pod drzwiami \n\nBaaaardzo pomaga zaoszczędzić czas, którego - jak wiadomo - przy dwójce dzieci jest zawsze za mało!! ⌛️🤯\n\nJako absolwentka dietetyki wiem, jak ważna dl",
+                "hashtags": [
+                  "#współpracareklamowa",
+                  "#momhack",
+                  "#macierzyństwo"
+                ],
+                "likes": 1029,
+                "comments": 27,
+                "url": "https://www.instagram.com/p/DVWgyZnCF_Z/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3844690488737943340",
+                "timestamp": "2026-03-03T13:00:43.000Z",
+                "type": "Sidecar",
+                "caption": "Ok, dorosłość jest trudniejsza niż się spodziewaliśmy...\n\nAle chociaż w @maczfit możemy wybierać co zjeść spośród 45 dań dziennie 😏\n\nA przy okazji, między 02.02 a 13.03 każde zamówienie od 500 zł może wziąć udział w loterii, w której można wygrać m.in. telewizory 4K, PlayStation 5 czy wakacje. 😱\n\n🔗 Szczegóły: loteria-maczfit.pl\n\nI pamiętajcie, że z kodem SUCHARCODZIENNY30 zgarniecie 30% zniżki na wybór menu przy zakupach za min. 500 zł ✨\n\n#współpracapłatna",
+                "hashtags": [
+                  "#współpracapłatna"
+                ],
+                "likes": 5384,
+                "comments": 5,
+                "url": "https://www.instagram.com/p/DVbFaEkjE8s/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3846172146960302571",
+                "timestamp": "2026-03-05T14:05:09.000Z",
+                "type": "Video",
+                "caption": "🫜\nCiągły ruch, treningi w górach i grafik napięty do granic możliwości ⛰️🏃‍♀️\n\nDla Magdy, która od 10 lat ćwiczy MMA jedyny wolny czas... to niedziela wieczorem ⏱️ Dzięki diecie Maczfit odzyskała spokój i nie martwi się o gotowanie, bo zawsze ma pod ręką zdrowe paliwo 🍱🚀\n\nWięcej energii, mniej zmartwień i uśmiech, który nie schodzi z twarzy 👉 tak właśnie wygląda codzienność w wersji \"power\"! 💪\n\nTo właśnie takie historie tworzą smak Maczfit 🫜",
+                "hashtags": [],
+                "likes": 15,
+                "comments": 0,
+                "url": "https://www.instagram.com/p/DVgWTCUkgHr/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3848165769360228469",
+                "timestamp": "2026-03-08T08:07:54.000Z",
+                "type": "Video",
+                "caption": "współpraca reklamowa \n\nświęty spokój, bukiet tulipanów i dobre jedzenie z niskim IG, które przyjeżdża pod drzwi - tego sobie (i Wam) życzę nie tylko w dniu naszego święta! \n\nwszystkiego najlepszego drogie Panie! 🌷 zróbcie dziś dla siebie coś wyjątkowego! \n\nz kodem MAJAT30 otrzymacie 30% zniżki na Wybór Menu od @maczfit przy zamówieniu na min. 500 zł 👌🏻\n\np.s. do 13 marca 2026 trwa LOTERIA Maczfit - kupujesz (min. 500 zł) - rejestrujesz zakup - i codziennie ktoś wygrywa!\n\n#dzieńkobiet",
+                "hashtags": [
+                  "#dzieńkobiet"
+                ],
+                "likes": -1,
+                "comments": 20,
+                "url": "https://www.instagram.com/p/DVnbmD3iMB1/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3849880863274564382",
+                "timestamp": "2026-03-10T16:54:46.000Z",
+                "type": "Video",
+                "caption": "[współpraca reklamowa] Ahhh powroty bywają ciężkie, zwłaszcza gdy pojawia się nawał pracy i brak czasu na przygotowanie pełnowartościowych posiłków, dlatego z pomocą przychodzi mi jak zawsze @maczfit 🤍\n\nPrzypominam, że do 13 marca trwa loteria Maczfit! Zamawiasz za min. 500 zł, rejestrujesz zakup i codziennie możesz zgarnąć nagrody.\n\nA dla Was przez cały marzec jest aktywny kod [aniafitness30], który daje Ci rabat -30% na diety z Wyborem Menu - przy zamówieniu za minimum 500 zł.\n\n#catering #die",
+                "hashtags": [
+                  "#catering",
+                  "#dieta",
+                  "#odchudzanie",
+                  "#funny"
+                ],
+                "likes": -1,
+                "comments": 7,
+                "url": "https://www.instagram.com/p/DVthj9jDfse/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3851248581575739132",
+                "timestamp": "2026-03-12T14:12:48.000Z",
+                "type": "Video",
+                "caption": "Reklama cateringu @maczfit \n\n@maczfit to aż 45 dań do wyboru dziennie, 1350 różnych dań miesięcznie! \nTu nie tylko oszczędzasz czas i pieniądze, tu pysznie, zdrowo i rozmaicie jesz na co dzień! \nZ kodem TATA30 ważnym przez cały marzec masz:\n-30% na Wybór Menu przy zamówieniu za minimum 500 zł.\n\nPrzypominam też, że do 13 marca trwa loteria Maczfit! Wystarczy, że zrobisz zamówienie za min. 500 zł, zarejestrujesz zakup i codziennie możesz wygrać nagrody.\n\n#maczfit #tata #ojciec #dieta #dietapudełko",
+                "hashtags": [
+                  "#maczfit",
+                  "#tata",
+                  "#ojciec",
+                  "#dieta",
+                  "#dietapudełkowa"
+                ],
+                "likes": -1,
+                "comments": 7,
+                "url": "https://www.instagram.com/p/DVyYi4ejIb8/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3852529415591135099",
+                "timestamp": "2026-03-14T08:35:34.000Z",
+                "type": "Video",
+                "caption": "Śniadanie, obiad, kolacja i jeszcze przekąski - wszystko w jednej, stałej cenie. Czy jeden posiłek na mieście?\n\nSzybki lunch, obiad ze znajomymi albo śniadanie w lokalnym bistro może kończyć się kosztem wyższym niż możliwość jedzenia przez cały dzień! 🫢 Ale jak? 🤔\n\nNasza oferta zaczyna się już od 44,22 zł za pełen dzień zbilansowanych posiłków dostosowanych do Ciebie i dostarczonych prosto pod Twoje drzwi 🛍️🚚",
+                "hashtags": [],
+                "likes": 25,
+                "comments": 3,
+                "url": "https://www.instagram.com/p/DV27xeHDYd7/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3854993375917547123",
+                "timestamp": "2026-03-17T18:11:26.000Z",
+                "type": "Video",
+                "caption": "Dzisiaj [współpraca] Kiedyś \n\njedno się u mnie nie zmieniło - jedzenie ma sprawiać przyjemność‼️\n\nKanapka ze śmietaną i cukrem… i człowiek był szczęśliwy \n\nTeraz, jedzenie smakuje naprawdę dobrze, tylko w trochę lepszej, bardziej kolorowej i wartościowej wersji. Dlatego od jakiegoś czasu wybieram @maczfit , bo w tych pudełkach jest wszystko, co lubię najbardziej:\n🥗 dużo smaku\n🌈 kolorowe, różnorodne posiłki\n🥑 wartościowe składniki\n😋 jedzenie, na które po prostu mam ochotę\n\nI najlepsze w tym w",
+                "hashtags": [
+                  "#planetamebli_ziobro",
+                  "#kuchnianawymiar",
+                  "#meblenawymiar"
+                ],
+                "likes": 36,
+                "comments": 7,
+                "url": "https://www.instagram.com/p/DV_sAz_DJ5z/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3856435837722450268",
+                "timestamp": "2026-03-19T17:57:25.000Z",
+                "type": "Video",
+                "caption": "Komentarz: „Pani to już z lodówki wyskakuje” \n\nA zatem sprawdzam! 🧐😳\n\nUffff! Wszystko jest ok i mam dla Was kod rabatowy „paulinaorlos30” który daje Wam aż 30% rabatu przy zamówieniu za min. 500 zł. Kod jest na dietę z wyborem menu \n\n[reklama] #maczfit #cateringdietetyczny",
+                "hashtags": [
+                  "#maczfit",
+                  "#cateringdietetyczny"
+                ],
+                "likes": -1,
+                "comments": 6,
+                "url": "https://www.instagram.com/p/DWEz_ZOiFlc/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3858630489129148684",
+                "timestamp": "2026-03-22T18:38:34.000Z",
+                "type": "Video",
+                "caption": "[reklama marki Maczfit] \nTo tylko jeden z wielu pomysłów! 🛍️ \n\n💬 Chcecie poznać więcej? \n\nJa ułatwiam Wam zająć Wasze dzieci, a @maczfit ułatwia mi zaoszczędzić czas! 🕐\n\nZ kodem: mamasyla30 \nzyskujecie 30% rabatu na dietę z Wyborem Menu za minimum 500 zł\n(kod ważny przez cały marzec) 🥘🥙🍛 \n\n#zabawyzdzieckiem  #wartościowezabawy",
+                "hashtags": [
+                  "#zabawyzdzieckiem",
+                  "#wartościowezabawy"
+                ],
+                "likes": 432,
+                "comments": 12,
+                "url": "https://www.instagram.com/p/DWMm_xoCOEM/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3859754194483987716",
+                "timestamp": "2026-03-24T07:51:42.000Z",
+                "type": "Video",
+                "caption": "[reklama] @maczfit Jak wiadomo, remonty to niełatwa sprawa. Dużym ułatwieniem jest mój pomocnik - catering. Oszczędzam czas na gotowaniu i mogę zabierać się za to, co lubię najbardziej.\n\nDziś postanowiłem przetestować grilla i przygotować danie z Maczfit właśnie w nowej przestrzeni do gotowania - czyli na tarasie.\n\nProtip z poprzedniego roku na grilla: jak organizowałem go na działce, zamawiałem 5 takich samych sałatek i nie musiałem ich robić sam - przy nich schodzi zwykle najwięcej czasu. :)\n\n",
+                "hashtags": [
+                  "#grill",
+                  "#taras",
+                  "#remonty",
+                  "#balkon",
+                  "#ogród"
+                ],
+                "likes": 289,
+                "comments": 60,
+                "url": "https://www.instagram.com/p/DWQmf1yisUE/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3861966660468503043",
+                "timestamp": "2026-03-27T09:06:58.000Z",
+                "type": "Video",
+                "caption": "🫜\nEmocje na parkiecie 🔥\nSzybkie tempo gry 🏀\nI walka do ostatnich sekund 🐗💪\n\nAle za tym wszystkim stoi coś więcej 👀\n\nCodzienna praca, regeneracja i dobrze dobrana dieta, która daje energię do działania 👉 tu wchodzimy my 😎🥗\nJako partner żywieniowy Dzików Warszawa dbamy o to, żeby zawodnicy mieli siłę na trening, moc na mecz i regenerację po nim ✨\nBo to, co na talerzu, naprawdę robi różnicę 🍽️✨\n\nGramy razem, każdego dnia 💚",
+                "hashtags": [],
+                "likes": 105,
+                "comments": 3,
+                "url": "https://www.instagram.com/p/DWYdjdToHID/",
+                "sampleBucket": "historical"
+              }
+            ]
+          }
+        },
+        "facebook": {
+          "platform": "facebook",
+          "url": "https://www.facebook.com/maczfit",
+          "handle": "maczfit"
+        },
+        "youtube": {
+          "platform": "youtube",
+          "url": "https://www.youtube.com/channel/UCOwLB2l-sLCUFDoYfm_S7-w/videos",
+          "handle": "UCOwLB2l-sLCUFDoYfm_S7-w"
+        }
+      },
+      "ads": {
+        "activeAdsCount": 0,
+        "ads": [],
+        "platforms": {},
+        "avgAdDurationDays": 0,
+        "longestRunningAdDays": 0,
+        "adCopySnippets": [],
+        "estimatedIntensity": "none",
+        "fetchedAt": "2026-04-05T06:42:15.426Z",
+        "method": "ad_library_search"
+      },
+      "reviews": {
+        "google": {
+          "rating": 4,
+          "reviewCount": 7060,
+          "mapsUrl": "https://www.google.com/maps/search/?api=1&query=Maczfit&query_place_id=ChIJa-MSwkAtGUcRc7banSZTBYo",
+          "address": "Adama Branickiego 17, 02-972 Warszawa, Polska",
+          "category": "Catering",
+          "snippets": [
+            "Polecam\nJest smacznie ♥️",
+            "Dania są smaczne i różnorodne",
+            "Pyszotka 🥰",
+            "Dziś o 2 w nocy kurier próbował dostarczyć paczkę. Zadzwonił na numer kontaktowy, kilka razy pod rząd dzwonił do domofonu i żadnego razu nie powiedział kim jest i dla czego dzwoni. To jest już druga 3",
+            "👌👌👌👍👍👍",
+            "Sprawnie i szybko złożone zamówienie, zobaczymy jak to wyjdzie w praniu.\nDziwny przelicznik zapotrzebowania kalorycznego - lepiej przeliczyć samodzielnie i stąd 4 gwiazdki.",
+            "Catering nie został przywieziony.",
+            "Jedzonko przepyszne o wysokiej jakości"
+          ]
+        },
+        "dietly": {
+          "rating": 4.57,
+          "reviewCount": 339,
+          "positivePercent": 92
+        },
+        "sentiment": "positive",
+        "fetchedAt": "2026-04-05T06:42:48.727Z",
+        "method": "apify"
+      },
+      "finance": {
+        "krs_number": "0000752666",
+        "org_name": "FRESH MEALS FACTORY SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",
+        "org_name_short": "FRESH MEALS FACTORY",
+        "legal_form": "SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",
+        "nip": "9512471196",
+        "regon": "381565356",
+        "registration_date": "2018-10-15",
+        "pkd": "Produkcja artykułów spożywczych",
+        "pkd_code": null,
+        "address": {
+          "kod": "05-532",
+          "miejscowosc": "Szymanów",
+          "nr_domu": "9D",
+          "panstwo": "Polska",
+          "poczta": "Baniocha",
+          "teryt": {
+            "gmina": "141801",
+            "powiat": "1418",
+            "wojewodztwo": "14"
+          },
+          "ulica": ""
+        },
+        "share_capital": null,
+        "status": null,
+        "board_members": [],
+        "shareholders": [],
+        "financial_statements": [
+          {
+            "periodStart": "2024-01-01",
+            "periodEnd": "2024-12-31",
+            "revenue": 409585713.81,
+            "revenuePrevious": 330568896.58,
+            "operatingProfit": -12289388.16,
+            "operatingProfitPrevious": 131486.79,
+            "operatingCosts": 406781161.07,
+            "operatingCostsPrevious": 325245312.67,
+            "financialRevenue": 443701.63,
+            "financialCosts": 1447754.8,
+            "preTaxProfit": -13293441.33,
+            "incomeTax": -3097995.06,
+            "netIncome": -10195446.27,
+            "netIncomePrevious": -936569.89,
+            "depreciation": 36735860.72,
+            "wages": 25258406.13,
+            "totalAssets": 175729615.9,
+            "totalAssetsPrevious": 176826067.92,
+            "fixedAssets": 151767445.49,
+            "currentAssets": 23962170.41,
+            "inventory": 3635121.89,
+            "receivables": 16721491.22,
+            "cash": 2646850.55,
+            "equity": 79008568.67,
+            "equityPrevious": 89204014.94,
+            "shareCapital": 0,
+            "retainedEarnings": -10252967.21,
+            "totalLiabilities": 96721047.23,
+            "totalLiabilitiesPrevious": 87622052.98,
+            "longTermDebt": 3107881.19,
+            "shortTermDebt": 49987462.03,
+            "provisions": 96721047.23,
+            "ratios": {
+              "netMargin": -0.0249,
+              "operatingMargin": -0.03,
+              "grossMargin": null,
+              "roe": -0.129,
+              "roa": -0.058,
+              "debtToEquity": 1.2242,
+              "currentRatio": 0.4794,
+              "revenueGrowth": 0.239
+            }
+          },
+          {
+            "periodStart": "2023-01-01",
+            "periodEnd": "2023-12-31",
+            "revenue": 330568896.58,
+            "revenuePrevious": 228868145.75,
+            "operatingProfit": 131486.79,
+            "operatingProfitPrevious": -13328871.84,
+            "operatingCosts": 325245312.67,
+            "operatingCostsPrevious": 234810148.26,
+            "financialRevenue": 474248.04,
+            "financialCosts": 1786090.79,
+            "preTaxProfit": -1180355.96,
+            "incomeTax": -243786.07,
+            "netIncome": -936569.89,
+            "netIncomePrevious": -9844048.32,
+            "depreciation": 14233719.4,
+            "wages": 22858146.41,
+            "totalAssets": 176826067.92,
+            "totalAssetsPrevious": 137549564.12,
+            "fixedAssets": 150325720.01,
+            "currentAssets": 26500347.91,
+            "inventory": 2824543.75,
+            "receivables": 9204454.48,
+            "cash": 13823328.84,
+            "equity": 89204014.94,
+            "equityPrevious": 89612933.83,
+            "shareCapital": 0,
+            "retainedEarnings": -9316397.32,
+            "totalLiabilities": 87622052.98,
+            "totalLiabilitiesPrevious": 47936630.29,
+            "longTermDebt": 5749395.21,
+            "shortTermDebt": 51726364.06,
+            "provisions": 87622052.98,
+            "ratios": {
+              "netMargin": -0.0028,
+              "operatingMargin": 0.0004,
+              "grossMargin": null,
+              "roe": -0.0105,
+              "roa": -0.0053,
+              "debtToEquity": 0.9823,
+              "currentRatio": 0.5123,
+              "revenueGrowth": 0.4444
+            }
+          },
+          {
+            "periodStart": "2022-01-01",
+            "periodEnd": "2022-12-31",
+            "revenue": 228868145.75,
+            "revenuePrevious": 173336678.06,
+            "operatingProfit": -13328871.84,
+            "operatingProfitPrevious": 23874754.97,
+            "operatingCosts": 234810148.26,
+            "operatingCostsPrevious": 143436290.8,
+            "financialRevenue": 973565.26,
+            "financialCosts": 483986.27,
+            "preTaxProfit": -12839292.85,
+            "incomeTax": -2995244.53,
+            "netIncome": -9844048.32,
+            "netIncomePrevious": 19323057.44,
+            "depreciation": 9813781.05,
+            "wages": 18104354.62,
+            "totalAssets": 137549564.12,
+            "totalAssetsPrevious": 130469112.66,
+            "fixedAssets": 124900031.09,
+            "currentAssets": 12649533.03,
+            "inventory": 2474449.23,
+            "receivables": 7029107.94,
+            "cash": 2310323.57,
+            "equity": 89612933.83,
+            "equityPrevious": 99456982.15,
+            "shareCapital": 0,
+            "retainedEarnings": 0,
+            "totalLiabilities": 47936630.29,
+            "totalLiabilitiesPrevious": 31012130.51,
+            "longTermDebt": 3322471.39,
+            "shortTermDebt": 25839002.95,
+            "provisions": 47936630.29,
+            "ratios": {
+              "netMargin": -0.043,
+              "operatingMargin": -0.0582,
+              "grossMargin": null,
+              "roe": -0.1099,
+              "roa": -0.0716,
+              "debtToEquity": 0.5349,
+              "currentRatio": 0.4896,
+              "revenueGrowth": 0.3204
+            }
+          }
+        ],
+        "years_available": 6,
+        "years_fetched": 3,
+        "cost_pln": 3.1,
+        "fetchedAt": "2026-04-05T06:43:15.209Z",
+        "revenue": 409585713.81,
+        "revenuePrevious": 330568896.58,
+        "netIncome": -10195446.27,
+        "totalAssets": 175729615.9,
+        "equity": 79008568.67,
+        "operatingProfit": -12289388.16,
+        "grossProfit": null,
+        "cash": 2646850.55,
+        "totalLiabilities": 96721047.23,
+        "wages": 25258406.13,
+        "depreciation": 36735860.72,
+        "ratios": {
+          "netMargin": -0.0249,
+          "operatingMargin": -0.03,
+          "grossMargin": null,
+          "roe": -0.129,
+          "roa": -0.058,
+          "debtToEquity": 1.2242,
+          "currentRatio": 0.4794,
+          "revenueGrowth": 0.239
+        }
+      }
+    },
+    "lastScanId": "b34524a9-b074-43c4-82ce-baba23642929",
+    "lastScannedAt": "2026-04-05T06:44:11.747Z",
+    "nip": "9512471196",
+    "krs": "0000752666",
+    "financials": {
+      "krs_number": "0000752666",
+      "org_name": "FRESH MEALS FACTORY SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",
+      "org_name_short": "FRESH MEALS FACTORY",
+      "legal_form": "SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",
+      "nip": "9512471196",
+      "regon": "381565356",
+      "registration_date": "2018-10-15",
+      "pkd": "Produkcja artykułów spożywczych",
+      "pkd_code": null,
+      "address": {
+        "kod": "05-532",
+        "miejscowosc": "Szymanów",
+        "nr_domu": "9D",
+        "panstwo": "Polska",
+        "poczta": "Baniocha",
+        "teryt": {
+          "gmina": "141801",
+          "powiat": "1418",
+          "wojewodztwo": "14"
+        },
+        "ulica": ""
+      },
+      "share_capital": null,
+      "status": null,
+      "board_members": [],
+      "shareholders": [],
+      "financial_statements": [
+        {
+          "periodStart": "2024-01-01",
+          "periodEnd": "2024-12-31",
+          "revenue": 409585713.81,
+          "revenuePrevious": 330568896.58,
+          "operatingProfit": -12289388.16,
+          "operatingProfitPrevious": 131486.79,
+          "operatingCosts": 406781161.07,
+          "operatingCostsPrevious": 325245312.67,
+          "financialRevenue": 443701.63,
+          "financialCosts": 1447754.8,
+          "preTaxProfit": -13293441.33,
+          "incomeTax": -3097995.06,
+          "netIncome": -10195446.27,
+          "netIncomePrevious": -936569.89,
+          "depreciation": 36735860.72,
+          "wages": 25258406.13,
+          "totalAssets": 175729615.9,
+          "totalAssetsPrevious": 176826067.92,
+          "fixedAssets": 151767445.49,
+          "currentAssets": 23962170.41,
+          "inventory": 3635121.89,
+          "receivables": 16721491.22,
+          "cash": 2646850.55,
+          "equity": 79008568.67,
+          "equityPrevious": 89204014.94,
+          "shareCapital": 0,
+          "retainedEarnings": -10252967.21,
+          "totalLiabilities": 96721047.23,
+          "totalLiabilitiesPrevious": 87622052.98,
+          "longTermDebt": 3107881.19,
+          "shortTermDebt": 49987462.03,
+          "provisions": 96721047.23,
+          "ratios": {
+            "netMargin": -0.0249,
+            "operatingMargin": -0.03,
+            "grossMargin": null,
+            "roe": -0.129,
+            "roa": -0.058,
+            "debtToEquity": 1.2242,
+            "currentRatio": 0.4794,
+            "revenueGrowth": 0.239
+          }
+        },
+        {
+          "periodStart": "2023-01-01",
+          "periodEnd": "2023-12-31",
+          "revenue": 330568896.58,
+          "revenuePrevious": 228868145.75,
+          "operatingProfit": 131486.79,
+          "operatingProfitPrevious": -13328871.84,
+          "operatingCosts": 325245312.67,
+          "operatingCostsPrevious": 234810148.26,
+          "financialRevenue": 474248.04,
+          "financialCosts": 1786090.79,
+          "preTaxProfit": -1180355.96,
+          "incomeTax": -243786.07,
+          "netIncome": -936569.89,
+          "netIncomePrevious": -9844048.32,
+          "depreciation": 14233719.4,
+          "wages": 22858146.41,
+          "totalAssets": 176826067.92,
+          "totalAssetsPrevious": 137549564.12,
+          "fixedAssets": 150325720.01,
+          "currentAssets": 26500347.91,
+          "inventory": 2824543.75,
+          "receivables": 9204454.48,
+          "cash": 13823328.84,
+          "equity": 89204014.94,
+          "equityPrevious": 89612933.83,
+          "shareCapital": 0,
+          "retainedEarnings": -9316397.32,
+          "totalLiabilities": 87622052.98,
+          "totalLiabilitiesPrevious": 47936630.29,
+          "longTermDebt": 5749395.21,
+          "shortTermDebt": 51726364.06,
+          "provisions": 87622052.98,
+          "ratios": {
+            "netMargin": -0.0028,
+            "operatingMargin": 0.0004,
+            "grossMargin": null,
+            "roe": -0.0105,
+            "roa": -0.0053,
+            "debtToEquity": 0.9823,
+            "currentRatio": 0.5123,
+            "revenueGrowth": 0.4444
+          }
+        },
+        {
+          "periodStart": "2022-01-01",
+          "periodEnd": "2022-12-31",
+          "revenue": 228868145.75,
+          "revenuePrevious": 173336678.06,
+          "operatingProfit": -13328871.84,
+          "operatingProfitPrevious": 23874754.97,
+          "operatingCosts": 234810148.26,
+          "operatingCostsPrevious": 143436290.8,
+          "financialRevenue": 973565.26,
+          "financialCosts": 483986.27,
+          "preTaxProfit": -12839292.85,
+          "incomeTax": -2995244.53,
+          "netIncome": -9844048.32,
+          "netIncomePrevious": 19323057.44,
+          "depreciation": 9813781.05,
+          "wages": 18104354.62,
+          "totalAssets": 137549564.12,
+          "totalAssetsPrevious": 130469112.66,
+          "fixedAssets": 124900031.09,
+          "currentAssets": 12649533.03,
+          "inventory": 2474449.23,
+          "receivables": 7029107.94,
+          "cash": 2310323.57,
+          "equity": 89612933.83,
+          "equityPrevious": 99456982.15,
+          "shareCapital": 0,
+          "retainedEarnings": 0,
+          "totalLiabilities": 47936630.29,
+          "totalLiabilitiesPrevious": 31012130.51,
+          "longTermDebt": 3322471.39,
+          "shortTermDebt": 25839002.95,
+          "provisions": 47936630.29,
+          "ratios": {
+            "netMargin": -0.043,
+            "operatingMargin": -0.0582,
+            "grossMargin": null,
+            "roe": -0.1099,
+            "roa": -0.0716,
+            "debtToEquity": 0.5349,
+            "currentRatio": 0.4896,
+            "revenueGrowth": 0.3204
+          }
+        }
+      ],
+      "years_available": 6,
+      "years_fetched": 3,
+      "cost_pln": 3.1,
+      "fetchedAt": "2026-04-05T06:43:15.209Z",
+      "revenue": 409585713.81,
+      "revenuePrevious": 330568896.58,
+      "netIncome": -10195446.27,
+      "totalAssets": 175729615.9,
+      "equity": 79008568.67,
+      "operatingProfit": -12289388.16,
+      "grossProfit": null,
+      "cash": 2646850.55,
+      "totalLiabilities": 96721047.23,
+      "wages": 25258406.13,
+      "depreciation": 36735860.72,
+      "ratios": {
+        "netMargin": -0.0249,
+        "operatingMargin": -0.03,
+        "grossMargin": null,
+        "roe": -0.129,
+        "roa": -0.058,
+        "debtToEquity": 1.2242,
+        "currentRatio": 0.4794,
+        "revenueGrowth": 0.239
+      }
+    }
   },
   {
     "slug": "magicfitcatering.pl",
@@ -4181,7 +6211,603 @@
     "dietlySlug": null,
     "dietlyUrl": null,
     "source": "search",
-    "seededAt": "2026-04-04T10:39:24.989Z"
+    "seededAt": "2026-04-04T10:39:24.989Z",
+    "data": {
+      "_meta": {
+        "title": "Nice To Fit You - Dieta z wyborem menu - Wybieraj codziennie z 70 posiłków",
+        "description": "Oferta składa się z 10 diet z wyborem menu: niski ig, sport, longevity, hashimoto, wege, keto, dla mam, bez nabiału, less gluten, flexitarian!",
+        "ogImage": "https://ntfy.pl/wp-content/uploads/2025/12/bg-cf7.jpg",
+        "crawledUrl": "https://ntfy.pl",
+        "crawlerType": "curl",
+        "subpagesCrawled": 0,
+        "contentLength": 6368,
+        "crawledAt": "2026-04-05T06:39:13.711Z"
+      },
+      "_social_urls": {
+        "facebook": "https://www.facebook.com/ntfypl",
+        "instagram": "https://www.instagram.com/ntfy.pl/",
+        "youtube": "https://www.youtube.com/channel/UCeAn2e_4SLMLTSJMws2Yz3g"
+      },
+      "_contact_raw": {
+        "nip": null,
+        "email": "e26dfba6a24d421a98ecf7cf17133b5c@s.ntfy.tech",
+        "phone": "-427321191"
+      },
+      "brand_identity": {
+        "brand_name": "Nice To Fit You",
+        "tagline": "Dieta z wyborem menu - Wybieraj codziennie z 70 posiłków",
+        "positioning": "Catering dietetyczny dla osób prowadzących intensywny tryb życia, które chcą jeść zdrowo i smacznie bez wysiłku, z możliwością codziennego wyboru z bogatego menu.",
+        "emotional_register": "friendly",
+        "language": "pl"
+      },
+      "pricing": {
+        "price_range_pln": "69.99-103.49 PLN/dzień",
+        "cheapest_daily": 69.99,
+        "most_expensive_daily": 103.49,
+        "trial_offer": "Kod EASTER21 (ważny do 05.04)",
+        "subscription_discount": true,
+        "diet_prices": [
+          {
+            "diet_name": "niski ig",
+            "price_per_day_pln": 69.99,
+            "kcal": null
+          },
+          {
+            "diet_name": "longevity",
+            "price_per_day_pln": 88.99,
+            "kcal": null
+          },
+          {
+            "diet_name": "2500 kcal (pełen wybór, 8 dań)",
+            "price_per_day_pln": 103.49,
+            "kcal": "2500"
+          },
+          {
+            "diet_name": "2500 kcal (7 dań)",
+            "price_per_day_pln": 93.49,
+            "kcal": "2500"
+          },
+          {
+            "diet_name": "2500 kcal (4 posiłki)",
+            "price_per_day_pln": 88.99,
+            "kcal": "2500"
+          },
+          {
+            "diet_name": "2500 kcal (2 propozycje)",
+            "price_per_day_pln": 79.4,
+            "kcal": "2500"
+          },
+          {
+            "diet_name": "Veggy",
+            "price_per_day_pln": 74.29,
+            "kcal": "2000"
+          }
+        ],
+        "price_1500kcal": null,
+        "price_2000kcal": 74.29,
+        "_fallback": "perplexity",
+        "price_source": "YouTube transcript [1] and ntfy.pl [7]",
+        "_pricing_fallback_done": "2026-04-05T06:40:07.791Z"
+      },
+      "menu": {
+        "diet_types": [
+          "Pakiety wyboru menu (Mini, Basic, Plus, Super)",
+          "Wegetariańska",
+          "Hashimoto",
+          "Sportowa",
+          "Keto",
+          "Flexitarian",
+          "Niski IG",
+          "Bez glutenu",
+          "Bez nabiału",
+          "Dla mam",
+          "Longevity"
+        ],
+        "calorie_options": [],
+        "cuisine_style": "Kuchnia z całego świata",
+        "dietary_restrictions": [
+          "wegetariańskie",
+          "bez mięsa",
+          "bez glutenu",
+          "bez nabiału",
+          "dla mam i kobiet w ciąży",
+          "niskowęglowodanowe",
+          "bez cukru (niski IG)"
+        ]
+      },
+      "delivery": {
+        "delivery_model": "own_fleet",
+        "delivery_cities": [],
+        "delivery_time": null,
+        "weekend_delivery": true
+      },
+      "technology": {
+        "has_online_ordering": true,
+        "has_mobile_app": true,
+        "has_meal_customization": true,
+        "payment_methods": []
+      },
+      "social_proof": {
+        "testimonials_visible": false,
+        "media_mentions": [],
+        "certifications": [
+          "Go Green"
+        ],
+        "dietitian_team": true
+      },
+      "contact": {
+        "city": null,
+        "phone": "+48 728 604 000",
+        "email": "[email protected]",
+        "nip": null
+      },
+      "unique_differentiator": "Codziennie wybieraj z 70 różnych posiłków z kuchni światowej, wspieraj lokalnych dostawców, a opakowania będą odebrane przez kuriera - wszystko bez liczenia kalorii.",
+      "_extraction": {
+        "model": "claude-haiku-4-5-20251001",
+        "inputTokens": 3111,
+        "outputTokens": 713,
+        "costUsd": 0.0053,
+        "extractedAt": "2026-04-05T06:39:34.204Z"
+      },
+      "context": {
+        "nip": "7010485250",
+        "legalName": "NTFY Spółka z ograniczoną odpowiedzialnością",
+        "founder": "Jacek Jeżak, Radosław M. Jeżak, Sebastian K. Rabiej",
+        "foundedYear": 2021,
+        "legalOwner": "Better Future Fund Fundacja Rodzinna, Fit & Delicious sp. z o.o.",
+        "employeeRange": "unknown",
+        "mediaArticles": [
+          "https://mci.pl/en/mci-invests-in-dynamically-growing-company-nice-to-fit-you"
+        ],
+        "influencers": [],
+        "uniqueFeatures": [
+          "Personalizacja diet i posiłków poprzez konfigurację online",
+          "Aplikacja mobilna do zarządzania zamówieniami",
+          "Program lojalnościowy zintegrowany z regulaminem",
+          "Szeroki wybór zestawów dietetycznych",
+          "Dostawy w modelu dieta pudełkowa"
+        ],
+        "currentStatus": "Firma aktywna w 2025 r., z ostatnią zmianą w KRS 3 czerwca 2025 r., prowadząca działalność w zakresie wytwarzania gotowych posiłków i dań.",
+        "recentNews": [],
+        "competitivePosition": "Nice To Fit You pozycjonuje się jako lider w segmencie wysokiej jakości diet pudełkowych w Polsce, z innowacyjnym wyborem menu i ekspansją na Czechy i Niemcy, wzmocniony inwestycją MCI w 55% udziałów[1].",
+        "trajectory": "stable",
+        "awards": [],
+        "b2bOffering": false,
+        "uniqueInsight": "Największa historyczna inwestycja MCI (ok. 186 mln PLN) w NTFY podkreśla jej potencjał jako najsilniejszej cyfrowej marki w polskim e-commerce żywnościowym z planami ekspansji międzynarodowej[1].",
+        "fetchedAt": "2026-04-05T06:39:56.171Z"
+      },
+      "_discovery": {
+        "nip": "7010485250",
+        "nipValid": true,
+        "nipSource": "existing",
+        "krs": null,
+        "legalForm": null,
+        "orgName": null,
+        "discoveredAt": "2026-04-05T06:40:11.798Z"
+      },
+      "social": {
+        "profiles": [
+          {
+            "platform": "instagram",
+            "url": "https://www.instagram.com/ntfy.pl/",
+            "handle": "ntfy.pl",
+            "followers": 49585,
+            "posts": 2034,
+            "verified": false
+          },
+          {
+            "platform": "facebook",
+            "url": "https://www.facebook.com/ntfypl",
+            "handle": "Nice To Fit You",
+            "followers": 64375
+          },
+          {
+            "platform": "youtube",
+            "url": "https://www.youtube.com/channel/UCeAn2e_4SLMLTSJMws2Yz3g",
+            "handle": "UCeAn2e_4SLMLTSJMws2Yz3g"
+          }
+        ],
+        "totalFollowers": 113960,
+        "platformCount": 3,
+        "fetchedAt": "2026-04-05T06:41:29.159Z",
+        "method": "apify+perplexity",
+        "instagram": {
+          "platform": "instagram",
+          "url": "https://www.instagram.com/ntfy.pl/",
+          "handle": "ntfy.pl",
+          "followers": 49585,
+          "posts": 2034,
+          "verified": false,
+          "bio": "Miło mądrze jeść! 💛\n🥗 Zbilansowane, różnorodne posiłki\n🔁 Elastyczny wybór do 70 dań\n📲 Nowa aplikacja mobilna\n👌🏻 Restauracyjna jakość\nWybierz dietę ⤵️",
+          "avgLikes": 469,
+          "avgComments": 13,
+          "engagementRate": 0.97,
+          "content": {
+            "sampleSize": 20,
+            "recentPosts": 6,
+            "historicalPosts": 14,
+            "dateRange": {
+              "oldest": "2026-02-14",
+              "newest": "2026-04-04"
+            },
+            "postingFrequency": "2.9 posts/week",
+            "avgLikesRecent": 292,
+            "avgLikesHistorical": 184,
+            "avgCommentsRecent": 14,
+            "avgCommentsHistorical": 12,
+            "engagementTrend": "rising",
+            "topHashtags": [
+              {
+                "tag": "#współpraca",
+                "count": 2
+              },
+              {
+                "tag": "#wielkanocnedania",
+                "count": 1
+              },
+              {
+                "tag": "#wielkanoc",
+                "count": 1
+              },
+              {
+                "tag": "#easteraesthetic",
+                "count": 1
+              },
+              {
+                "tag": "#kateringdietetyczny",
+                "count": 1
+              },
+              {
+                "tag": "#cosibella",
+                "count": 1
+              },
+              {
+                "tag": "#ntfy",
+                "count": 1
+              },
+              {
+                "tag": "#valentines",
+                "count": 1
+              },
+              {
+                "tag": "#skincare",
+                "count": 1
+              },
+              {
+                "tag": "#pielęgnacja",
+                "count": 1
+              },
+              {
+                "tag": "#współpracareklamowa",
+                "count": 1
+              },
+              {
+                "tag": "#dietabiegacza",
+                "count": 1
+              },
+              {
+                "tag": "#polmaraton",
+                "count": 1
+              },
+              {
+                "tag": "#wskazowki",
+                "count": 1
+              },
+              {
+                "tag": "#bieganie",
+                "count": 1
+              }
+            ],
+            "contentMix": {
+              "Image": 5,
+              "Video": 12,
+              "Sidecar": 3
+            },
+            "posts": [
+              {
+                "id": "3867689426164202202",
+                "timestamp": "2026-04-04T06:35:00.000Z",
+                "type": "Image",
+                "caption": "Rozsmakuj się w święta! 🌸 Mamy dla Was małe wyzwanie:\nNa grafice ukryliśmy pisanki. Ich liczba nie jest przypadkowa - oznacza ona, który to już rok, kiedy wspólnie z NTFY mądrze i smacznie jecie podczas świąt! 🥚🔍👉 Policz wszystkie pisanki i daj znać w komentarzu, ile ich znalazłeś!\n\nCzy zgadniesz, od ilu lat tworzymy dla Was catering z pasją? 🥰\n\nŻyczymy Wam radosnych, spokojnych i – przede wszystkim – wolnych od kuchennego chaosu Świąt Wielkanocnych. 🐰 Niech ten czas będzie regeneracją, na",
+                "hashtags": [],
+                "likes": 18,
+                "comments": 2,
+                "url": "https://www.instagram.com/p/DWsywqMDTra/",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "3867001293215054570",
+                "timestamp": "2026-04-03T07:48:19.000Z",
+                "type": "Image",
+                "caption": "Małe kroki = Wielkie efekty. 👣\nNie musisz zmieniać wszystkiego naraz. Wybierz jedną rzecz, którą wprowadzisz do swojej rutyny już dzisiaj:\n\n💧 Piję o 0,5l wody więcej\n🌳 15 min spaceru po obiedzie\n📖 Książka zamiast przeglądania telefonu przed snem\n\nSpójrz na swoje trampki i ruszaj po lepsze samopoczucie. 👟\n\nNapisz w komentarzu: co wybierasz woda, spacer czy książka? 💬\n\nNice To Fit You . Zdrowe nawyki . Dobre wybory . Dieta pudełkowa . Miło Mądrze Jeść",
+                "hashtags": [],
+                "likes": 40,
+                "comments": 3,
+                "url": "https://www.instagram.com/p/DWqWTAcDzrq/",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "3866544563484329538",
+                "timestamp": "2026-04-02T16:40:00.000Z",
+                "type": "Video",
+                "caption": "Gdy żyjesz intensywnie, zasługujesz na to, by jedzenie było czystą przyjemnością, a nie kolejnym punktem na liście zadań. Zobacz, jak smakuje dzień, w którym jedyną decyzją jest: „na co mam dziś ochotę? 😊\n\nKtóre z tych dań najchętniej zobaczyłbyś jutro pod swoimi drzwiami? 👇\n1️⃣ Spaghetti 🍝\n2️⃣ Brownie 🍫\n3️⃣ Mus z matcha 🍵\n\nDieta pudełkowa • Nice To Fit You • Catering dietetyczny • Niski IG • Longevity • Hashimoto • Wege • Flexitarian • Keto • Dla Mam • Bez nabiału • Less Gluten",
+                "hashtags": [],
+                "likes": 68,
+                "comments": 2,
+                "url": "https://www.instagram.com/p/DWouctus4ZC/",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "3865498772675854995",
+                "timestamp": "2026-04-01T06:03:04.000Z",
+                "type": "Image",
+                "caption": "Do oferty SELECT wjeżdżają... LODY NTFY! 🍨✨\nWiemy, że kochacie wybór (mamy go najwięcej na rynku!), więc na start przygotowaliśmy dwa smaki, które rozbijają system:\n🍓 Obłędna Truskawka – smak lata zamknięty w pudełku.\n🥭 Egzotyczne Mango – kremowa konsystencja, która przeniesie Cię na wakacje.\nPracujemy nad trzecim smakiem - MYSTERY FLAVOR 🕵️‍♂️ i tu potrzebujemy Waszej pomocy!\n\nGŁOSOWANIE: Jaki trzeci smak powinien dołączyć do lodowej rodziny NTFY? 🍦 Wpisujcie swoje najbardziej szalone pomy",
+                "hashtags": [],
+                "likes": 40,
+                "comments": 30,
+                "url": "https://www.instagram.com/p/DWlAqdJDYKT/",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "3864914646436182945",
+                "timestamp": "2026-03-31T10:44:15.000Z",
+                "type": "Video",
+                "caption": "Wielkanocne smaki bez gotowania? 🐣💛\nBrzmi jak plan!\n\nWyjątkowa oferta świąteczna @ntfy.pl - pełna pysznych, tradycyjnych dań w nowoczesnym wydaniu. \nIdealnie, jeśli chcecie spędzić więcej czasu z bliskimi, a mniej w kuchni 🤍\n\nPS: mini babeczki piaskowe z polewą z białej czekolady są obłędne 🤤\n\nSkorzystajcie z kodu „klaudia”, a otrzymasz -20% na zamówienie!\n\nWspółpraca reklamowa \n#wielkanocnedania #wielkanoc #easteraesthetic #kateringdietetyczny",
+                "hashtags": [
+                  "#wielkanocnedania",
+                  "#wielkanoc",
+                  "#easteraesthetic",
+                  "#kateringdietetyczny"
+                ],
+                "likes": 263,
+                "comments": 12,
+                "url": "https://www.instagram.com/p/DWi72TMCHuh/",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "3864453689792810549",
+                "timestamp": "2026-03-30T19:34:53.000Z",
+                "type": "Video",
+                "caption": "Razem z Babcią oceniamy menu Wielkanocne dostępne w @ntfy.pl 🐣 Wybierać można aż z 14 świątecznych pozycji, u nas na stole mniej więcej połowa. Babciu - nagrywanie z Tobą to czysta przyjemność 🤍👵🏼\n\n/współpraca ambasadorska/",
+                "hashtags": [],
+                "likes": 1320,
+                "comments": 34,
+                "url": "https://www.instagram.com/p/DWhTCf3DE41/",
+                "sampleBucket": "recent"
+              },
+              {
+                "id": "3832604251613138569",
+                "timestamp": "2026-02-14T20:50:36.000Z",
+                "type": "Video",
+                "caption": "Walentynkowy duet idealny!\nNice To Fit You x Cosibella\n🤍🤍🤍\n\nDzień w harmonii ze skórą i ciałem ✨\nProfesjonalne konsultacje kosmetologiczne, analiza składu ciała, dietetyczne wskazówki, zdrowy poczęstunek i kobieca atmosfera, której nie da się podrobić 🫶🏻\n\nDziękujemy, że spędziłyście ten czas z nami!\n\nWyniki konkursu ogłosimy jutro na profilu @cosibella_corner 🥰\n\nKto był dzisiaj z nami? 🤗\n\n#cosibella #ntfy #valentines #skincare #pielęgnacja",
+                "hashtags": [
+                  "#cosibella",
+                  "#ntfy",
+                  "#valentines",
+                  "#skincare",
+                  "#pielęgnacja"
+                ],
+                "likes": 91,
+                "comments": 18,
+                "url": "https://www.instagram.com/p/DUwJULGDY6J/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3835125685664926703",
+                "timestamp": "2026-02-18T08:19:27.000Z",
+                "type": "Video",
+                "caption": "ZAGADKA! Co łączy Leonarda, Al Bano i Tottiego?🤔\n\n✨Talent? Pewnie!\n🇮🇹Włochy? Oczywiście!\n\nAle jest coś jeszcze!\nOdpowiednie stężenie pizzy i pasty w organizmie 🍝\n\nBrzmi sensownie, prawda?\n\nDlatego gdy zobaczyłem, że w opcji Select od @ntfy.pl mogę wybrać dania kuchni włoskiej, decyzja była szybka 💪\n\nZamów. Zjedz. Sprawdź, czy poziom geniuszu rośnie🚀\n\nA z kodem GLINA do 22.02 masz -20% rabatu na każde zamówienie #współpracareklamowa",
+                "hashtags": [
+                  "#współpracareklamowa"
+                ],
+                "likes": 83,
+                "comments": 7,
+                "url": "https://www.instagram.com/p/DU5Gn3jCMvv/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3836651322448120260",
+                "timestamp": "2026-02-20T10:48:54.000Z",
+                "type": "Image",
+                "caption": "Co miłego wybierzesz dla siebie? 🇮🇹💛🤌🏻",
+                "hashtags": [],
+                "likes": 108,
+                "comments": 4,
+                "url": "https://www.instagram.com/p/DU-hgzhjYnE/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3840485033543222785",
+                "timestamp": "2026-02-25T17:45:00.000Z",
+                "type": "Video",
+                "caption": "Znamy Wasze potrzeby i odpowiadamy na nie dietą, która realnie wspiera organizm 🥰\n\nZ naszym cateringiem dietetycznym i dietą Hashimoto jesz zdrowo, regularnie i bez stresu. Wygodnie, smacznie i dokładnie tak, jak potrzebujesz 😊✨\n\nPozwól na wsparcie Cię każdego dnia! 💛\n\nzapalenie tarczycy • niedoczynność • hormony • zdrowie kobiet • celiakia • cukrzyca",
+                "hashtags": [],
+                "likes": 15,
+                "comments": 0,
+                "url": "https://www.instagram.com/p/DVMJMpNjEYB/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3841964830937095708",
+                "timestamp": "2026-02-27T18:45:00.000Z",
+                "type": "Video",
+                "caption": "Zamiast wielkich deklaracji i narzucania sobie presji, w tym roku wybierzesz spokój. 😌 Dbanie o siebie nie musi być kolejnym obowiązkiem na liście „to-do”.\n\nZ @ntfy.pl codzienność staje się po prostu prostsza. Masz czas na małe rytuały, celebrację posiłków i skupienie się na tym, co tu i teraz - bez liczenia kalorii w głowie i stania w kuchni. Bo najlepsze wybory to te, które realnie zostają z nami na dłużej. 🌿\n\nTrzymasz się nadal swoich postanowień? Zostaw emotkę, która je symbolizuje w komen",
+                "hashtags": [],
+                "likes": 22,
+                "comments": 0,
+                "url": "https://www.instagram.com/p/DVRZqh7jJ4c/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3844530805922433665",
+                "timestamp": "2026-03-03T07:44:45.000Z",
+                "type": "Image",
+                "caption": "🏁 Wyzwanie rzucone!🏃‍♀️💨 Zanim spotkamy się na starcie (i mecie!), chcemy poznać Twoją strategię. Skopiuj poniższe zdanie, uzupełnij je w komentarzu i zainspiruj innych do ruchu! 👇\n\n„Planuję przebiec [Dystans] w czasie [Twój Cel] i robię to dla [Twoja Motywacja]!”\n\nNiezależnie od tego, czy walczysz o każdą sekundę, czy startujesz dla czystej frajdy i medalu - widzimy się 20-22 marca! Będziemy na Was czekać w strefach NTFY z pysznym jedzeniem i najlepszą energią w mieście. 🔥\n\nPamiętaj: Twój ",
+                "hashtags": [],
+                "likes": 153,
+                "comments": 58,
+                "url": "https://www.instagram.com/p/DVahGYXDYqB/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3846797370776392465",
+                "timestamp": "2026-03-06T10:46:43.000Z",
+                "type": "Sidecar",
+                "caption": "🌿🐣 Twoja Wielkanoc. Bez stresu.\nW tym roku odłóż listę zakupów. Schowaj fartuch.\nMy gotujemy. Ty świętujesz. 🤍\n\nLimitowane Menu Wielkanocne Nice To Fit You to tradycyjne smaki w nowoczesnym, wygodnym wydaniu, czyli gotowe dania premium z dostawą pod drzwi.\n\nW menu m.in.:\n🥧 Łosoś ze szpinakiem w cieście francuskim\n🍲 Tradycyjny żurek z białą kiełbasą i jajkiem\n🥬 Gołąbki z kapusty włoskiej w sosie pomidorowym\n🥩 Bitki wołowe, kopytka i buraczki\n🍰 Mazurek z kajmakiem i migdałami\n🍮 Kremowy se",
+                "hashtags": [],
+                "likes": 345,
+                "comments": 2,
+                "url": "https://www.instagram.com/p/DVikdPYCJMR/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3849161846557310750",
+                "timestamp": "2026-03-09T17:04:30.000Z",
+                "type": "Sidecar",
+                "caption": "Nowość w Nice To Fit You. Dieta Longevity. ✨\n\nStworzona z myślą o osobach, które chcą:\n✔️ wspierać kondycję organizmu\n✔️ spowolnić procesy starzenia\n✔️ zadbać o młody wygląd skóry\n✔️ budować energię i dobre samopoczucie na co dzień\n\nTo kompleksowy model żywienia oparty na naukowych fundamentach.\n\nW menu znajdziesz:\n\n🥦 Bogactwo warzyw i antyoksydantów\nŹródła substancji przeciwzapalnych, przyprawy takie jak kurkuma, imbir i czosnek – wsparcie ochrony komórek przed stresem oksydacyjnym.\n\n🍗🌱 Pełn",
+                "hashtags": [],
+                "likes": 16,
+                "comments": 0,
+                "url": "https://www.instagram.com/p/DVq-E5DCP8e/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3851790294132276289",
+                "timestamp": "2026-03-13T08:06:46.000Z",
+                "type": "Sidecar",
+                "caption": "Wielkanoc to moment, na który czekamy cały rok. Ale czy na pewno czekamy na wielogodzinne stania w kolejkach i maraton w kuchnii? 🕒 Ingredientem, którego najczęściej brakuje w świątecznych przepisach, jest... czas dla siebie i bliskich. 💛\n\nWyobraź sobie dwa scenariusze:\n1️⃣ Scenariusz „”Presja””: Lista zakupów, która nie ma końca, walka o ostatnią kostkę masła i zmęczenie, które dopada Cię jeszcze przed pierwszą gwiazdką.\n2️⃣ Scenariusz „”Spokój””: Otwierasz drzwi, odbierasz gotowe, restauracy",
+                "hashtags": [],
+                "likes": 312,
+                "comments": 0,
+                "url": "https://www.instagram.com/p/DV0Tt1nDTxB/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3853578120892781357",
+                "timestamp": "2026-03-15T19:22:20.000Z",
+                "type": "Video",
+                "caption": "Co jest dla Was najcenniejsze w życiu? 👀\n\nDla mnie to zdecydowanie • CZAS • który chcę wykorzystać jak najlepiej 🥺\n\nDzięki @ntfy.pl mogę skupić się na tym, co ważne i potrzebne mi w codziennym życiu 🥰\n\nMój kod „niezavodny” obecnie daje 21% zniżki na każde zamówienie na https://ntfy.pl\n\n#współpraca",
+                "hashtags": [
+                  "#współpraca"
+                ],
+                "likes": 81,
+                "comments": 34,
+                "url": "https://www.instagram.com/p/DV6qOJCCBMt/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3856141156711419147",
+                "timestamp": "2026-03-19T08:12:27.000Z",
+                "type": "Video",
+                "caption": "A jeśli kochacie aktywność fizyczną, to w NTFY znajdziecie Dietę Sport, która ma wysoką zawartość białka. Białko jako budulec jest niezbędne do budowania masy mięśniowej, ale nie tylko. \n\nTo istotny składnik wspierający regenerację. Konieczny po treningu, by odbudować uszkodzone włókna mięśniowe.\n\nMój ulubiony posiłek potreningowy to właśnie taki, który zawiera odpowiednią dla mnie ilość białka i węglowodanów. Wówczas czuję, że szybciej wracam do formy i jestem gotowa na kolejne wymagające jedno",
+                "hashtags": [
+                  "#dietabiegacza",
+                  "#polmaraton",
+                  "#wskazowki",
+                  "#bieganie",
+                  "#running"
+                ],
+                "likes": 514,
+                "comments": 21,
+                "url": "https://www.instagram.com/p/DWDw_OJjE0L/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3858536149744934674",
+                "timestamp": "2026-03-22T15:30:48.000Z",
+                "type": "Video",
+                "caption": "22 lata od zakończenia kariery sportowej, a ja cały czas jestem na chodzie! 🏃🏻 dzisiaj ukończyłem półmaraton we współpracy z @ntfy.pl, bo odpowiednio zbilansowana dieta to jeden z kluczowych czynników w przygotowaniach do startów 🍲\n\nDziękuję za wspaniałą energię, wszystkie zbite piątki i uśmiechy na trasie! 🤝 \n\n⏱️ 2:09:31 \n\n#współpraca @ntfy.pl",
+                "hashtags": [
+                  "#współpraca"
+                ],
+                "likes": 136,
+                "comments": 7,
+                "url": "https://www.instagram.com/p/DWMRi9OjN8S/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3860525499533869848",
+                "timestamp": "2026-03-25T09:23:36.000Z",
+                "type": "Video",
+                "caption": "Zdarza Ci się zaglądać do lodówki, mimo że dopiero co jadłaś/eś obiad? 🍕\nZnamy to! Często mylimy sygnały płynące z ciała z tymi, które podsuwają nam emocje.\nKluczem do spokoju w relacji z jedzeniem jest uważność.\nKiedy nauczysz się odróżniać głód fizyczny od emocjonalnego, przestaniesz czuć wyrzuty sumienia, a zaczniesz czuć satysfakcję. 😌\n\nPokazujemy, jak odzyskać kontrolę i dlaczego regularność z dietą od NTFY! To Twój największy sojusznik w walce z podjadaniem pod wpływem stresu. 🧘‍♀️✨\nDaj",
+                "hashtags": [],
+                "likes": 69,
+                "comments": 8,
+                "url": "https://www.instagram.com/p/DWTV3zmDcMY/",
+                "sampleBucket": "historical"
+              },
+              {
+                "id": "3862926282963386761",
+                "timestamp": "2026-03-28T16:53:03.000Z",
+                "type": "Video",
+                "caption": "Chcesz spędzić nadchodzące święta naprawdę z bliskimi, bez pośpiechu i stosu brudnych naczyń? 🐰 W Nice To Fit You zadbaliśmy o to, by na Twoim stole zagościła tradycja w nowoczesnym wydaniu. ✨ \n\n ⚠️ TO OSTATNI MOMENT!\nZamówienia na ofertę wielkanocną przyjmujemy tylko do 2 kwietnia (czwartek) do godziny 15:00. Nie czekaj na ostatnią chwilę - zaplanuj swój spokój już teraz! 🧘‍♀️\n\n📌 WAŻNE: Kalendarz dostaw\nŚwiętujemy razem z Wami, dlatego pamiętaj, że 6 kwietnia (Poniedziałek Wielkanocny) nie r",
+                "hashtags": [],
+                "likes": 633,
+                "comments": 4,
+                "url": "https://www.instagram.com/p/DWb3vzZjYGJ/",
+                "sampleBucket": "historical"
+              }
+            ]
+          }
+        },
+        "facebook": {
+          "platform": "facebook",
+          "url": "https://www.facebook.com/ntfypl",
+          "handle": "Nice To Fit You",
+          "followers": 64375,
+          "likes": 64375
+        },
+        "youtube": {
+          "platform": "youtube",
+          "url": "https://www.youtube.com/channel/UCeAn2e_4SLMLTSJMws2Yz3g",
+          "handle": "UCeAn2e_4SLMLTSJMws2Yz3g"
+        }
+      },
+      "ads": {
+        "activeAdsCount": 0,
+        "ads": [],
+        "platforms": {},
+        "avgAdDurationDays": 0,
+        "longestRunningAdDays": 0,
+        "adCopySnippets": [],
+        "estimatedIntensity": "none",
+        "fetchedAt": "2026-04-05T06:42:15.486Z",
+        "method": "ad_library_search"
+      },
+      "reviews": {
+        "google": {
+          "rating": 4.5,
+          "reviewCount": 2237,
+          "mapsUrl": "https://www.google.com/maps/search/?api=1&query=Nice%20To%20Fit%20You&query_place_id=ChIJewSfTO7MHkcRSDGc8fJHlyk",
+          "address": "Marszałkowska 58, 00-545 Warszawa, Polska",
+          "category": "Catering",
+          "snippets": [
+            "Jedna z najgorszych diet jakie testowałem. Pieniądze wydane w błoto, a połowa posiłków wyrzucona do kosza. W załączeniu przykładowe zdjęcie jednego z ostatnich posiłków, podane obrzydliwie. Nie poleca",
+            "Timely delivery time",
+            "Dawno temu korzystałem z NTFY i po dłuższej przerwie postanowiłem wrócić bo dobrze zapamiętałem jeśli chodzi o jakość i różnorodność dań. Zacząłem jakoś od stycznia i tyle o ile na początku byłem mega",
+            "Pyszne i zdrowe jedzenie, polecam!",
+            "Po ponad trzech miesiącach jestem zadowolona. Catering jest bardzo dobry. Nie miałam żadnej wpadki.",
+            "Jedzenie jak z pięciogwiazdkowej restauracji! Cokolwiek nie zamówiłem zawsze bardzo mi smakowało.",
+            "Zamawiam dłuższy czas dietę „dla Mam” jedzenie jest przepyszne, różnorodne, super doprawione a możliwość wyboru dań jest dla mnie idealną opcją. Zamawiałam kiedyś z innych cateringów ale zawsze coś by"
+          ]
+        },
+        "dietly": {
+          "rating": 0,
+          "reviewCount": 0,
+          "positivePercent": 0
+        },
+        "sentiment": "very_positive",
+        "fetchedAt": "2026-04-05T06:43:04.342Z",
+        "method": "apify"
+      },
+      "finance": {
+        "skipped": true,
+        "reason": "Org lookup failed: rejestr.io /org/nip7010485250: API 409: Więcej niż jedna organizacja ma ten NIP. Ich numery KRS: [1066845, 901183, 722487, 558679]."
+      }
+    },
+    "lastScanId": "b34524a9-b074-43c4-82ce-baba23642929",
+    "lastScannedAt": "2026-04-05T06:44:11.747Z",
+    "nip": "7010485250"
   },
   {
     "slug": "siejezdrowo.pl",
