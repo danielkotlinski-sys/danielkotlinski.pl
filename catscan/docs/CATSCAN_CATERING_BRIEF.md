@@ -946,14 +946,61 @@ System generuje raport z gotowymi insightami.
 
 ---
 
-## 10. PIERWSZY RUCH
+## 10. PROCES OPERACYJNY — JAK SKANOWAĆ
+
+### Quick start:
+```bash
+cd catscan && npx next dev        # uruchom serwer
+open http://localhost:3000/scan   # otwórz Command Center
+```
+
+### Flow skanowania (Dashboard → zakładka Dashboard):
+```
+1. BATCH_20        → skanuje 20 następnych nieskanowanych marek (~60-90 min)
+2. Monitoruj       → zakładka Log: real-time pipeline (crawl→extract→visual→...→finance→interpret)
+3. Sprawdź stats   → Dashboard: progress bar, complete/incomplete counts
+4. RESCAN_INCOMPLETE → jeśli są marki z <19 wymiarami, naprawia brakujące
+5. Powtarzaj 1-4   → aż 239/239 marek × 19/19 wymiarów = DONE
+```
+
+### Ograniczenia:
+- Max 20 marek per batch (hard cap — ochrona przed timeout/kosztem)
+- 19 wymiarów wymaganych — 0 tolerancji na dziury w danych
+- Post-scan validation automatycznie flaguje INCOMPLETE brands
+- Rate limiting per provider (Perplexity 20/min, Apify 10/min, rejestr.io 30/min)
+
+### Szacowany czas full scan (239 marek):
+- 12 batch-ów × ~60-90 min = ~12-18h (nie licząc rescanów)
+- Koszt: ~$165 (~$0.69/brand)
+- Wynik: 239 × 19 wymiarów × 175 atrybutów = ~41,825 data points + social posts + financials
+
+### API (dla zaawansowanych):
+```bash
+# Batch 20
+curl -X POST localhost:3000/api/scan -d '{"batch": 20}'
+
+# Rescan incomplete
+curl -X POST localhost:3000/api/scan -d '{"rescan_incomplete": true}'
+
+# Status
+curl localhost:3000/api/scan/stats
+
+# Monitor specific scan
+curl localhost:3000/api/scan/SCAN_ID
+```
+
+---
+
+## 11. NASTĘPNE KROKI
 
 1. ~~Zbuduj dataset (faza 0-1)~~ ✅ Seed ready (239 marek), pipeline gotowy
-2. Uruchom pierwszy full scan 239 marek (wszystkie 11 faz, ~$155)
-4. Wygeneruj sample report: "TOP 50 cateringów w Polsce — kto naprawdę się wyróżnia"
-5. Opublikuj fragment na LinkedIn (5 insightów z danych)
-6. Wyślij pełny sample do 10 największych cateringów
-6. "Pełny raport z 239 markami + dostęp do bazy: 12,000 PLN"
+2. ~~SQLite + Command Center + production readiness~~ ✅ v0.9
+3. **TERAZ:** Uruchom pierwszy full scan 239 marek (12 batch-ów × 20, ~$165, ~12-18h)
+4. Wire resilient-fetch.ts into pipeline phases (phases still use raw curl — działa, ale bez rate limiting)
+5. Wygeneruj sample report: "TOP 50 cateringów w Polsce — kto naprawdę się wyróżnia"
+6. Opublikuj fragment na LinkedIn (5 insightów z danych)
+7. Wyślij pełny sample do 10 największych cateringów
+8. "Pełny raport z 239 markami + dostęp do bazy: 12,000 PLN"
 
 ---
 
