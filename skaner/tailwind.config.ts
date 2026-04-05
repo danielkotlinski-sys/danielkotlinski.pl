@@ -28,14 +28,17 @@ const config: Config = {
           gray: '#757575',
         },
       },
+
       fontFamily: {
         heading: ['Instrument Serif', 'Georgia', 'serif'],
         body: ['DM Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
       },
+
       borderRadius: {
         'card': '16px',
         'pill': '100px',
       },
+
       maxWidth: {
         'container': '1200px',
         'report': '820px',
