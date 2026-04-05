@@ -252,17 +252,26 @@ Zbieramy: profil + 20 próbkowych postów per marka (6 recent + 14 historical). 
 - fb_community_size: number — członkowie grupy (jeśli jest)
 
 ### WYMIAR 11: TIKTOK
-Źródło: Apify tiktok-scraper. Ostatnie 10 filmów. Koszt: ~$10-15 za 239 marek.
-Uwaga: realnie 100-150 z 500 będzie aktywnych na TikToku.
+Źródło: Apify `clockworks~free-tiktok-scraper`. Auto-discovery po slug domeny/nazwy (nie wymaga URL z crawla).
+Stratified sampling: 30 raw → 12 postów (4 recent + 8 historical). Koszt: ~$0.04/brand.
+Uwaga: realnie 50-100 z 239 marek będzie aktywnych na TikToku.
 - tiktok_handle: text
+- tiktok_url: text — pełny URL profilu
 - tiktok_followers: number
-- tiktok_total_likes: number
-- tiktok_videos_count: number
-- tiktok_active: boolean
-- tiktok_avg_views: number — średnia z ostatnich 10
-- tiktok_avg_likes: number
-- tiktok_content_style: enum [ugc, professional, influencer, educational, trending-audio]
-- tiktok_posting_frequency: enum [daily, few-per-week, weekly, irregular, inactive]
+- tiktok_total_likes: number — łączna liczba serc
+- tiktok_videos_count: number — łączna liczba filmów
+- tiktok_avg_views_recent: number — średnia z 4 najnowszych
+- tiktok_avg_views_historical: number — średnia z 8 historycznych
+- tiktok_engagement_trend: enum [rising, stable, declining, insufficient_data]
+- tiktok_posting_frequency: text — np. "2.4 posts/week"
+- tiktok_top_hashtags: array[{tag, count}] — top 15 hashtagów
+- tiktok_posts: array[12] — stratified sample:
+  - url: text — link do filmu
+  - views, likes, comments, shares: number
+  - caption: text (500 zn.)
+  - hashtags: array[text]
+  - timestamp: date
+  - sampleBucket: enum [recent, historical]
 
 ### WYMIAR 12: INFLUENCER MARKETING
 - influencer_count_detected: number
@@ -472,21 +481,31 @@ NIP resolution chain (5 kroków):
   5. Legal pages crawl — last resort
 Koszt: ~$0.05 PLN/req rejestr.io, ~85% hit rate
 
-### Faza 6: SOCIAL MEDIA ✅ GOTOWE — rozszerzona
+### Faza 6: SOCIAL MEDIA ✅ GOTOWE — rozszerzona (IG + TikTok sampling)
 
 Wejście: nazwy marek / URL-e social profiles (z crawla)
 Wyjście: wymiary 09-12
 Narzędzia:
-  - Apify instagram-profile-scraper (Call #1, profil) + instagram-scraper (Call #2, ~50 postów → 20 stratified): ~$15-20
-  - Apify facebook-pages-scraper (15 postów/marka): ~$10-15
-  - Apify tiktok-scraper (10 filmów/marka): ~$10-15
-  - YouTube: via Perplexity (subscribers, total views)
+  - **Instagram** (2 wywołania Apify/marka):
+    - Call #1: `apify/instagram-profile-scraper` — profil (followers, bio, posts count)
+    - Call #2: `apify/instagram-scraper` — ~50 postów → **20 stratified** (6 recent + 14 historical)
+    - Dane per post: URL, caption, hashtags, likes, comments, timestamp, sampleBucket
+    - Analiza: posting frequency, engagement rate (likes+comments/followers), trend (recent vs historical)
+  - **TikTok** (auto-discovery + sampling):
+    - Discovery: generowanie kandydatów slug z domeny/nazwy (np. vikingdietcatering, viking_diet_catering)
+    - Call #1: `clockworks~free-tiktok-scraper` — próba każdego kandydata, pierwszy z valid authorMeta = match
+    - Call #2: `clockworks~free-tiktok-scraper` — ~30 postów → **12 stratified** (4 recent + 8 historical)
+    - Dane per post: URL, caption, hashtags, views, likes, comments, shares, timestamp, sampleBucket
+    - Analiza: posting frequency, engagement trend (views-based: recent vs historical), top hashtags
+    - Koszt: ~$0.04/marka (~$10 za 239 marek)
+  - **Facebook**: Apify facebook-pages-scraper (15 postów/marka): ~$10-15
+  - **YouTube**: via Perplexity (subscribers, total views)
   - Fallback: Perplexity AI gdy Apify nie może scrapować (Facebook blokady, prywatne profile)
 Implementacja: `lib/pipeline/phases/social.ts`
 Connector: `lib/connectors/apify.ts`
 Czas: 2-4h
-Koszt: ~$35-50
-Volume: 239 profili x 4 platformy, ~9,500 postów total
+Koszt: ~$40-55
+Volume: 239 profili x 4 platformy, ~12,600 postów total (IG 20 + TT 12 + FB 15 + YT meta)
 
 ### Faza 7: REKLAMY (META) ✅ GOTOWE
 
@@ -543,13 +562,13 @@ Koszt: ~$10-15
 ### TOTAL PIPELINE:
 - Faz: 12 (seed + 11 faz per-scan). Wszystkie zaimplementowane.
 - Kolejność: crawl → extract → **visual** → context → pricing_fallback → discovery → social → ads → reviews → finance → interpret
-- Kluczowa zmiana v0.8: **Dietly calculate-price API** — pełna mapa cenowa per kcal (FREE, 100% accurate) dla 177 marek
+- Kluczowa zmiana v0.8: **Dietly calculate-price API** — pełna mapa cenowa per kcal (FREE, 100% accurate) dla 177 marek + **TikTok auto-discovery** + stratified sampling (30→12 postów)
 - Kluczowa zmiana v0.7: nowa faza `visual` między extract i context (Apify screenshot + Haiku vision)
 - Kluczowa zmiana v0.6: context PRZED discovery (Perplexity dostarcza legalName → trafniejsze wyszukiwanie w rejestr.io)
 - Czas: 3-4 dni (z testowaniem i poprawkami, jednorazowo)
-- Koszt: ~$140 za 239 marek (~$0.59/brand) — oszczędność ~$15 dzięki Dietly API vs Perplexity
+- Koszt: ~$145 za 239 marek (~$0.61/brand) — oszczędność ~$15 dzięki Dietly API vs Perplexity
 - Wynik: 239 encji x 178+ atrybutów = ~42,500+ data points
-- Plus: ~3,600 kreacji reklamowych, ~9,500 postów social (w tym 20 stratified IG per marka), ~360 sprawozdań finansowych
+- Plus: ~3,600 kreacji reklamowych, ~12,600 postów social (IG 20 + TT 12 + FB 15 per marka), ~360 sprawozdań finansowych
 - Orchestrator: `app/api/scan/route.ts` — async, per-entity, z error handling i cost tracking
 - AI backend: curl do Claude API (zamiast Anthropic SDK — SDK timeout w sandbox, curl działa stabilnie)
 - **Resume**: pipeline potrafi wznowić się po crashu/restarcie serwera (patrz sekcja 4.1)
@@ -866,7 +885,8 @@ System generuje raport z gotowymi insightami.
 - reviews: ~$0.04 (Apify Google Maps)
 - finance: ~$0.30 (rejestr.io, multiple doc fetches)
 - interpret: ~$0.06 per brand (shared Sonnet call)
-- **Total: ~$0.65/brand, ~$155 za 239 marek**
+- social/tiktok: ~$0.04 (Apify TikTok: discovery + 30 posts → 12 stratified)
+- **Total: ~$0.69/brand, ~$165 za 239 marek**
 
 ### Setup (jednorazowo):
 - Infrastruktura: $0 (free tiers)
@@ -900,8 +920,9 @@ System generuje raport z gotowymi insightami.
 
 ---
 
-*CATSCAN_OS // v0.7 // CATERING_DIETETYCZNY*
+*CATSCAN_OS // v0.8 // CATERING_DIETETYCZNY*
 *Updated: 2026-04-05*
+*Changelog v0.8: Dietly calculate-price API — pełna mapa cenowa per kcal (`price_by_kcal`) dla 177 marek Dietly (FREE, 100% accurate, reverse-engineered z Next.js SSR), `cheapest_daily` + `benchmark_diet_name` + `price_source: dietly-api`, pricing_fallback bez requireKey (Dietly brands nie potrzebują Perplexity). TikTok auto-discovery via Apify slug candidates (bez Perplexity) + stratified sampling 30→12 postów (4 recent + 8 historical), content analysis (posting frequency, engagement trend views-based, top hashtags), updated costs: ~$0.69/brand, ~$165 za 239 marek*
 *Changelog v0.7: nowa faza Visual Identity (wymiar 05 — Apify screenshot + Claude Haiku 4.5 vision, 8 atrybutów wizualnych, ~$0.05/brand), brand data cleanup (256→239: 46 bad names fixed, 15 non-brand removed, 2 deduplicated), calorie_options w pricing-fallback (derive z diet_prices lub Perplexity query), finance: usunięto pkd_code, dodano /krs-powiazania (board_members z rolami + shareholders), fixed grossProfit regex ("Zysk (strata) ze sprzedaży"), share_capital z Bilansu, pipeline order: crawl→extract→visual→context→pricing_fallback→discovery→social→ads→reviews→finance→interpret (11 faz), updated costs: ~$0.65/brand, ~$155 za 239 marek*
 *Changelog v0.6: pipeline resume po crash/restart (PATCH reset + POST resume, entityHasPhaseData markery), persistence wyników do brands.json po każdej fazie (brands.json = jedyne źródło prawdy, przeżywa redeploy), fallback reads w /api/entities i /api/chat (czytają z brands.json gdy scans.json zaginął), Railway jako deploy target (nie Vercel), zaktualizowane koszty operacyjne*
 *Changelog v0.5: Instagram stratified sampling (6 recent + 14 historical), kcal benchmark pricing (1500/2000 + diet_prices breakdown), pricing-fallback faza (Perplexity dla JS sites), NIP discovery rewrite (rejestr.io search + Perplexity fallback + 5-krokowy chain), zmiana kolejności faz (context przed discovery — legalName bridge), rozszerzona ekstrakcja finansowa (pełny RZiS + Bilans + wskaźniki + zarząd/udziałowcy), Data Explorer UI (/explore — 14 tabs, sort, filter, slide-out), YouTube via Perplexity, Perplexity social fallback, Anthropic SDK→curl migration, CATSCAN_PRODUCT_INSIGHT.md (decision maps), context dwuprzebiegowy (core + media intelligence)*
