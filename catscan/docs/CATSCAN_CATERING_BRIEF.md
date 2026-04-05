@@ -1,5 +1,5 @@
 # CATSCAN // CATERING INTELLIGENCE ENGINE
-## Brief produktowy — v0.5
+## Brief produktowy — v0.6
 
 ---
 
@@ -485,43 +485,109 @@ Koszt: ~$10-15
 - Plus: ~3,800 kreacji reklamowych, ~10,000 postów social (w tym 20 stratified IG per marka), ~400 sprawozdań finansowych
 - Orchestrator: `app/api/scan/route.ts` — async, per-entity, z error handling i cost tracking
 - AI backend: curl do Claude API (zamiast Anthropic SDK — SDK timeout w sandbox, curl działa stabilnie)
+- **Resume**: pipeline potrafi wznowić się po crashu/restarcie serwera (patrz sekcja 4.1)
+- **Persistence**: wyniki mergowane do `brands.json` po każdej fazie (patrz sekcja 5)
+
+### 4.1 RESUME — odporność na crash/restart ✅ GOTOWE
+
+Problem: pipeline async biegnie in-memory. Restart serwera (Railway redeploy, crash, timeout) = pipeline umiera, dane w `scans.json` zostają w stanie `running`.
+
+Rozwiązanie — dwupoziomowe:
+
+**Poziom 1: Persistence danych (automatyczny)**
+- `mergeScanIntoBrands()` — po każdej zakończonej fazie wyniki mergowane do `brands.json`
+- Matchowanie entity → brand po domenie (primary) lub nazwie (fallback)
+- `brands.json` żyje w git — commit po scanie = dane na zawsze
+- Explorer, Chat, Entities czytają z `brands.json` jako fallback gdy `scans.json` nie istnieje
+
+**Poziom 2: Resume pipeline (ręczny)**
+- Każda faza ma marker w `entity.data` (np. `_meta` dla crawl, `context` dla context, `_discovery` dla discovery)
+- `entityHasPhaseData()` sprawdza per-entity czy faza już przeszła
+- `runEntityPhase()` pomija encje z istniejącymi danymi — nie powtarza pracy
+
+Flow po crashu:
+```
+# 1. Reset stuck scan (status running → failed)
+PATCH /api/scan  { "scanId": "abc-123" }
+
+# 2. Resume — pomija ukończone fazy + encje z danymi
+POST /api/scan   { "resume": "abc-123" }
+```
+
+Markery per faza:
+| Faza | Marker w entity.data |
+|------|---------------------|
+| crawl | `_meta` |
+| extract | `_extraction` |
+| context | `context` |
+| pricing_fallback | `pricing._pricing_fallback_done` |
+| discovery | `_discovery` |
+| social | `social` |
+| ads | `ads` |
+| reviews | `reviews` |
+| finance | `finance` |
+
+Implementacja: `app/api/scan/route.ts` (PATCH + POST resume + entityHasPhaseData)
 
 ---
 
 ## 5. STORAGE
 
-### MVP: JSON file storage ✅ AKTUALNIE
+### `brands.json` — jedyne źródło prawdy ✅ AKTUALNIE
 
 Implementacja: `lib/db/store.ts`
-Pliki w `data/`:
-- `brands.json` — 256 marek (seed data z Dietly + Google search)
-- `scans.json` — historia scanów z pełnymi wynikami
+Deploy: Railway (persistent container)
+Dane w git: tak — commit `brands.json` po scanie = trwałe dane
+
+**Architektura:**
+- `brands.json` — 256 marek z seed data + enriched data ze skanów. **Przeżywa redeploy** (w git).
+- `scans.json` — working state pipeline (ephemeral). Może zginąć przy redeploy — nieważne, bo wyniki mergowane do `brands.json` po każdej fazie.
+
+**Struktura brandu po scanie:**
+```json
+{
+  "slug": "maczfit-pl",
+  "name": "Maczfit",
+  "domain": "maczfit.pl",
+  "url": "https://maczfit.pl",
+  "dietly": { "rating": 4.79, "reviewCount": 1200, ... },
+  "data": {
+    "_meta": { /* crawl */ },
+    "_extraction": { /* extract cost/tokens */ },
+    "context": { /* perplexity: founder, trajectory, legalName */ },
+    "pricing": { /* ceny, diet_prices, benchmarki 1500/2000 kcal */ },
+    "_discovery": { /* NIP, KRS, forma prawna */ },
+    "social": { /* IG, FB, TikTok, YouTube */ },
+    "ads": { /* Meta Ads */ },
+    "reviews": { /* Google + Dietly ratings */ },
+    "finance": { /* KRS + sprawozdania + wskaźniki */ }
+  },
+  "financials": { /* kopia finance dla szybkiego dostępu */ },
+  "nip": "1234567890",
+  "krs": "0000123456",
+  "lastScanId": "abc-123",
+  "lastScannedAt": "2026-04-05T14:00:00Z"
+}
+```
+
+**Fallback reads:**
+- `/api/entities` — czyta z `scans.json`, fallback na enriched brands z `brands.json`
+- `/api/chat` — j.w., Chat działa nawet po utracie `scans.json`
+- `/api/scan` — resume czyta stan z `scans.json`
 
 Modele danych (TypeScript):
 - `ScanRecord` — id, status, entities[], phasesCompleted[], log[], totalCostUsd
 - `EntityRecord` — id, name, url, nip, data (JSONB-like), financials, status, errors
+- `BrandRecord` — slug, name, domain, url, data, nip, krs, lastScanId, lastScannedAt
 
-### Docelowo: Postgres (Supabase / Neon)
+### Docelowo: Postgres (Supabase / Neon) — 🔜 gdy będzie potrzeba
 
 Schema przygotowany: `lib/db/schema.sql`
-
-Tabele:
-- entities — 500 wierszy, podstawowe dane
-- snapshots — 1 wiersz per entity per scan (JSONB z atrybutami)
-- dimensions — znormalizowane wymiary (opcjonalnie)
-- queries — log pytań użytkowników
-- reports — wygenerowane raporty
-
-Snapshot JSONB pozwala:
-- Łatwo dodawać nowe atrybuty bez migracji
-- Porównywać snapshot T-1 vs T-0 (diff)
-- Filtrować po dowolnym atrybucie ($->> operator)
+Migracja ma sens gdy: diff engine (porównanie skanów), multi-user access, albo >1000 marek.
 
 ### Rozmiar:
-- 256 encji x ~5KB JSON = 1.3MB per snapshot
-- Daily snapshots x 365 = ~900MB/rok
-- Screenshoty (S3/Cloudflare R2): ~500MB per snapshot, ~50GB/rok z kompresją
-- Wszystko mieści się w darmowych/tanich tierach
+- 256 encji x ~5KB JSON = 1.3MB per snapshot (brands.json po full scanie ~1.5-2MB)
+- Screenshoty (Cloudflare R2): ~500MB per snapshot — do zbudowania
 
 ---
 
@@ -551,7 +617,10 @@ Pełny interfejs do uruchamiania scanów:
   - Preview danych encji (pricing, delivery, brand tone)
   - Link do Query Interface po zakończeniu
 
-API: `POST /api/scan` → start, `GET /api/scan` → list, `GET /api/scan/[id]` → status
+API:
+  - `POST /api/scan` → start nowy scan lub resume (`{ resume: scanId }`)
+  - `PATCH /api/scan` → reset stuck scan (`{ scanId }`) — running → failed
+  - `GET /api/scan` → list, `GET /api/scan/[id]` → status
 
 ### 6.2 Query Interface ✅ GOTOWE — `app/chat/page.tsx`
 
@@ -646,14 +715,14 @@ System generuje raport z gotowymi insightami.
 - Ads: Meta Ad Library API connector
 - Finance: rejestr.io API connector + KRS API
 - Context: Perplexity sonar model
-- Storage: JSON file-based (`lib/db/store.ts`) — MVP
+- Storage: `brands.json` (trwałe, w git) + `scans.json` (working state) — `lib/db/store.ts`
+- Deploy: Railway (persistent container)
 - Design System: 9 komponentów (`components/ds/`)
 
 ### Do zbudowania 🔜
-- Storage: Supabase Postgres (dane) + Cloudflare R2 (screenshoty)
-- Scheduling: Vercel Cron lub Supabase Edge Functions (cykliczne scany)
+- Storage: Supabase Postgres (gdy potrzeba diff engine / multi-user) + Cloudflare R2 (screenshoty)
+- Scheduling: Railway Cron lub external (cykliczne scany)
 - Auth: to co mamy (email + org system)
-- Deploy: Vercel
 
 ### Zmienne środowiskowe (`.env.example`):
 - `ANTHROPIC_API_KEY` — wymagany (Claude Haiku + Sonnet)
@@ -675,13 +744,15 @@ System generuje raport z gotowymi insightami.
 - 256 marek = pełne pokrycie rynku
 
 ### FAZA 1: Pipeline + scan engine ✅ DONE
-- ✅ 9-fazowy pipeline: crawl → extract → discovery → context → social → ads → reviews → finance → interpret
+- ✅ 10-fazowy pipeline: crawl → extract → context → pricing_fallback → discovery → social → ads → reviews → finance → interpret
 - ✅ Async orchestrator z error handling per entity (`app/api/scan/route.ts`)
 - ✅ Cost tracking per scan (USD)
 - ✅ Logging z timestampami
 - ✅ Scan Engine UI z real-time progress
-- ✅ JSON file storage (MVP)
-- Brakuje: migracja do Postgres, pierwszy full scan 256 marek
+- ✅ Pipeline resume po crash/restart (PATCH reset + POST resume)
+- ✅ Persistence: wyniki mergowane do `brands.json` po każdej fazie
+- ✅ Fallback reads: Explorer/Chat czytają z `brands.json` gdy `scans.json` zaginął
+- Brakuje: pierwszy full scan 256 marek
 
 ### FAZA 2: Query interface ✅ DONE
 - ✅ Chat UI z Claude Sonnet jako analitykiem
@@ -704,9 +775,9 @@ System generuje raport z gotowymi insightami.
 - Wynik: Pulse — wartość cykliczna
 
 ### FAZA 5: Production — 🔜 PLANOWANE
-- Migracja JSON → Supabase Postgres
+- Deploy: Railway ✅ (już działa)
 - Auth (email + org system)
-- Deploy na Vercel
+- Opcjonalnie: migracja `brands.json` → Supabase Postgres (gdy diff engine / multi-user)
 - Cloudflare R2 (screenshoty, ad creatives)
 
 ---
@@ -719,14 +790,12 @@ System generuje raport z gotowymi insightami.
 - Czas: 5-7 tygodni dev
 
 ### Operacyjne (miesięcznie):
-- Supabase Pro: $25/mies
-- Cloudflare R2: ~$10/mies (screenshoty + ad creatives)
+- Railway: ~$5-10/mies (persistent container)
 - Weekly re-scans — website + social (4x): ~$200/mies
 - Monthly re-scan — KRS/finanse (1x): ~$40/mies
 - Meta Ads monitoring (continuous): $0
 - Ad hoc queries (Claude Sonnet): ~$30/mies
-- Vercel Pro: $20/mies
-- TOTAL: ~$325/mies ≈ 1,400 PLN/mies
+- TOTAL: ~$275-280/mies ≈ 1,200 PLN/mies
 
 ### Revenue target (3 miesiące od startu):
 - 2 klientów Pulse: 2 × 5,000 = 10,000 PLN/mies
@@ -747,8 +816,9 @@ System generuje raport z gotowymi insightami.
 
 ---
 
-*CATSCAN_OS // v0.5 // CATERING_DIETETYCZNY*
+*CATSCAN_OS // v0.6 // CATERING_DIETETYCZNY*
 *Updated: 2026-04-05*
+*Changelog v0.6: pipeline resume po crash/restart (PATCH reset + POST resume, entityHasPhaseData markery), persistence wyników do brands.json po każdej fazie (brands.json = jedyne źródło prawdy, przeżywa redeploy), fallback reads w /api/entities i /api/chat (czytają z brands.json gdy scans.json zaginął), Railway jako deploy target (nie Vercel), zaktualizowane koszty operacyjne*
 *Changelog v0.5: Instagram stratified sampling (6 recent + 14 historical), kcal benchmark pricing (1500/2000 + diet_prices breakdown), pricing-fallback faza (Perplexity dla JS sites), NIP discovery rewrite (rejestr.io search + Perplexity fallback + 5-krokowy chain), zmiana kolejności faz (context przed discovery — legalName bridge), rozszerzona ekstrakcja finansowa (pełny RZiS + Bilans + wskaźniki + zarząd/udziałowcy), Data Explorer UI (/explore — 14 tabs, sort, filter, slide-out), YouTube via Perplexity, Perplexity social fallback, Anthropic SDK→curl migration, CATSCAN_PRODUCT_INSIGHT.md (decision maps), context dwuprzebiegowy (core + media intelligence)*
 *Changelog v0.4: 256 marek = 100% pokrycia rynku (nie 500), przeliczone koszty i volume danych, pipeline hardening (URL escaping, JSON safety, temp file cleanup, safe API access)*
 *Changelog v0.3: aktualizacja statusu implementacji — wszystkie 9 faz pipeline gotowe, 256 marek w bazie, scan engine + query interface + audit page zbudowane, dodano sekcję o aktualnym storage (JSON MVP), zaktualizowano stack technologiczny i fazy budowy*
