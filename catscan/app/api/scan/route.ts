@@ -24,11 +24,12 @@ const ALL_PHASES = [
 /** POST /api/scan — start a new scan, resume, or batch from unscanned brands */
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { companies, phases, resume: resumeScanId, batch } = body as {
+  const { companies, phases, resume: resumeScanId, batch, rescan_incomplete } = body as {
     companies?: Array<{ name: string; url: string; nip?: string }>;
     phases?: string[];
     resume?: string;  // scan ID to resume
     batch?: number;   // pull N unscanned brands from SQLite
+    rescan_incomplete?: boolean;  // re-scan brands with <19 dimensions
   };
 
   // --- RESUME MODE ---
@@ -69,6 +70,86 @@ export async function POST(req: NextRequest) {
       entitiesProcessed: done,
       phasesCompleted: existing.phasesCompleted,
       remainingPhases,
+    });
+  }
+
+  // --- RESCAN INCOMPLETE: find brands with <19 dimensions and re-scan them ---
+  if (rescan_incomplete) {
+    const { db: sqlDb } = await import('@/lib/db/sqlite');
+    const EXPECTED_DIMS = [
+      'brand_identity', 'messaging', 'pricing', 'menu', 'delivery', 'technology',
+      'social_proof', 'contact', 'seo', 'website_structure', 'content_marketing',
+      'customer_acquisition', 'differentiators', 'visual_identity', 'context',
+      'social', 'ads', 'reviews', 'finance',
+    ];
+
+    const rows = sqlDb.prepare(`
+      SELECT b.slug, b.name, b.url, sr.data
+      FROM brands b
+      JOIN scan_results sr ON b.slug = sr.slug
+    `).all() as Array<{ slug: string; name: string; url: string; data: string }>;
+
+    const incomplete: Array<{ name: string; url: string; missing: string[] }> = [];
+    for (const row of rows) {
+      const data = JSON.parse(row.data);
+      const dims = Object.keys(data).filter((k: string) => !k.startsWith('_'));
+      const missing = EXPECTED_DIMS.filter(d => !dims.includes(d));
+      if (missing.length > 0) {
+        incomplete.push({ name: row.name, url: row.url, missing });
+      }
+    }
+
+    if (incomplete.length === 0) {
+      return NextResponse.json({ message: 'All scanned brands are complete (19/19 dimensions)', status: 'all_complete' });
+    }
+
+    // Create scan for incomplete brands — run ALL phases (resume logic will skip already-done phases)
+    const scanId = randomUUID();
+    const entities: EntityRecord[] = incomplete.map((c) => ({
+      id: randomUUID(),
+      name: c.name,
+      url: c.url,
+      nip: undefined,
+      domain: undefined,
+      data: {},
+      status: 'pending' as const,
+      errors: [],
+    }));
+
+    const scan: ScanRecord = {
+      id: scanId,
+      status: 'running',
+      sectorId: 'catering-pl',
+      entities,
+      phasesCompleted: [],
+      currentPhase: 'crawl',
+      log: [],
+      totalCostUsd: 0,
+      createdAt: new Date().toISOString(),
+      completedAt: null,
+    };
+
+    log(scan, `RESCAN_INCOMPLETE — ${incomplete.length} brands with missing dimensions`);
+    for (const c of incomplete) {
+      log(scan, `  ${c.name}: missing [${c.missing.join(', ')}]`);
+    }
+    saveScan(scan);
+
+    runPipeline(scanId, ALL_PHASES).catch((err) => {
+      const s = getScan(scanId);
+      if (s) {
+        s.status = 'failed';
+        log(s, `Pipeline error: ${err.message}`);
+        saveScan(s);
+      }
+    });
+
+    return NextResponse.json({
+      scanId,
+      status: 'running',
+      mode: 'rescan_incomplete',
+      entityCount: incomplete.length,
+      brands: incomplete.map(c => ({ name: c.name, missing: c.missing })),
     });
   }
 
@@ -536,9 +617,31 @@ async function runPipeline(scanId: string, enabledPhases: string[]) {
   const succeeded = scan.entities.filter((e) => e.status !== 'failed').length;
   log(scan, `--- SCAN COMPLETE: ${succeeded}/${scan.entities.length} entities, $${scan.totalCostUsd.toFixed(4)} ---`);
 
-  // Persist results into brands.json (survives redeploy, lives in git)
+  // Persist results into brands DB (survives redeploy)
   const merged = mergeScanIntoBrands(scan);
-  log(scan, `--- MERGED: ${merged} brands updated in brands.json ---`);
+  log(scan, `--- MERGED: ${merged} brands updated ---`);
+
+  // Post-scan validation: check completeness
+  const EXPECTED_DIMS = [
+    'brand_identity', 'messaging', 'pricing', 'menu', 'delivery', 'technology',
+    'social_proof', 'contact', 'seo', 'website_structure', 'content_marketing',
+    'customer_acquisition', 'differentiators', 'visual_identity', 'context',
+    'social', 'ads', 'reviews', 'finance',
+  ];
+  let incomplete = 0;
+  for (const entity of scan.entities) {
+    const dims = Object.keys(entity.data).filter(k => !k.startsWith('_'));
+    const missing = EXPECTED_DIMS.filter(d => !dims.includes(d));
+    if (missing.length > 0) {
+      incomplete++;
+      log(scan, `⚠ INCOMPLETE: ${entity.name} — missing ${missing.length}: [${missing.join(', ')}]`);
+    }
+  }
+  if (incomplete === 0) {
+    log(scan, `✓ VALIDATION: all ${succeeded} entities have ${EXPECTED_DIMS.length}/19 dimensions`);
+  } else {
+    log(scan, `⚠ VALIDATION: ${incomplete}/${succeeded} entities incomplete — use rescan_incomplete to fix`);
+  }
 
   saveScan(scan);
 }
