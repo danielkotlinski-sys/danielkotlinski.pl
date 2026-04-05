@@ -2141,11 +2141,20 @@
         "price_1500kcal": 72.99,
         "price_2000kcal": 77.99,
         "cheapest_daily": 65.99,
+        "price_by_kcal": {
+          "1200": 65.99,
+          "1500": 72.99,
+          "1800": 75.99,
+          "2000": 77.99,
+          "2200": 81.99,
+          "2500": 85.99,
+          "3000": 91.99
+        },
         "benchmark_diet_name": "Wybór menu",
         "price_source": "dietly-api",
         "_fallback": "dietly-api",
         "price_range_pln": "65.99-77.99 PLN/dzień",
-        "_pricing_fallback_done": "2026-04-05T09:38:36.956Z"
+        "_pricing_fallback_done": "2026-04-05T09:55:49.566Z"
       },
       "menu": {
         "calorie_options": [
@@ -3024,7 +3033,7 @@
       "_cost_pricing": {
         "usd": 0,
         "calls": 0,
-        "dietlyApiCalls": 3,
+        "dietlyApiCalls": 7,
         "provider": "dietly-api"
       },
       "_dietly_extract": {
@@ -3046,8 +3055,8 @@
         "pricingMethod": "dietly-api"
       }
     },
-    "lastScanId": "b971433e-69e5-487d-8869-778e85f71f59",
-    "lastScannedAt": "2026-04-05T09:38:39.396Z",
+    "lastScanId": "b62134fd-e302-49bf-b37c-28065fb144dc",
+    "lastScannedAt": "2026-04-05T09:55:54.829Z",
     "nip": "5423314760",
     "krs": "0000970748",
     "financials": {
@@ -3464,14 +3473,22 @@
         "language": "pl"
       },
       "pricing": {
-        "price_1500kcal": 73,
-        "price_2000kcal": 84,
-        "cheapest_daily": 66,
+        "price_1500kcal": 99,
+        "price_2000kcal": 107,
+        "cheapest_daily": 90,
+        "price_by_kcal": {
+          "1200": 90,
+          "1500": 99,
+          "1800": 103,
+          "2000": 107,
+          "2500": 113,
+          "3000": 123
+        },
         "benchmark_diet_name": "Wybór menu",
         "price_source": "dietly-api",
         "_fallback": "dietly-api",
-        "price_range_pln": "66-84 PLN/dzień",
-        "_pricing_fallback_done": "2026-04-05T09:38:39.308Z"
+        "price_range_pln": "90-107 PLN/dzień",
+        "_pricing_fallback_done": "2026-04-05T09:55:54.768Z"
       },
       "menu": {
         "calorie_options": [
@@ -4281,7 +4298,7 @@
       "_cost_pricing": {
         "usd": 0,
         "calls": 0,
-        "dietlyApiCalls": 3,
+        "dietlyApiCalls": 6,
         "provider": "dietly-api"
       },
       "_cost_discovery": {
@@ -4345,8 +4362,8 @@
         "pricingMethod": "dietly-api"
       }
     },
-    "lastScanId": "b971433e-69e5-487d-8869-778e85f71f59",
-    "lastScannedAt": "2026-04-05T09:38:39.396Z",
+    "lastScanId": "b62134fd-e302-49bf-b37c-28065fb144dc",
+    "lastScannedAt": "2026-04-05T09:55:54.829Z",
     "nip": "9512471196",
     "krs": "0000752666",
     "financials": {
