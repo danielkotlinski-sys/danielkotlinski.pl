@@ -88,7 +88,7 @@ export async function enrichFinance(entity: EntityRecord): Promise<EntityRecord>
 
   try {
     const cleanNip = nip.replace(/[-\s]/g, '');
-    const orgId = `nip${cleanNip}`;
+    let orgId = `nip${cleanNip}`;
     let costPln = 0;
 
     // Step 1: Get org data
@@ -97,13 +97,49 @@ export async function enrichFinance(entity: EntityRecord): Promise<EntityRecord>
       orgData = rejestrFetch(`/org/${orgId}`, apiKey) as Record<string, unknown>;
       costPln += 0.05;
     } catch (err) {
-      return {
-        ...entity,
-        data: {
-          ...entity.data,
-          finance: { skipped: true, reason: `Org lookup failed: ${err instanceof Error ? err.message : String(err)}` },
-        },
-      };
+      const errMsg = err instanceof Error ? err.message : String(err);
+
+      // Handle multi-KRS NIP (409: "Więcej niż jedna organizacja ma ten NIP. Ich numery KRS: [...]")
+      const krsMatch = errMsg.match(/numery KRS: \[([^\]]+)\]/);
+      if (krsMatch) {
+        const krsNumbers = krsMatch[1].split(',').map((s: string) => s.trim());
+        let found = false;
+
+        // Try each KRS — pick the first active (non-wykreślona) one
+        for (const krs of krsNumbers) {
+          try {
+            const candidate = rejestrFetch(`/org/${krs}`, apiKey) as Record<string, unknown>;
+            costPln += 0.05;
+            const stan = (candidate.stan || {}) as Record<string, unknown>;
+            if (!stan.czy_wykreslona) {
+              orgData = candidate;
+              orgId = krs;
+              found = true;
+              break;
+            }
+          } catch {
+            // try next
+          }
+        }
+
+        if (!found) {
+          return {
+            ...entity,
+            data: {
+              ...entity.data,
+              finance: { skipped: true, reason: `Multi-KRS NIP, all entities wykreślone: [${krsNumbers.join(', ')}]` },
+            },
+          };
+        }
+      } else {
+        return {
+          ...entity,
+          data: {
+            ...entity.data,
+            finance: { skipped: true, reason: `Org lookup failed: ${errMsg}` },
+          },
+        };
+      }
     }
 
     // Extract org info

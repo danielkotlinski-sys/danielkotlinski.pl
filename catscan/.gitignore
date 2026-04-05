@@ -1,6 +1,7 @@
 node_modules/
 .next/
 data/
+!data/brands.json
 .env
 .env.local
 *.tsbuildinfo
