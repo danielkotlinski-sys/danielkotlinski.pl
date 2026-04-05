@@ -363,7 +363,7 @@ function entityHasPhaseData(entity: EntityRecord, phaseName: string): boolean {
   }
 }
 
-/** Run a phase for each entity, with logging and error handling */
+/** Run a phase for each entity, with logging, error handling, and circuit breaker */
 async function runEntityPhase(
   scan: ScanRecord,
   phaseName: string,
@@ -387,6 +387,12 @@ async function runEntityPhase(
     log(scan, `Resuming: ${alreadyDone}/${scan.entities.length} entities already have ${phaseName} data`);
   }
 
+  // Circuit breaker: if the same phase throws N consecutive REAL errors (not "no data"),
+  // it's likely a systemic issue (API down, key expired, rate limit). Stop early.
+  const CIRCUIT_BREAKER_THRESHOLD = 3;
+  let consecutiveErrors = 0;
+  let lastErrorMsg = '';
+
   for (let i = 0; i < scan.entities.length; i++) {
     const entity = scan.entities[i];
     if (opts?.skipFailed && entity.status === 'failed') {
@@ -396,6 +402,7 @@ async function runEntityPhase(
 
     // Skip entities that already have data from this phase (resume support)
     if (entityHasPhaseData(entity, phaseName)) {
+      consecutiveErrors = 0; // reset — we have working data
       continue;
     }
 
@@ -404,6 +411,7 @@ async function runEntityPhase(
 
     try {
       scan.entities[i] = await fn(entity);
+      consecutiveErrors = 0; // reset on success
 
       // Track costs from all phases
       const eData = scan.entities[i].data as Record<string, unknown>;
@@ -484,6 +492,17 @@ async function runEntityPhase(
       const msg = err instanceof Error ? err.message : String(err);
       scan.entities[i].errors.push(`${phaseName}: ${msg}`);
       log(scan, `  → ERROR: ${msg}`);
+
+      consecutiveErrors++;
+      lastErrorMsg = msg;
+
+      // Circuit breaker: N consecutive real errors → systemic problem, stop the phase
+      if (consecutiveErrors >= CIRCUIT_BREAKER_THRESHOLD) {
+        log(scan, `🛑 CIRCUIT BREAKER: ${phaseName} failed ${consecutiveErrors}x in a row. Last error: ${lastErrorMsg}`);
+        log(scan, `   Stopping phase ${phaseName}. Fix the issue, then use rescan_incomplete to retry.`);
+        log(scan, `   Remaining entities skipped: ${scan.entities.length - i - 1}`);
+        break;
+      }
     }
 
     saveScan(scan);
@@ -492,7 +511,7 @@ async function runEntityPhase(
   scan.phasesCompleted.push(phaseName);
   saveScan(scan);
 
-  // Persist partial results to brands.json after each phase
+  // Persist partial results to SQLite after each phase
   // So even if the server crashes mid-pipeline, completed phases are saved
   mergeScanIntoBrands(scan);
 }
