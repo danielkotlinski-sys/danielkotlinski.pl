@@ -23,6 +23,7 @@ import {
   searchReviewVideos,
   getVideoDetails,
   filterReviewVideos,
+  detectSponsorship,
   type YouTubeVideoDetails,
 } from '@/lib/connectors/youtube';
 import {
@@ -86,6 +87,8 @@ interface YouTubeReviewData {
     likeCount: number;
     durationSeconds: number;
     url: string;
+    paidProductPlacement: boolean;
+    sponsorshipFromMetadata: { confidence: number; signals: string[] } | null;
     analysis: ReviewAnalysis | null;
     error?: string;
   }>;
@@ -113,6 +116,7 @@ Return ONLY a JSON object:
   "competitor_mentions": [{"name": "competitor brand name", "context": "favorable | unfavorable | neutral"}],
   "key_quotes": ["up to 3 notable direct quotes from the reviewer (in Polish or translated)"],
   "is_sponsored": true/false (does the reviewer disclose sponsorship or is this clearly a paid review?),
+  "sponsorship_context": "how is the sponsorship disclosed? e.g. 'partnerem odcinka jest...', 'materiał sponsorowany', verbal mention, on-screen text, or null if not sponsored",
   "is_unboxing": true/false (is this primarily an unboxing/first-impressions video?),
   "days_reviewed": number or null (how many days did the reviewer test this catering?),
   "summary": "2-3 sentences: what is the reviewer's overall verdict and the key takeaway for potential customers?"
@@ -247,6 +251,9 @@ export async function analyzeYouTubeReviews(entity: EntityRecord): Promise<Entit
 
   for (const video of selected) {
     const videoUrl = `https://www.youtube.com/watch?v=${video.videoId}`;
+    // Detect sponsorship from metadata before downloading
+    const sponsorship = detectSponsorship(video);
+
     const entry: YouTubeReviewData['videos'][0] = {
       videoId: video.videoId,
       title: video.title,
@@ -256,6 +263,11 @@ export async function analyzeYouTubeReviews(entity: EntityRecord): Promise<Entit
       likeCount: video.likeCount,
       durationSeconds: video.durationSeconds,
       url: videoUrl,
+      paidProductPlacement: video.paidProductPlacement,
+      sponsorshipFromMetadata: sponsorship.isSponsored ? {
+        confidence: sponsorship.confidence,
+        signals: sponsorship.signals,
+      } : null,
       analysis: null,
     };
 

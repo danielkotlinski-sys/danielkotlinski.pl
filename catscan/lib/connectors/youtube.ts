@@ -39,6 +39,7 @@ export interface YouTubeVideoDetails {
   tags: string[];
   categoryId: string;
   defaultLanguage?: string;
+  paidProductPlacement: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -178,7 +179,7 @@ export function getVideoDetails(
   for (const batch of batches) {
     try {
       const data = ytApiFetch('videos', {
-        part: 'snippet,contentDetails,statistics',
+        part: 'snippet,contentDetails,statistics,status',
         id: batch.join(','),
       }, apiKey) as {
         items?: Array<{
@@ -198,6 +199,13 @@ export function getVideoDetails(
             viewCount?: string;
             likeCount?: string;
             commentCount?: string;
+          };
+          status?: {
+            madeForKids?: boolean;
+            selfDeclaredMadeForKids?: boolean;
+          };
+          paidProductPlacementDetails?: {
+            hasPaidProductPlacement?: boolean;
           };
         }>;
         error?: { message: string };
@@ -224,6 +232,7 @@ export function getVideoDetails(
           likeCount: parseInt(item.statistics.likeCount || '0', 10),
           commentCount: parseInt(item.statistics.commentCount || '0', 10),
           tags: item.snippet.tags || [],
+          paidProductPlacement: item.paidProductPlacementDetails?.hasPaidProductPlacement ?? false,
           categoryId: item.snippet.categoryId,
           defaultLanguage: item.snippet.defaultLanguage,
         });
@@ -258,4 +267,65 @@ export function filterReviewVideos(
     if (v.durationSeconds > maxDuration) return false;
     return true;
   });
+}
+
+// ---------------------------------------------------------------------------
+// Sponsorship detection from video metadata (no download needed)
+// ---------------------------------------------------------------------------
+
+const SPONSORSHIP_MARKERS_PL = [
+  '#ad', '#reklama', '#współpraca', '#wspolpraca', '#materiałsponsorowany',
+  '#materialreklamowy', '#paid', '#sponsored',
+  'materiał sponsorowany', 'materiał reklamowy', 'współpraca reklamowa',
+  'partnerem odcinka', 'partnerem tego odcinka', 'partnerem filmu',
+  'sponsorem odcinka', 'we współpracy z', 'w współpracy z',
+  'powstał we współpracy', 'materiał powstał we współpracy',
+];
+
+/**
+ * Detect sponsorship signals from video metadata (title, description, tags, paid placement flag).
+ * Returns confidence score 0-1 and matched signals.
+ */
+export function detectSponsorship(video: YouTubeVideoDetails): {
+  isSponsored: boolean;
+  confidence: number;
+  signals: string[];
+} {
+  const signals: string[] = [];
+
+  // Signal 1: YouTube's official paidProductPlacement flag (strongest)
+  if (video.paidProductPlacement) {
+    signals.push('paidProductPlacement flag');
+  }
+
+  // Signal 2: Sponsorship markers in description
+  const descLower = video.description.toLowerCase();
+  for (const marker of SPONSORSHIP_MARKERS_PL) {
+    if (descLower.includes(marker.toLowerCase())) {
+      signals.push(`description: "${marker}"`);
+      break; // one match is enough
+    }
+  }
+
+  // Signal 3: Sponsorship markers in title
+  const titleLower = video.title.toLowerCase();
+  for (const marker of SPONSORSHIP_MARKERS_PL) {
+    if (titleLower.includes(marker.toLowerCase())) {
+      signals.push(`title: "${marker}"`);
+      break;
+    }
+  }
+
+  // Signal 4: Tags containing ad markers
+  const tagStr = video.tags.join(' ').toLowerCase();
+  if (tagStr.includes('#ad') || tagStr.includes('sponsored') || tagStr.includes('reklama') || tagStr.includes('współpraca')) {
+    signals.push('tags contain ad markers');
+  }
+
+  const confidence = Math.min(signals.length / 2, 1); // 2+ signals = high confidence
+  return {
+    isSponsored: signals.length > 0,
+    confidence,
+    signals,
+  };
 }
