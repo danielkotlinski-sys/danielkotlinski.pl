@@ -33,17 +33,20 @@ export async function GET(req: NextRequest) {
 
   // Parse data JSON for each result to determine completeness
   const incompleteRows: Array<{ slug: string; data: Record<string, unknown> }> = [];
+  const dimCounts = new Map<string, number>(); // slug -> actual dim count
 
   for (const row of allResults) {
     let dataObj: Record<string, unknown> = {};
     try { dataObj = JSON.parse(row.data); } catch { /* empty */ }
 
-    const presentDims = EXPECTED_DIMS.filter(d => {
+    const presentCount = EXPECTED_DIMS.filter(d => {
       const val = dataObj[d];
       return val !== undefined && val !== null && val !== '';
-    });
+    }).length;
 
-    if (presentDims.length >= EXPECTED_DIMS.length) {
+    dimCounts.set(row.slug, presentCount);
+
+    if (presentCount >= EXPECTED_DIMS.length) {
       completeBrands++;
       completeSlugs.push(row.slug);
     } else {
@@ -93,11 +96,21 @@ export async function GET(req: NextRequest) {
         } catch { /* parse error — skip */ }
       }
 
+      // Classify each missing dim: check if it has a value that's explicitly empty/skipped
+      const missingDetails = missing.map(dim => {
+        const val = row.data[dim];
+        if (val === undefined || val === null) return { dim, reason: 'not_attempted' as const };
+        if (typeof val === 'object' && val && 'skipped' in val) return { dim, reason: 'skipped' as const };
+        if (typeof val === 'string' && val === '') return { dim, reason: 'empty' as const };
+        return { dim, reason: 'empty' as const };
+      });
+
       incompleteList.push({
         slug: row.slug,
         name: brand?.name || row.slug,
         dims: presentDims.length,
         missing,
+        missingDetails,
         errors,
       });
     }
@@ -110,7 +123,7 @@ export async function GET(req: NextRequest) {
 
   const recentScans = allResults.slice(0, 20).map(r => ({
     slug: r.slug,
-    phase_count: r.phase_count,
+    phase_count: dimCounts.get(r.slug) ?? r.phase_count,
     updated_at: r.updated_at,
   }));
 

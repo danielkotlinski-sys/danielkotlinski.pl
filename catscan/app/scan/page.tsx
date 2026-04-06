@@ -41,7 +41,7 @@ interface DbStats {
   incompleteBrands: number;
   financialYears: number;
   socialPosts: number;
-  incompleteList: Array<{ slug: string; name: string; dims: number; missing: string[]; errors: string[] }>;
+  incompleteList: Array<{ slug: string; name: string; dims: number; missing: string[]; missingDetails?: Array<{ dim: string; reason: 'not_attempted' | 'skipped' | 'empty' }>; errors: string[] }>;
   recentScans: Array<{ slug: string; phase_count: number; updated_at: string }>;
   brandList: BrandEntry[];
 }
@@ -597,13 +597,25 @@ export default function ScanDashboard() {
                         <span className="font-mono text-cs-sm font-semibold">{b.name}</span>
                         <span className="font-mono text-cs-xs text-cs-silver ml-2">{b.slug}</span>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className="font-mono text-cs-xs text-red-500">{b.dims}/19</span>
-                        <div className="font-mono text-[0.5rem] text-red-400">{b.missing.join(', ')}</div>
-                      </div>
+                      <span className="font-mono text-cs-xs text-red-500">{b.dims}/19</span>
+                    </div>
+                    <div className="mt-1.5 flex flex-wrap gap-1">
+                      {(b.missingDetails || b.missing.map(m => ({ dim: m, reason: 'empty' as const }))).map(({ dim, reason }) => (
+                        <span
+                          key={dim}
+                          className={`font-mono text-[0.5rem] px-1.5 py-0.5 border ${
+                            reason === 'not_attempted' ? 'border-gray-300 text-gray-400 bg-gray-50' :
+                            reason === 'skipped' ? 'border-yellow-300 text-yellow-600 bg-yellow-50' :
+                            'border-red-300 text-red-500 bg-red-50'
+                          }`}
+                          title={reason === 'not_attempted' ? 'Faza nie uruchomiona' : reason === 'skipped' ? 'Pominięte (np. brak danych)' : 'Brak danych po skanowaniu'}
+                        >
+                          {dim} {reason === 'not_attempted' ? '○' : reason === 'skipped' ? '⊘' : '✗'}
+                        </span>
+                      ))}
                     </div>
                     {b.errors && b.errors.length > 0 && (
-                      <div className="mt-1 ml-2 border-l-2 border-red-200 pl-2">
+                      <div className="mt-1.5 ml-2 border-l-2 border-red-200 pl-2">
                         {b.errors.map((err, i) => (
                           <div key={i} className="font-mono text-[0.5rem] text-red-500">↳ {err}</div>
                         ))}
