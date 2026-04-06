@@ -160,6 +160,41 @@ const SECTIONS: Array<{
     dataPath: 'finance',
     fields: ['revenue', 'netIncome', 'totalAssets', 'equity', 'org_name', 'krs_number', 'years_fetched'],
   },
+  {
+    key: 'youtube_reviews',
+    label: 'YOUTUBE // Recenzje',
+    phase: 'youtube_reviews',
+    dataPath: 'youtube_reviews',
+    fields: ['reviews_found', 'reviews_analyzed', 'avg_sentiment', 'total_views', 'sponsored_count'],
+  },
+  {
+    key: 'google_ads',
+    label: 'GOOGLE ADS // Transparency',
+    phase: 'google_ads',
+    dataPath: 'google_ads',
+    fields: ['totalAdsFound', 'estimatedIntensity', 'longestRunningAdDays', 'advertiserVerified', 'formats'],
+  },
+  {
+    key: 'influencer_ig',
+    label: 'INFLUENCER // Instagram',
+    phase: 'influencer_ig',
+    dataPath: 'influencer_ig',
+    fields: ['unique_influencers', 'tagged_posts_found', 'sponsored_posts', 'total_reach_followers'],
+  },
+  {
+    key: 'influencer_press',
+    label: 'INFLUENCER // Prasa',
+    phase: 'influencer_press',
+    dataPath: 'influencer_press',
+    fields: ['partnerships', 'partnership_count'],
+  },
+  {
+    key: 'scorecard',
+    label: 'SCORECARD // Analiza',
+    phase: 'scorecard',
+    dataPath: 'scorecard',
+    fields: ['description', 'scores', 'tags', 'signals', 'segment', 'positioning', 'strengths', 'weaknesses'],
+  },
 ];
 
 function getNestedValue(obj: Record<string, unknown>, path: string): unknown {

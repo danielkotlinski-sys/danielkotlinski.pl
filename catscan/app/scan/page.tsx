@@ -55,7 +55,8 @@ const EXPECTED_DIMS = [
 
 const ALL_PHASES = [
   'crawl', 'extract', 'visual', 'context', 'pricing_fallback', 'discovery',
-  'social', 'video', 'ads', 'reviews', 'finance', 'scorecard'
+  'social', 'video', 'youtube_reviews', 'ads', 'google_ads', 'reviews', 'finance',
+  'influencer_press', 'influencer_ig', 'scorecard'
 ];
 
 // ── Main Component ──

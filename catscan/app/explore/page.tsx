@@ -209,6 +209,73 @@ const DIMENSIONS: Dimension[] = [
       { key: 'unique_differentiator', label: 'Wyroznik' },
     ],
   },
+  {
+    id: 'scorecard',
+    label: 'Scorecard',
+    dataPath: 'scorecard',
+    fields: [
+      { key: 'scores.overall', label: 'Overall', format: 'number' },
+      { key: 'scores.price_competitiveness', label: 'Cena', format: 'number' },
+      { key: 'scores.social_presence', label: 'Social', format: 'number' },
+      { key: 'scores.ad_intensity', label: 'Reklamy', format: 'number' },
+      { key: 'scores.review_reputation', label: 'Opinie', format: 'number' },
+      { key: 'scores.brand_awareness', label: 'Swiadomosc', format: 'number' },
+      { key: 'scores.financial_health', label: 'Finanse', format: 'number' },
+      { key: 'scores.content_quality', label: 'Content', format: 'number' },
+      { key: 'scores.influencer_reach', label: 'Influencerzy', format: 'number' },
+      { key: 'segment', label: 'Segment' },
+      { key: 'positioning', label: 'Pozycjonowanie' },
+      { key: 'tags', label: 'Tagi', format: 'list' },
+    ],
+  },
+  {
+    id: 'youtube_reviews',
+    label: 'YouTube',
+    dataPath: 'youtube_reviews',
+    fields: [
+      { key: 'reviews_found', label: 'Znalezione', format: 'number' },
+      { key: 'reviews_analyzed', label: 'Przeanalizowane', format: 'number' },
+      { key: 'avg_sentiment', label: 'Sentyment', format: 'number' },
+      { key: 'total_views', label: 'Wyswietlenia', format: 'number' },
+      { key: 'sponsored_count', label: 'Sponsorowane', format: 'number' },
+      { key: 'top_pros', label: 'Zalety', format: 'list' },
+      { key: 'top_cons', label: 'Wady', format: 'list' },
+    ],
+  },
+  {
+    id: 'google_ads',
+    label: 'Google Ads',
+    dataPath: 'google_ads',
+    fields: [
+      { key: 'totalAdsFound', label: 'Reklamy', format: 'number' },
+      { key: 'estimatedIntensity', label: 'Intensywnosc' },
+      { key: 'longestRunningAdDays', label: 'Najdluzsza (dni)', format: 'number' },
+      { key: 'avgAdDurationDays', label: 'Srednia (dni)', format: 'number' },
+      { key: 'formats', label: 'Formaty', format: 'list' },
+      { key: 'advertiserVerified', label: 'Zweryfikowany', format: 'boolean' },
+    ],
+  },
+  {
+    id: 'influencer_ig',
+    label: 'Influencerzy IG',
+    dataPath: 'influencer_ig',
+    fields: [
+      { key: 'unique_influencers', label: 'Influencerzy', format: 'number' },
+      { key: 'tagged_posts_found', label: 'Tagged posts', format: 'number' },
+      { key: 'sponsored_posts', label: 'Sponsorowane', format: 'number' },
+      { key: 'total_reach_followers', label: 'Zasieg (followers)', format: 'number' },
+      { key: 'top_influencers', label: 'Top influencerzy', format: 'list' },
+    ],
+  },
+  {
+    id: 'influencer_press',
+    label: 'Prasa',
+    dataPath: 'influencer_press',
+    fields: [
+      { key: 'partnerships', label: 'Wspolprace', format: 'list' },
+      { key: 'partnership_count', label: 'Liczba', format: 'number' },
+    ],
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -249,6 +316,12 @@ function formatValue(val: unknown, format?: string): string {
       }).join(', ');
     }
     return val.join(', ');
+  }
+  // Handle Record<string, number> displayed as list (e.g. ad formats: {text: 5, image: 3})
+  if (format === 'list' && val && typeof val === 'object' && !Array.isArray(val)) {
+    const entries = Object.entries(val as Record<string, unknown>);
+    if (entries.length === 0) return '\u2014';
+    return entries.map(([k, v]) => `${k}: ${v}`).join(', ');
   }
   if (format === 'url' && typeof val === 'string') {
     return val;
@@ -476,12 +549,9 @@ function EntityDetailPanel({ entity, onClose }: { entity: EntityData; onClose: (
 
 function QuickStats({ entities }: { entities: EntityData[] }) {
   const stats = useMemo(() => {
-    let withPricing = 0;
-    let withSocial = 0;
-    let withFinance = 0;
-    let withReviews = 0;
-    let withContext = 0;
-    let withNip = 0;
+    let withPricing = 0, withSocial = 0, withFinance = 0, withReviews = 0;
+    let withContext = 0, withNip = 0, withScorecard = 0, withYouTube = 0;
+    let withGoogleAds = 0, withInfluencers = 0;
 
     entities.forEach((e) => {
       const d = e.data;
@@ -491,9 +561,13 @@ function QuickStats({ entities }: { entities: EntityData[] }) {
       if (d.reviews) withReviews++;
       if (d.context) withContext++;
       if (e.nip) withNip++;
+      if (d.scorecard && !(d.scorecard as Record<string, unknown>).skipped) withScorecard++;
+      if (d.youtube_reviews && !(d.youtube_reviews as Record<string, unknown>).skipped) withYouTube++;
+      if (d.google_ads && !(d.google_ads as Record<string, unknown>).skipped) withGoogleAds++;
+      if ((d.influencer_ig && !(d.influencer_ig as Record<string, unknown>).skipped) || d.influencer_press) withInfluencers++;
     });
 
-    return { withPricing, withSocial, withFinance, withReviews, withContext, withNip, total: entities.length };
+    return { withPricing, withSocial, withFinance, withReviews, withContext, withNip, withScorecard, withYouTube, withGoogleAds, withInfluencers, total: entities.length };
   }, [entities]);
 
   const items = [
@@ -503,7 +577,10 @@ function QuickStats({ entities }: { entities: EntityData[] }) {
     { label: 'z social', value: stats.withSocial },
     { label: 'z opiniami', value: stats.withReviews },
     { label: 'z finansami', value: stats.withFinance },
-    { label: 'z kontekstem', value: stats.withContext },
+    { label: 'z scorecard', value: stats.withScorecard },
+    { label: 'z YouTube', value: stats.withYouTube },
+    { label: 'z Google Ads', value: stats.withGoogleAds },
+    { label: 'z influencerami', value: stats.withInfluencers },
   ];
 
   return (
