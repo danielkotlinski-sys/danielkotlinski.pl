@@ -15,13 +15,14 @@ import { enrichPricingFallback } from '@/lib/pipeline/phases/pricing-fallback';
 import { extractVisualIdentity } from '@/lib/pipeline/phases/visual';
 import { analyzeVideo } from '@/lib/pipeline/phases/video';
 import { analyzeYouTubeReviews } from '@/lib/pipeline/phases/youtube-reviews';
+import { enrichInfluencerPress } from '@/lib/pipeline/phases/influencer-press';
 
 // All phases in order. Context before discovery (provides legalName for rejestr.io).
 // Visual runs after crawl (needs URL), uses Apify screenshot + Haiku vision.
 // Video runs after social (needs post URLs), uses yt-dlp + Gemini + Sonnet.
 const ALL_PHASES = [
   'crawl', 'extract', 'visual', 'context', 'pricing_fallback', 'discovery',
-  'social', 'video', 'youtube_reviews', 'ads', 'reviews', 'finance', 'interpret'
+  'social', 'video', 'youtube_reviews', 'ads', 'reviews', 'finance', 'influencer_press', 'interpret'
 ];
 
 /** POST /api/scan — start a new scan, resume, or batch from unscanned brands */
@@ -422,6 +423,7 @@ function entityHasPhaseData(entity: EntityRecord, phaseName: string): boolean {
     case 'social':          return !!(d.social && !(d.social as Record<string, unknown>).skipped);
     case 'video':           return !!(d.video && !(d.video as Record<string, unknown>).skipped);
     case 'youtube_reviews': return !!(d.youtube_reviews && !(d.youtube_reviews as Record<string, unknown>).skipped);
+    case 'influencer_press': return !!d.influencer_press;
     case 'ads':             return !!d.ads;
     case 'reviews':         return !!d.reviews;
     case 'finance':         return !!(d.finance && !(d.finance as Record<string, unknown>).skipped);
@@ -688,7 +690,31 @@ async function runPipeline(scanId: string, enabledPhases: string[]) {
     });
   }
 
-  // Phase 8: Sector interpretation (runs once on full dataset, not per-entity)
+  // Phase 9: Influencer Press — scrape trade portals for brand partnerships (runs ONCE per scan)
+  if (has('influencer_press')) {
+    scan.currentPhase = 'influencer_press';
+    log(scan, '--- PHASE: INFLUENCER_PRESS ---');
+    saveScan(scan);
+
+    if (!process.env.ANTHROPIC_API_KEY) {
+      log(scan, 'ANTHROPIC_API_KEY not set — skipping influencer press');
+    } else {
+      log(scan, 'Scraping nowymarketing.pl + wirtualnemedia.pl for brand partnerships...');
+      saveScan(scan);
+
+      const result = await enrichInfluencerPress(scan);
+      scan.totalCostUsd += result.costUsd;
+      log(scan, `  → ${result.totalArticles} articles scraped, ${result.totalPartnerships} partnerships mapped to entities ($${result.costUsd.toFixed(4)})`);
+
+      // Persist partial results
+      mergeScanIntoBrands(scan);
+    }
+
+    scan.phasesCompleted.push('influencer_press');
+    saveScan(scan);
+  }
+
+  // Phase 10: Sector interpretation (runs once on full dataset, not per-entity)
   if (has('interpret')) {
     scan.currentPhase = 'interpret';
     log(scan, '--- PHASE: INTERPRET ---');

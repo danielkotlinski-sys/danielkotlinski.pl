@@ -21,6 +21,7 @@ export type PhaseName =
   | 'reviews'
   | 'finance'
   | 'youtube_reviews'
+  | 'influencer_press'
   | 'interpret';
 
 export interface PhaseResult {
