@@ -61,6 +61,17 @@ const ALL_PHASES = [
 
 // ── Main Component ──
 
+interface ScanHistoryItem {
+  id: string;
+  status: string;
+  entityCount: number;
+  phasesCompleted: string[];
+  currentPhase: string | null;
+  totalCostUsd: number;
+  createdAt: string;
+  completedAt: string | null;
+}
+
 export default function ScanDashboard() {
   const [stats, setStats] = useState<DbStats | null>(null);
   const [activeScanId, setActiveScanId] = useState<string | null>(null);
@@ -69,6 +80,11 @@ export default function ScanDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<'dashboard' | 'manual' | 'log'>('dashboard');
   const logRef = useRef<HTMLDivElement>(null);
+
+  // Scan history
+  const [scanHistory, setScanHistory] = useState<ScanHistoryItem[]>([]);
+  const [expandedScanId, setExpandedScanId] = useState<string | null>(null);
+  const [expandedScanLog, setExpandedScanLog] = useState<string[] | null>(null);
 
   // Manual scan fields
   const [manualName, setManualName] = useState('');
@@ -115,6 +131,35 @@ export default function ScanDashboard() {
       } catch { /* ignore */ }
     })();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Fetch scan history when log tab opens ──
+  const fetchHistory = useCallback(async () => {
+    try {
+      const res = await fetch('/api/scan');
+      if (res.ok) setScanHistory(await res.json());
+    } catch { /* ignore */ }
+  }, []);
+
+  useEffect(() => {
+    if (tab === 'log') fetchHistory();
+  }, [tab, fetchHistory]);
+
+  const loadScanLog = useCallback(async (scanId: string) => {
+    if (expandedScanId === scanId) {
+      setExpandedScanId(null);
+      setExpandedScanLog(null);
+      return;
+    }
+    setExpandedScanId(scanId);
+    setExpandedScanLog(null);
+    try {
+      const res = await fetch(`/api/scan/${scanId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setExpandedScanLog(data.log || []);
+      }
+    } catch { /* ignore */ }
+  }, [expandedScanId]);
 
   // ── Poll active scan ──
   const pollScan = useCallback(async () => {
@@ -650,12 +695,7 @@ export default function ScanDashboard() {
       {/* ─── LOG TAB ─── */}
       {tab === 'log' && (
         <div>
-          {!activeScanId && !scanStatus && (
-            <div className="font-mono text-cs-sm text-cs-silver p-8 text-center border border-cs-border">
-              Brak aktywnego skanu. Uruchom batch lub skan manualny.
-            </div>
-          )}
-
+          {/* Active scan (live) */}
           {activeScanId && scanStatus && (
             <>
               <ActiveScanCard
@@ -703,10 +743,10 @@ export default function ScanDashboard() {
                 </div>
               </div>
 
-              {/* Full log */}
-              <div className="border border-cs-border">
+              {/* Live log */}
+              <div className="border border-cs-border mb-6">
                 <div className="bg-cs-canvas p-3 border-b border-cs-border flex items-center justify-between">
-                  <div className="font-mono text-cs-xs uppercase tracking-[0.14em] text-cs-gray">PIPELINE_LOG</div>
+                  <div className="font-mono text-cs-xs uppercase tracking-[0.14em] text-cs-gray">LIVE_LOG</div>
                   <div className="font-mono text-[0.5rem] text-cs-silver">{scanStatus.log.length} entries</div>
                 </div>
                 <div
@@ -714,22 +754,76 @@ export default function ScanDashboard() {
                   className="bg-cs-black text-cs-white p-4 font-mono text-[0.6875rem] leading-[1.7] max-h-[500px] overflow-y-auto"
                 >
                   {scanStatus.log.map((line, i) => (
-                    <div key={i} className={
-                      line.includes('ERROR') || line.includes('FAILED') ? 'text-red-400' :
-                      line.includes('INCOMPLETE') ? 'text-yellow-400' :
-                      line.includes('COMPLETE') || line.includes('VALIDATION') || line.includes('MERGED') ? 'text-green-400 font-semibold' :
-                      line.includes('--- PHASE:') ? 'text-blue-400 font-semibold mt-1' :
-                      line.includes('→ OK') ? 'text-gray-400' :
-                      'text-gray-500'
-                    }>
-                      {line}
-                    </div>
+                    <LogLine key={i} line={line} />
                   ))}
                   {isRunning && <div className="text-yellow-400 animate-pulse mt-1">▌</div>}
                 </div>
               </div>
             </>
           )}
+
+          {/* Scan history */}
+          <div className="border border-cs-border">
+            <div className="bg-cs-canvas p-3 border-b border-cs-border flex items-center justify-between">
+              <div className="font-mono text-cs-xs uppercase tracking-[0.14em] text-cs-gray">
+                SCAN_HISTORY ({scanHistory.length})
+              </div>
+              <button
+                onClick={fetchHistory}
+                className="font-mono text-[0.5rem] text-cs-silver hover:text-cs-black uppercase"
+              >
+                REFRESH
+              </button>
+            </div>
+            {scanHistory.length === 0 && (
+              <div className="font-mono text-cs-sm text-cs-silver p-6 text-center">
+                Brak historii skanów.
+              </div>
+            )}
+            <div className="divide-y divide-cs-border">
+              {scanHistory.map(scan => (
+                <div key={scan.id}>
+                  <button
+                    onClick={() => loadScanLog(scan.id)}
+                    className="w-full p-3 flex items-center justify-between font-mono text-cs-sm hover:bg-cs-canvas transition-colors text-left"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-2 h-2 rounded-full ${
+                        scan.status === 'completed' ? 'bg-green-500' :
+                        scan.status === 'running' ? 'bg-yellow-500 animate-pulse' :
+                        'bg-red-500'
+                      }`} />
+                      <span className="text-cs-xs text-cs-silver">{scan.createdAt?.slice(0, 16)}</span>
+                      <span className={`text-[0.5rem] uppercase tracking-wider px-1.5 py-0.5 border ${
+                        scan.status === 'completed' ? 'border-green-300 text-green-600' :
+                        scan.status === 'running' ? 'border-yellow-300 text-yellow-600' :
+                        'border-red-300 text-red-500'
+                      }`}>{scan.status}</span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className="text-cs-xs">{scan.entityCount} marek</span>
+                      <span className="text-cs-xs">{scan.phasesCompleted.length}/{ALL_PHASES.length} faz</span>
+                      <span className="text-cs-xs text-cs-silver">${scan.totalCostUsd.toFixed(4)}</span>
+                      <span className="text-cs-xs text-cs-silver">{expandedScanId === scan.id ? '▲' : '▼'}</span>
+                    </div>
+                  </button>
+                  {expandedScanId === scan.id && (
+                    <div className="bg-cs-black text-cs-white p-4 font-mono text-[0.6875rem] leading-[1.7] max-h-[500px] overflow-y-auto border-t border-cs-border">
+                      {!expandedScanLog && (
+                        <div className="text-cs-silver">Ładowanie logów...</div>
+                      )}
+                      {expandedScanLog && expandedScanLog.length === 0 && (
+                        <div className="text-cs-silver">Brak logów dla tego skanu.</div>
+                      )}
+                      {expandedScanLog && expandedScanLog.map((line, i) => (
+                        <LogLine key={i} line={line} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 
@@ -802,6 +896,21 @@ function ActiveScanCard({ scanStatus, isRunning, isComplete, isFailed, onReset }
       <div className="mt-2 font-mono text-cs-xs text-cs-silver">
         ID: {scanStatus.id} | Entities: {scanStatus.entities.length} | Started: {scanStatus.createdAt?.slice(0, 19)}
       </div>
+    </div>
+  );
+}
+
+function LogLine({ line }: { line: string }) {
+  return (
+    <div className={
+      line.includes('ERROR') || line.includes('FAILED') ? 'text-red-400' :
+      line.includes('INCOMPLETE') ? 'text-yellow-400' :
+      line.includes('COMPLETE') || line.includes('VALIDATION') || line.includes('MERGED') ? 'text-green-400 font-semibold' :
+      line.includes('--- PHASE:') ? 'text-blue-400 font-semibold mt-1' :
+      line.includes('→ OK') ? 'text-gray-400' :
+      'text-gray-500'
+    }>
+      {line}
     </div>
   );
 }
