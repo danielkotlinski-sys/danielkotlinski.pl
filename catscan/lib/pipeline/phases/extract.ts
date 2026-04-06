@@ -93,7 +93,8 @@ Extract ALL of the following dimensions. Return ONLY valid JSON, no markdown, no
     "unique_claims": ["array of claims that set this brand apart, e.g. 'jedyny catering z dietą FODMAP', 'własna farma ekologiczna'"],
     "competitive_advantage_type": "price | quality | convenience | niche | brand | none — the primary axis of differentiation",
     "niche_focus": "string or null — specific niche if any, e.g. 'sportowcy', 'kobiety w ciąży', 'wegetarianie'"
-  }
+  },
+  "communication_corpus": "string — IMPORTANT: verbatim copy of ALL communication-relevant text from the website, concatenated. Include: hero headline + subheadline, about us / o nas section, 'dlaczego my' / why us section, benefits list, brand manifesto if present, diet descriptions (the marketing copy, not nutritional specs), blog post titles (up to 10), testimonial quotes (up to 5), any slogans or taglines found across the site. Preserve original wording — do NOT summarize, paraphrase, or translate. Separate sections with ' | '. Target: 1000-2500 characters. This field is used for downstream semantic analysis, so faithfulness to original wording is critical."
 }
 
 Important:
@@ -105,7 +106,8 @@ Important:
 - Prices in PLN only
 - All text fields in Polish if the source is Polish
 - Be precise, don't hallucinate data not present in the source
-- cliche_score: 0 = truly original messaging, 10 = entirely generic diet catering clichés`;
+- cliche_score: 0 = truly original messaging, 10 = entirely generic diet catering clichés
+- communication_corpus: copy-paste verbatim text from the site, do NOT rewrite or summarize. This is a raw text dump for later semantic analysis. Include hero copy, about us, why us, benefits, diet descriptions (marketing copy), blog titles, testimonials. Separate with ' | '. If the site has very little text, include everything available.`;
 
 function shellEscape(s: string): string {
   return "'" + s.replace(/'/g, "'\\''") + "'";
