@@ -64,7 +64,7 @@ export async function GET(req: NextRequest) {
     }>;
 
     // Batch-load scan audit logs for error extraction
-    const scanIds = [...new Set(incompleteRows.map(r => r.last_scan_id).filter(Boolean))] as string[];
+    const scanIds = Array.from(new Set(incompleteRows.map(r => r.last_scan_id).filter((id): id is string => id != null)));
     const scanMap = new Map<string, string>();
     if (scanIds.length > 0) {
       const scanPlaceholders = scanIds.map(() => '?').join(',');
