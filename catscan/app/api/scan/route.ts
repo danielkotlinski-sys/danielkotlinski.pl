@@ -14,13 +14,14 @@ import { interpretDataset } from '@/lib/pipeline/phases/interpret';
 import { enrichPricingFallback } from '@/lib/pipeline/phases/pricing-fallback';
 import { extractVisualIdentity } from '@/lib/pipeline/phases/visual';
 import { analyzeVideo } from '@/lib/pipeline/phases/video';
+import { analyzeYouTubeReviews } from '@/lib/pipeline/phases/youtube-reviews';
 
 // All phases in order. Context before discovery (provides legalName for rejestr.io).
 // Visual runs after crawl (needs URL), uses Apify screenshot + Haiku vision.
 // Video runs after social (needs post URLs), uses yt-dlp + Gemini + Sonnet.
 const ALL_PHASES = [
   'crawl', 'extract', 'visual', 'context', 'pricing_fallback', 'discovery',
-  'social', 'video', 'ads', 'reviews', 'finance', 'interpret'
+  'social', 'video', 'youtube_reviews', 'ads', 'reviews', 'finance', 'interpret'
 ];
 
 /** POST /api/scan — start a new scan, resume, or batch from unscanned brands */
@@ -420,6 +421,7 @@ function entityHasPhaseData(entity: EntityRecord, phaseName: string): boolean {
     case 'discovery':       return !!d._discovery;
     case 'social':          return !!(d.social && !(d.social as Record<string, unknown>).skipped);
     case 'video':           return !!(d.video && !(d.video as Record<string, unknown>).skipped);
+    case 'youtube_reviews': return !!(d.youtube_reviews && !(d.youtube_reviews as Record<string, unknown>).skipped);
     case 'ads':             return !!d.ads;
     case 'reviews':         return !!d.reviews;
     case 'finance':         return !!(d.finance && !(d.finance as Record<string, unknown>).skipped);
@@ -519,6 +521,10 @@ async function runEntityPhase(
         const vid = d.video as Record<string, unknown> | undefined;
         if (vid?.skipped) detail = `skipped: ${vid.reason}`;
         else if (vid) detail = `${vid.analyzed_count}/${(vid.analyzed_count as number) + (vid.failed_count as number)} videos analyzed, platforms: ${(vid.platforms as string[])?.join('+') || 'none'}`;
+      } else if (phaseName === 'youtube_reviews') {
+        const ytr = d.youtube_reviews as Record<string, unknown> | undefined;
+        if (ytr?.skipped) detail = `skipped: ${ytr.reason}`;
+        else if (ytr) detail = `${ytr.reviews_analyzed}/${ytr.reviews_found} reviews analyzed, cost: $${(ytr.cost_usd as number)?.toFixed(4) || '0'}`;
       } else if (phaseName === 'ads') {
         const ads = d.ads as Record<string, unknown> | undefined;
         if (ads) detail = `${ads.activeAdsCount} active ads, intensity: ${ads.estimatedIntensity}`;
@@ -649,6 +655,14 @@ async function runPipeline(scanId: string, enabledPhases: string[]) {
     await runEntityPhase(scan, 'video', analyzeVideo, {
       skipFailed: true,
       requireKey: 'GEMINI_API_KEY',
+    });
+  }
+
+  // Phase 5c: YouTube Reviews — YouTube Data API + yt-dlp + Gemini Flash + Sonnet
+  if (has('youtube_reviews')) {
+    await runEntityPhase(scan, 'youtube_reviews', analyzeYouTubeReviews, {
+      skipFailed: true,
+      requireKey: 'YOUTUBE_API_KEY',
     });
   }
 

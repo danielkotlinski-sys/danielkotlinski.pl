@@ -18,13 +18,16 @@
  * External: yt-dlp (pip install yt-dlp)
  */
 
-import { execSync } from 'child_process';
-import { existsSync, unlinkSync, readFileSync, statSync } from 'fs';
-import { join } from 'path';
-import { randomUUID } from 'crypto';
 import type { EntityRecord } from '@/lib/db/store';
-
-const TMP_DIR = '/tmp/catscan-video';
+import {
+  ensureTmpDir,
+  cleanupFile,
+  downloadVideo,
+  uploadToGemini,
+  waitForGeminiProcessing,
+  analyzeWithGemini,
+  callSonnet,
+} from '@/lib/connectors/gemini-video';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -98,6 +101,32 @@ interface VideoData {
   cost_usd: number;
   analyzed_at: string;
 }
+
+// ---------------------------------------------------------------------------
+// Gemini prompt for brand video content analysis
+// ---------------------------------------------------------------------------
+
+const GEMINI_VIDEO_PROMPT = `Analyze this short social media video (Instagram Reel or TikTok) from a diet catering brand.
+
+Return ONLY a JSON object with these fields:
+{
+  "hook_type": "text-overlay | face-to-camera | product-shot | before-after | question | montage-intro | other",
+  "hook_text": "what the viewer sees/reads in the first 3 seconds",
+  "production_quality": "ugc | semi-pro | professional | studio",
+  "format": "talking-head | montage | unboxing | tutorial | behind-scenes | testimonial | day-in-life | food-prep | promo-offer | other",
+  "faces_visible": true/false,
+  "brand_visible": true/false,
+  "food_visible": true/false,
+  "text_overlays": ["list of text shown on screen"],
+  "music_style": "trending-audio | original | voiceover-only | no-audio | background-chill",
+  "cta": "follow | link-in-bio | order-now | swipe | comment | none",
+  "duration_seconds": number,
+  "pacing": "fast-cuts | medium | slow-lifestyle",
+  "emotional_register": "funny | aspirational | educational | raw-authentic | promotional | aesthetic",
+  "summary": "1 sentence: what this video is about and what it tries to achieve"
+}
+
+Respond with ONLY the JSON. No commentary.`;
 
 // ---------------------------------------------------------------------------
 // Video selection — stratified sampling from social phase data
@@ -180,183 +209,12 @@ function selectVideos(entity: EntityRecord): VideoSource[] {
   return videos;
 }
 
-// ---------------------------------------------------------------------------
-// yt-dlp download
-// ---------------------------------------------------------------------------
-
-function ensureTmpDir() {
-  execSync(`mkdir -p ${TMP_DIR}`);
-}
-
-function downloadVideo(url: string): string | null {
-  const filename = `${randomUUID()}.mp4`;
-  const outPath = join(TMP_DIR, filename);
-
-  try {
-    // --no-playlist: don't expand playlists
-    // --max-filesize 50M: skip huge files
-    // -f "best[filesize<50M]": prefer smaller formats
-    // --socket-timeout 30: don't hang forever
-    execSync(
-      `yt-dlp --no-playlist --max-filesize 50M --socket-timeout 30 ` +
-      `-f "best[ext=mp4][filesize<50M]/best[ext=mp4]/best" ` +
-      `-o "${outPath}" "${url}" 2>/dev/null`,
-      { timeout: 60000 }
-    );
-
-    if (existsSync(outPath) && statSync(outPath).size > 0) {
-      return outPath;
-    }
-    return null;
-  } catch {
-    // Cleanup partial download
-    try { if (existsSync(outPath)) unlinkSync(outPath); } catch { /* ignore */ }
-    return null;
-  }
-}
-
-function cleanupFile(path: string) {
-  try { if (existsSync(path)) unlinkSync(path); } catch { /* ignore */ }
-}
 
 // ---------------------------------------------------------------------------
-// Gemini File API + Flash analysis
+// Claude Sonnet — brand-level video strategy aggregation
 // ---------------------------------------------------------------------------
 
-function uploadToGemini(filePath: string, apiKey: string): string | null {
-  try {
-    const fileSize = statSync(filePath).size;
-    const mimeType = 'video/mp4';
-
-    // Start resumable upload
-    const initResult = execSync(
-      `curl -s -X POST ` +
-      `"https://generativelanguage.googleapis.com/upload/v1beta/files?key=${apiKey}" ` +
-      `-H "X-Goog-Upload-Protocol: resumable" ` +
-      `-H "X-Goog-Upload-Command: start" ` +
-      `-H "X-Goog-Upload-Header-Content-Length: ${fileSize}" ` +
-      `-H "X-Goog-Upload-Header-Content-Type: ${mimeType}" ` +
-      `-H "Content-Type: application/json" ` +
-      `-d '{"file": {"display_name": "${filePath.split('/').pop()}"}}' ` +
-      `-D -`,
-      { timeout: 30000 }
-    ).toString();
-
-    // Extract upload URL from headers
-    const uploadUrlMatch = initResult.match(/x-goog-upload-url:\s*(.+)/i);
-    if (!uploadUrlMatch) return null;
-    const uploadUrl = uploadUrlMatch[1].trim();
-
-    // Upload the file bytes
-    const uploadResult = execSync(
-      `curl -s -X POST "${uploadUrl}" ` +
-      `-H "Content-Length: ${fileSize}" ` +
-      `-H "X-Goog-Upload-Offset: 0" ` +
-      `-H "X-Goog-Upload-Command: upload, finalize" ` +
-      `--data-binary "@${filePath}"`,
-      { timeout: 120000 }
-    ).toString();
-
-    const parsed = JSON.parse(uploadResult);
-    return parsed?.file?.uri || null;
-  } catch {
-    return null;
-  }
-}
-
-function waitForGeminiProcessing(fileUri: string, apiKey: string): boolean {
-  // Gemini needs time to process video. Poll until ACTIVE.
-  const fileName = fileUri.split('/').pop();
-  for (let i = 0; i < 30; i++) {
-    try {
-      const result = execSync(
-        `curl -s "https://generativelanguage.googleapis.com/v1beta/files/${fileName}?key=${apiKey}"`,
-        { timeout: 15000 }
-      ).toString();
-      const parsed = JSON.parse(result);
-      if (parsed.state === 'ACTIVE') return true;
-      if (parsed.state === 'FAILED') return false;
-      // Still processing — wait 2s
-      execSync('sleep 2');
-    } catch {
-      return false;
-    }
-  }
-  return false;
-}
-
-const GEMINI_VIDEO_PROMPT = `Analyze this short social media video (Instagram Reel or TikTok) from a diet catering brand.
-
-Return ONLY a JSON object with these fields:
-{
-  "hook_type": "text-overlay | face-to-camera | product-shot | before-after | question | montage-intro | other",
-  "hook_text": "what the viewer sees/reads in the first 3 seconds",
-  "production_quality": "ugc | semi-pro | professional | studio",
-  "format": "talking-head | montage | unboxing | tutorial | behind-scenes | testimonial | day-in-life | food-prep | promo-offer | other",
-  "faces_visible": true/false,
-  "brand_visible": true/false,
-  "food_visible": true/false,
-  "text_overlays": ["list of text shown on screen"],
-  "music_style": "trending-audio | original | voiceover-only | no-audio | background-chill",
-  "cta": "follow | link-in-bio | order-now | swipe | comment | none",
-  "duration_seconds": number,
-  "pacing": "fast-cuts | medium | slow-lifestyle",
-  "emotional_register": "funny | aspirational | educational | raw-authentic | promotional | aesthetic",
-  "summary": "1 sentence: what this video is about and what it tries to achieve"
-}
-
-Respond with ONLY the JSON. No commentary.`;
-
-function analyzeVideoWithGemini(
-  fileUri: string,
-  apiKey: string,
-): Record<string, unknown> | null {
-  try {
-    const body = JSON.stringify({
-      contents: [{
-        parts: [
-          { file_data: { mime_type: 'video/mp4', file_uri: fileUri } },
-          { text: GEMINI_VIDEO_PROMPT },
-        ],
-      }],
-      generationConfig: {
-        temperature: 0.1,
-        maxOutputTokens: 800,
-      },
-    });
-
-    const tmpBody = join(TMP_DIR, `req-${randomUUID()}.json`);
-    require('fs').writeFileSync(tmpBody, body);
-
-    const result = execSync(
-      `curl -s -X POST ` +
-      `"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}" ` +
-      `-H "Content-Type: application/json" ` +
-      `-d @${tmpBody}`,
-      { timeout: 60000 }
-    ).toString();
-
-    cleanupFile(tmpBody);
-
-    const parsed = JSON.parse(result);
-    const text = parsed?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-
-    // Extract JSON from response
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Claude Sonnet — brand-level aggregation
-// ---------------------------------------------------------------------------
-
-function aggregateWithSonnet(
+function buildVideoAggregation(
   brandName: string,
   analyses: VideoAnalysis[],
   apiKey: string,
@@ -401,38 +259,7 @@ Return ONLY a JSON object:
 
 Respond with ONLY the JSON.`;
 
-  try {
-    const body = JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1200,
-      messages: [{ role: 'user', content: prompt }],
-    });
-
-    const tmpBody = join(TMP_DIR, `sonnet-${randomUUID()}.json`);
-    require('fs').writeFileSync(tmpBody, body);
-
-    const result = execSync(
-      `curl -s -X POST https://api.anthropic.com/v1/messages ` +
-      `-H "Content-Type: application/json" ` +
-      `-H "x-api-key: ${apiKey}" ` +
-      `-H "anthropic-version: 2023-06-01" ` +
-      `-d @${tmpBody}`,
-      { timeout: 60000 }
-    ).toString();
-
-    cleanupFile(tmpBody);
-
-    const parsed = JSON.parse(result);
-    const text = parsed?.content?.[0]?.text || '';
-
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]) as VideoAggregation;
-    }
-    return null;
-  } catch {
-    return null;
-  }
+  return callSonnet(prompt, apiKey, 1200) as VideoAggregation | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -502,7 +329,7 @@ export async function analyzeVideo(entity: EntityRecord): Promise<EntityRecord> 
     }
 
     // Analyze with Gemini Flash
-    const geminiResult = analyzeVideoWithGemini(fileUri, geminiKey);
+    const geminiResult = analyzeWithGemini(fileUri, geminiKey, GEMINI_VIDEO_PROMPT);
     if (geminiResult) {
       analysis.gemini = geminiResult as VideoAnalysis['gemini'];
       // Gemini Flash: ~$0.0001 per 60s video
@@ -522,7 +349,7 @@ export async function analyzeVideo(entity: EntityRecord): Promise<EntityRecord> 
   const successfulCount = analyses.filter(a => a.gemini).length;
 
   if (successfulCount > 0 && anthropicKey) {
-    aggregation = aggregateWithSonnet(entity.name, analyses, anthropicKey);
+    aggregation = buildVideoAggregation(entity.name, analyses, anthropicKey);
     // Sonnet: ~$0.01 per aggregation call
     totalCost += 0.01;
   }

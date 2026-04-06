@@ -20,6 +20,7 @@ export type PhaseName =
   | 'ads'
   | 'reviews'
   | 'finance'
+  | 'youtube_reviews'
   | 'interpret';
 
 export interface PhaseResult {
