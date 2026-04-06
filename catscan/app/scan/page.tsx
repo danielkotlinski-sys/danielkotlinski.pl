@@ -82,14 +82,22 @@ export default function ScanDashboard() {
   const [brandStatusFilter, setBrandStatusFilter] = useState<'all' | 'unscanned' | 'incomplete' | 'complete'>('all');
 
   // ── Fetch DB stats ──
-  const fetchStats = useCallback(async () => {
+  const fetchStats = useCallback(async (includeBrands = false) => {
     try {
-      const res = await fetch('/api/scan/stats');
-      if (res.ok) setStats(await res.json());
+      const url = includeBrands ? '/api/scan/stats?brands=1' : '/api/scan/stats';
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        // Preserve existing brandList if not included in this response
+        if (!data.brandList && stats?.brandList) {
+          data.brandList = stats.brandList;
+        }
+        setStats(data);
+      }
     } catch { /* ignore */ }
-  }, []);
+  }, [stats?.brandList]);
 
-  useEffect(() => { fetchStats(); }, [fetchStats]);
+  useEffect(() => { fetchStats(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Poll active scan ──
   const pollScan = useCallback(async () => {
@@ -341,7 +349,11 @@ export default function ScanDashboard() {
             </button>
 
             <button
-              onClick={() => setShowConfig(!showConfig)}
+              onClick={() => {
+                const next = !showConfig;
+                setShowConfig(next);
+                if (next && !stats?.brandList) fetchStats(true);
+              }}
               disabled={!!loading || isRunning}
               className={`border-2 p-4 font-mono text-cs-sm uppercase tracking-[0.1em] transition-colors disabled:opacity-40 text-left ${
                 showConfig ? 'border-blue-500 bg-blue-500 text-white' : 'border-blue-500 text-blue-600 hover:bg-blue-500 hover:text-white'
