@@ -24,7 +24,7 @@ export type PhaseName =
   | 'google_ads'
   | 'influencer_press'
   | 'influencer_ig'
-  | 'interpret';
+  | 'scorecard';
 
 export interface PhaseResult {
   phase: PhaseName;

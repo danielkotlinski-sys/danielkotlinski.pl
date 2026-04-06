@@ -24,7 +24,7 @@ export const sectorConfig: SectorConfig = {
     'ads',
     'reviews',
     'finance',
-    'interpret',
+    'scorecard',
   ],
 
   // LLM extraction prompts per dimension

@@ -10,7 +10,7 @@ import { enrichAds } from '@/lib/pipeline/phases/ads';
 import { enrichReviews } from '@/lib/pipeline/phases/reviews';
 import { enrichFinance } from '@/lib/pipeline/phases/finance';
 import { enrichContext } from '@/lib/pipeline/phases/context';
-import { interpretDataset } from '@/lib/pipeline/phases/interpret';
+import { computeSectorStats, createScorecardEnricher } from '@/lib/pipeline/phases/scorecard';
 import { enrichPricingFallback } from '@/lib/pipeline/phases/pricing-fallback';
 import { extractVisualIdentity } from '@/lib/pipeline/phases/visual';
 import { analyzeVideo } from '@/lib/pipeline/phases/video';
@@ -24,7 +24,7 @@ import { enrichGoogleAds } from '@/lib/pipeline/phases/google-ads';
 // Video runs after social (needs post URLs), uses yt-dlp + Gemini + Sonnet.
 const ALL_PHASES = [
   'crawl', 'extract', 'visual', 'context', 'pricing_fallback', 'discovery',
-  'social', 'video', 'youtube_reviews', 'ads', 'google_ads', 'reviews', 'finance', 'influencer_press', 'influencer_ig', 'interpret'
+  'social', 'video', 'youtube_reviews', 'ads', 'google_ads', 'reviews', 'finance', 'influencer_press', 'influencer_ig', 'scorecard'
 ];
 
 /** POST /api/scan — start a new scan, resume, or batch from unscanned brands */
@@ -428,6 +428,7 @@ function entityHasPhaseData(entity: EntityRecord, phaseName: string): boolean {
     case 'google_ads':      return !!(d.google_ads && !(d.google_ads as Record<string, unknown>).skipped);
     case 'influencer_press': return !!d.influencer_press;
     case 'influencer_ig':   return !!(d.influencer_ig && !(d.influencer_ig as Record<string, unknown>).skipped);
+    case 'scorecard':       return !!(d.scorecard && !(d.scorecard as Record<string, unknown>).skipped);
     case 'ads':             return !!d.ads;
     case 'reviews':         return !!d.reviews;
     case 'finance':         return !!(d.finance && !(d.finance as Record<string, unknown>).skipped);
@@ -539,6 +540,13 @@ async function runEntityPhase(
         const iig = d.influencer_ig as Record<string, unknown> | undefined;
         if (iig?.skipped) detail = `skipped: ${iig.reason}`;
         else if (iig) detail = `${iig.unique_influencers} influencers from ${iig.tagged_posts_found} tagged posts, reach: ${((iig.total_reach_followers as number) || 0).toLocaleString()}`;
+      } else if (phaseName === 'scorecard') {
+        const sc = d.scorecard as Record<string, unknown> | undefined;
+        if (sc?.skipped) detail = `skipped: ${sc.reason}`;
+        else if (sc) {
+          const scores = sc.scores as Record<string, number | null> | undefined;
+          detail = `overall: ${scores?.overall ?? 'n/a'}/100, segment: ${sc.segment}, tags: ${((sc.tags as string[]) || []).length}`;
+        }
       } else if (phaseName === 'ads') {
         const ads = d.ads as Record<string, unknown> | undefined;
         if (ads) detail = `${ads.activeAdsCount} active ads, intensity: ${ads.estimatedIntensity}`;
@@ -742,31 +750,19 @@ async function runPipeline(scanId: string, enabledPhases: string[]) {
     });
   }
 
-  // Phase 10: Sector interpretation (runs once on full dataset, not per-entity)
-  if (has('interpret')) {
-    scan.currentPhase = 'interpret';
-    log(scan, '--- PHASE: INTERPRET ---');
+  // Phase 10: Scorecard — per-entity scoring with sector context
+  if (has('scorecard')) {
+    // Pre-compute sector stats once before the per-entity loop
+    log(scan, '--- PHASE: SCORECARD (computing sector stats) ---');
+    const sectorStats = computeSectorStats(scan.entities);
+    log(scan, `  → sector: ${sectorStats.entityCount} entities, median price: ${sectorStats.pricing.median ?? 'n/a'} PLN, median followers: ${sectorStats.social.medianFollowers ?? 'n/a'}`);
     saveScan(scan);
 
-    if (!process.env.ANTHROPIC_API_KEY) {
-      log(scan, 'ANTHROPIC_API_KEY not set — skipping interpretation');
-    } else {
-      log(scan, 'Generating sector report via Claude Sonnet...');
-      saveScan(scan);
-
-      const interpretation = await interpretDataset(scan.entities);
-      if (interpretation) {
-        scan.totalCostUsd += interpretation.costUsd;
-        // Store report on scan record (not on individual entities)
-        scan.interpretation = interpretation as unknown as Record<string, unknown>;
-        log(scan, `  → report generated ($${interpretation.costUsd.toFixed(4)}, ${interpretation.inputTokens + interpretation.outputTokens} tokens)`);
-      } else {
-        log(scan, '  → no data to interpret');
-      }
-    }
-
-    scan.phasesCompleted.push('interpret');
-    saveScan(scan);
+    const enrichScorecard = createScorecardEnricher(sectorStats);
+    await runEntityPhase(scan, 'scorecard', enrichScorecard, {
+      skipFailed: true,
+      requireKey: 'ANTHROPIC_API_KEY',
+    });
   }
 
   // Done — clean up and finalize
@@ -789,7 +785,7 @@ async function runPipeline(scanId: string, enabledPhases: string[]) {
     'brand_identity', 'messaging', 'pricing', 'menu', 'delivery', 'technology',
     'social_proof', 'contact', 'seo', 'website_structure', 'content_marketing',
     'customer_acquisition', 'differentiators', 'visual_identity', 'context',
-    'social', 'ads', 'reviews', 'finance',
+    'social', 'ads', 'reviews', 'finance', 'scorecard',
   ];
   let incomplete = 0;
   for (const entity of scan.entities) {

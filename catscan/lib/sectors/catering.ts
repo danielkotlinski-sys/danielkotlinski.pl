@@ -23,7 +23,7 @@ export const sectorConfig: SectorConfig = {
     'ads',
     'reviews',
     'finance',
-    'interpret',
+    'scorecard',
   ],
 
   extractionPrompts: {
