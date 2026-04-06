@@ -1,5 +1,5 @@
 # CATSCAN // CATERING INTELLIGENCE ENGINE
-## Brief produktowy — v0.9
+## Brief produktowy — v1.0
 
 ---
 
@@ -13,7 +13,7 @@ Odświeżane cyklicznie. Odpytywane w języku naturalnym.
 Produkt docelowy: interfejs typu "zapytaj o cokolwiek w tej branży".
 Produkt MVP: raport sektorowy + prosta wyszukiwarka + chat AI.
 
-**Status:** MVP zbudowany — pipeline 11 faz, SQLite database, Command Center UI, query interface, audit page.
+**Status:** MVP zbudowany — pipeline 13 faz (+ seed), SQLite database, Command Center UI, query interface, audit page.
 Baza: 239 marek (po cleanup: 256 → 239, usunięto 15 non-brand + 2 duplikaty, naprawiono 46 nazw).
 Production-ready: batch scanning (max 20/run), rescan_incomplete mode, post-scan validation (19/19 dims required), rate limiting + retry.
 
@@ -103,6 +103,46 @@ Apify Google Maps scraper + Dietly ratings z seed data.
 Faza context: founder, rok założenia, media mentions, influencerzy,
 unikalne cechy, status rynkowy, competitive position.
 Wymaga `PERPLEXITY_API_KEY`. Koszt: ~$0.005/query.
+
+### 2.7 Źródło: Video (IG Reels + TikTok) ✅ ZAIMPLEMENTOWANE
+
+Faza video: download via yt-dlp → Gemini File API → Gemini 2.0 Flash (analiza per video) → Claude Sonnet (agregacja strategii per brand).
+Do 30 filmów per marka (15 IG + 15 TT), stratified: 5 newest + 5 top-performing + 5 random.
+Wymaga `GEMINI_API_KEY`. Koszt: ~$0.01/brand (Gemini Flash + Sonnet).
+
+### 2.8 Źródło: YouTube Data API v3 (recenzje video) ✅ ZAIMPLEMENTOWANE
+
+Faza youtube_reviews: wyszukiwanie recenzji video cateringów tworzonych przez zewnętrznych twórców na YouTube.
+Pipeline: YouTube Data API search → video details → filtracja → yt-dlp download → Gemini Flash (analiza recenzji) → Claude Sonnet (agregacja reputacji).
+
+**YouTube Data API v3 — limity i batchowanie:**
+- Darmowy limit: **10,000 units/dzień** (per projekt Google Cloud)
+- Koszty operacji:
+  - `search.list` = **100 units** per call (3 queries per brand = 300 units/brand)
+  - `videos.list` = **1 unit** per call (max 50 IDs per call)
+- **239 marek × ~301 units = ~72,000 units** — **przekracza darmowy limit ~7x**
+- **Wymagane batchowanie**: max ~33 marek/dzień na darmowym limicie
+  - Full scan 239 marek = **~8 dni** (33/dzień) lub podwyższenie limitu
+  - Podwyższenie: Google Cloud Console → YouTube Data API v3 → Quotas → Request increase (typowo do 50-100k units/dzień, darmowo po review)
+- Wymaga `YOUTUBE_API_KEY` + `GEMINI_API_KEY`.
+- Koszt Gemini: ~$0.02-0.03/brand (download + analiza 3-5 filmów 10-20 min + Sonnet agregacja).
+- **Łączny koszt pipeline: ~$5-7 za 239 marek** (Gemini + Sonnet, YouTube API darmowe).
+- Connector: `lib/connectors/youtube.ts` (search, video details, filtering).
+
+Dane per recenzja (analiza Gemini):
+- Sentyment (very_positive → very_negative), ocena (jeśli recenzent podaje)
+- Pros/cons (konkretne aspekty: smak, porcje, dostawa, cena, opakowania)
+- Wspomniane produkty/diety
+- Porównania z konkurencją (nazwa + favorable/unfavorable/neutral)
+- Wykrywanie sponsoringu
+- Kluczowe cytaty, liczba testowanych dni
+
+Agregacja per brand (Sonnet):
+- avg_sentiment_score (-1.0 → 1.0), distribution per kategoria
+- top_pros / top_cons (najczęściej powtarzane)
+- competitor_comparisons (kto z kim porównywany, kto wygrywa)
+- sponsored_ratio, total_reach_views
+- reputation_summary (3-4 zdania)
 
 ---
 
@@ -516,6 +556,46 @@ Czas: 2-4h
 Koszt: ~$40-55
 Volume: 239 profili x 4 platformy, ~12,600 postów total (IG 20 + TT 12 + FB 15 + YT meta)
 
+### Faza 6b: VIDEO (IG Reels + TikTok) ✅ GOTOWE
+
+Wejście: posty z fazy social (URL-e video)
+Wyjście: analiza contentu video per brand (format, produkcja, hook patterns, strategia)
+Narzędzia:
+  - **yt-dlp**: download video z IG/TikTok → /tmp/
+  - **Gemini File API**: resumable upload → Gemini 2.0 Flash (vision analysis per video)
+  - **Claude Sonnet**: agregacja strategii video per brand
+Implementacja: `lib/pipeline/phases/video.ts`
+Shared utils: `lib/connectors/gemini-video.ts` (download, upload, analysis — współdzielone z youtube_reviews)
+Sampling: do 30 filmów per marka (15 IG + 15 TT), stratified: 5 newest + 5 top + 5 random
+Wymaga: `GEMINI_API_KEY`, opcjonalnie `ANTHROPIC_API_KEY` (Sonnet agregacja)
+Czas: 2-4h
+Koszt: ~$0.01/brand, ~$2.50 za 239 marek
+Resume marker: `video`
+
+### Faza 6c: YOUTUBE REVIEWS ✅ GOTOWE
+
+Wejście: nazwa brandu
+Wyjście: analiza reputacji brandu na podstawie video recenzji YouTube (earned media)
+Narzędzia:
+  - **YouTube Data API v3**: search (`[brand] recenzja catering` × 3 warianty) + video details (views, duration, likes)
+  - **yt-dlp**: download top 5 recenzji (po filtracji: min 500 views, max 30 min, exclude own channel)
+  - **Gemini File API + Flash**: analiza treści recenzji (sentyment, pros/cons, competitor mentions, sponsoring)
+  - **Claude Sonnet**: agregacja reputacji per brand
+Implementacja: `lib/pipeline/phases/youtube-reviews.ts`
+Connector: `lib/connectors/youtube.ts`
+Wymaga: `YOUTUBE_API_KEY` + `GEMINI_API_KEY`, opcjonalnie `ANTHROPIC_API_KEY`
+Czas: 3-6h (zależy od batchowania)
+Koszt: ~$0.02-0.03/brand (Gemini + Sonnet), YouTube API darmowe
+Resume marker: `youtube_reviews`
+
+**⚠ KRYTYCZNE — limit YouTube Data API:**
+- Darmowy limit: **10,000 units/dzień**
+- Zużycie: ~301 units/brand (3× search.list @100 + 1× videos.list @1)
+- **239 marek = ~72,000 units → ~8 dni na darmowym limicie (33 marek/dzień)**
+- Rozwiązanie: `POST /api/scan { batch: 20, phases: ["youtube_reviews"] }` — batchami po 20-33 marek/dzień
+- Alternatywa: podwyższyć limit w Google Cloud Console (request quota increase → typowo 50-100k units/dzień, darmowo po review ~1-3 dni)
+- Scan route respektuje resume — po wyczerpaniu limitu faza może być wznowiona następnego dnia
+
 ### Faza 7: REKLAMY (META) ✅ GOTOWE
 
 Wejście: nazwy marek
@@ -575,15 +655,16 @@ Czas: 15-30 min
 Koszt: ~$10-15
 
 ### TOTAL PIPELINE:
-- Faz: 12 (seed + 11 faz per-scan). Wszystkie zaimplementowane.
-- Kolejność: crawl → extract → **visual** → context → pricing_fallback → discovery → social → ads → reviews → finance → interpret
+- Faz: 14 (seed + 13 faz per-scan). Wszystkie zaimplementowane.
+- Kolejność: crawl → extract → **visual** → context → pricing_fallback → discovery → social → **video** → **youtube_reviews** → ads → reviews → finance → interpret
+- Kluczowa zmiana v1.0: **YouTube Reviews** (YouTube Data API v3 + Gemini video analysis + Sonnet agregacja reputacji), **Video phase** (IG Reels + TikTok → Gemini Flash + Sonnet), refactor shared utils do `gemini-video.ts`
 - Kluczowa zmiana v0.8: **Dietly calculate-price API** (pełna mapa cenowa per kcal, FREE), **TikTok auto-discovery** (slug + Apify, 30→12 postów), **Finance Perplexity fallback** (revenue estimation gdy KRS nie ma danych)
 - Kluczowa zmiana v0.7: nowa faza `visual` między extract i context (Apify screenshot + Haiku vision)
 - Kluczowa zmiana v0.6: context PRZED discovery (Perplexity dostarcza legalName → trafniejsze wyszukiwanie w rejestr.io)
-- Czas: 3-4 dni (z testowaniem i poprawkami, jednorazowo)
-- Koszt: ~$145 za 239 marek (~$0.61/brand) — oszczędność ~$15 dzięki Dietly API vs Perplexity
+- Czas: 3-4 dni (z testowaniem i poprawkami, jednorazowo) + **~8 dni na YouTube Reviews** (limit API, batchowanie 33 marek/dzień)
+- Koszt: ~$155 za 239 marek (~$0.65/brand) — w tym ~$5-7 YouTube Reviews + ~$2.50 Video
 - Wynik: 239 encji x 178+ atrybutów = ~42,500+ data points
-- Plus: ~3,600 kreacji reklamowych, ~12,600 postów social (IG 20 + TT 12 + FB 15 per marka), ~360 sprawozdań finansowych
+- Plus: ~3,600 kreacji reklamowych, ~12,600 postów social (IG 20 + TT 12 + FB 15 per marka), ~360 sprawozdań finansowych, ~1,200 analizowanych filmów (video + YT reviews)
 - Orchestrator: `app/api/scan/route.ts` — async, per-entity, z error handling i cost tracking
 - AI backend: curl do Claude API (zamiast Anthropic SDK — SDK timeout w sandbox, curl działa stabilnie)
 - **Resume**: pipeline potrafi wznowić się po crashu/restarcie serwera (patrz sekcja 4.1)
@@ -628,6 +709,8 @@ Markery per faza:
 | pricing_fallback | `pricing._pricing_fallback_done` |
 | discovery | `_discovery` |
 | social | `social` |
+| video | `video` |
+| youtube_reviews | `youtube_reviews` |
 | ads | `ads` |
 | reviews | `reviews` |
 | finance | `finance` |
@@ -675,6 +758,8 @@ Deploy: Railway (persistent container)
   "pricing": { /* ceny, price_by_kcal, benchmarki */ },
   "_discovery": { /* NIP, KRS, forma prawna */ },
   "social": { /* IG, TikTok, FB, YouTube */ },
+  "video": { /* Gemini video analysis: IG Reels + TikTok content strategy */ },
+  "youtube_reviews": { /* YT review analysis: sentiment, pros/cons, competitor mentions, reputation */ },
   "ads": { /* Meta Ads */ },
   "reviews": { /* Google + Dietly ratings */ },
   "finance": { /* KRS + sprawozdania + wskaźniki */ }
