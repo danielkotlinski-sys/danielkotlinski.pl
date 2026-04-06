@@ -22,6 +22,7 @@ export type PhaseName =
   | 'finance'
   | 'youtube_reviews'
   | 'influencer_press'
+  | 'influencer_ig'
   | 'interpret';
 
 export interface PhaseResult {

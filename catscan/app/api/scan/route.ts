@@ -16,13 +16,14 @@ import { extractVisualIdentity } from '@/lib/pipeline/phases/visual';
 import { analyzeVideo } from '@/lib/pipeline/phases/video';
 import { analyzeYouTubeReviews } from '@/lib/pipeline/phases/youtube-reviews';
 import { enrichInfluencerPress } from '@/lib/pipeline/phases/influencer-press';
+import { enrichInfluencerIg } from '@/lib/pipeline/phases/influencer-ig';
 
 // All phases in order. Context before discovery (provides legalName for rejestr.io).
 // Visual runs after crawl (needs URL), uses Apify screenshot + Haiku vision.
 // Video runs after social (needs post URLs), uses yt-dlp + Gemini + Sonnet.
 const ALL_PHASES = [
   'crawl', 'extract', 'visual', 'context', 'pricing_fallback', 'discovery',
-  'social', 'video', 'youtube_reviews', 'ads', 'reviews', 'finance', 'influencer_press', 'interpret'
+  'social', 'video', 'youtube_reviews', 'ads', 'reviews', 'finance', 'influencer_press', 'influencer_ig', 'interpret'
 ];
 
 /** POST /api/scan — start a new scan, resume, or batch from unscanned brands */
@@ -424,6 +425,7 @@ function entityHasPhaseData(entity: EntityRecord, phaseName: string): boolean {
     case 'video':           return !!(d.video && !(d.video as Record<string, unknown>).skipped);
     case 'youtube_reviews': return !!(d.youtube_reviews && !(d.youtube_reviews as Record<string, unknown>).skipped);
     case 'influencer_press': return !!d.influencer_press;
+    case 'influencer_ig':   return !!(d.influencer_ig && !(d.influencer_ig as Record<string, unknown>).skipped);
     case 'ads':             return !!d.ads;
     case 'reviews':         return !!d.reviews;
     case 'finance':         return !!(d.finance && !(d.finance as Record<string, unknown>).skipped);
@@ -527,6 +529,10 @@ async function runEntityPhase(
         const ytr = d.youtube_reviews as Record<string, unknown> | undefined;
         if (ytr?.skipped) detail = `skipped: ${ytr.reason}`;
         else if (ytr) detail = `${ytr.reviews_analyzed}/${ytr.reviews_found} reviews analyzed, cost: $${(ytr.cost_usd as number)?.toFixed(4) || '0'}`;
+      } else if (phaseName === 'influencer_ig') {
+        const iig = d.influencer_ig as Record<string, unknown> | undefined;
+        if (iig?.skipped) detail = `skipped: ${iig.reason}`;
+        else if (iig) detail = `${iig.unique_influencers} influencers from ${iig.tagged_posts_found} tagged posts, reach: ${((iig.total_reach_followers as number) || 0).toLocaleString()}`;
       } else if (phaseName === 'ads') {
         const ads = d.ads as Record<string, unknown> | undefined;
         if (ads) detail = `${ads.activeAdsCount} active ads, intensity: ${ads.estimatedIntensity}`;
@@ -712,6 +718,14 @@ async function runPipeline(scanId: string, enabledPhases: string[]) {
 
     scan.phasesCompleted.push('influencer_press');
     saveScan(scan);
+  }
+
+  // Phase 9b: Influencer IG — tagged posts per brand (needs social data for IG handle)
+  if (has('influencer_ig')) {
+    await runEntityPhase(scan, 'influencer_ig', enrichInfluencerIg, {
+      skipFailed: true,
+      requireKey: 'APIFY_API_TOKEN',
+    });
   }
 
   // Phase 10: Sector interpretation (runs once on full dataset, not per-entity)
