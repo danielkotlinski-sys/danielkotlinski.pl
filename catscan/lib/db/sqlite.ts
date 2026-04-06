@@ -200,6 +200,7 @@ const stmts = {
 
   getScan: db.prepare(`SELECT * FROM scans WHERE id = ?`),
   getAllScans: db.prepare(`SELECT * FROM scans ORDER BY created_at DESC`),
+  getActiveScan: db.prepare(`SELECT * FROM scans WHERE status = 'running' ORDER BY created_at DESC LIMIT 1`),
 };
 
 export { db, stmts, DB_PATH };

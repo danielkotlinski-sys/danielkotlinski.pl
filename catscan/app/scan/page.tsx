@@ -99,6 +99,23 @@ export default function ScanDashboard() {
 
   useEffect(() => { fetchStats(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ── Auto-detect running scan on page load ──
+  useEffect(() => {
+    if (activeScanId) return; // already tracking one
+    (async () => {
+      try {
+        const res = await fetch('/api/scan/active');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.active && data.id) {
+            setActiveScanId(data.id);
+            setTab('log');
+          }
+        }
+      } catch { /* ignore */ }
+    })();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // ── Poll active scan ──
   const pollScan = useCallback(async () => {
     if (!activeScanId) return;
@@ -269,18 +286,27 @@ export default function ScanDashboard() {
           </Link>
           <h1 className="font-display text-cs-2xl font-bold mt-1">COMMAND_CENTER</h1>
         </div>
-        <div className="flex gap-3">
-          {['dashboard', 'manual', 'log'].map(t => (
-            <button
-              key={t}
-              onClick={() => setTab(t as typeof tab)}
-              className={`font-mono text-cs-xs uppercase tracking-[0.12em] px-3 py-1.5 border transition-colors ${
-                tab === t ? 'border-cs-black bg-cs-black text-white' : 'border-cs-border text-cs-gray hover:border-cs-black'
-              }`}
-            >
-              {t}
-            </button>
-          ))}
+        <div className="flex items-center gap-4">
+          {/* Live scan indicator */}
+          {isRunning && (
+            <div className="flex items-center gap-2 font-mono text-cs-xs text-yellow-600">
+              <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
+              SCAN RUNNING{scanStatus?.currentPhase ? ` // ${scanStatus.currentPhase.toUpperCase()}` : ''}
+            </div>
+          )}
+          <div className="flex gap-3">
+            {['dashboard', 'manual', 'log'].map(t => (
+              <button
+                key={t}
+                onClick={() => setTab(t as typeof tab)}
+                className={`font-mono text-cs-xs uppercase tracking-[0.12em] px-3 py-1.5 border transition-colors ${
+                  tab === t ? 'border-cs-black bg-cs-black text-white' : 'border-cs-border text-cs-gray hover:border-cs-black'
+                }`}
+              >
+                {t}{t === 'log' && isRunning ? ' *' : ''}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

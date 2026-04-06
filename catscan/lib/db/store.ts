@@ -54,6 +54,11 @@ export function getScan(id: string): ScanRecord | undefined {
   return row ? rowToScan(row) : undefined;
 }
 
+export function getActiveScan(): ScanRecord | undefined {
+  const row = stmts.getActiveScan.get() as Record<string, unknown> | undefined;
+  return row ? rowToScan(row) : undefined;
+}
+
 export function saveScan(scan: ScanRecord) {
   stmts.upsertScan.run({
     id: scan.id,
