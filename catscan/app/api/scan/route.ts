@@ -17,13 +17,14 @@ import { analyzeVideo } from '@/lib/pipeline/phases/video';
 import { analyzeYouTubeReviews } from '@/lib/pipeline/phases/youtube-reviews';
 import { enrichInfluencerPress } from '@/lib/pipeline/phases/influencer-press';
 import { enrichInfluencerIg } from '@/lib/pipeline/phases/influencer-ig';
+import { enrichGoogleAds } from '@/lib/pipeline/phases/google-ads';
 
 // All phases in order. Context before discovery (provides legalName for rejestr.io).
 // Visual runs after crawl (needs URL), uses Apify screenshot + Haiku vision.
 // Video runs after social (needs post URLs), uses yt-dlp + Gemini + Sonnet.
 const ALL_PHASES = [
   'crawl', 'extract', 'visual', 'context', 'pricing_fallback', 'discovery',
-  'social', 'video', 'youtube_reviews', 'ads', 'reviews', 'finance', 'influencer_press', 'influencer_ig', 'interpret'
+  'social', 'video', 'youtube_reviews', 'ads', 'google_ads', 'reviews', 'finance', 'influencer_press', 'influencer_ig', 'interpret'
 ];
 
 /** POST /api/scan — start a new scan, resume, or batch from unscanned brands */
@@ -424,6 +425,7 @@ function entityHasPhaseData(entity: EntityRecord, phaseName: string): boolean {
     case 'social':          return !!(d.social && !(d.social as Record<string, unknown>).skipped);
     case 'video':           return !!(d.video && !(d.video as Record<string, unknown>).skipped);
     case 'youtube_reviews': return !!(d.youtube_reviews && !(d.youtube_reviews as Record<string, unknown>).skipped);
+    case 'google_ads':      return !!(d.google_ads && !(d.google_ads as Record<string, unknown>).skipped);
     case 'influencer_press': return !!d.influencer_press;
     case 'influencer_ig':   return !!(d.influencer_ig && !(d.influencer_ig as Record<string, unknown>).skipped);
     case 'ads':             return !!d.ads;
@@ -529,6 +531,10 @@ async function runEntityPhase(
         const ytr = d.youtube_reviews as Record<string, unknown> | undefined;
         if (ytr?.skipped) detail = `skipped: ${ytr.reason}`;
         else if (ytr) detail = `${ytr.reviews_analyzed}/${ytr.reviews_found} reviews analyzed, cost: $${(ytr.cost_usd as number)?.toFixed(4) || '0'}`;
+      } else if (phaseName === 'google_ads') {
+        const gads = d.google_ads as Record<string, unknown> | undefined;
+        if (gads?.skipped) detail = `skipped: ${gads.reason}`;
+        else if (gads) detail = `${gads.totalAdsFound} ads, intensity: ${gads.estimatedIntensity}, formats: ${Object.keys((gads.formats as Record<string, number>) || {}).join('+')}`;
       } else if (phaseName === 'influencer_ig') {
         const iig = d.influencer_ig as Record<string, unknown> | undefined;
         if (iig?.skipped) detail = `skipped: ${iig.reason}`;
@@ -678,6 +684,14 @@ async function runPipeline(scanId: string, enabledPhases: string[]) {
   if (has('ads')) {
     await runEntityPhase(scan, 'ads', enrichAds, {
       skipFailed: true,
+    });
+  }
+
+  // Phase 6b: Google Ads — DataForSEO Ads Transparency API
+  if (has('google_ads')) {
+    await runEntityPhase(scan, 'google_ads', enrichGoogleAds, {
+      skipFailed: true,
+      requireKey: 'DATAFORSEO_LOGIN',
     });
   }
 

@@ -21,6 +21,7 @@ export type PhaseName =
   | 'reviews'
   | 'finance'
   | 'youtube_reviews'
+  | 'google_ads'
   | 'influencer_press'
   | 'influencer_ig'
   | 'interpret';
