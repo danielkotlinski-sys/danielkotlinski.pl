@@ -179,7 +179,7 @@ export default function ScanDashboard() {
   useEffect(() => {
     if (!activeScanId) return;
     pollScan();
-    const interval = setInterval(pollScan, 3000);
+    const interval = setInterval(pollScan, 10000);
     return () => clearInterval(interval);
   }, [activeScanId, pollScan]);
 
