@@ -609,19 +609,15 @@ export default function ExplorePage() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
 
-  // Load entities from latest scan
+  // Load entities from scan_results (all scanned brands)
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch('/api/scan?full=1');
+        const res = await fetch('/api/entities');
         if (!res.ok) return;
-        const scans = await res.json();
-        // Get latest completed scan
-        const completed = scans.filter((s: { status: string }) => s.status === 'completed');
-        const latest = completed[completed.length - 1];
-        if (!latest?.entities) return;
+        const data = await res.json();
         setEntities(
-          latest.entities.map((e: EntityData) => ({
+          data.map((e: EntityData & { phase_count?: number }) => ({
             id: e.id,
             name: e.name,
             url: e.url,
@@ -719,12 +715,6 @@ export default function ExplorePage() {
             className="font-mono text-[11px] uppercase tracking-wider border border-cs-border px-3 py-1.5 hover:border-cs-black hover:bg-cs-black hover:text-white transition-colors"
           >
             CHAT
-          </Link>
-          <Link
-            href="/audit"
-            className="font-mono text-[11px] uppercase tracking-wider border border-cs-border px-3 py-1.5 hover:border-cs-black transition-colors"
-          >
-            AUDIT
           </Link>
           <Link
             href="/scan"

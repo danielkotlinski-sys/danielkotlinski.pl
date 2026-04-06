@@ -8,63 +8,61 @@ const EXPECTED_DIMS = [
   'social', 'ads', 'reviews', 'finance',
 ];
 
-const TOTAL_DIMS = EXPECTED_DIMS.length; // 19
-
 /**
  * GET /api/scan/stats — database stats for the dashboard
  *
- * Optimized: avoids loading full JSON data blobs.
- * Uses phase_count as a proxy for completeness (19 = complete).
- * Only loads full data for incomplete brands (to show missing dims).
+ * Optimized vs original: batch-loads scan audit logs instead of N+1 queries.
  * brandList is lazy-loaded via ?brands=1 query param.
  */
 export async function GET(req: NextRequest) {
   const totalBrands = (stmts.countBrands.get() as { count: number }).count;
 
-  // Light query: only slug, phase_count, phases, updated_at — no data blob
-  const lightResults = db.prepare(
-    `SELECT slug, phase_count, phases, updated_at FROM scan_results ORDER BY updated_at DESC`
-  ).all() as Array<{
+  const allResults = stmts.getAllScanResults.all() as Array<{
     slug: string;
+    data: string;
     phase_count: number;
     phases: string;
     updated_at: string;
   }>;
 
-  const scannedBrands = lightResults.length;
+  const scannedBrands = allResults.length;
 
-  // Split into complete vs incomplete using phase_count
+  const incompleteList: Array<{ slug: string; name: string; dims: number; missing: string[]; errors: string[] }> = [];
+  let completeBrands = 0;
   const completeSlugs: string[] = [];
-  const incompleteSlugs: string[] = [];
 
-  for (const row of lightResults) {
-    if (row.phase_count >= TOTAL_DIMS) {
+  // Parse data JSON for each result to determine completeness
+  const incompleteRows: Array<{ slug: string; data: Record<string, unknown> }> = [];
+
+  for (const row of allResults) {
+    let dataObj: Record<string, unknown> = {};
+    try { dataObj = JSON.parse(row.data); } catch { /* empty */ }
+
+    const presentDims = EXPECTED_DIMS.filter(d => {
+      const val = dataObj[d];
+      return val !== undefined && val !== null && val !== '';
+    });
+
+    if (presentDims.length >= EXPECTED_DIMS.length) {
+      completeBrands++;
       completeSlugs.push(row.slug);
     } else {
-      incompleteSlugs.push(row.slug);
+      incompleteRows.push({ slug: row.slug, data: dataObj });
     }
   }
 
-  // Only load full data for incomplete brands (to compute missing dims)
-  const incompleteList: Array<{ slug: string; name: string; dims: number; missing: string[]; errors: string[] }> = [];
+  // Batch-load brand info and scan audit logs for incomplete brands
+  if (incompleteRows.length > 0) {
+    const slugs = incompleteRows.map(r => r.slug);
+    const placeholders = slugs.map(() => '?').join(',');
 
-  if (incompleteSlugs.length > 0) {
-    const placeholders = incompleteSlugs.map(() => '?').join(',');
-    const incompleteRows = db.prepare(
-      `SELECT sr.slug, sr.data, b.name, b.domain, b.last_scan_id
-       FROM scan_results sr
-       JOIN brands b ON b.slug = sr.slug
-       WHERE sr.slug IN (${placeholders})`
-    ).all(...incompleteSlugs) as Array<{
-      slug: string;
-      data: string;
-      name: string;
-      domain: string;
-      last_scan_id: string | null;
-    }>;
+    const brandRows = db.prepare(
+      `SELECT slug, name, domain, last_scan_id FROM brands WHERE slug IN (${placeholders})`
+    ).all(...slugs) as Array<{ slug: string; name: string; domain: string; last_scan_id: string | null }>;
+    const brandMap = new Map(brandRows.map(b => [b.slug, b]));
 
     // Batch-load scan audit logs for error extraction
-    const scanIds = Array.from(new Set(incompleteRows.map(r => r.last_scan_id).filter((id): id is string => id != null)));
+    const scanIds = Array.from(new Set(brandRows.map(b => b.last_scan_id).filter((id): id is string => id != null)));
     const scanMap = new Map<string, string>();
     if (scanIds.length > 0) {
       const scanPlaceholders = scanIds.map(() => '?').join(',');
@@ -77,20 +75,18 @@ export async function GET(req: NextRequest) {
     }
 
     for (const row of incompleteRows) {
-      let dataObj: Record<string, unknown> = {};
-      try { dataObj = JSON.parse(row.data); } catch { /* empty */ }
-
+      const brand = brandMap.get(row.slug);
       const presentDims = EXPECTED_DIMS.filter(d => {
-        const val = dataObj[d];
+        const val = row.data[d];
         return val !== undefined && val !== null && val !== '';
       });
       const missing = EXPECTED_DIMS.filter(d => !presentDims.includes(d));
 
       const errors: string[] = [];
-      if (row.last_scan_id && scanMap.has(row.last_scan_id)) {
+      if (brand?.last_scan_id && scanMap.has(brand.last_scan_id)) {
         try {
-          const entities = JSON.parse(scanMap.get(row.last_scan_id)!) as Array<{ name: string; domain?: string; errors: string[] }>;
-          const match = entities.find(e => e.domain === row.domain || e.name === row.name);
+          const entities = JSON.parse(scanMap.get(brand.last_scan_id)!) as Array<{ name: string; domain?: string; errors: string[] }>;
+          const match = entities.find(e => e.domain === brand.domain || e.name === brand.name);
           if (match?.errors?.length) {
             errors.push(...match.errors);
           }
@@ -99,7 +95,7 @@ export async function GET(req: NextRequest) {
 
       incompleteList.push({
         slug: row.slug,
-        name: row.name || row.slug,
+        name: brand?.name || row.slug,
         dims: presentDims.length,
         missing,
         errors,
@@ -112,7 +108,7 @@ export async function GET(req: NextRequest) {
   const financialYears = (db.prepare('SELECT COUNT(*) as count FROM financial_years').get() as { count: number }).count;
   const socialPosts = (db.prepare('SELECT COUNT(*) as count FROM social_posts').get() as { count: number }).count;
 
-  const recentScans = lightResults.slice(0, 20).map(r => ({
+  const recentScans = allResults.slice(0, 20).map(r => ({
     slug: r.slug,
     phase_count: r.phase_count,
     updated_at: r.updated_at,
@@ -126,7 +122,7 @@ export async function GET(req: NextRequest) {
     const allBrands = stmts.getAllBrands.all() as Array<{
       slug: string; name: string; url: string; domain: string;
     }>;
-    const scannedSet = new Set(lightResults.map(r => r.slug));
+    const scannedSet = new Set(allResults.map(r => r.slug));
     const completeSet = new Set(completeSlugs);
 
     brandList = allBrands.map(b => ({
@@ -142,7 +138,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     totalBrands,
     scannedBrands,
-    completeBrands: completeSlugs.length,
+    completeBrands,
     incompleteBrands: incompleteList.length,
     financialYears,
     socialPosts,

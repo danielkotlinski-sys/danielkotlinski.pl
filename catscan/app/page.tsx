@@ -20,9 +20,6 @@ export default function Home() {
           <Link href="/chat" className="border-b border-cs-border pb-1 hover:border-cs-black">
             Query_Interface
           </Link>
-          <Link href="/audit" className="border-b border-cs-border pb-1 hover:border-cs-black">
-            Data_Audit
-          </Link>
         </div>
       </div>
     </div>
