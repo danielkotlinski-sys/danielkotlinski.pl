@@ -233,21 +233,79 @@ export function fetchWirtualnemediaArticle(url: string): PressArticle | null {
 }
 
 // ---------------------------------------------------------------------------
-// Known article URLs — seed list for wirtualnemedia (no tag pages available)
-// + any additional nowymarketing articles about specific brands
+// wirtualnemedia.pl — tag page scraper (dynamic discovery per brand)
+// ---------------------------------------------------------------------------
+
+/**
+ * Scrape wirtualnemedia.pl /tags/BrandName page for article links.
+ * URL pattern: https://www.wirtualnemedia.pl/tags/BrandName
+ * Article links: both /artykul/slug and /slug,numericIDa patterns.
+ */
+export function scrapeWirtualnemediaTagPage(brandName: string): NmArticleLink[] {
+  // Capitalize first letter of each word for tag URL
+  const tagName = brandName
+    .split(/\s+/)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join('+');
+
+  const url = `https://www.wirtualnemedia.pl/tags/${encodeURIComponent(tagName)}`;
+  const html = fetchHtml(url);
+  if (!html) return [];
+
+  const articles: NmArticleLink[] = [];
+  const seen = new Set<string>();
+
+  // Pattern 1: /artykul/slug links
+  const artykulPattern = /<a[^>]+href="(\/artykul\/[^"]+)"[^>]*>/g;
+  let match;
+  while ((match = artykulPattern.exec(html)) !== null) {
+    const articleUrl = `https://www.wirtualnemedia.pl${match[1]}`;
+    if (seen.has(articleUrl)) continue;
+    seen.add(articleUrl);
+
+    // Try to find title near the link
+    const nearbyText = html.slice(match.index, match.index + 500);
+    const titleMatch = nearbyText.match(/>([^<]{15,})</);
+    articles.push({
+      url: articleUrl,
+      title: titleMatch ? titleMatch[1].trim() : match[1].replace('/artykul/', '').replace(/-/g, ' '),
+    });
+  }
+
+  // Pattern 2: /slug,numericIDa links (sponsored/press content)
+  const numericPattern = /<a[^>]+href="(\/[^"]+,\d{10,}a)"[^>]*>/g;
+  while ((match = numericPattern.exec(html)) !== null) {
+    const articleUrl = `https://www.wirtualnemedia.pl${match[1]}`;
+    if (seen.has(articleUrl)) continue;
+    seen.add(articleUrl);
+
+    const nearbyText = html.slice(match.index, match.index + 500);
+    const titleMatch = nearbyText.match(/>([^<]{15,})</);
+    articles.push({
+      url: articleUrl,
+      title: titleMatch ? titleMatch[1].trim() : match[1].slice(1).split(',')[0].replace(/-/g, ' '),
+    });
+  }
+
+  return articles;
+}
+
+// ---------------------------------------------------------------------------
+// Known seed URLs (supplementary to tag page discovery)
 // ---------------------------------------------------------------------------
 
 /**
  * Curated seed URLs of articles known to contain brand-influencer partnerships.
- * This list can be extended over time. wirtualnemedia has no public tag pages,
- * so we maintain a seed list of relevant article URLs.
+ * Supplements dynamic tag page scraping.
  */
 export const SEED_ARTICLE_URLS: Array<{ url: string; source: 'nowymarketing' | 'wirtualnemedia' }> = [
-  // wirtualnemedia — confirmed partnership articles
+  // wirtualnemedia — confirmed partnership articles (may not appear in tag pages)
   { url: 'https://www.wirtualnemedia.pl/artykul/olive-media-odpowiada-za-influencer-marketing-tim-catering', source: 'wirtualnemedia' },
   { url: 'https://www.wirtualnemedia.pl/artykul/supermenu-anna-lewandowska-cena-opinie-jedz-super-poczuj-sie-super', source: 'wirtualnemedia' },
   { url: 'https://www.wirtualnemedia.pl/artykul/magda-gessler-kuba-wojewodzki-reklama-body-chief-opinie-co-to-jest', source: 'wirtualnemedia' },
   { url: 'https://www.wirtualnemedia.pl/artykul/michel-moran-lightbox-catering-dietetyczny', source: 'wirtualnemedia' },
+  { url: 'https://www.wirtualnemedia.pl/artykul/joanna-jedrzejczyk-poleca-catering-dietetyczny-republiki-smakoszy', source: 'wirtualnemedia' },
+  { url: 'https://www.wirtualnemedia.pl/artykul/pomelo-catering-partnerem-kts-weszlo-i-projektu-warszawa', source: 'wirtualnemedia' },
 
   // nowymarketing — brand-specific partnership articles (not always in tag page)
   { url: 'https://nowymarketing.pl/kuchnia-vikinga-x-sfd-tak-silnej-wspolpracy-jeszcze-nie-bylo/', source: 'nowymarketing' },
@@ -257,43 +315,58 @@ export const SEED_ARTICLE_URLS: Array<{ url: string; source: 'nowymarketing' | '
 // Collect all articles for processing
 // ---------------------------------------------------------------------------
 
+// Major brands to search on wirtualnemedia tag pages
+// (brands most likely to have press coverage about partnerships)
+const WM_TAG_BRANDS = [
+  'Maczfit', 'SuperMenu', 'Kuchnia Vikinga', 'Body Chief', 'LightBox',
+  'Nice To Fit You', 'NTFY', 'Be Diet Catering', 'Dietly',
+  'Tim Catering', 'Pomelo', 'Republika Smakoszy', 'Wygodna Dieta',
+];
+
 /**
  * Gather all press articles from both sources:
  *   1. Scrape nowymarketing tag pages (dynamic discovery)
- *   2. Fetch seed article URLs (curated list)
- *   3. Deduplicate
+ *   2. Scrape wirtualnemedia tag pages per major brand (dynamic discovery)
+ *   3. Fetch seed article URLs (curated list, fills gaps)
+ *   4. Deduplicate
  */
 export function collectAllArticles(): PressArticle[] {
   const articles: PressArticle[] = [];
   const seen = new Set<string>();
 
-  // 1. nowymarketing tag pages — dynamic discovery
-  const nmLinks = scrapeNowymarketingTagPages(3);
+  const fetchAndAdd = (url: string, source: 'nowymarketing' | 'wirtualnemedia') => {
+    if (seen.has(url)) return;
+    seen.add(url);
 
-  for (const link of nmLinks) {
-    if (seen.has(link.url)) continue;
-    seen.add(link.url);
+    const fetcher = source === 'nowymarketing'
+      ? fetchNowymarketingArticle
+      : fetchWirtualnemediaArticle;
 
-    const article = fetchNowymarketingArticle(link.url);
+    const article = fetcher(url);
     if (article) articles.push(article);
 
     // Rate limit — be polite
     try { execSync('sleep 1'); } catch { /* ignore */ }
+  };
+
+  // 1. nowymarketing tag pages — dynamic discovery
+  const nmLinks = scrapeNowymarketingTagPages(3);
+  for (const link of nmLinks) {
+    fetchAndAdd(link.url, 'nowymarketing');
   }
 
-  // 2. Seed URLs (wirtualnemedia + extras)
-  for (const seed of SEED_ARTICLE_URLS) {
-    if (seen.has(seed.url)) continue;
-    seen.add(seed.url);
-
-    const fetcher = seed.source === 'nowymarketing'
-      ? fetchNowymarketingArticle
-      : fetchWirtualnemediaArticle;
-
-    const article = fetcher(seed.url);
-    if (article) articles.push(article);
-
+  // 2. wirtualnemedia tag pages — per major brand
+  for (const brand of WM_TAG_BRANDS) {
+    const wmLinks = scrapeWirtualnemediaTagPage(brand);
+    for (const link of wmLinks) {
+      fetchAndAdd(link.url, 'wirtualnemedia');
+    }
     try { execSync('sleep 1'); } catch { /* ignore */ }
+  }
+
+  // 3. Seed URLs — fill gaps (known articles not in tag pages)
+  for (const seed of SEED_ARTICLE_URLS) {
+    fetchAndAdd(seed.url, seed.source);
   }
 
   return articles;
