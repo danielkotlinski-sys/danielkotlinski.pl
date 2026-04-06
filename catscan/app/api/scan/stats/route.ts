@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
 
   const scannedBrands = allResults.length;
 
-  const incompleteList: Array<{ slug: string; name: string; dims: number; missing: string[]; errors: string[] }> = [];
+  const incompleteList: Array<{ slug: string; name: string; dims: number; missing: string[]; missingDetails: Array<{ dim: string; reason: 'not_attempted' | 'skipped' | 'empty' }>; errors: string[] }> = [];
   let completeBrands = 0;
   const completeSlugs: string[] = [];
 
