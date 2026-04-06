@@ -1,5 +1,5 @@
 /**
- * Phase: Google Ads — fetch active Google ads via DataForSEO Ads Transparency API.
+ * Phase: Google Ads — fetch active Google ads via Apify Google Ads Transparency scraper.
  *
  * Queries Google Ads Transparency Center for all ads run by each brand's domain
  * in Poland. Complements the existing Meta Ads phase (ads.ts).
@@ -17,12 +17,12 @@
  * - Duration distribution → campaign maturity
  * - Comparison with Meta ads → cross-platform ad strategy
  *
- * Requires: DATAFORSEO_LOGIN + DATAFORSEO_PASSWORD
- * Cost: ~$0.002/brand (120 results max), ~$0.50 for 239 brands
+ * Requires: APIFY_API_TOKEN (shared with social, reviews, visual phases)
+ * Cost: pay-per-usage Apify credits, ~$0.01-0.05/brand
  */
 
 import type { EntityRecord } from '@/lib/db/store';
-import { fetchGoogleAds, type GoogleAdRecord } from '@/lib/connectors/dataforseo';
+import { fetchGoogleAds } from '@/lib/connectors/google-ads-transparency';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -77,15 +77,14 @@ function extractDomain(entity: EntityRecord): string | null {
 // ---------------------------------------------------------------------------
 
 export async function enrichGoogleAds(entity: EntityRecord): Promise<EntityRecord> {
-  const login = process.env.DATAFORSEO_LOGIN;
-  const password = process.env.DATAFORSEO_PASSWORD;
+  const apiToken = process.env.APIFY_API_TOKEN;
 
-  if (!login || !password) {
+  if (!apiToken) {
     return {
       ...entity,
       data: {
         ...entity.data,
-        google_ads: { skipped: true, reason: 'DATAFORSEO_LOGIN or DATAFORSEO_PASSWORD not set' },
+        google_ads: { skipped: true, reason: 'APIFY_API_TOKEN not set' },
       },
     };
   }
@@ -101,11 +100,10 @@ export async function enrichGoogleAds(entity: EntityRecord): Promise<EntityRecor
     };
   }
 
-  // Fetch ads from DataForSEO
-  const result = fetchGoogleAds(domain, login, password, {
-    platform: 'all',
-    format: 'all',
-    depth: 120,
+  // Fetch ads from Apify Google Ads Transparency scraper
+  const result = fetchGoogleAds(domain, apiToken, {
+    maxResults: 120,
+    region: 'PL',
   });
 
   // Build format distribution
@@ -146,7 +144,7 @@ export async function enrichGoogleAds(entity: EntityRecord): Promise<EntityRecor
     advertiserIds: result.advertiserIds,
     advertiserVerified: anyVerified,
     estimatedIntensity: estimateIntensity(result.totalAdsFound),
-    cost_usd: result.costUsd,
+    cost_usd: 0, // Apify pay-per-usage, cost tracked by Apify dashboard
     fetchedAt: new Date().toISOString(),
   };
 
@@ -155,7 +153,7 @@ export async function enrichGoogleAds(entity: EntityRecord): Promise<EntityRecor
     data: {
       ...entity.data,
       google_ads: googleAdsData,
-      _cost_google_ads: { usd: result.costUsd },
+      _cost_google_ads: { usd: 0 },
     },
   };
 }

@@ -687,11 +687,11 @@ async function runPipeline(scanId: string, enabledPhases: string[]) {
     });
   }
 
-  // Phase 6b: Google Ads — DataForSEO Ads Transparency API
+  // Phase 6b: Google Ads — Apify Ads Transparency scraper
   if (has('google_ads')) {
     await runEntityPhase(scan, 'google_ads', enrichGoogleAds, {
       skipFailed: true,
-      requireKey: 'DATAFORSEO_LOGIN',
+      requireKey: 'APIFY_API_TOKEN',
     });
   }
 
