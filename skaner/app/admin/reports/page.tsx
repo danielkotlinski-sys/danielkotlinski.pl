@@ -190,7 +190,11 @@ export default function AdminReportsPage() {
                       {user.nip && <span>NIP: {user.nip}</span>}
                       {user.role && <span className="text-dk-teal">{user.role === 'owner' ? 'Właściciel' : 'Członek'} org.</span>}
                       <span>{new Date(user.createdAt).toLocaleDateString('pl-PL')}</span>
-                      <span>Wykorzystane skany: {user.scansThisMonth} z 3</span>
+                      <span>Wykorzystane skany: {
+                        user.orgId
+                          ? (orgs.find((o) => o.nip === user.orgId)?.scansThisMonth ?? user.scansThisMonth)
+                          : user.scansThisMonth
+                      } z 3</span>
                     </div>
                   </div>
                   <button
@@ -225,6 +229,25 @@ export default function AdminReportsPage() {
                     <span>Właściciel: {org.ownerEmail}</span>
                     <span>Członków: {org.members.length}</span>
                     <span>Wykorzystane skany: {org.scansThisMonth} z 3</span>
+                    {org.scansThisMonth > 0 && (
+                      <button
+                        onClick={async () => {
+                          const res = await fetch('/api/admin/orgs', {
+                            method: 'PATCH',
+                            headers: { ...headers, 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ nip: org.nip, action: 'reset-scans' }),
+                          });
+                          if (res.ok) {
+                            setOrgs((prev) =>
+                              prev.map((o) => (o.nip === org.nip ? { ...o, scansThisMonth: 0 } : o))
+                            );
+                          }
+                        }}
+                        className="text-dk-teal hover:text-dk-teal-hover underline"
+                      >
+                        Resetuj
+                      </button>
+                    )}
                     <span>{new Date(org.createdAt).toLocaleDateString('pl-PL')}</span>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
