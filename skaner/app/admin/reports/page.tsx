@@ -190,7 +190,7 @@ export default function AdminReportsPage() {
                       {user.nip && <span>NIP: {user.nip}</span>}
                       {user.role && <span className="text-dk-teal">{user.role === 'owner' ? 'Właściciel' : 'Członek'} org.</span>}
                       <span>{new Date(user.createdAt).toLocaleDateString('pl-PL')}</span>
-                      <span>Skanów w tym miesiącu: {user.scansThisMonth}/3</span>
+                      <span>Wykorzystane skany: {user.scansThisMonth} z 3</span>
                     </div>
                   </div>
                   <button
@@ -224,7 +224,7 @@ export default function AdminReportsPage() {
                   <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-text-gray mb-3">
                     <span>Właściciel: {org.ownerEmail}</span>
                     <span>Członków: {org.members.length}</span>
-                    <span>Skanów w tym miesiącu: {org.scansThisMonth}/3</span>
+                    <span>Wykorzystane skany: {org.scansThisMonth} z 3</span>
                     <span>{new Date(org.createdAt).toLocaleDateString('pl-PL')}</span>
                   </div>
                   <div className="flex flex-wrap gap-1.5">

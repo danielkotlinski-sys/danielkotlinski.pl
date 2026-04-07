@@ -154,7 +154,7 @@ export default function SkanerPage() {
                   {user.firstName}{user.company ? ` · ${user.company}` : ''}
                 </span>
                 <span className="text-xs px-2.5 py-0.5 bg-dk-teal/10 text-dk-teal rounded-pill font-medium">
-                  {scansRemaining}/3 skanów
+                  Pozostało skanów: {scansRemaining} z 3
                 </span>
               </div>
               <div className="flex items-center gap-2">
