@@ -178,21 +178,55 @@ export async function extractEntity(entity: EntityRecord): Promise<EntityRecord>
       ? content[0].text
       : '';
 
-    // Try to parse JSON — handle markdown code blocks
+    // Try to parse JSON — handle markdown code blocks, extra text, or truncated output
     let jsonStr = text;
-    const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-    if (jsonMatch) {
-      jsonStr = jsonMatch[1];
+
+    // Strategy 1: markdown code block
+    const codeBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (codeBlockMatch) {
+      jsonStr = codeBlockMatch[1];
     }
 
     let extracted: Record<string, unknown>;
     try {
       extracted = JSON.parse(jsonStr.trim());
     } catch {
-      return {
-        ...entity,
-        errors: [...entity.errors, `Extract JSON parse error. Raw response: ${text.slice(0, 200)}`],
-      };
+      // Strategy 2: find the outermost { ... } in the text
+      const firstBrace = text.indexOf('{');
+      const lastBrace = text.lastIndexOf('}');
+      if (firstBrace !== -1 && lastBrace > firstBrace) {
+        try {
+          extracted = JSON.parse(text.slice(firstBrace, lastBrace + 1));
+        } catch {
+          // Strategy 3: truncated JSON — try to repair by closing open braces
+          const partial = text.slice(firstBrace);
+          const openBraces = (partial.match(/\{/g) || []).length;
+          const closeBraces = (partial.match(/\}/g) || []).length;
+          const missing = openBraces - closeBraces;
+          if (missing > 0 && missing <= 5) {
+            try {
+              // Remove trailing partial key/value, close braces
+              const repaired = partial.replace(/,?\s*"[^"]*"?\s*:?\s*[^,}\]]*$/, '') + '}'.repeat(missing);
+              extracted = JSON.parse(repaired);
+            } catch {
+              return {
+                ...entity,
+                errors: [...entity.errors, `Extract JSON parse error. Raw response: ${text.slice(0, 300)}`],
+              };
+            }
+          } else {
+            return {
+              ...entity,
+              errors: [...entity.errors, `Extract JSON parse error. Raw response: ${text.slice(0, 300)}`],
+            };
+          }
+        }
+      } else {
+        return {
+          ...entity,
+          errors: [...entity.errors, `Extract JSON parse error (no JSON found). Raw response: ${text.slice(0, 300)}`],
+        };
+      }
     }
 
     // Merge _contact_raw from crawl phase into extracted contact data
