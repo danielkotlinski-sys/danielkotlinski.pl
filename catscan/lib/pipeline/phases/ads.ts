@@ -44,6 +44,7 @@ interface AdsData {
   estimatedIntensity: 'none' | 'low' | 'medium' | 'high' | 'very_high';
   fetchedAt: string;
   method: 'meta_api' | 'ad_library_search';
+  not_present?: string;
 }
 
 function shellEscape(s: string): string {

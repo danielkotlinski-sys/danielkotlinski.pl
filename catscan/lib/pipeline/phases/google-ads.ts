@@ -46,6 +46,7 @@ interface GoogleAdsData {
   estimatedIntensity: 'none' | 'low' | 'medium' | 'high' | 'very_high';
   cost_usd: number;
   fetchedAt: string;
+  not_present?: string;
 }
 
 // ---------------------------------------------------------------------------
