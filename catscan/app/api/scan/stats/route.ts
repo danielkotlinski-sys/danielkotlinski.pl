@@ -63,8 +63,8 @@ function classifyError(error: string, missingDims: string[]): Diagnostic {
   if (e.includes('json parse error') || e.includes('invalid json')) {
     return {
       type: 'transient', message: 'Błąd parsowania odpowiedzi AI',
-      fix: 'Powtórz fazę extract — parser został ulepszony', autoRetryable: true,
-      retryPhases: ['extract'],
+      fix: 'Powtórz fazę crawl + extract — parser został ulepszony', autoRetryable: true,
+      retryPhases: ['crawl', 'extract'],
     };
   }
 
@@ -73,6 +73,7 @@ function classifyError(error: string, missingDims: string[]): Diagnostic {
     return {
       type: 'structural', message: 'Strona renderowana przez JavaScript (curl nie widzi treści)',
       fix: 'Strona wymaga headless browser — crawl via Apify zamiast curl', autoRetryable: false,
+      retryPhases: ['crawl', 'extract'],
     };
   }
 
@@ -175,9 +176,33 @@ function buildBrandDiagnostics(
     });
   }
 
+  // Ensure dependency chains: extract needs crawl, video needs social, etc.
+  if (retryPhasesSet.has('extract') && !retryPhasesSet.has('crawl')) {
+    retryPhasesSet.add('crawl');
+  }
+  if (retryPhasesSet.has('video') && !retryPhasesSet.has('social')) {
+    retryPhasesSet.add('social');
+  }
+  if (retryPhasesSet.has('finance') && !retryPhasesSet.has('discovery')) {
+    retryPhasesSet.add('discovery');
+  }
+  if (retryPhasesSet.has('scorecard')) {
+    // Scorecard needs all data phases
+    retryPhasesSet.add('crawl');
+    retryPhasesSet.add('extract');
+  }
+
+  // Sort phases in pipeline order
+  const PHASE_ORDER = [
+    'crawl', 'extract', 'visual', 'context', 'pricing_fallback', 'discovery',
+    'social', 'video', 'youtube_reviews', 'ads', 'google_ads', 'reviews',
+    'finance', 'influencer_press', 'influencer_ig', 'scorecard',
+  ];
+  const sortedPhases = PHASE_ORDER.filter(p => retryPhasesSet.has(p));
+
   return {
     diagnostics,
-    retryPhases: Array.from(retryPhasesSet),
+    retryPhases: sortedPhases,
     canAutoRetry,
   };
 }
