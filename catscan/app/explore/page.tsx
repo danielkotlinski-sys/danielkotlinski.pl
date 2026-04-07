@@ -27,7 +27,7 @@ interface EntityData {
 interface DimensionField {
   key: string;
   label: string;
-  format?: 'currency' | 'number' | 'list' | 'boolean' | 'rating' | 'url';
+  format?: 'currency' | 'number' | 'list' | 'boolean' | 'rating' | 'url' | 'posts';
 }
 
 interface Dimension {
