@@ -148,6 +148,10 @@ export async function enrichGoogleAds(entity: EntityRecord): Promise<EntityRecor
     fetchedAt: new Date().toISOString(),
   };
 
+  if (result.totalAdsFound === 0) {
+    googleAdsData.not_present = 'Nie prowadzi Google Ads';
+  }
+
   return {
     ...entity,
     data: {

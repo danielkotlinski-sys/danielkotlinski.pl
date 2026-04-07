@@ -176,10 +176,15 @@ export async function enrichReviews(entity: EntityRecord): Promise<EntityRecord>
     await new Promise(r => setTimeout(r, 1000));
   }
 
+  const notPresent: string[] = [];
+  if (!google.rating && !google.reviewCount) notPresent.push('Brak opinii Google Maps');
+  if (!dietly.rating) notPresent.push('Brak profilu na Dietly lub brak ocen');
+
   const reviewData: ReviewData = {
     google,
     dietly,
     sentiment: estimateSentiment(google.rating, dietly.rating),
+    not_present: notPresent.length > 0 ? notPresent : undefined,
     fetchedAt: new Date().toISOString(),
     method: apiToken ? 'apify' : 'dietly-only',
   };

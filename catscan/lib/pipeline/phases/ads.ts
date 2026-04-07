@@ -206,6 +206,11 @@ export async function enrichAds(entity: EntityRecord): Promise<EntityRecord> {
     adsData = await fetchViaAdLibrarySearch(entity.name);
   }
 
+  // Add human-readable absence info
+  if (adsData.activeAdsCount === 0) {
+    adsData.not_present = 'Nie prowadzi Meta Ads (Facebook/Instagram)';
+  }
+
   return {
     ...entity,
     data: {

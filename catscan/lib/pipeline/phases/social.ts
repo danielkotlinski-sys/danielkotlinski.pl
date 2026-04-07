@@ -110,6 +110,7 @@ interface SocialData {
   platformCount: number;
   fetchedAt: string;
   method: 'apify' | 'apify+perplexity' | 'perplexity';
+  not_present?: string[];  // Human-readable list of platforms the brand doesn't use
 }
 
 // ---------------------------------------------------------------------------
@@ -837,6 +838,16 @@ export async function enrichSocial(entity: EntityRecord): Promise<EntityRecord> 
   socialData.method = usedPerplexity
     ? (socialData.profiles.some(p => p.platform === 'instagram' && socialData.instagram?.avgLikes) ? 'apify+perplexity' : 'perplexity')
     : 'apify';
+
+  // Track which platforms the brand does NOT have
+  const notPresent: string[] = [];
+  if (!socialUrls.instagram) notPresent.push('Brak profilu Instagram');
+  else if (!socialData.instagram) notPresent.push('Profil Instagram niedostępny (scraping error)');
+  if (!socialUrls.facebook) notPresent.push('Brak profilu Facebook');
+  else if (!socialData.facebook) notPresent.push('Profil Facebook niedostępny (scraping error)');
+  if (!socialUrls.tiktok && !socialData.tiktok) notPresent.push('Brak profilu TikTok');
+  if (!socialUrls.youtube && !socialData.youtube) notPresent.push('Brak kanału YouTube');
+  socialData.not_present = notPresent.length > 0 ? notPresent : undefined;
 
   // Apify cost: ~$0.04 per actor run (compute units vary by scraper)
   const apifyCostUsd = apifyCalls * 0.04;

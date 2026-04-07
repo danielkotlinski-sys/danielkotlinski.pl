@@ -355,6 +355,16 @@ export async function analyzeVideo(entity: EntityRecord): Promise<EntityRecord> 
   }
 
   // 4. Build output — preserve source URLs for later viewing
+  // Track absence info
+  const notPresent: string[] = [];
+  const social = (entity.data as Record<string, unknown>).social as Record<string, unknown> | undefined;
+  const igContent = (social?.instagram as Record<string, unknown> | undefined)?.content as Record<string, unknown> | undefined;
+  const ttContent = (social?.tiktok as Record<string, unknown> | undefined)?.content as Record<string, unknown> | undefined;
+  const igVideos = ((igContent?.posts as Array<Record<string, unknown>>) || []).filter(p => p.type === 'Video' || p.type === 'Sidecar');
+  const ttPosts = (ttContent?.posts as Array<Record<string, unknown>>) || [];
+  if (igVideos.length === 0 && social?.instagram) notPresent.push('Nie publikuje wideo na Instagram (tylko zdjęcia)');
+  if (ttPosts.length === 0 && !social?.tiktok) notPresent.push('Brak profilu TikTok — brak wideo do analizy');
+
   const videoData: VideoData = {
     analyzed_count: successfulCount,
     failed_count: analyses.length - successfulCount,
@@ -372,6 +382,7 @@ export async function analyzeVideo(entity: EntityRecord): Promise<EntityRecord> 
       ...(a.error ? { error: a.error } : {}),
     })),
     aggregation,
+    not_present: notPresent.length > 0 ? notPresent : undefined,
     cost_usd: totalCost,
     analyzed_at: new Date().toISOString(),
   };
