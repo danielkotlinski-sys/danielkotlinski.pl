@@ -40,7 +40,7 @@ export function analyzeWhiteSpace(brands: BrandRow[]): WhiteSpaceResult {
     }
   }
 
-  const cityDietMatrix = [...matrix.entries()]
+  const cityDietMatrix = Array.from(matrix.entries())
     .map(([key, cell]) => {
       const [city, dietType] = key.split('||');
       return {
@@ -68,7 +68,7 @@ export function analyzeWhiteSpace(brands: BrandRow[]): WhiteSpaceResult {
     }
   }
 
-  const underservedNiches = [...dietCounts.entries()]
+  const underservedNiches = Array.from(dietCounts.entries())
     .map(([diet, d]) => ({
       dietType: diet,
       brandCount: d.brands.size,
@@ -92,9 +92,9 @@ export function analyzeWhiteSpace(brands: BrandRow[]): WhiteSpaceResult {
     }
   }
 
-  const maxBrandsInCity = Math.max(...[...cityMap.values()].map(c => c.brands.size), 1);
+  const maxBrandsInCity = Math.max(...Array.from(cityMap.values()).map(c => c.brands.size), 1);
 
-  const cityCompetition = [...cityMap.entries()]
+  const cityCompetition = Array.from(cityMap.entries())
     .map(([city, c]) => ({
       city,
       totalBrands: c.brands.size,
@@ -113,7 +113,7 @@ export function analyzeWhiteSpace(brands: BrandRow[]): WhiteSpaceResult {
   );
   // Popular diets (offered by >=10% of brands)
   const popularDiets = new Set(
-    [...dietCounts.entries()]
+    Array.from(dietCounts.entries())
       .filter(([, d]) => d.brands.size >= brands.length * 0.1)
       .map(([diet]) => diet)
   );

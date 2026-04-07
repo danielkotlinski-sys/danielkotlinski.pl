@@ -77,7 +77,7 @@ export function normalizeCity(raw: string): string | null {
   const exact = cityLookup.get(lower);
   if (exact) return exact;
   // Fuzzy: check if raw contains any known alias
-  for (const [alias, canonical] of cityLookup.entries()) {
+  for (const [alias, canonical] of Array.from(cityLookup.entries())) {
     if (lower.includes(alias) && alias.length >= 4) return canonical;
   }
   return raw.trim(); // Return as-is if unknown
@@ -90,9 +90,9 @@ export function normalizeCities(raw: string[]): string[] {
     if (normalized) result.add(normalized);
   }
   // Merge Trójmiasto: if any 2 of 3 are present, add Trójmiasto
-  const trojCount = [...result].filter(c => TROJMIASTO.has(c)).length;
+  const trojCount = Array.from(result).filter(c => TROJMIASTO.has(c)).length;
   if (trojCount >= 2) result.add('Trójmiasto');
-  return [...result].sort();
+  return Array.from(result).sort();
 }
 
 // ---------------------------------------------------------------------------
@@ -130,7 +130,7 @@ export function normalizeDietType(raw: string): string {
   const exact = dietLookup.get(lower);
   if (exact) return exact;
   // Partial match: check if raw contains any known alias
-  for (const [alias, canonical] of dietLookup.entries()) {
+  for (const [alias, canonical] of Array.from(dietLookup.entries())) {
     if (alias.length >= 4 && lower.includes(alias)) return canonical;
   }
   return 'other';
@@ -141,7 +141,7 @@ export function normalizeDietTypes(raw: string[]): string[] {
   for (const diet of raw) {
     result.add(normalizeDietType(diet));
   }
-  return [...result].sort();
+  return Array.from(result).sort();
 }
 
 // ---------------------------------------------------------------------------

@@ -132,7 +132,7 @@ export function analyzeContentEfficiency(brands: BrandRow[]): ContentEfficiencyR
     }
 
     // Filter: used by >=3 brands, >=5 posts
-    const filtered = [...tagStats.entries()]
+    const filtered = Array.from(tagStats.entries())
       .filter(([, s]) => s.brands.size >= 3 && s.posts >= 5)
       .map(([tag, s]) => ({
         hashtag: tag,
@@ -161,7 +161,7 @@ export function analyzeContentEfficiency(brands: BrandRow[]): ContentEfficiencyR
       igFreqBuckets.get(bucket)!.push(b.igEngagementRate);
     }
   }
-  for (const [bucket, rates] of igFreqBuckets.entries()) {
+  for (const [bucket, rates] of Array.from(igFreqBuckets.entries())) {
     optimalFrequency.push({
       platform: 'instagram',
       frequencyBucket: bucket,
@@ -179,7 +179,7 @@ export function analyzeContentEfficiency(brands: BrandRow[]): ContentEfficiencyR
       ttFreqBuckets.get(bucket)!.push(b.ttEngagementRate);
     }
   }
-  for (const [bucket, rates] of ttFreqBuckets.entries()) {
+  for (const [bucket, rates] of Array.from(ttFreqBuckets.entries())) {
     optimalFrequency.push({
       platform: 'tiktok',
       frequencyBucket: bucket,
@@ -231,7 +231,7 @@ export function analyzeContentEfficiency(brands: BrandRow[]): ContentEfficiencyR
     nicheMap.get(niche)!.push(b);
   }
 
-  const nicheBenchmarks = [...nicheMap.entries()]
+  const nicheBenchmarks = Array.from(nicheMap.entries())
     .filter(([, bs]) => bs.length >= 3)
     .map(([niche, bs]) => ({
       niche,
