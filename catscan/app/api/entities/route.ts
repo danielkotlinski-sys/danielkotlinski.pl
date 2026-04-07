@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getScannedBrands } from '@/lib/db/store';
 
+export const dynamic = 'force-dynamic';
+
 /** GET /api/entities — list all brands with scan data from scan_results table */
 export async function GET() {
   const brands = getScannedBrands();
