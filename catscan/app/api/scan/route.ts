@@ -88,6 +88,7 @@ export async function POST(req: NextRequest) {
       'social_proof', 'contact', 'seo', 'website_structure', 'content_marketing',
       'customer_acquisition', 'differentiators', 'visual_identity', 'context',
       'social', 'ads', 'reviews', 'finance',
+      'video', 'youtube_reviews', 'google_ads', 'influencer_press', 'influencer_ig',
     ];
 
     const rows = sqlDb.prepare(`
@@ -96,21 +97,22 @@ export async function POST(req: NextRequest) {
       JOIN scan_results sr ON b.slug = sr.slug
     `).all() as Array<{ slug: string; name: string; url: string; data: string }>;
 
-    const incomplete: Array<{ name: string; url: string; missing: string[] }> = [];
+    const incomplete: Array<{ name: string; url: string; missing: string[]; data: Record<string, unknown> }> = [];
     for (const row of rows) {
       const data = JSON.parse(row.data);
       const dims = Object.keys(data).filter((k: string) => !k.startsWith('_'));
       const missing = EXPECTED_DIMS.filter(d => !dims.includes(d));
       if (missing.length > 0) {
-        incomplete.push({ name: row.name, url: row.url, missing });
+        incomplete.push({ name: row.name, url: row.url, missing, data });
       }
     }
 
     if (incomplete.length === 0) {
-      return NextResponse.json({ message: 'All scanned brands are complete (19/19 dimensions)', status: 'all_complete' });
+      return NextResponse.json({ message: `All scanned brands are complete (${EXPECTED_DIMS.length}/${EXPECTED_DIMS.length} dimensions)`, status: 'all_complete' });
     }
 
     // Create scan for incomplete brands — run ALL phases (resume logic will skip already-done phases)
+    // Load existing data so dependent phases (e.g. video needs social) work
     const scanId = randomUUID();
     const entities: EntityRecord[] = incomplete.map((c) => ({
       id: randomUUID(),
@@ -118,7 +120,7 @@ export async function POST(req: NextRequest) {
       url: c.url,
       nip: undefined,
       domain: undefined,
-      data: {},
+      data: c.data,
       status: 'pending' as const,
       errors: [],
     }));
@@ -174,16 +176,21 @@ export async function POST(req: NextRequest) {
 
     const enabledPhases = phases || ALL_PHASES;
     const scanId = randomUUID();
-    const entities: EntityRecord[] = selectedBrands.map(b => ({
-      id: randomUUID(),
-      name: b.name,
-      url: b.url,
-      nip: undefined,
-      domain: b.domain,
-      data: {},
-      status: 'pending' as const,
-      errors: [],
-    }));
+    const entities: EntityRecord[] = selectedBrands.map(b => {
+      // Load existing scan data so dependent phases (e.g. video needs social) work
+      const existingRow = sqlStmts.getScanResult.get(b.slug) as { data: string } | undefined;
+      const existingData = existingRow ? JSON.parse(existingRow.data) : {};
+      return {
+        id: randomUUID(),
+        name: b.name,
+        url: b.url,
+        nip: undefined,
+        domain: b.domain,
+        data: existingData,
+        status: 'pending' as const,
+        errors: [],
+      };
+    });
 
     const scan: ScanRecord = {
       id: scanId,

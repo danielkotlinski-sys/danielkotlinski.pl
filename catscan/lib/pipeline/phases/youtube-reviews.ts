@@ -145,20 +145,38 @@ function isRelevantReview(video: YouTubeVideoDetails, brandName: string): boolea
   const brandLower = brandName.toLowerCase();
   const titleLower = video.title.toLowerCase();
   const descLower = video.description.toLowerCase();
+  const combined = titleLower + ' ' + descLower;
 
   // Brand name must appear in title or description
-  if (titleLower.includes(brandLower) || descLower.includes(brandLower)) {
+  if (combined.includes(brandLower)) {
     return true;
   }
 
-  // Try without common suffixes like ".pl", "Catering"
+  // Try without common suffixes like ".pl", "Catering", "Dietetyczny"
   const brandCore = brandLower
     .replace(/\.pl$/i, '')
     .replace(/\s*catering\s*/i, '')
+    .replace(/\s*dietetyczny\s*/i, '')
+    .replace(/\s*diet\s*/i, '')
     .trim();
 
-  if (brandCore.length >= 3 && (titleLower.includes(brandCore) || descLower.includes(brandCore))) {
+  if (brandCore.length >= 3 && combined.includes(brandCore)) {
     return true;
+  }
+
+  // Try individual significant words from brand name (>=4 chars)
+  // e.g. "Catering Dietetyczny Suvibox" → check for "suvibox"
+  const words = brandLower.split(/[\s\-_.]+/).filter(w => w.length >= 4);
+  for (const word of words) {
+    // Skip generic words
+    if (['catering', 'dietetyczny', 'diet', 'polska', 'kuchnia', 'zdrowa', 'zdrowe'].includes(word)) continue;
+    if (combined.includes(word)) return true;
+  }
+
+  // Check if video is a general catering review/ranking that might mention the brand
+  const cateringKeywords = ['catering dietetyczny', 'ranking catering', 'test catering', 'porównanie catering', 'najlepszy catering'];
+  for (const kw of cateringKeywords) {
+    if (titleLower.includes(kw)) return true;
   }
 
   return false;
@@ -217,7 +235,7 @@ export async function analyzeYouTubeReviews(entity: EntityRecord): Promise<Entit
   const brandChannelIds = getBrandChannelIds(entity);
   let candidates = filterReviewVideos(videoDetails, {
     brandChannelIds,
-    minViews: 500,
+    minViews: 100,
     maxDurationSeconds: 1800,
   });
 

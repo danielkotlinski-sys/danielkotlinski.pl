@@ -16,14 +16,18 @@ export type PhaseName =
   | 'discovery'
   | 'crawl'
   | 'extract'
+  | 'context'
   | 'social'
   | 'ads'
+  | 'google_ads'
   | 'reviews'
   | 'finance'
   | 'youtube_reviews'
-  | 'google_ads'
   | 'influencer_press'
   | 'influencer_ig'
+  | 'video'
+  | 'visual'
+  | 'pricing_fallback'
   | 'scorecard';
 
 export interface PhaseResult {
