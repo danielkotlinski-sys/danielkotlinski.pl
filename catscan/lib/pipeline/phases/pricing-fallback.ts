@@ -322,6 +322,26 @@ function buildTierDietOptionId(diet: DietlyDiet): string | undefined {
 }
 
 /**
+ * Find the closest kcal price within ±300 kcal of target.
+ * E.g. if target=1500 and we have {1200: 55, 1600: 70} → returns 70 (1600 is closer).
+ */
+function findClosestPrice(priceByKcal: Record<number, number>, target: number): number | null {
+  const entries = Object.entries(priceByKcal).map(([k, v]) => ({ kcal: Number(k), price: v }));
+  if (entries.length === 0) return null;
+  const MAX_DISTANCE = 300;
+  let closest: { kcal: number; price: number } | null = null;
+  let minDist = Infinity;
+  for (const e of entries) {
+    const dist = Math.abs(e.kcal - target);
+    if (dist < minDist && dist <= MAX_DISTANCE) {
+      minDist = dist;
+      closest = e;
+    }
+  }
+  return closest?.price ?? null;
+}
+
+/**
  * Get exact benchmark prices from Dietly's calculate-price API.
  * Returns full price map for all kcal variants, plus 1500/2000 shortcuts.
  */
@@ -362,9 +382,9 @@ function getDietlyBenchmarkPrices(extract: DietlyExtract): DietlyPriceResult {
     }
   }
 
-  // Extract key benchmarks from the full map
-  result.price_1500kcal = result.price_by_kcal[1500] ?? null;
-  result.price_2000kcal = result.price_by_kcal[2000] ?? null;
+  // Extract key benchmarks from the full map (exact match or closest available)
+  result.price_1500kcal = result.price_by_kcal[1500] ?? findClosestPrice(result.price_by_kcal, 1500);
+  result.price_2000kcal = result.price_by_kcal[2000] ?? findClosestPrice(result.price_by_kcal, 2000);
 
   const allPrices = Object.values(result.price_by_kcal);
   if (allPrices.length > 0) {
