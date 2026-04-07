@@ -13,6 +13,7 @@ import { join } from 'path';
 import { randomUUID } from 'crypto';
 
 export const TMP_DIR = '/tmp/catscan-video';
+const COOKIES_PATH = join(process.cwd(), 'data', 'youtube-cookies.txt');
 
 // ---------------------------------------------------------------------------
 // Temp dir + file cleanup
@@ -34,9 +35,14 @@ export function downloadVideo(url: string, maxFilesize = '50M', timeout = 60000)
   const filename = `${randomUUID()}.mp4`;
   const outPath = join(TMP_DIR, filename);
 
+  // Use cookies + JS runtime for YouTube bot detection bypass
+  const cookiesFlag = existsSync(COOKIES_PATH) ? `--cookies "${COOKIES_PATH}"` : '';
+  const jsFlag = '--js-runtimes node --remote-components ejs:github';
+
   try {
     execSync(
       `yt-dlp --no-playlist --max-filesize ${maxFilesize} --socket-timeout 30 ` +
+      `${cookiesFlag} ${jsFlag} ` +
       `-f "best[ext=mp4][filesize<${maxFilesize}]/best[ext=mp4]/best" ` +
       `-o "${outPath}" "${url}" 2>/dev/null`,
       { timeout }
