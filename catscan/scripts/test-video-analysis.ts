@@ -14,7 +14,7 @@ import {
   uploadToGemini,
   waitForGeminiProcessing,
   analyzeWithGemini,
-} from '../lib/connectors/gemini-video';
+} from '../lib/connectors/gemini-video.js';
 
 const PROMPT = `Analyze this short social media video (Instagram Reel or TikTok) from a diet catering brand.
 
