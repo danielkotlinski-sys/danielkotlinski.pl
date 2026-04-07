@@ -176,6 +176,23 @@ function buildBrandDiagnostics(
     });
   }
 
+  // If most dimensions are missing, just run the full pipeline
+  if (missingDims.length >= 10) {
+    const ALL_PHASES = [
+      'crawl', 'extract', 'visual', 'context', 'pricing_fallback', 'discovery',
+      'social', 'video', 'youtube_reviews', 'ads', 'google_ads', 'reviews',
+      'finance', 'influencer_press', 'influencer_ig', 'scorecard',
+    ];
+    return {
+      diagnostics: diagnostics.length > 0 ? diagnostics : [{
+        type: 'transient', message: 'Większość wymiarów brakuje',
+        fix: 'Wymagany pełny reskan', autoRetryable: true,
+      }],
+      retryPhases: ALL_PHASES,
+      canAutoRetry: true,
+    };
+  }
+
   // Ensure dependency chains: extract needs crawl, video needs social, etc.
   if (retryPhasesSet.has('extract') && !retryPhasesSet.has('crawl')) {
     retryPhasesSet.add('crawl');
