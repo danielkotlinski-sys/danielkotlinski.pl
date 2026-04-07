@@ -8,16 +8,18 @@
  *   1. YouTube Data API v3 → search "[brand] recenzja catering" etc.
  *   2. Filter: exclude brand's own channel, min views, max duration
  *   3. Select top 5 videos by view count
- *   4. Download via yt-dlp → /tmp/
- *   5. Upload to Gemini File API → analyze with Gemini Flash (review prompt)
+ *   4. Fetch transcript via YouTube captions API / yt-dlp --write-subs
+ *   5. Analyze transcript with Claude Sonnet (text-based, no video needed)
  *   6. Claude Sonnet aggregation → brand reputation from YouTube reviews
- *   7. Cleanup temp files
  *
- * Requires: YOUTUBE_API_KEY, GEMINI_API_KEY
- * Optional: ANTHROPIC_API_KEY (for Sonnet aggregation)
- * External: yt-dlp (pip install yt-dlp)
+ * Requires: YOUTUBE_API_KEY, ANTHROPIC_API_KEY
+ * Optional: yt-dlp (for transcript fallback)
  */
 
+import { execSync } from 'child_process';
+import { existsSync, readFileSync, unlinkSync } from 'fs';
+import { join } from 'path';
+import { randomUUID } from 'crypto';
 import type { EntityRecord } from '@/lib/db/store';
 import {
   searchReviewVideos,
@@ -26,15 +28,7 @@ import {
   detectSponsorship,
   type YouTubeVideoDetails,
 } from '@/lib/connectors/youtube';
-import {
-  ensureTmpDir,
-  cleanupFile,
-  downloadVideo,
-  uploadToGemini,
-  waitForGeminiProcessing,
-  analyzeWithGemini,
-  callSonnet,
-} from '@/lib/connectors/gemini-video';
+import { callSonnet } from '@/lib/connectors/gemini-video';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -78,6 +72,7 @@ interface YouTubeReviewData {
   reviews_found: number;
   reviews_analyzed: number;
   reviews_failed: number;
+  analysis_method: 'transcript';
   videos: Array<{
     videoId: string;
     title: string;
@@ -89,6 +84,7 @@ interface YouTubeReviewData {
     url: string;
     paidProductPlacement: boolean;
     sponsorshipFromMetadata: { confidence: number; signals: string[] } | null;
+    transcript_length?: number;
     analysis: ReviewAnalysis | null;
     error?: string;
   }>;
@@ -98,31 +94,147 @@ interface YouTubeReviewData {
 }
 
 // ---------------------------------------------------------------------------
-// Gemini prompt for review analysis
+// Transcript fetching
 // ---------------------------------------------------------------------------
 
-const REVIEW_ANALYSIS_PROMPT = `You are analyzing a YouTube video review of a Polish diet catering (catering dietetyczny) brand.
+const TMP_DIR = '/tmp/catscan-video';
 
-Extract the reviewer's opinions, sentiments, and specific feedback. Focus on what the reviewer actually SAYS and SHOWS about the food and service.
+/**
+ * Fetch transcript for a YouTube video using yt-dlp --write-subs --skip-download.
+ * Tries auto-generated captions first (pl, en), then manual captions.
+ * Returns transcript text or null.
+ */
+function fetchTranscript(videoId: string): string | null {
+  const url = `https://www.youtube.com/watch?v=${videoId}`;
+  const outBase = join(TMP_DIR, `transcript-${randomUUID()}`);
+
+  try {
+    execSync(`mkdir -p ${TMP_DIR}`);
+  } catch { /* ignore */ }
+
+  // Try to get auto-generated subtitles (most videos have these)
+  try {
+    execSync(
+      `yt-dlp --skip-download --write-auto-subs --sub-langs "pl,en" --sub-format vtt ` +
+      `--convert-subs srt -o "${outBase}" "${url}" 2>/dev/null`,
+      { timeout: 30000 }
+    );
+  } catch { /* ignore - try manual subs next */ }
+
+  // Check for downloaded subtitle files
+  const possibleFiles = [
+    `${outBase}.pl.srt`,
+    `${outBase}.en.srt`,
+    `${outBase}.pl.vtt`,
+    `${outBase}.en.vtt`,
+  ];
+
+  for (const f of possibleFiles) {
+    if (existsSync(f)) {
+      const raw = readFileSync(f, 'utf-8');
+      const text = cleanSubtitles(raw);
+      // Cleanup all subtitle files
+      for (const ff of possibleFiles) {
+        try { if (existsSync(ff)) unlinkSync(ff); } catch { /* ignore */ }
+      }
+      if (text.length > 50) return text;
+    }
+  }
+
+  // Fallback: try manual subtitles
+  try {
+    execSync(
+      `yt-dlp --skip-download --write-subs --sub-langs "pl,en" --sub-format vtt ` +
+      `--convert-subs srt -o "${outBase}" "${url}" 2>/dev/null`,
+      { timeout: 30000 }
+    );
+  } catch { /* ignore */ }
+
+  for (const f of possibleFiles) {
+    if (existsSync(f)) {
+      const raw = readFileSync(f, 'utf-8');
+      const text = cleanSubtitles(raw);
+      for (const ff of possibleFiles) {
+        try { if (existsSync(ff)) unlinkSync(ff); } catch { /* ignore */ }
+      }
+      if (text.length > 50) return text;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Clean SRT/VTT subtitle text — remove timestamps, tags, duplicate lines.
+ */
+function cleanSubtitles(raw: string): string {
+  const lines = raw.split('\n');
+  const textLines: string[] = [];
+  const seen = new Set<string>();
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    // Skip empty lines, sequence numbers, timestamps
+    if (!trimmed) continue;
+    if (/^\d+$/.test(trimmed)) continue;
+    if (/^\d{2}:\d{2}/.test(trimmed)) continue;
+    if (trimmed.startsWith('WEBVTT')) continue;
+    if (trimmed.startsWith('Kind:') || trimmed.startsWith('Language:')) continue;
+
+    // Remove HTML tags
+    const clean = trimmed.replace(/<[^>]+>/g, '').trim();
+    if (!clean) continue;
+
+    // Deduplicate (auto-subs often repeat lines)
+    if (seen.has(clean)) continue;
+    seen.add(clean);
+
+    textLines.push(clean);
+  }
+
+  return textLines.join(' ');
+}
+
+// ---------------------------------------------------------------------------
+// Claude prompt for transcript-based review analysis
+// ---------------------------------------------------------------------------
+
+function buildReviewPrompt(brandName: string, video: { title: string; channelTitle: string; viewCount: number; publishedAt: string }, transcript: string): string {
+  // Truncate transcript to ~6000 chars to stay within reasonable token limits
+  const maxChars = 6000;
+  const truncatedTranscript = transcript.length > maxChars
+    ? transcript.slice(0, maxChars) + '... [transcript truncated]'
+    : transcript;
+
+  return `You are analyzing a YouTube video review transcript of "${brandName}", a Polish diet catering brand.
+
+Video: "${video.title}" by ${video.channelTitle} (${video.viewCount.toLocaleString()} views, ${video.publishedAt.slice(0, 10)})
+
+TRANSCRIPT:
+${truncatedTranscript}
+
+---
+
+Based on this transcript, extract the reviewer's opinions. If the transcript doesn't actually review "${brandName}" (e.g. it's a news segment, unrelated content, or only briefly mentions the brand), set overall_sentiment to "not_a_review" and explain in summary.
 
 Return ONLY a JSON object:
 {
   "reviewer_name": "name or channel name of the reviewer",
-  "overall_sentiment": "very_positive | positive | mixed | negative | very_negative",
-  "rating_given": number or null (if the reviewer gives an explicit score like 7/10 or 4/5, normalize to 1-10 scale),
-  "pros": ["specific things the reviewer praised — food taste, portions, packaging, delivery, variety, price-quality ratio, etc."],
-  "cons": ["specific things the reviewer criticized — bland food, small portions, late delivery, bad packaging, etc."],
+  "overall_sentiment": "very_positive | positive | mixed | negative | very_negative | not_a_review",
+  "rating_given": number or null (if the reviewer gives an explicit score, normalize to 1-10),
+  "pros": ["specific things praised — food taste, portions, packaging, delivery, variety, price-quality ratio"],
+  "cons": ["specific things criticized — bland food, small portions, late delivery, bad packaging"],
   "mentioned_products": ["specific diets, meals, or products mentioned by name"],
   "competitor_mentions": [{"name": "competitor brand name", "context": "favorable | unfavorable | neutral"}],
-  "key_quotes": ["up to 3 notable direct quotes from the reviewer (in Polish or translated)"],
-  "is_sponsored": true/false (does the reviewer disclose sponsorship or is this clearly a paid review?),
-  "sponsorship_context": "how is the sponsorship disclosed? e.g. 'partnerem odcinka jest...', 'materiał sponsorowany', verbal mention, on-screen text, or null if not sponsored",
-  "is_unboxing": true/false (is this primarily an unboxing/first-impressions video?),
-  "days_reviewed": number or null (how many days did the reviewer test this catering?),
-  "summary": "2-3 sentences: what is the reviewer's overall verdict and the key takeaway for potential customers?"
+  "key_quotes": ["up to 3 notable direct quotes from the reviewer (in Polish)"],
+  "is_sponsored": true/false,
+  "is_unboxing": true/false,
+  "days_reviewed": number or null,
+  "summary": "2-3 sentences: the reviewer's overall verdict and key takeaway"
 }
 
 Respond with ONLY the JSON. No commentary.`;
+}
 
 // ---------------------------------------------------------------------------
 // Extract brand's YouTube channel IDs from social phase data
@@ -138,7 +250,7 @@ function getBrandChannelIds(entity: EntityRecord): string[] {
 }
 
 // ---------------------------------------------------------------------------
-// Relevance check — is this video actually about this brand?
+// Relevance check — is this video actually a review of this brand?
 // ---------------------------------------------------------------------------
 
 function isRelevantReview(video: YouTubeVideoDetails, brandName: string): boolean {
@@ -147,12 +259,19 @@ function isRelevantReview(video: YouTubeVideoDetails, brandName: string): boolea
   const descLower = video.description.toLowerCase();
   const combined = titleLower + ' ' + descLower;
 
-  // Brand name must appear in title or description
-  if (combined.includes(brandLower)) {
-    return true;
+  // Reject obvious non-review content
+  const rejectPatterns = [
+    'government shutdown', 'kaucja', 'polityka', 'wiadomości',
+    'brief', 'podcast', 'news', 'giełda', 'inwestycje',
+  ];
+  for (const pat of rejectPatterns) {
+    if (titleLower.includes(pat)) return false;
   }
 
-  // Try without common suffixes like ".pl", "Catering", "Dietetyczny"
+  // Brand name must appear in title or description
+  if (combined.includes(brandLower)) return true;
+
+  // Try without common suffixes
   const brandCore = brandLower
     .replace(/\.pl$/i, '')
     .replace(/\s*catering\s*/i, '')
@@ -160,21 +279,18 @@ function isRelevantReview(video: YouTubeVideoDetails, brandName: string): boolea
     .replace(/\s*diet\s*/i, '')
     .trim();
 
-  if (brandCore.length >= 3 && combined.includes(brandCore)) {
-    return true;
-  }
+  if (brandCore.length >= 3 && combined.includes(brandCore)) return true;
 
   // Try individual significant words from brand name (>=4 chars)
-  // e.g. "Catering Dietetyczny Suvibox" → check for "suvibox"
   const words = brandLower.split(/[\s\-_.]+/).filter(w => w.length >= 4);
+  const genericWords = ['catering', 'dietetyczny', 'diet', 'polska', 'kuchnia', 'zdrowa', 'zdrowe'];
   for (const word of words) {
-    // Skip generic words
-    if (['catering', 'dietetyczny', 'diet', 'polska', 'kuchnia', 'zdrowa', 'zdrowe'].includes(word)) continue;
+    if (genericWords.includes(word)) continue;
     if (combined.includes(word)) return true;
   }
 
-  // Check if video is a general catering review/ranking that might mention the brand
-  const cateringKeywords = ['catering dietetyczny', 'ranking catering', 'test catering', 'porównanie catering', 'najlepszy catering'];
+  // General catering review/ranking — must be in TITLE (not just description)
+  const cateringKeywords = ['test catering', 'ranking catering', 'porównanie catering', 'wielki test'];
   for (const kw of cateringKeywords) {
     if (titleLower.includes(kw)) return true;
   }
@@ -190,7 +306,6 @@ const MAX_VIDEOS_TO_ANALYZE = 5;
 
 export async function analyzeYouTubeReviews(entity: EntityRecord): Promise<EntityRecord> {
   const youtubeKey = process.env.YOUTUBE_API_KEY;
-  const geminiKey = process.env.GEMINI_API_KEY;
   const anthropicKey = process.env.ANTHROPIC_API_KEY;
 
   if (!youtubeKey) {
@@ -200,17 +315,17 @@ export async function analyzeYouTubeReviews(entity: EntityRecord): Promise<Entit
     };
   }
 
-  if (!geminiKey) {
+  if (!anthropicKey) {
     return {
       ...entity,
-      data: { ...entity.data, youtube_reviews: { skipped: true, reason: 'GEMINI_API_KEY not set' } },
+      data: { ...entity.data, youtube_reviews: { skipped: true, reason: 'ANTHROPIC_API_KEY not set (needed for transcript analysis)' } },
     };
   }
 
   // 1. Search for review videos via YouTube Data API
   const searchResults = searchReviewVideos(entity.name, youtubeKey, {
     maxResults: 15,
-    publishedAfter: new Date(Date.now() - 365 * 2 * 24 * 60 * 60 * 1000).toISOString(), // last 2 years
+    publishedAfter: new Date(Date.now() - 365 * 2 * 24 * 60 * 60 * 1000).toISOString(),
   });
 
   if (searchResults.length === 0) {
@@ -261,15 +376,12 @@ export async function analyzeYouTubeReviews(entity: EntityRecord): Promise<Entit
     };
   }
 
-  ensureTmpDir();
-
-  // 6. Download → upload → analyze each video with Gemini
+  // 6. Fetch transcript → analyze with Claude for each video
   let totalCost = 0;
   const analyzedVideos: YouTubeReviewData['videos'] = [];
 
   for (const video of selected) {
     const videoUrl = `https://www.youtube.com/watch?v=${video.videoId}`;
-    // Detect sponsorship from metadata before downloading
     const sponsorship = detectSponsorship(video);
 
     const entry: YouTubeReviewData['videos'][0] = {
@@ -289,47 +401,33 @@ export async function analyzeYouTubeReviews(entity: EntityRecord): Promise<Entit
       analysis: null,
     };
 
-    // Download (allow larger files for longer review videos)
-    const localPath = downloadVideo(videoUrl, '100M', 120000);
-    if (!localPath) {
-      entry.error = 'download failed';
+    // Fetch transcript (no cookies needed, no video download)
+    const transcript = fetchTranscript(video.videoId);
+    if (!transcript) {
+      entry.error = 'no transcript available';
       analyzedVideos.push(entry);
       continue;
     }
 
-    // Upload to Gemini
-    const fileUri = uploadToGemini(localPath, geminiKey);
-    if (!fileUri) {
-      cleanupFile(localPath);
-      entry.error = 'gemini upload failed';
-      analyzedVideos.push(entry);
-      continue;
-    }
+    entry.transcript_length = transcript.length;
 
-    // Wait for processing (longer timeout for review videos)
-    const ready = waitForGeminiProcessing(fileUri, geminiKey, 45);
-    if (!ready) {
-      cleanupFile(localPath);
-      entry.error = 'gemini processing timeout';
-      analyzedVideos.push(entry);
-      continue;
-    }
+    // Analyze transcript with Claude Sonnet
+    const prompt = buildReviewPrompt(entity.name, video, transcript);
+    const result = callSonnet(prompt, anthropicKey, 1200) as ReviewAnalysis | null;
 
-    // Analyze with Gemini Flash
-    const geminiResult = analyzeWithGemini(fileUri, geminiKey, REVIEW_ANALYSIS_PROMPT, {
-      maxOutputTokens: 1200,
-      temperature: 0.1,
-    });
-
-    if (geminiResult) {
-      entry.analysis = geminiResult as unknown as ReviewAnalysis;
-      // Gemini Flash for longer video: ~$0.0003 per 10-min video
-      totalCost += 0.0003;
+    if (result) {
+      // Filter out "not_a_review" responses
+      if ((result.overall_sentiment as string) === 'not_a_review') {
+        entry.error = `not a review: ${result.summary || 'unrelated content'}`;
+        analyzedVideos.push(entry);
+        continue;
+      }
+      entry.analysis = result;
+      totalCost += 0.008; // ~$0.008 per Sonnet call with transcript
     } else {
-      entry.error = 'gemini analysis returned empty';
+      entry.error = 'claude analysis returned empty';
     }
 
-    cleanupFile(localPath);
     analyzedVideos.push(entry);
   }
 
@@ -347,6 +445,7 @@ export async function analyzeYouTubeReviews(entity: EntityRecord): Promise<Entit
     reviews_found: searchResults.length,
     reviews_analyzed: successful.length,
     reviews_failed: analyzedVideos.length - successful.length,
+    analysis_method: 'transcript',
     videos: analyzedVideos,
     aggregation,
     cost_usd: totalCost,
@@ -387,7 +486,7 @@ function buildAggregation(
 
   const prompt = `You are analyzing the YouTube review landscape for "${brandName}", a Polish diet catering brand.
 
-I analyzed ${videos.length} YouTube review videos. Here are the extracted reviews:
+I analyzed ${videos.length} YouTube review videos via their transcripts. Here are the extracted reviews:
 
 ${reviewsBlock}
 
