@@ -28,15 +28,21 @@ function pearson(xs: number[], ys: number[]): number | null {
 }
 
 const SCORECARD_DIMS = [
-  { key: 'scorecardPriceCompetitiveness', label: 'Price Competitiveness' },
-  { key: 'scorecardSocialPresence', label: 'Social Presence' },
-  { key: 'scorecardAdIntensity', label: 'Ad Intensity' },
-  { key: 'scorecardReviewReputation', label: 'Review Reputation' },
-  { key: 'scorecardBrandAwareness', label: 'Brand Awareness' },
-  { key: 'scorecardContentQuality', label: 'Content Quality' },
-  { key: 'scorecardInfluencerReach', label: 'Influencer Reach' },
-  { key: 'scorecardOverall', label: 'Overall Score' },
-] as const;
+  { key: 'scorecardPriceCompetitiveness' as keyof BrandRow, label: 'Price Competitiveness' },
+  { key: 'scorecardSocialPresence' as keyof BrandRow, label: 'Social Presence' },
+  { key: 'scorecardAdIntensity' as keyof BrandRow, label: 'Ad Intensity' },
+  { key: 'scorecardReviewReputation' as keyof BrandRow, label: 'Review Reputation' },
+  { key: 'scorecardBrandAwareness' as keyof BrandRow, label: 'Brand Awareness' },
+  { key: 'scorecardContentQuality' as keyof BrandRow, label: 'Content Quality' },
+  { key: 'scorecardInfluencerReach' as keyof BrandRow, label: 'Influencer Reach' },
+  { key: 'scorecardOverall' as keyof BrandRow, label: 'Overall Score' },
+];
+
+/** Safe accessor for dynamic BrandRow keys */
+function getNum(b: BrandRow, key: keyof BrandRow): number | null {
+  const val = b[key];
+  return typeof val === 'number' ? val : null;
+}
 
 export function analyzeBrandHealth(brands: BrandRow[]): BrandHealthResult {
   // Brands with financial data + scorecard
@@ -50,17 +56,17 @@ export function analyzeBrandHealth(brands: BrandRow[]): BrandHealthResult {
 
   // --- 1. Correlations: each scorecard dimension vs revenue growth & net margin ---
   const correlations = SCORECARD_DIMS.map(({ key, label }) => {
-    const validGrowth = withBoth.filter(b => (b as Record<string, unknown>)[key] != null);
-    const validMargin = withMargin.filter(b => (b as Record<string, unknown>)[key] != null);
+    const validGrowth = withBoth.filter(b => getNum(b, key) != null);
+    const validMargin = withMargin.filter(b => getNum(b, key) != null);
 
     return {
       metric: label,
       vsRevenueGrowth: pearson(
-        validGrowth.map(b => (b as Record<string, unknown>)[key] as number),
+        validGrowth.map(b => getNum(b, key)!),
         validGrowth.map(b => b.revenueGrowth!),
       ),
       vsNetMargin: pearson(
-        validMargin.map(b => (b as Record<string, unknown>)[key] as number),
+        validMargin.map(b => getNum(b, key)!),
         validMargin.map(b => b.netMargin!),
       ),
       sampleSize: validGrowth.length,
@@ -68,7 +74,7 @@ export function analyzeBrandHealth(brands: BrandRow[]): BrandHealthResult {
   });
 
   // Also add computed metrics (not from LLM scorecard)
-  const computedMetrics = [
+  const computedMetrics: Array<{ key: keyof BrandRow; label: string }> = [
     { key: 'igEngagementRate', label: 'IG Engagement Rate (computed)' },
     { key: 'reviewQualityScore', label: 'Review Quality Score (computed)' },
     { key: 'adExposureScore', label: 'Ad Exposure Score (computed)' },
@@ -77,18 +83,18 @@ export function analyzeBrandHealth(brands: BrandRow[]): BrandHealthResult {
   ];
 
   for (const { key, label } of computedMetrics) {
-    const validGrowth = withBoth.filter(b => (b as Record<string, unknown>)[key] != null);
-    const validMargin = withMargin.filter(b => (b as Record<string, unknown>)[key] != null);
+    const validGrowth = withBoth.filter(b => getNum(b, key) != null);
+    const validMargin = withMargin.filter(b => getNum(b, key) != null);
 
     if (validGrowth.length >= 5) {
       correlations.push({
         metric: label,
         vsRevenueGrowth: pearson(
-          validGrowth.map(b => (b as Record<string, unknown>)[key] as number),
+          validGrowth.map(b => getNum(b, key)!),
           validGrowth.map(b => b.revenueGrowth!),
         ),
         vsNetMargin: validMargin.length >= 5 ? pearson(
-          validMargin.map(b => (b as Record<string, unknown>)[key] as number),
+          validMargin.map(b => getNum(b, key)!),
           validMargin.map(b => b.netMargin!),
         ) : null,
         sampleSize: validGrowth.length,
@@ -127,7 +133,7 @@ export function analyzeBrandHealth(brands: BrandRow[]): BrandHealthResult {
       let strongest = 'unknown';
       let maxScore = -1;
       for (const { key, label } of dims) {
-        const val = (b as Record<string, unknown>)[key] as number | null;
+        const val = getNum(b, key);
         if (val != null && val > maxScore) {
           maxScore = val;
           strongest = label;
@@ -159,7 +165,7 @@ export function analyzeBrandHealth(brands: BrandRow[]): BrandHealthResult {
       let weakest = 'unknown';
       let minScore = 101;
       for (const { key, label } of dims) {
-        const val = (b as Record<string, unknown>)[key] as number | null;
+        const val = getNum(b, key);
         if (val != null && val < minScore) {
           minScore = val;
           weakest = label;
