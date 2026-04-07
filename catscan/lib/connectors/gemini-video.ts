@@ -145,7 +145,13 @@ export function analyzeWithGemini(
           { text: prompt },
         ],
       }],
-      generationConfig: { temperature, maxOutputTokens: maxTokens },
+      generationConfig: {
+        temperature,
+        maxOutputTokens: maxTokens,
+        // Disable thinking for Gemini 2.5 — thinking tokens consume output budget
+        // and cause MAX_TOKENS truncation on structured extraction tasks
+        thinkingConfig: { thinkingBudget: 0 },
+      },
     });
 
     const tmpBody = join(TMP_DIR, `req-${randomUUID()}.json`);
