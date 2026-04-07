@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
+import { execSync } from 'child_process';
 import { saveScan, getScan, getScans, mergeScanIntoBrands } from '@/lib/db/store';
+import { DB_PATH } from '@/lib/db/sqlite';
 import type { ScanRecord, EntityRecord } from '@/lib/db/store';
 import { crawlEntity } from '@/lib/pipeline/phases/crawl';
 import { extractEntity } from '@/lib/pipeline/phases/extract';
@@ -801,6 +803,19 @@ async function runPipeline(scanId: string, enabledPhases: string[]) {
       skipFailed: true,
       requireKey: 'ANTHROPIC_API_KEY',
     });
+  }
+
+  // Auto-backup database after scan (timestamped, non-overwriting)
+  try {
+    const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    const backupPath = DB_PATH.replace('.db', `_backup_${ts}.db`);
+    execSync(`sqlite3 "${DB_PATH}" ".backup '${backupPath}'"`, { timeout: 30000 });
+    // Keep only last 10 backups to avoid filling disk
+    const backupDir = DB_PATH.replace('/catscan.db', '');
+    execSync(`ls -t "${backupDir}"/catscan_backup_*.db 2>/dev/null | tail -n +11 | xargs rm -f 2>/dev/null`, { timeout: 10000 });
+    log(scan, `Auto-backup saved: ${backupPath.split('/').pop()}`);
+  } catch (backupErr) {
+    log(scan, `Auto-backup failed: ${backupErr instanceof Error ? backupErr.message : String(backupErr)}`);
   }
 
   // Done — clean up and finalize
