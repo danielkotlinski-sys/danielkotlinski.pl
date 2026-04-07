@@ -126,6 +126,35 @@ const DIMENSIONS: Dimension[] = [
     ],
   },
   {
+    id: 'social_ig_posts',
+    label: 'Posty IG',
+    dataPath: 'social.instagram.content',
+    fields: [
+      { key: '_posts_list', label: 'Ostatnie posty', format: 'posts' },
+    ],
+  },
+  {
+    id: 'social_tt',
+    label: 'TikTok',
+    dataPath: 'social.tiktok',
+    fields: [
+      { key: 'handle', label: 'Handle' },
+      { key: 'followers', label: 'Followers', format: 'number' },
+      { key: 'content.sampleSize', label: 'Probka postow', format: 'number' },
+      { key: 'content.postingFrequency', label: 'Czestotliwosc' },
+      { key: 'content.avgViewsRecent', label: 'Avg views (recent)', format: 'number' },
+      { key: 'content.engagementTrend', label: 'Trend' },
+    ],
+  },
+  {
+    id: 'social_tt_posts',
+    label: 'Posty TT',
+    dataPath: 'social.tiktok.content',
+    fields: [
+      { key: '_posts_list', label: 'Ostatnie posty', format: 'posts' },
+    ],
+  },
+  {
     id: 'social_fb',
     label: 'Facebook',
     dataPath: 'social.facebook',
@@ -407,6 +436,10 @@ function formatValue(val: unknown, format?: string): string {
 function getFieldValue(entityData: Record<string, unknown>, dimPath: string, fieldKey: string): unknown {
   const section = dimPath ? getNestedValue(entityData, dimPath) : entityData;
   if (!section || typeof section !== 'object') return undefined;
+  // Special: _posts_list returns the posts array for rendering
+  if (fieldKey === '_posts_list') {
+    return (section as Record<string, unknown>).posts;
+  }
   // Support nested field keys like "google.rating"
   return getNestedValue(section as Record<string, unknown>, fieldKey);
 }
@@ -471,7 +504,30 @@ function ComparisonTable({
                     key={f.key}
                     className={`font-mono text-[12px] p-3 border border-cs-border ${isEmpty ? 'text-cs-silver italic' : 'text-cs-ink'}`}
                   >
-                    {f.format === 'list' && Array.isArray(val) && val.length > 3 ? (
+                    {f.format === 'posts' && Array.isArray(val) ? (
+                      <div className="space-y-1 max-h-[300px] overflow-y-auto">
+                        {(val as Array<Record<string, unknown>>).slice(0, 20).map((post, pi) => (
+                          <div key={pi} className="flex items-start gap-2 text-[10px] leading-tight">
+                            <a
+                              href={post.url as string}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline shrink-0"
+                              title={post.url as string}
+                            >
+                              {(post.timestamp as string || '').slice(0, 10) || 'link'}
+                            </a>
+                            <span className="text-cs-silver shrink-0">
+                              {post.likes != null ? `${post.likes}L` : ''}{post.comments != null ? ` ${post.comments}C` : ''}{(post as Record<string, unknown>).views != null ? ` ${(post as Record<string, unknown>).views}V` : ''}
+                            </span>
+                            <span className="text-cs-gray truncate max-w-[200px]" title={post.caption as string || ''}>
+                              {(post.caption as string || '').slice(0, 60)}
+                            </span>
+                          </div>
+                        ))}
+                        {(val as unknown[]).length === 0 && <span className="text-cs-silver italic">Brak postow</span>}
+                      </div>
+                    ) : f.format === 'list' && Array.isArray(val) && val.length > 3 ? (
                       <details className="cursor-pointer">
                         <summary className="text-[11px]">{val.length} pozycji</summary>
                         <div className="mt-1 text-[10px] leading-relaxed">{val.join(', ')}</div>
