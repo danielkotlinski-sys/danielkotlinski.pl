@@ -99,6 +99,7 @@ interface SocialData {
   tiktok?: SocialProfile & {
     totalLikes?: number;
     avgViews?: number;
+    engagementRate?: number;
     content?: TtContentAnalysis;
   };
   youtube?: SocialProfile & {
@@ -731,10 +732,22 @@ export async function enrichSocial(entity: EntityRecord): Promise<EntityRecord> 
         console.log(`[social] TikTok @${ttHandle}: ${followers || '?'} followers, ${postItems.length} raw → ${sample.length} sampled posts`);
       }
 
+      // Compute TikTok engagement rate: (avgLikes + avgComments) / followers × 100
+      let ttEngagementRate: number | undefined;
+      if (followers && followers > 0 && ttContent && ttContent.posts.length > 0) {
+        const avgLikes = ttContent.avgLikesRecent ?? 0;
+        const recentTtPosts = ttContent.posts.filter(p => p.sampleBucket === 'recent');
+        const avgComments = recentTtPosts.length > 0
+          ? Math.round(recentTtPosts.reduce((s, p) => s + p.comments, 0) / recentTtPosts.length)
+          : 0;
+        ttEngagementRate = parseFloat((((avgLikes + avgComments) / followers) * 100).toFixed(2));
+      }
+
       socialData.tiktok = {
         ...profile,
         totalLikes,
         avgViews: ttContent?.avgViewsRecent ?? undefined,
+        engagementRate: ttEngagementRate,
         content: ttContent,
       };
       socialData.profiles.push(profile);
