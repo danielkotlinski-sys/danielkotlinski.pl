@@ -430,8 +430,18 @@ function entityHasPhaseData(entity: EntityRecord, phaseName: string): boolean {
     case 'pricing_fallback': return !!(d.pricing && (d.pricing as Record<string, unknown>)._pricing_fallback_done);
     case 'discovery':       return !!d._discovery;
     case 'social':          return !!(d.social && !(d.social as Record<string, unknown>).skipped);
-    case 'video':           return !!(d.video && !(d.video as Record<string, unknown>).skipped);
-    case 'youtube_reviews': return !!(d.youtube_reviews && !(d.youtube_reviews as Record<string, unknown>).skipped);
+    case 'video': {
+      const vid = d.video as Record<string, unknown> | undefined;
+      if (!vid || vid.skipped) return false;
+      // Treat 0 analyzed as incomplete — worth retrying
+      return (vid.analyzed_count as number) > 0;
+    }
+    case 'youtube_reviews': {
+      const ytr = d.youtube_reviews as Record<string, unknown> | undefined;
+      if (!ytr || ytr.skipped) return false;
+      // Treat 0 analyzed as incomplete — worth retrying
+      return (ytr.reviews_analyzed as number) > 0;
+    }
     case 'google_ads':      return !!(d.google_ads && !(d.google_ads as Record<string, unknown>).skipped);
     case 'influencer_press': return !!d.influencer_press;
     case 'influencer_ig':   return !!(d.influencer_ig && !(d.influencer_ig as Record<string, unknown>).skipped);
