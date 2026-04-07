@@ -29,6 +29,7 @@ interface ReviewData {
     positivePercent: number | null;
   };
   sentiment: 'very_positive' | 'positive' | 'mixed' | 'negative' | 'unknown';
+  not_present?: string[];
   fetchedAt: string;
   method: 'apify' | 'dietly-only';
 }

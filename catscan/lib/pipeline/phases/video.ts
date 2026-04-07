@@ -98,6 +98,7 @@ interface VideoData {
     analysis: VideoAnalysis['gemini'];
   }>;
   aggregation: VideoAggregation | null;
+  not_present?: string[];
   cost_usd: number;
   analyzed_at: string;
 }
