@@ -48,7 +48,7 @@ export function analyzeWhiteSpace(brands: BrandRow[]): WhiteSpaceResult {
         dietType,
         priceTier: null as string | null,
         brandCount: cell.brands.size,
-        brands: [...cell.brands],
+        brands: Array.from(cell.brands),
         avgRating: avg(cell.ratings),
         competitionLevel: competitionLevel(cell.brands.size),
       };
@@ -99,7 +99,7 @@ export function analyzeWhiteSpace(brands: BrandRow[]): WhiteSpaceResult {
       city,
       totalBrands: c.brands.size,
       avgPrice: avg(c.prices),
-      topDiets: [...c.diets.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([d]) => d),
+      topDiets: Array.from(c.diets.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([d]) => d),
       saturationScore: Math.round((c.brands.size / maxBrandsInCity) * 100),
     }))
     .sort((a, b) => b.totalBrands - a.totalBrands);
