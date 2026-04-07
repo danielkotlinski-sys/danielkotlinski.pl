@@ -238,9 +238,10 @@ export async function enrichFinance(entity: EntityRecord): Promise<EntityRecord>
     }
 
     // Step 3: For each of the 3 most recent periods, fetch RZiS and Bilans
+    // Only fetch the most recent period (saves ~2 PLN per entity vs 3 periods)
     const sortedPeriods = periods
       .sort((a, b) => (b.data_koniec || '').localeCompare(a.data_koniec || ''))
-      .slice(0, 3);
+      .slice(0, 1);
 
     const yearlyData: Array<Record<string, unknown>> = [];
 
