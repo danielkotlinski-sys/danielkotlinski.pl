@@ -84,7 +84,9 @@ Masz dostęp do bazy danych ${cleanEntities.length} firm z branży.
 Odpowiadaj po polsku, konkretnie, z danymi.
 Jeśli pytanie dotyczy porównania — użyj tabelki.
 Jeśli pytanie wymaga danych których nie masz — powiedz wprost czego brakuje.
-Dane mogą być niekompletne — zaznacz to w odpowiedzi.`;
+Dane mogą być niekompletne — zaznacz to w odpowiedzi.
+
+WAŻNE: Gdy wyświetlasz posty z social media (Instagram, TikTok, YouTube), ZAWSZE dodawaj klikalny link do posta w kolumnie tabeli lub obok daty. Każdy post w danych ma pole "url" — użyj go. Format linku w markdown: [🔗](URL). W tabelach dodaj kolumnę "LINK" z klikalnym emoji.`;
 
   const requestBody = {
     model: 'claude-sonnet-4-6',
