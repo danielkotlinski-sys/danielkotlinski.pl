@@ -414,7 +414,7 @@ export async function GET(req: NextRequest) {
 // --- Pipeline execution ---
 
 function log(scan: ScanRecord, message: string) {
-  const timestamp = new Date().toISOString().slice(11, 19);
+  const timestamp = new Date().toLocaleTimeString('pl-PL', { timeZone: 'Europe/Warsaw', hour12: false });
   scan.log.push(`[${timestamp}] ${message}`);
 }
 

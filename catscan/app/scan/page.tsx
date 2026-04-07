@@ -873,7 +873,7 @@ export default function ScanDashboard() {
                         scan.status === 'running' ? 'bg-yellow-500 animate-pulse' :
                         'bg-red-500'
                       }`} />
-                      <span className="text-cs-xs text-cs-silver">{scan.createdAt?.slice(0, 16)}</span>
+                      <span className="text-cs-xs text-cs-silver">{scan.createdAt ? new Date(scan.createdAt).toLocaleString('pl-PL', { timeZone: 'Europe/Warsaw' }) : '—'}</span>
                       <span className={`text-[0.5rem] uppercase tracking-wider px-1.5 py-0.5 border ${
                         scan.status === 'completed' ? 'border-green-300 text-green-600' :
                         scan.status === 'running' ? 'border-yellow-300 text-yellow-600' :
@@ -974,7 +974,7 @@ function ActiveScanCard({ scanStatus, isRunning, isComplete, isFailed, onReset }
         </div>
       </div>
       <div className="mt-2 font-mono text-cs-xs text-cs-silver">
-        ID: {scanStatus.id} | Entities: {scanStatus.entities.length} | Started: {scanStatus.createdAt?.slice(0, 19)}
+        ID: {scanStatus.id} | Entities: {scanStatus.entities.length} | Started: {scanStatus.createdAt ? new Date(scanStatus.createdAt).toLocaleString('pl-PL', { timeZone: 'Europe/Warsaw' }) : '—'}
       </div>
     </div>
   );
