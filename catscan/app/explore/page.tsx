@@ -279,6 +279,81 @@ const DIMENSIONS: Dimension[] = [
 ];
 
 // ---------------------------------------------------------------------------
+// Export helpers
+// ---------------------------------------------------------------------------
+
+function exportCSV(entities: EntityData[], dimensions: Dimension[]) {
+  // Build flat headers: Name, URL, NIP, then all dimension fields
+  const headers = ['Nazwa', 'URL', 'NIP', 'KRS'];
+  const paths: Array<{ dataPath: string; key: string; format?: string }> = [];
+
+  for (const dim of dimensions) {
+    for (const field of dim.fields) {
+      headers.push(`${dim.label}: ${field.label}`);
+      paths.push({ dataPath: dim.dataPath, key: field.key, format: field.format });
+    }
+  }
+
+  const csvEscape = (val: string) => {
+    if (val.includes(',') || val.includes('"') || val.includes('\n')) {
+      return '"' + val.replace(/"/g, '""') + '"';
+    }
+    return val;
+  };
+
+  const rows = [headers.map(csvEscape).join(',')];
+
+  for (const e of entities) {
+    const row = [e.name, e.url || '', e.nip || '', e.krs || ''];
+    for (const p of paths) {
+      const dimData = getNestedValue(e.data, p.dataPath) as Record<string, unknown> | undefined;
+      const val = dimData ? dimData[p.key] : undefined;
+      row.push(formatValuePlain(val, p.format));
+    }
+    rows.push(row.map(csvEscape).join(','));
+  }
+
+  const csv = '\uFEFF' + rows.join('\n'); // BOM for Excel UTF-8
+  downloadFile(csv, 'catscan_export.csv', 'text/csv;charset=utf-8');
+}
+
+function exportJSON(entities: EntityData[]) {
+  const data = entities.map(e => ({
+    name: e.name,
+    url: e.url,
+    domain: e.domain,
+    nip: e.nip,
+    krs: e.krs,
+    ...e.data,
+    financials: e.financials,
+  }));
+  downloadFile(JSON.stringify(data, null, 2), 'catscan_export.json', 'application/json');
+}
+
+function formatValuePlain(val: unknown, format?: string): string {
+  if (val === null || val === undefined) return '';
+  if (format === 'currency' && typeof val === 'number') return String(val);
+  if (format === 'number' && typeof val === 'number') return String(val);
+  if (format === 'boolean') return val === true ? 'TAK' : val === false ? 'NIE' : String(val);
+  if (format === 'rating' && typeof val === 'number') return val.toFixed(1);
+  if (format === 'list' && Array.isArray(val)) return val.join('; ');
+  if (format === 'list' && val && typeof val === 'object' && !Array.isArray(val)) {
+    return Object.entries(val as Record<string, unknown>).map(([k, v]) => `${k}: ${v}`).join('; ');
+  }
+  return String(val);
+}
+
+function downloadFile(content: string, filename: string, mimeType: string) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
@@ -710,6 +785,22 @@ export default function ExplorePage() {
             placeholder="Szukaj firmy, NIP..."
             className="font-mono text-[12px] border border-cs-border px-3 py-1.5 w-[220px] focus:outline-none focus:border-cs-black"
           />
+          <button
+            onClick={() => exportCSV(sorted, DIMENSIONS)}
+            disabled={sorted.length === 0}
+            className="font-mono text-[11px] uppercase tracking-wider border border-cs-border px-3 py-1.5 hover:border-cs-black hover:bg-cs-black hover:text-white transition-colors disabled:opacity-40"
+            title="Eksport widocznych rekordów do CSV"
+          >
+            CSV
+          </button>
+          <button
+            onClick={() => exportJSON(sorted)}
+            disabled={sorted.length === 0}
+            className="font-mono text-[11px] uppercase tracking-wider border border-cs-border px-3 py-1.5 hover:border-cs-black hover:bg-cs-black hover:text-white transition-colors disabled:opacity-40"
+            title="Eksport widocznych rekordów do JSON (pełne dane)"
+          >
+            JSON
+          </button>
           <Link
             href="/chat"
             className="font-mono text-[11px] uppercase tracking-wider border border-cs-border px-3 py-1.5 hover:border-cs-black hover:bg-cs-black hover:text-white transition-colors"
