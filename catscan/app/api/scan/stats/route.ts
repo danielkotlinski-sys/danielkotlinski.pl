@@ -176,8 +176,8 @@ function buildBrandDiagnostics(
     });
   }
 
-  // If most dimensions are missing, just run the full pipeline
-  if (missingDims.length >= 10) {
+  // If many dimensions are missing, just run the full pipeline
+  if (missingDims.length >= 5) {
     const ALL_PHASES = [
       'crawl', 'extract', 'visual', 'context', 'pricing_fallback', 'discovery',
       'social', 'video', 'youtube_reviews', 'ads', 'google_ads', 'reviews',
