@@ -41,7 +41,14 @@ interface DbStats {
   incompleteBrands: number;
   financialYears: number;
   socialPosts: number;
-  incompleteList: Array<{ slug: string; name: string; dims: number; missing: string[]; missingDetails?: Array<{ dim: string; reason: 'not_attempted' | 'skipped' | 'empty' }>; errors: string[] }>;
+  incompleteList: Array<{
+    slug: string; name: string; dims: number; missing: string[];
+    missingDetails?: Array<{ dim: string; reason: 'not_attempted' | 'skipped' | 'empty' }>;
+    errors: string[];
+    diagnostics?: Array<{ type: 'transient' | 'config' | 'upstream' | 'structural'; message: string; fix: string; autoRetryable: boolean; retryPhases?: string[] }>;
+    retryPhases?: string[];
+    canAutoRetry?: boolean;
+  }>;
   recentScans: Array<{ slug: string; phase_count: number; updated_at: string }>;
   brandList: BrandEntry[];
 }
@@ -581,7 +588,7 @@ export default function ScanDashboard() {
             </div>
           )}
 
-          {/* Incomplete brands */}
+          {/* Incomplete brands with diagnostics */}
           {stats.incompleteList.length > 0 && (
             <div className="border border-red-300 mb-6">
               <div className="bg-red-50 p-3 border-b border-red-300">
@@ -590,39 +597,100 @@ export default function ScanDashboard() {
                 </div>
               </div>
               <div className="divide-y divide-red-100">
-                {stats.incompleteList.map(b => (
-                  <div key={b.slug} className="p-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="font-mono text-cs-sm font-semibold">{b.name}</span>
-                        <span className="font-mono text-cs-xs text-cs-silver ml-2">{b.slug}</span>
+                {stats.incompleteList.map(b => {
+                  const diagTypes = new Set((b.diagnostics || []).map(d => d.type));
+                  const hasStructural = diagTypes.has('structural') || diagTypes.has('config');
+                  return (
+                    <div key={b.slug} className="p-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="font-mono text-cs-sm font-semibold">{b.name}</span>
+                          <span className="font-mono text-cs-xs text-cs-silver ml-2">{b.slug}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-cs-xs text-red-500">{b.dims}/19</span>
+                          {b.canAutoRetry !== false && b.retryPhases && b.retryPhases.length > 0 && (
+                            <button
+                              onClick={async () => {
+                                setLoading('retry-' + b.slug);
+                                setError(null);
+                                try {
+                                  const res = await fetch('/api/scan', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ slugs: [b.slug], phases: b.retryPhases }),
+                                  });
+                                  const data = await res.json();
+                                  if (data.scanId) {
+                                    setActiveScanId(data.scanId);
+                                    setScanStatus(null);
+                                    setTab('log');
+                                  }
+                                } catch (err) {
+                                  setError(err instanceof Error ? err.message : String(err));
+                                } finally {
+                                  setLoading(null);
+                                }
+                              }}
+                              disabled={!!loading || isRunning}
+                              className="font-mono text-[0.6rem] px-2 py-1 border border-green-500 text-green-600 hover:bg-green-500 hover:text-white disabled:opacity-40 uppercase tracking-wider"
+                              title={`Uruchom fazy: ${b.retryPhases?.join(', ')}`}
+                            >
+                              {loading === 'retry-' + b.slug ? '...' : `RETRY (${b.retryPhases?.length} faz)`}
+                            </button>
+                          )}
+                        </div>
                       </div>
-                      <span className="font-mono text-cs-xs text-red-500">{b.dims}/19</span>
-                    </div>
-                    <div className="mt-1.5 flex flex-wrap gap-1">
-                      {(b.missingDetails || b.missing.map(m => ({ dim: m, reason: 'empty' as const }))).map(({ dim, reason }) => (
-                        <span
-                          key={dim}
-                          className={`font-mono text-[0.5rem] px-1.5 py-0.5 border ${
-                            reason === 'not_attempted' ? 'border-gray-300 text-gray-400 bg-gray-50' :
-                            reason === 'skipped' ? 'border-yellow-300 text-yellow-600 bg-yellow-50' :
-                            'border-red-300 text-red-500 bg-red-50'
-                          }`}
-                          title={reason === 'not_attempted' ? 'Faza nie uruchomiona' : reason === 'skipped' ? 'Pominięte (np. brak danych)' : 'Brak danych po skanowaniu'}
-                        >
-                          {dim} {reason === 'not_attempted' ? '○' : reason === 'skipped' ? '⊘' : '✗'}
-                        </span>
-                      ))}
-                    </div>
-                    {b.errors && b.errors.length > 0 && (
-                      <div className="mt-1.5 ml-2 border-l-2 border-red-200 pl-2">
-                        {b.errors.map((err, i) => (
-                          <div key={i} className="font-mono text-[0.5rem] text-red-500">↳ {err}</div>
+                      <div className="mt-1.5 flex flex-wrap gap-1">
+                        {(b.missingDetails || b.missing.map(m => ({ dim: m, reason: 'empty' as const }))).map(({ dim, reason }) => (
+                          <span
+                            key={dim}
+                            className={`font-mono text-[0.5rem] px-1.5 py-0.5 border ${
+                              reason === 'not_attempted' ? 'border-gray-300 text-gray-400 bg-gray-50' :
+                              reason === 'skipped' ? 'border-yellow-300 text-yellow-600 bg-yellow-50' :
+                              'border-red-300 text-red-500 bg-red-50'
+                            }`}
+                            title={reason === 'not_attempted' ? 'Faza nie uruchomiona' : reason === 'skipped' ? 'Pominięte (np. brak danych)' : 'Brak danych po skanowaniu'}
+                          >
+                            {dim} {reason === 'not_attempted' ? '○' : reason === 'skipped' ? '⊘' : '✗'}
+                          </span>
                         ))}
                       </div>
-                    )}
-                  </div>
-                ))}
+                      {/* Diagnostics — actionable explanations */}
+                      {b.diagnostics && b.diagnostics.length > 0 && (
+                        <div className="mt-2 ml-2 border-l-2 pl-2 space-y-1" style={{ borderColor: hasStructural ? '#f87171' : '#fbbf24' }}>
+                          {b.diagnostics.map((diag, i) => (
+                            <div key={i} className="font-mono text-[0.55rem]">
+                              <span className={`inline-block w-3 text-center mr-1 ${
+                                diag.type === 'transient' ? 'text-yellow-500' :
+                                diag.type === 'config' ? 'text-purple-500' :
+                                diag.type === 'upstream' ? 'text-blue-500' :
+                                'text-red-500'
+                              }`}>
+                                {diag.type === 'transient' ? '↻' : diag.type === 'config' ? '⚙' : diag.type === 'upstream' ? '↑' : '✗'}
+                              </span>
+                              <span className={`font-semibold ${
+                                diag.type === 'transient' ? 'text-yellow-700' :
+                                diag.type === 'config' ? 'text-purple-700' :
+                                diag.type === 'upstream' ? 'text-blue-700' :
+                                'text-red-700'
+                              }`}>{diag.message}</span>
+                              <span className="text-cs-silver ml-1">— {diag.fix}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {/* Fallback: show raw errors if no diagnostics */}
+                      {(!b.diagnostics || b.diagnostics.length === 0) && b.errors && b.errors.length > 0 && (
+                        <div className="mt-1.5 ml-2 border-l-2 border-red-200 pl-2">
+                          {b.errors.map((err, i) => (
+                            <div key={i} className="font-mono text-[0.5rem] text-red-500">↳ {err}</div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}

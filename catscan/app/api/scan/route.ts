@@ -603,15 +603,36 @@ async function runEntityPhase(
       log(scan, `  → ${newStatus === 'failed' ? 'FAILED: ' + (lastError || 'unknown') : 'OK'}${detail ? ' | ' + detail : ''}`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      scan.entities[i].errors.push(`${phaseName}: ${msg}`);
-      log(scan, `  → ERROR: ${msg}`);
+      const isTransient = /timeout|timed out|econnreset|socket|429|rate.?limit|5\d\d|internal server/i.test(msg);
+
+      // Auto-retry once for transient errors (with delay)
+      if (isTransient) {
+        log(scan, `  → TRANSIENT ERROR: ${msg} — retrying in 5s...`);
+        saveScan(scan);
+        await new Promise(r => setTimeout(r, 5000));
+
+        try {
+          scan.entities[i] = await fn(entity);
+          consecutiveErrors = 0;
+          log(scan, `  → RETRY OK`);
+          saveScan(scan);
+          continue;
+        } catch (retryErr) {
+          const retryMsg = retryErr instanceof Error ? retryErr.message : String(retryErr);
+          scan.entities[i].errors.push(`${phaseName}: ${retryMsg} (after retry)`);
+          log(scan, `  → RETRY FAILED: ${retryMsg}`);
+        }
+      } else {
+        scan.entities[i].errors.push(`${phaseName}: ${msg}`);
+        log(scan, `  → ERROR: ${msg}`);
+      }
 
       consecutiveErrors++;
       lastErrorMsg = msg;
 
       // Circuit breaker: N consecutive real errors → systemic problem, stop the phase
       if (consecutiveErrors >= CIRCUIT_BREAKER_THRESHOLD) {
-        log(scan, `🛑 CIRCUIT BREAKER: ${phaseName} failed ${consecutiveErrors}x in a row. Last error: ${lastErrorMsg}`);
+        log(scan, `CIRCUIT BREAKER: ${phaseName} failed ${consecutiveErrors}x in a row. Last error: ${lastErrorMsg}`);
         log(scan, `   Stopping phase ${phaseName}. Fix the issue, then use rescan_incomplete to retry.`);
         log(scan, `   Remaining entities skipped: ${scan.entities.length - i - 1}`);
         break;

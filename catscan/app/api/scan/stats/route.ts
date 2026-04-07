@@ -8,6 +8,180 @@ const EXPECTED_DIMS = [
   'social', 'ads', 'reviews', 'finance',
 ];
 
+// ---------------------------------------------------------------------------
+// Error classification — maps error patterns to actionable diagnostics
+// ---------------------------------------------------------------------------
+
+interface Diagnostic {
+  type: 'transient' | 'config' | 'upstream' | 'structural';
+  message: string;        // Human-readable explanation
+  fix: string;            // What to do
+  autoRetryable: boolean; // Can auto-retry help?
+  retryPhases?: string[]; // Which phases to retry
+}
+
+/** Map a dimension name to the phase(s) that produce it */
+function dimToPhases(dim: string): string[] {
+  const map: Record<string, string[]> = {
+    brand_identity: ['extract'], messaging: ['extract'], pricing: ['extract', 'pricing_fallback'],
+    menu: ['extract'], delivery: ['extract'], technology: ['extract'],
+    social_proof: ['extract'], contact: ['extract'], seo: ['extract'],
+    website_structure: ['extract'], content_marketing: ['extract'],
+    customer_acquisition: ['extract'], differentiators: ['extract'],
+    visual_identity: ['visual'], context: ['context'], social: ['social'],
+    ads: ['ads'], reviews: ['reviews'], finance: ['finance', 'discovery'],
+    video: ['video', 'social'], youtube_reviews: ['youtube_reviews'],
+    scorecard: ['scorecard'],
+  };
+  return map[dim] || [dim];
+}
+
+function classifyError(error: string, missingDims: string[]): Diagnostic {
+  const e = error.toLowerCase();
+
+  // API rate limits / timeouts
+  if (e.includes('rate limit') || e.includes('429') || e.includes('quota')) {
+    return {
+      type: 'transient', message: 'API rate limit',
+      fix: 'Poczekaj kilka minut i uruchom reskan', autoRetryable: true,
+    };
+  }
+  if (e.includes('timeout') || e.includes('timed out') || e.includes('econnreset') || e.includes('socket')) {
+    return {
+      type: 'transient', message: 'Timeout połączenia',
+      fix: 'Problem z siecią — powtórz skan', autoRetryable: true,
+    };
+  }
+  if (e.includes('500') || e.includes('502') || e.includes('503') || e.includes('internal server error')) {
+    return {
+      type: 'transient', message: 'Błąd serwera zewnętrznego (5xx)',
+      fix: 'Serwer API chwilowo niedostępny — powtórz później', autoRetryable: true,
+    };
+  }
+
+  // JSON parse errors — now fixable with improved parser
+  if (e.includes('json parse error') || e.includes('invalid json')) {
+    return {
+      type: 'transient', message: 'Błąd parsowania odpowiedzi AI',
+      fix: 'Powtórz fazę extract — parser został ulepszony', autoRetryable: true,
+      retryPhases: ['extract'],
+    };
+  }
+
+  // HTML/content issues
+  if (e.includes('corrupted') || e.includes('compressed') || e.includes('unreadable') || e.includes('encoded')) {
+    return {
+      type: 'structural', message: 'Strona renderowana przez JavaScript (curl nie widzi treści)',
+      fix: 'Strona wymaga headless browser — crawl via Apify zamiast curl', autoRetryable: false,
+    };
+  }
+
+  // Screenshot/visual failures
+  if (e.includes('screenshot') || e.includes('visual')) {
+    return {
+      type: 'transient', message: 'Screenshot się nie udał',
+      fix: 'Powtórz fazę visual', autoRetryable: true,
+      retryPhases: ['visual'],
+    };
+  }
+
+  // Instagram auth
+  if (e.includes('instagram') && (e.includes('login') || e.includes('cookie') || e.includes('auth'))) {
+    return {
+      type: 'config', message: 'Instagram wymaga autentykacji',
+      fix: 'Zaloguj się na IG z IP serwera i wyeksportuj cookies do cookies/cookies.txt', autoRetryable: false,
+    };
+  }
+
+  // Missing API keys
+  if (e.includes('api_key not set') || e.includes('api key') || e.includes('token not set')) {
+    const keyMatch = error.match(/(\w+_API_KEY|\w+_TOKEN)/i);
+    return {
+      type: 'config', message: `Brak klucza API: ${keyMatch?.[1] || 'nieznany'}`,
+      fix: `Ustaw ${keyMatch?.[1] || 'klucz'} w .env`, autoRetryable: false,
+    };
+  }
+
+  // Apify actor failures
+  if (e.includes('apify') && (e.includes('failed') || e.includes('error'))) {
+    return {
+      type: 'transient', message: 'Apify actor zwrócił błąd',
+      fix: 'Powtórz skan — Apify bywa niestabilne', autoRetryable: true,
+    };
+  }
+
+  // Missing upstream data
+  if (e.includes('no video posts') || e.includes('run social phase first')) {
+    return {
+      type: 'upstream', message: 'Brak danych z poprzedniej fazy',
+      fix: 'Uruchom najpierw fazę social, potem video', autoRetryable: true,
+      retryPhases: ['social', 'video'],
+    };
+  }
+
+  // NIP/discovery issues
+  if (e.includes('nip') && (e.includes('not found') || e.includes('not valid'))) {
+    return {
+      type: 'structural', message: 'Nie znaleziono NIP firmy',
+      fix: 'NIP nie występuje na stronie ani w rejestr.io — wprowadź ręcznie', autoRetryable: false,
+    };
+  }
+
+  // Default: unknown error — assume transient
+  return {
+    type: 'transient', message: 'Nieznany błąd',
+    fix: 'Spróbuj ponowić skan', autoRetryable: true,
+  };
+}
+
+/** Build diagnostics for an incomplete brand */
+function buildBrandDiagnostics(
+  missingDims: Array<{ dim: string; reason: string }>,
+  errors: string[],
+): { diagnostics: Diagnostic[]; retryPhases: string[]; canAutoRetry: boolean } {
+  const diagnostics: Diagnostic[] = [];
+  const retryPhasesSet = new Set<string>();
+  let canAutoRetry = true;
+
+  // Classify each error
+  for (const error of errors) {
+    const diag = classifyError(error, missingDims.map(d => d.dim));
+    diagnostics.push(diag);
+    if (!diag.autoRetryable) canAutoRetry = false;
+    if (diag.retryPhases) diag.retryPhases.forEach(p => retryPhasesSet.add(p));
+  }
+
+  // For missing dims without explicit errors, infer needed phases
+  for (const { dim, reason } of missingDims) {
+    if (reason === 'not_attempted') {
+      dimToPhases(dim).forEach(p => retryPhasesSet.add(p));
+    } else if (reason === 'empty' || reason === 'skipped') {
+      // Phase ran but produced nothing — check if any error explains it
+      const hasRelatedError = errors.some(e => {
+        const el = e.toLowerCase();
+        return dimToPhases(dim).some(p => el.includes(p));
+      });
+      if (!hasRelatedError) {
+        dimToPhases(dim).forEach(p => retryPhasesSet.add(p));
+      }
+    }
+  }
+
+  // If no errors but still missing dims, it's retryable
+  if (diagnostics.length === 0 && missingDims.length > 0) {
+    diagnostics.push({
+      type: 'transient', message: 'Fazy nie zwróciły danych',
+      fix: 'Powtórz brakujące fazy', autoRetryable: true,
+    });
+  }
+
+  return {
+    diagnostics,
+    retryPhases: Array.from(retryPhasesSet),
+    canAutoRetry,
+  };
+}
+
 /**
  * GET /api/scan/stats — database stats for the dashboard
  *
@@ -27,7 +201,14 @@ export async function GET(req: NextRequest) {
 
   const scannedBrands = allResults.length;
 
-  const incompleteList: Array<{ slug: string; name: string; dims: number; missing: string[]; missingDetails: Array<{ dim: string; reason: 'not_attempted' | 'skipped' | 'empty' }>; errors: string[] }> = [];
+  const incompleteList: Array<{
+    slug: string; name: string; dims: number; missing: string[];
+    missingDetails: Array<{ dim: string; reason: 'not_attempted' | 'skipped' | 'empty' }>;
+    errors: string[];
+    diagnostics: Diagnostic[];
+    retryPhases: string[];
+    canAutoRetry: boolean;
+  }> = [];
   let completeBrands = 0;
   const completeSlugs: string[] = [];
 
@@ -105,6 +286,8 @@ export async function GET(req: NextRequest) {
         return { dim, reason: 'empty' as const };
       });
 
+      const { diagnostics, retryPhases, canAutoRetry } = buildBrandDiagnostics(missingDetails, errors);
+
       incompleteList.push({
         slug: row.slug,
         name: brand?.name || row.slug,
@@ -112,6 +295,9 @@ export async function GET(req: NextRequest) {
         missing,
         missingDetails,
         errors,
+        diagnostics,
+        retryPhases,
+        canAutoRetry,
       });
     }
 
