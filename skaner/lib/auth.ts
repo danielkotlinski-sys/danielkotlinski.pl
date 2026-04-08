@@ -230,6 +230,11 @@ export async function removeMemberFromOrg(nip: string, email: string): Promise<b
 
 const MONTHLY_SCAN_LIMIT = 3;
 
+function isAdminEmail(email: string): boolean {
+  const admins = (process.env.ADMIN_EMAILS || '').split(',').map((e) => e.trim().toLowerCase()).filter(Boolean);
+  return admins.includes(email.toLowerCase());
+}
+
 function resetIfNewMonth(entity: { scansThisMonth: number; lastScanReset: string }): boolean {
   const now = new Date();
   const resetDate = new Date(entity.lastScanReset);
@@ -244,6 +249,9 @@ function resetIfNewMonth(entity: { scansThisMonth: number; lastScanReset: string
 export async function checkScanLimit(email: string): Promise<{ allowed: boolean; remaining: number }> {
   const user = await getUser(email);
   if (!user) return { allowed: false, remaining: 0 };
+
+  // Admin bypass — unlimited scans
+  if (isAdminEmail(email)) return { allowed: true, remaining: 999 };
 
   // If user belongs to an org, use org-level counter
   if (user.orgId) {

@@ -119,7 +119,9 @@ export async function runCategoryScanner(
   const pipelineStart = Date.now();
   const scanId = uuidv4();
   const costs = new ScanCostTracker(scanId);
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://skaner.danielkotlinski.pl';
+  const rawBaseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://skaner.danielkotlinski.pl';
+  // Strip accidental comment prefixes (e.g. "# e.g. https://...")
+  const baseUrl = rawBaseUrl.replace(/^#\s*(e\.?g\.?\s*)?/i, '').trim() || 'https://skaner.danielkotlinski.pl';
   const reportUrl = `${baseUrl}/raport/${scanId}`;
 
   const allBrands = [
@@ -167,12 +169,16 @@ export async function runCategoryScanner(
       synthesize_category: 85,
       client_position: 95,
     };
-    onProgress({
-      stepId,
-      status,
-      detail,
-      progress: status === 'done' ? progressMap[stepId] : undefined,
-    });
+    try {
+      onProgress({
+        stepId,
+        status,
+        detail,
+        progress: status === 'done' ? progressMap[stepId] : undefined,
+      });
+    } catch {
+      // Progress reporting must never kill the pipeline
+    }
   };
 
   // Collect websites + screenshots

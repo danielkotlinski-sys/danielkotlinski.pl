@@ -152,7 +152,7 @@ export default function TeamPage() {
                 </div>
                 <div className="text-right">
                   <span className="text-xs px-2.5 py-0.5 bg-dk-teal/10 text-dk-teal rounded-pill font-medium">
-                    {3 - org.scansThisMonth}/3 skanów
+                    Pozostało skanów: {3 - org.scansThisMonth} z 3
                   </span>
                   <p className="text-xs text-text-gray mt-1">{org.memberCount} {org.memberCount === 1 ? 'członek' : 'członków'}</p>
                 </div>

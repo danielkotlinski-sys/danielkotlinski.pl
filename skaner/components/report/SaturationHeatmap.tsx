@@ -19,6 +19,39 @@ function cellColor(score: number): string {
   return 'bg-emerald-600 text-white';
 }
 
+/** Renders weryfikacja text — handles both plain text and accidental JSON output from LLM */
+function WeryfikacjaContent({ text }: { text: string }) {
+  // Try to parse as JSON (LLM sometimes returns JSON despite instructions)
+  try {
+    const trimmed = text.trim();
+    if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+      const parsed = JSON.parse(trimmed);
+      const obserwacje: Array<{ tytul: string; tresc: string }> =
+        Array.isArray(parsed) ? parsed : parsed.obserwacje || parsed.observations || [];
+      if (obserwacje.length > 0) {
+        return (
+          <div className="space-y-4">
+            {obserwacje.map((obs, i) => (
+              <div key={i} className="bg-beige-light rounded-xl p-4">
+                <p className="text-sm font-medium text-text-primary mb-1">{obs.tytul}</p>
+                <p className="text-sm text-text-muted leading-[1.7]">{obs.tresc}</p>
+              </div>
+            ))}
+          </div>
+        );
+      }
+    }
+  } catch {
+    // Not JSON — render as plain text
+  }
+
+  return (
+    <div className="text-sm text-text-muted leading-[1.8] whitespace-pre-line">
+      {text}
+    </div>
+  );
+}
+
 export default function SaturationHeatmap({ saturation, deepBrands, clientBrandName }: Props) {
   const [showAll, setShowAll] = useState(false);
 
@@ -40,9 +73,41 @@ export default function SaturationHeatmap({ saturation, deepBrands, clientBrandN
           {saturation.benchmarkBrands.length} marek
         </span>
       </div>
-      <p className="text-[11px] text-text-gray mb-6">
-        Nasycenie tematów komunikacyjnych na podstawie analizy {saturation.benchmarkBrands.length} marek w kategorii. Im ciemniejszy kolor, tym silniej marka komunikuje dany temat.
+      <p className="text-[11px] text-text-gray mb-4">
+        Nasycenie tematów komunikacyjnych na podstawie analizy {saturation.benchmarkBrands.length} marek w kategorii.
+        Oprócz {deepBrands.length} analizowanych marek, do benchmarku dobrano losową próbkę {saturation.benchmarkBrands.length - deepBrands.length} konkurentów z kategorii,
+        aby zwiększyć wiarygodność wniosków i uchwycić rzeczywiste trendy rynkowe.
       </p>
+
+      {/* Legend */}
+      <div className="mb-5 p-4 bg-beige-light rounded-xl text-[11px] text-text-gray space-y-2">
+        <p className="font-medium text-text-muted text-xs mb-1">Jak czytać tabelę</p>
+        <p>
+          <strong>Wartość (0–100)</strong> — wskaźnik obecności tematu w komunikacji marki.
+          Mierzy, jak bardzo kluczowe frazy marki pokrywają się z danym tematem.
+          Wysoki wynik = temat silnie obecny, niski = temat słabo obecny lub nieobecny.
+          Wartości nie sumują się do 100 — marka może mieć wysoki wynik w wielu tematach jednocześnie.
+          Wyniki benchmarkowych marek bazują na analizie treści ich stron internetowych.
+        </p>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span>Natężenie koloru:</span>
+          <span className="inline-block w-6 h-4 rounded bg-white border border-gray-200" /> <span>0</span>
+          <span className="inline-block w-6 h-4 rounded bg-emerald-50" /> <span>1–15</span>
+          <span className="inline-block w-6 h-4 rounded bg-emerald-100" /> <span>16–30</span>
+          <span className="inline-block w-6 h-4 rounded bg-emerald-200" /> <span>31–50</span>
+          <span className="inline-block w-6 h-4 rounded bg-emerald-300" /> <span>51–70</span>
+          <span className="inline-block w-6 h-4 rounded bg-emerald-400" /> <span>71–85</span>
+          <span className="inline-block w-6 h-4 rounded bg-emerald-600" /> <span>86–100</span>
+        </div>
+        <p>
+          <strong>Kat.</strong> — średnia dla całej kategorii ({saturation.benchmarkBrands.length} marek). Pozwala ocenić,
+          czy dany temat jest popularny na rynku, czy stanowi niszę.
+        </p>
+        <p>
+          <strong>Wnioski:</strong> Szukaj tematów, w których Twoja marka ma wysoki wynik, a średnia kategorii jest niska — to Twoje wyróżniki.
+          Tematy o wysokiej średniej i niskim wyniku to potencjalne luki w komunikacji.
+        </p>
+      </div>
 
       {/* Heatmap grid */}
       <div className="overflow-x-auto -mx-2 px-2 pb-2">
@@ -86,7 +151,7 @@ export default function SaturationHeatmap({ saturation, deepBrands, clientBrandN
                         }`}
                         title={`${name}: ${score}`}
                       >
-                        {score > 0 ? score : ''}
+                        {score}
                       </div>
                     </td>
                   );
@@ -184,9 +249,7 @@ export default function SaturationHeatmap({ saturation, deepBrands, clientBrandN
           <p className="text-xs text-dk-teal uppercase tracking-widest font-medium mb-3">
             Weryfikacja konwencji danymi benchmarkowymi
           </p>
-          <div className="text-sm text-text-muted leading-[1.8] whitespace-pre-line">
-            {saturation.weryfikacjaKonwencji}
-          </div>
+          <WeryfikacjaContent text={saturation.weryfikacjaKonwencji} />
         </div>
       )}
     </div>

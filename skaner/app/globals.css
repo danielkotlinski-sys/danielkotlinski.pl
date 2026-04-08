@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* === Fonts === */
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Instrument+Serif:ital@0;1&display=swap');
 
 :root {
@@ -34,24 +35,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+  .text-balance { text-wrap: balance; }
 }
 
-/* Smooth scroll */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: var(--bg-alt);
-}
-::-webkit-scrollbar-thumb {
-  background: #bbb;
-  border-radius: 3px;
-}
+html { scroll-behavior: smooth; }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d8d4d1; }
