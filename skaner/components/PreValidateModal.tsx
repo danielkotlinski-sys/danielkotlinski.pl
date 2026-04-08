@@ -26,31 +26,49 @@ const severityConfig: Record<ValidationSeverity, {
   label: string;
   color: string;
   bg: string;
+  border: string;
   dot: string;
   icon: string;
 }> = {
   error: {
     label: 'Błąd',
-    color: 'text-dk-orange',
-    bg: 'bg-dk-orange/5 border-dk-orange/30',
-    dot: 'bg-dk-orange',
+    color: 'text-red-700',
+    bg: 'bg-red-50',
+    border: 'border-l-4 border-l-red-500 border-red-200',
+    dot: 'bg-red-500',
     icon: '!',
   },
   warning: {
     label: 'Ostrzeżenie',
     color: 'text-amber-700',
-    bg: 'bg-amber-50 border-amber-200',
+    bg: 'bg-amber-50',
+    border: 'border-l-4 border-l-amber-500 border-amber-200',
     dot: 'bg-amber-500',
-    icon: '?',
+    icon: '!',
   },
   info: {
     label: 'Info',
     color: 'text-dk-teal',
-    bg: 'bg-dk-teal/5 border-dk-teal/20',
+    bg: 'bg-dk-teal/5',
+    border: 'border-l-4 border-l-dk-teal border-dk-teal/20',
     dot: 'bg-dk-teal',
     icon: 'i',
   },
 };
+
+/** Readable summary of finding counts for the modal header. */
+function buildSummary(findings: ValidationFinding[]): string {
+  const counts = {
+    error: findings.filter((f) => f.severity === 'error').length,
+    warning: findings.filter((f) => f.severity === 'warning').length,
+    info: findings.filter((f) => f.severity === 'info').length,
+  };
+  const parts: string[] = [];
+  if (counts.error > 0) parts.push(`${counts.error} ${counts.error === 1 ? 'błąd' : 'błędy'}`);
+  if (counts.warning > 0) parts.push(`${counts.warning} ${counts.warning === 1 ? 'ostrzeżenie' : 'ostrzeżenia'}`);
+  if (counts.info > 0) parts.push(`${counts.info} ${counts.info === 1 ? 'informacja' : 'informacje'}`);
+  return parts.join(' · ');
+}
 
 function fieldLabel(field: ValidationFinding['field']): string {
   if (field === 'url') return 'Adres strony';
@@ -74,10 +92,12 @@ export default function PreValidateModal({
 }: PreValidateModalProps) {
   const findings = useMemo(() => result?.findings ?? [], [result]);
   const hasErrors = findings.some((f) => f.severity === 'error');
+  const hasWarnings = findings.some((f) => f.severity === 'warning');
   const applicableFindings = useMemo(
     () => findings.filter((f) => f.suggestion != null),
     [findings]
   );
+  const summary = useMemo(() => buildSummary(findings), [findings]);
 
   // Gdy nie ma czego pokazać i nie walidujemy — modal nieaktywny
   if (!validating && !result) return null;
@@ -100,10 +120,19 @@ export default function PreValidateModal({
                   : 'Wszystko wygląda dobrze'}
           </h2>
           {!validating && findings.length > 0 && (
-            <p className="text-sm text-text-gray mt-1.5">
-              System wykrył potencjalne niespójności.
-              Możesz zastosować sugestie lub uruchomić skan z obecnymi danymi.
-            </p>
+            <>
+              <p className="text-sm text-text-gray mt-1.5">
+                System wykrył potencjalne niespójności.
+                {hasErrors
+                  ? ' Popraw błędy, aby uruchomić skan.'
+                  : ' Możesz zastosować sugestie lub uruchomić skan z obecnymi danymi.'}
+              </p>
+              {summary && (
+                <p className="text-xs text-text-muted mt-1 font-medium">
+                  {summary}
+                </p>
+              )}
+            </>
           )}
           {validating && (
             <p className="text-sm text-text-gray mt-1.5">
@@ -142,7 +171,7 @@ export default function PreValidateModal({
                 return (
                   <div
                     key={idx}
-                    className={`border rounded-card p-4 ${cfg.bg}`}
+                    className={`rounded-card p-4 ${cfg.bg} ${cfg.border}`}
                   >
                     <div className="flex items-start gap-3">
                       {/* Severity dot */}
@@ -223,22 +252,32 @@ export default function PreValidateModal({
               Wróć i popraw
             </button>
             {hasErrors ? (
-              // Hard block — tylko "wróć i popraw", scan zablokowany
+              // Hard block — scan zablokowany dopóki błędy nie są poprawione
               <button
                 type="button"
                 disabled
                 className="px-5 py-2.5 text-sm font-medium text-text-gray/60 bg-beige-light rounded-pill cursor-not-allowed"
                 title="Popraw błędy żeby uruchomić skan"
               >
-                Uruchom mimo to
+                Uruchom skan
               </button>
-            ) : (
+            ) : hasWarnings ? (
+              // Są ostrzeżenia — pomarańczowy CTA sygnalizuje "jedziesz na własną odpowiedzialność"
               <button
                 type="button"
                 onClick={onProceed}
                 className="px-5 py-2.5 text-sm font-medium text-white bg-dk-orange hover:bg-dk-orange-hover rounded-pill transition-colors"
               >
-                {findings.length === 0 ? 'Uruchom skan' : 'Jestem pewien — uruchom skan'}
+                Jestem pewien — uruchom skan
+              </button>
+            ) : (
+              // Tylko info / nic — neutralny teal CTA, żadnego alarmu
+              <button
+                type="button"
+                onClick={onProceed}
+                className="px-5 py-2.5 text-sm font-medium text-white bg-dk-teal hover:bg-dk-teal-hover rounded-pill transition-colors"
+              >
+                Uruchom skan
               </button>
             )}
           </div>

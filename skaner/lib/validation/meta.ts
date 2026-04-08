@@ -128,19 +128,63 @@ export async function fetchPageMeta(url: string): Promise<PageMeta> {
     return base;
   } catch (err) {
     clearTimeout(timeout);
-    const msg = err instanceof Error ? err.message : String(err);
-    // Rozróżnienie timeout vs DNS/network dla lepszego komunikatu
-    if (msg.includes('aborted') || msg.includes('timeout')) {
-      base.error = 'Timeout — strona nie odpowiada';
-    } else if (msg.includes('ENOTFOUND') || msg.includes('getaddrinfo')) {
-      base.error = 'Domena nie istnieje (DNS)';
-    } else if (msg.includes('ECONNREFUSED')) {
-      base.error = 'Serwer odrzucił połączenie';
-    } else if (msg.includes('certificate')) {
-      base.error = 'Nieprawidłowy certyfikat SSL';
-    } else {
-      base.error = msg.slice(0, 200);
-    }
+    base.error = classifyFetchError(err);
     return base;
   }
+}
+
+/**
+ * Map a fetch error to a human-readable Polish message.
+ *
+ * Node's native fetch wraps the real cause in `.cause` — the top-level
+ * message is often just "fetch failed", which is useless to the user.
+ * We walk the cause chain to find something meaningful.
+ */
+function classifyFetchError(err: unknown): string {
+  // Collect all messages from the cause chain (depth <= 5 to avoid loops)
+  const messages: string[] = [];
+  let current: unknown = err;
+  for (let depth = 0; depth < 5 && current; depth++) {
+    if (current instanceof Error) {
+      if (current.message) messages.push(current.message);
+      // Also capture `code` if present (common for Node network errors)
+      const code = (current as Error & { code?: string }).code;
+      if (code) messages.push(code);
+      current = (current as Error & { cause?: unknown }).cause;
+    } else {
+      messages.push(String(current));
+      break;
+    }
+  }
+  const allMessages = messages.join(' | ');
+
+  // Abort / timeout
+  if (/abort|timeout|ETIMEDOUT/i.test(allMessages)) {
+    return 'Strona nie odpowiada w rozsądnym czasie — może być wolna lub niedostępna';
+  }
+  // DNS
+  if (/ENOTFOUND|getaddrinfo|EAI_AGAIN/i.test(allMessages)) {
+    return 'Domena nie istnieje (błąd DNS) — sprawdź poprawność adresu';
+  }
+  // Connection refused / reset
+  if (/ECONNREFUSED/i.test(allMessages)) {
+    return 'Serwer odrzucił połączenie — strona może być wyłączona';
+  }
+  if (/ECONNRESET|EPIPE/i.test(allMessages)) {
+    return 'Połączenie zerwane przez serwer — strona może być niestabilna';
+  }
+  // SSL / TLS
+  if (/certificate|SSL|TLS|UNABLE_TO_VERIFY|SELF_SIGNED|CERT_/i.test(allMessages)) {
+    return 'Problem z certyfikatem SSL strony — scan może mimo to zadziałać przez proxy';
+  }
+  // Unreachable / network
+  if (/ENETUNREACH|EHOSTUNREACH/i.test(allMessages)) {
+    return 'Nie udało się połączyć ze stroną — sprawdź czy adres jest poprawny';
+  }
+  // Generic "fetch failed" without a cause (we ran out of chain)
+  if (/^fetch failed$/i.test(allMessages) || allMessages === 'fetch failed') {
+    return 'Nie udało się połączyć ze stroną — może być tymczasowo niedostępna lub chroniona przed botami';
+  }
+  // Fallback: trim to keep UI clean
+  return `Nie udało się pobrać strony: ${(messages[0] || 'nieznany błąd').slice(0, 120)}`;
 }

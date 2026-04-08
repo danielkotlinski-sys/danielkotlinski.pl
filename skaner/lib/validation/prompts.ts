@@ -50,7 +50,7 @@ export function buildValidationPrompt(
     })
     .join('\n\n');
 
-  return `Jesteś ekspertem weryfikującym dane wejściowe do analizy marketingowej marek. Dostajesz zestaw marek (klient + konkurenci) oraz opis kategorii. Twoje zadanie: wykryć niespójności, które zaburzyłyby jakość analizy.
+  return `Jesteś ekspertem weryfikującym DANE WEJŚCIOWE do analizy marketingowej marek. Dostajesz zestaw marek (klient + konkurenci) oraz opis kategorii. Twoje jedyne zadanie: wykryć sytuacje, w których użytkownik WPROWADZIŁ coś źle i trzeba to poprawić PRZED uruchomieniem skanu.
 
 === KATEGORIA ===
 Opis: ${input.category}
@@ -60,34 +60,47 @@ Cel klienta w kategorii: ${input.categoryPurpose}
 === MARKI DO WERYFIKACJI ===
 ${brandBlocks}
 
-=== TWOJE ZADANIE ===
+=== CO WOLNO CI ZGŁASZAĆ ===
 
-Dla każdej marki oceń NIEZALEŻNIE 3 wymiary:
+Dla każdej marki oceń NIEZALEŻNIE 3 wymiary — i tylko te 3:
 
 1. **Czy content strony (meta) pasuje do kategorii?**
-   - Jeśli kategoria to "soniczne szczoteczki" a strona ma tytuł "Sklep z oponami" → TO HARD ERROR (confidence > 0.9)
+   - Jeśli kategoria to "soniczne szczoteczki" a strona ma tytuł "Sklep z oponami" → HARD ERROR (confidence > 0.9)
    - Jeśli strona zajmuje się częściowo inną kategorią ale też tą → warning
    - Ignoruj przypadki gdzie meta jest pusta (nie mamy danych do oceny)
 
 2. **Czy nazwa marki pasuje do tytułu strony?**
-   - Jeśli user wpisał "Oral V" ale title="Oral-B Polska — szczoteczki" → warning z sugestią "Oral-B"
-   - Drobne różnice case/interpunkcji (oral b vs Oral-B) → info, nie warning
+   - Jeśli user wpisał "Oral V" ale title="Oral-B Polska" → warning z sugestią "Oral-B"
+   - Drobne różnice case/interpunkcji (oral b vs Oral-B) → POMIJAJ — nie zgłaszaj
    - Literówki ewidentne (literka obok na klawiaturze) → warning
 
 3. **Czy handle social pasuje do deklarowanej platformy i marki?**
-   - Underscore w FB handle → to już wykryte deterministycznie, NIE duplikuj
+   - Underscore w FB handle → JUŻ wykryte deterministycznie, NIE duplikuj
    - Handle kompletnie niezwiązany z nazwą marki (np. "Oral-B" + handle "johndoe123") → warning
-   - Handle wygląda na konto prywatne (osobowe imię-nazwisko) → info
 
-=== REGUŁY ODPOWIEDZI ===
+=== CO JEST KATEGORYCZNIE ZABRONIONE ===
 
-- Severity 'error' TYLKO dla totalnie off-topic contentu (confidence ≥ 0.9) lub oczywistej literówki w URL
-- Severity 'warning' dla częściowych niespójności (confidence 0.6-0.9)
-- Severity 'info' dla drobnych kosmetyk (confidence 0.5-0.8)
+To jest PRE-VALIDATION INPUTU, nie audyt strony. Pod ŻADNYM pozorem NIE zgłaszaj:
+
+- ❌ Jakości strony (brak H1, braki SEO, design, content quality, czytelność, UX, accessibility)
+- ❌ Długości / jakości meta description, title, og tagów
+- ❌ Rekomendacji marketingowych ("marka powinna...", "warto dodać...")
+- ❌ Obserwacji o zawartości strony które nie wpływają na input użytkownika
+- ❌ Informacji o kategorii / pozycjonowaniu marki (to zadanie samego skanu, nie pre-walidacji)
+- ❌ Drobnych kosmetyk case/interpunkcji w nazwie marki
+- ❌ Komentarzy o kompletności danych wejściowych innych niż te 3 wymiary wyżej
+
+Jeśli zgłoszenie NIE zmusza użytkownika do POPRAWIENIA url/handle/nazwy marki PRZED skanem — NIE zgłaszaj go. Kropka.
+
+=== REGUŁY WYNIKU ===
+
+- Severity 'error' TYLKO dla totalnie off-topic contentu (confidence ≥ 0.9)
+- Severity 'warning' dla niespójności wymagających decyzji użytkownika (confidence 0.7-0.9)
+- Severity 'info' POMIJAJ — jeśli to nie jest warning lub error, nie zgłaszaj wcale
 - NIE halucynuj. Jeśli nie jesteś pewien co zasugerować → suggestion: null
-- NIE powtarzaj rzeczy oczywistych z deterministycznych checków (underscore w FB, DNS errors)
+- **MAKS 1 finding per marka.** Zgłaszaj tylko ten NAJWAŻNIEJSZY problem, który faktycznie wymaga akcji użytkownika.
 - NIE zgłaszaj findingów dla marek gdzie meta jest pusta (reachable: false, albo puste pola)
-- MAKS 1-2 findings per marka — zgłaszaj tylko naprawdę istotne
+- Jeśli wszystko jest w porządku — zwróć pustą tablicę findings.
 
 === FORMAT ODPOWIEDZI (STRICT JSON) ===
 
@@ -98,7 +111,7 @@ Dla każdej marki oceń NIEZALEŻNIE 3 wymiary:
       "role": "client" | "competitor",
       "competitorIndex": <liczba 0-3 gdy role='competitor', null gdy 'client'>,
       "field": "url" | "socialHandle" | "brandName",
-      "severity": "error" | "warning" | "info",
+      "severity": "error" | "warning",
       "issue": "jedno zdanie po polsku co jest nie tak",
       "suggestion": "sugerowana wartość LUB null",
       "confidence": 0.0-1.0,

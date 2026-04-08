@@ -166,10 +166,17 @@ export function urlFindingFromMeta(
   role: 'client' | 'competitor',
   competitorIndex: number | undefined
 ): ValidationFinding | null {
-  // DNS error / domain doesn't exist → hard error (scan se nie powiedzie)
+  // Unreachable URL → error lub warning zależnie od typu błędu.
+  //
+  // Hard error: DNS nie istnieje, serwer nie przyjmuje połączeń — scan NA PEWNO
+  // nie zadziała, trzeba poprawić URL.
+  //
+  // Soft warning: timeout, SSL, generyczne fetch failed — scan przez Apify
+  // (z proper User-Agentem i proxy) często sobie radzi nawet tam gdzie nasz
+  // lightweight fetch pada. Dajemy userowi wybór.
   if (!meta.reachable && meta.error) {
-    const hardErrors = ['DNS', 'nie istnieje', 'certyfikat', 'Nieprawidłowy'];
-    const isHard = hardErrors.some((k) => meta.error!.includes(k));
+    const HARD_PATTERNS = ['DNS', 'nie istnieje', 'odrzucił połączenie'];
+    const isHard = HARD_PATTERNS.some((k) => meta.error!.includes(k));
     return {
       brand: brandName,
       role,
@@ -180,8 +187,8 @@ export function urlFindingFromMeta(
       suggestion: null,
       confidence: 1.0,
       rationale: isHard
-        ? 'Scan nie pozyska danych z tej strony — trzeba poprawić URL'
-        : 'Strona może nie odpowiadać podczas scanu',
+        ? 'Scan nie pozyska danych z tej strony — trzeba poprawić URL przed uruchomieniem'
+        : 'Lightweight fetch nie dał rady — scan przez Apify z pełnym browserem często mimo to działa',
       source: 'reachability',
     };
   }
