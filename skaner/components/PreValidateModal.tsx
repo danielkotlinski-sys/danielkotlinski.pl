@@ -1,79 +1,23 @@
 'use client';
 
-import { useMemo } from 'react';
-import type {
-  PreValidateResult,
-  ValidationFinding,
-  ValidationSeverity,
-} from '@/types/scanner';
+import type { ValidationFinding } from '@/types/scanner';
 
 interface PreValidateModalProps {
-  /** null = loading state, PreValidateResult = wyniki walidacji */
-  result: PreValidateResult | null;
-  /** true gdy pre-validate jeszcze trwa */
-  validating: boolean;
-  /** Zastosuj pojedynczą sugestię — podmienia pole w formularzu */
+  /** Findings from the synchronous handle-format check (may be empty) */
+  findings: ValidationFinding[];
+  /** Apply a single suggestion — writes the value into the form field */
   onApply: (finding: ValidationFinding) => void;
-  /** Zastosuj wszystkie sugestie z listy na raz */
+  /** Apply all suggestions that have a non-null suggestion value */
   onApplyAll: (findings: ValidationFinding[]) => void;
-  /** Mimo ostrzeżeń — uruchom skan */
+  /** Proceed with the scan */
   onProceed: () => void;
-  /** Zamknij modal i wróć do edycji */
+  /** Close the modal and return to editing */
   onCancel: () => void;
 }
 
-const severityConfig: Record<ValidationSeverity, {
-  label: string;
-  color: string;
-  bg: string;
-  border: string;
-  dot: string;
-  icon: string;
-}> = {
-  error: {
-    label: 'Błąd',
-    color: 'text-red-700',
-    bg: 'bg-red-50',
-    border: 'border-l-4 border-l-red-500 border-red-200',
-    dot: 'bg-red-500',
-    icon: '!',
-  },
-  warning: {
-    label: 'Ostrzeżenie',
-    color: 'text-amber-700',
-    bg: 'bg-amber-50',
-    border: 'border-l-4 border-l-amber-500 border-amber-200',
-    dot: 'bg-amber-500',
-    icon: '!',
-  },
-  info: {
-    label: 'Info',
-    color: 'text-dk-teal',
-    bg: 'bg-dk-teal/5',
-    border: 'border-l-4 border-l-dk-teal border-dk-teal/20',
-    dot: 'bg-dk-teal',
-    icon: 'i',
-  },
-};
-
-/** Readable summary of finding counts for the modal header. */
-function buildSummary(findings: ValidationFinding[]): string {
-  const counts = {
-    error: findings.filter((f) => f.severity === 'error').length,
-    warning: findings.filter((f) => f.severity === 'warning').length,
-    info: findings.filter((f) => f.severity === 'info').length,
-  };
-  const parts: string[] = [];
-  if (counts.error > 0) parts.push(`${counts.error} ${counts.error === 1 ? 'błąd' : 'błędy'}`);
-  if (counts.warning > 0) parts.push(`${counts.warning} ${counts.warning === 1 ? 'ostrzeżenie' : 'ostrzeżenia'}`);
-  if (counts.info > 0) parts.push(`${counts.info} ${counts.info === 1 ? 'informacja' : 'informacje'}`);
-  return parts.join(' · ');
-}
-
 function fieldLabel(field: ValidationFinding['field']): string {
-  if (field === 'url') return 'Adres strony';
   if (field === 'socialHandle') return 'Profil social media';
-  return 'Nazwa marki';
+  return field;
 }
 
 function brandLabel(f: ValidationFinding): string {
@@ -83,24 +27,13 @@ function brandLabel(f: ValidationFinding): string {
 }
 
 export default function PreValidateModal({
-  result,
-  validating,
+  findings,
   onApply,
   onApplyAll,
   onProceed,
   onCancel,
 }: PreValidateModalProps) {
-  const findings = useMemo(() => result?.findings ?? [], [result]);
-  const hasErrors = findings.some((f) => f.severity === 'error');
-  const hasWarnings = findings.some((f) => f.severity === 'warning');
-  const applicableFindings = useMemo(
-    () => findings.filter((f) => f.suggestion != null),
-    [findings]
-  );
-  const summary = useMemo(() => buildSummary(findings), [findings]);
-
-  // Gdy nie ma czego pokazać i nie walidujemy — modal nieaktywny
-  if (!validating && !result) return null;
+  const applicableFindings = findings.filter((f) => f.suggestion != null);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
@@ -111,79 +44,47 @@ export default function PreValidateModal({
         {/* Header */}
         <div className="px-6 md:px-8 pt-6 pb-4 border-b border-beige-dark/30">
           <h2 className="font-heading text-2xl text-text-primary">
-            {validating
-              ? 'Weryfikuję dane…'
-              : hasErrors
-                ? 'Znaleziono problemy do poprawienia'
-                : findings.length > 0
-                  ? 'Czy na pewno te dane są poprawne?'
-                  : 'Wszystko wygląda dobrze'}
+            Potwierdź dane przed uruchomieniem skanu
           </h2>
-          {!validating && findings.length > 0 && (
-            <>
-              <p className="text-sm text-text-gray mt-1.5">
-                System wykrył potencjalne niespójności.
-                {hasErrors
-                  ? ' Popraw błędy, aby uruchomić skan.'
-                  : ' Możesz zastosować sugestie lub uruchomić skan z obecnymi danymi.'}
-              </p>
-              {summary && (
-                <p className="text-xs text-text-muted mt-1 font-medium">
-                  {summary}
-                </p>
-              )}
-            </>
-          )}
-          {validating && (
-            <p className="text-sm text-text-gray mt-1.5">
-              Sprawdzam adresy stron, formaty profili social i spójność z kategorią.
-              Zajmie to kilka sekund.
-            </p>
-          )}
+          <p className="text-sm text-text-gray mt-2 leading-relaxed">
+            Za moment Skaner wykona analizę źródeł. <strong className="text-text-primary">Upewnij się, że podajesz poprawne adresy stron WWW i nazwy marek w social media</strong> — w innym wypadku wyniki będą błędne, a skan zużyje budżet na złe dane.
+          </p>
         </div>
 
-        {/* Body */}
+        {/* Body — handle-format warnings (if any) */}
         <div className="flex-1 overflow-y-auto px-6 md:px-8 py-5">
-          {validating && (
-            <div className="flex flex-col items-center justify-center py-12 gap-4">
-              <span className="inline-block w-8 h-8 border-[3px] border-dk-teal border-t-transparent rounded-full animate-spin" />
-              <p className="text-sm text-text-gray">
-                Pobieram strony i weryfikuję z kategorią…
-              </p>
-            </div>
-          )}
-
-          {!validating && findings.length === 0 && result && (
-            <div className="flex flex-col items-center justify-center py-8 gap-3">
-              <div className="w-12 h-12 rounded-full bg-dk-teal/10 flex items-center justify-center">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-dk-teal">
-                  <path d="M5 12l4 4L19 6" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+          {findings.length === 0 ? (
+            <div className="flex items-start gap-3 rounded-card p-4 bg-dk-teal/5 border-l-4 border-l-dk-teal border-dk-teal/20 border">
+              <div className="mt-0.5 w-5 h-5 rounded-full bg-dk-teal flex items-center justify-center text-white text-xs font-bold shrink-0">
+                i
               </div>
-              <p className="text-text-muted">Nie znaleziono problemów — scan rusza.</p>
+              <div className="text-sm text-text-primary leading-snug">
+                Wszystkie handle social media wyglądają poprawnie. Jeśli jesteś pewien adresów stron i nazw marek — możesz uruchomić skan.
+              </div>
             </div>
-          )}
-
-          {!validating && findings.length > 0 && (
-            <div className="space-y-3">
-              {findings.map((finding, idx) => {
-                const cfg = severityConfig[finding.severity];
-                return (
+          ) : (
+            <>
+              <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 mb-3">
+                {findings.length === 1
+                  ? 'Znaleźliśmy 1 potencjalny problem z handle social media'
+                  : `Znaleźliśmy ${findings.length} potencjalne problemy z handle social media`}
+              </p>
+              <div className="space-y-3">
+                {findings.map((finding, idx) => (
                   <div
                     key={idx}
-                    className={`rounded-card p-4 ${cfg.bg} ${cfg.border}`}
+                    className="rounded-card p-4 bg-amber-50 border border-amber-200 border-l-4 border-l-amber-500"
                   >
                     <div className="flex items-start gap-3">
-                      {/* Severity dot */}
-                      <div className={`mt-1 w-5 h-5 rounded-full ${cfg.dot} flex items-center justify-center text-white text-xs font-bold shrink-0`}>
-                        {cfg.icon}
+                      <div className="mt-1 w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                        !
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        {/* Meta line */}
+                        {/* Meta line: brand + field */}
                         <div className="flex items-center gap-2 mb-1">
-                          <span className={`text-xs font-semibold uppercase tracking-wide ${cfg.color}`}>
-                            {cfg.label}
+                          <span className="text-xs font-semibold uppercase tracking-wide text-amber-700">
+                            Ostrzeżenie
                           </span>
                           <span className="text-xs text-text-gray">•</span>
                           <span className="text-xs text-text-muted">
@@ -222,66 +123,41 @@ export default function PreValidateModal({
                       </div>
                     </div>
                   </div>
-                );
-              })}
+                ))}
 
-              {/* Apply all button — tylko gdy >= 2 sugestie z propozycją */}
-              {applicableFindings.length >= 2 && (
-                <div className="pt-2">
-                  <button
-                    type="button"
-                    onClick={() => onApplyAll(applicableFindings)}
-                    className="w-full py-2.5 text-sm font-medium text-dk-teal border border-dk-teal/30 rounded-card hover:bg-dk-teal/5 transition-colors"
-                  >
-                    Zastosuj wszystkie sugestie ({applicableFindings.length})
-                  </button>
-                </div>
-              )}
-            </div>
+                {applicableFindings.length >= 2 && (
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      onClick={() => onApplyAll(applicableFindings)}
+                      className="w-full py-2.5 text-sm font-medium text-dk-teal border border-dk-teal/30 rounded-card hover:bg-dk-teal/5 transition-colors"
+                    >
+                      Zastosuj wszystkie sugestie ({applicableFindings.length})
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
           )}
         </div>
 
         {/* Footer */}
-        {!validating && result && (
-          <div className="px-6 md:px-8 py-4 border-t border-beige-dark/30 flex flex-col sm:flex-row gap-3 sm:justify-end">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="px-5 py-2.5 text-sm font-medium text-text-muted hover:text-text-primary border border-beige-dark/60 rounded-pill transition-colors"
-            >
-              Wróć i popraw
-            </button>
-            {hasErrors ? (
-              // Hard block — scan zablokowany dopóki błędy nie są poprawione
-              <button
-                type="button"
-                disabled
-                className="px-5 py-2.5 text-sm font-medium text-text-gray/60 bg-beige-light rounded-pill cursor-not-allowed"
-                title="Popraw błędy żeby uruchomić skan"
-              >
-                Uruchom skan
-              </button>
-            ) : hasWarnings ? (
-              // Są ostrzeżenia — pomarańczowy CTA sygnalizuje "jedziesz na własną odpowiedzialność"
-              <button
-                type="button"
-                onClick={onProceed}
-                className="px-5 py-2.5 text-sm font-medium text-white bg-dk-orange hover:bg-dk-orange-hover rounded-pill transition-colors"
-              >
-                Jestem pewien — uruchom skan
-              </button>
-            ) : (
-              // Tylko info / nic — neutralny teal CTA, żadnego alarmu
-              <button
-                type="button"
-                onClick={onProceed}
-                className="px-5 py-2.5 text-sm font-medium text-white bg-dk-teal hover:bg-dk-teal-hover rounded-pill transition-colors"
-              >
-                Uruchom skan
-              </button>
-            )}
-          </div>
-        )}
+        <div className="px-6 md:px-8 py-4 border-t border-beige-dark/30 flex flex-col sm:flex-row gap-3 sm:justify-end">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-5 py-2.5 text-sm font-medium text-text-muted hover:text-text-primary border border-beige-dark/60 rounded-pill transition-colors"
+          >
+            Wróć i popraw
+          </button>
+          <button
+            type="button"
+            onClick={onProceed}
+            className="px-5 py-2.5 text-sm font-medium text-white bg-dk-orange hover:bg-dk-orange-hover rounded-pill transition-colors"
+          >
+            Uruchom skan
+          </button>
+        </div>
       </div>
     </div>
   );

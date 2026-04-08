@@ -30,11 +30,16 @@ export interface ScanRequest {
   lead: LeadInfo;
 }
 
-// === Pre-validation Types ===
+// === Pre-scan confirmation types ===
+//
+// Before each scan we show a confirmation modal. It always displays
+// a "double-check your input" notice and, if applicable, lists any
+// handle-format warnings surfaced by the synchronous client-side
+// validation (see `lib/validation/checks.ts`).
 
-export type ValidationSeverity = 'error' | 'warning' | 'info';
+export type ValidationSeverity = 'warning';
 
-export type ValidationField = 'url' | 'socialHandle' | 'brandName';
+export type ValidationField = 'socialHandle';
 
 export interface ValidationFinding {
   /** Nazwa marki której dotyczy finding (klient lub dokładna nazwa konkurenta) */
@@ -49,21 +54,12 @@ export interface ValidationFinding {
   issue: string;
   /** Sugerowana wartość do zastosowania, albo null jeśli tylko komunikat informacyjny */
   suggestion: string | null;
-  /** 0.0-1.0 — jak pewny jest finding (dla warningów semantycznych z Claude'a) */
+  /** 0.0-1.0 — jak pewny jest finding */
   confidence: number;
   /** 1-zdaniowe uzasadnienie (dla hovera / szczegółów) */
   rationale?: string;
-  /** Skąd pochodzi finding — pomaga odfiltrować/debugować */
-  source: 'format' | 'reachability' | 'duplicate' | 'semantic';
-}
-
-export interface PreValidateResult {
-  status: 'ok' | 'warnings' | 'errors';
-  findings: ValidationFinding[];
-  /** Meta info dla debug/logów */
-  checkedAt: string;
-  /** ms całego pre-validate — przydatne do monitoringu */
-  durationMs: number;
+  /** Skąd pochodzi finding — obecnie wyłącznie deterministyczny check formatu */
+  source: 'format';
 }
 
 // === Data Collection Types ===

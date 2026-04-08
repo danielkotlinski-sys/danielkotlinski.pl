@@ -3,9 +3,12 @@
 import { useState, useEffect } from 'react';
 import type {
   ScannerInput,
-  PreValidateResult,
   ValidationFinding,
 } from '@/types/scanner';
+import {
+  checkHandleFormat,
+  handleFindingFromFormatCheck,
+} from '@/lib/validation/checks';
 import PreValidateModal from './PreValidateModal';
 
 interface Competitor {
@@ -86,9 +89,10 @@ export default function InputForm({ onSubmit }: InputFormProps) {
   const [competitorsSuggested, setCompetitorsSuggested] = useState(false);
   const [competitorsSuggestFailed, setCompetitorsSuggestFailed] = useState(false);
 
-  // Pre-validation state
-  const [preValidating, setPreValidating] = useState(false);
-  const [preValidateResult, setPreValidateResult] = useState<PreValidateResult | null>(null);
+  // Pre-scan confirmation state — we ALWAYS show the modal before running
+  // the scan (to get user's confirmation on URLs and brand names) plus any
+  // handle-format warnings from the deterministic check.
+  const [preValidateFindings, setPreValidateFindings] = useState<ValidationFinding[]>([]);
   const [pendingInput, setPendingInput] = useState<ScannerInput | null>(null);
   const [showPreValidateModal, setShowPreValidateModal] = useState(false);
 
@@ -248,6 +252,37 @@ export default function InputForm({ onSubmit }: InputFormProps) {
     };
   };
 
+  /**
+   * Collect handle-format findings synchronously, client-side.
+   *
+   * For competitors we don't know their declared social platform, so we
+   * assume the same platform the user declared for the client brand.
+   * That's a pragmatic heuristic — most users keep the default.
+   */
+  const collectHandleFindings = (input: ScannerInput): ValidationFinding[] => {
+    const findings: ValidationFinding[] = [];
+
+    const clientCheck = checkHandleFormat(
+      input.clientBrand.socialHandle,
+      input.clientBrand.socialPlatform
+    );
+    const clientFinding = handleFindingFromFormatCheck(
+      clientCheck,
+      input.clientBrand.name,
+      'client',
+      undefined
+    );
+    if (clientFinding) findings.push(clientFinding);
+
+    input.competitors.forEach((c, i) => {
+      const check = checkHandleFormat(c.socialHandle, input.clientBrand.socialPlatform);
+      const finding = handleFindingFromFormatCheck(check, c.name, 'competitor', i);
+      if (finding) findings.push(finding);
+    });
+
+    return findings;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) {
@@ -259,77 +294,37 @@ export default function InputForm({ onSubmit }: InputFormProps) {
       return;
     }
 
+    // Build input, run sync handle-format check, show confirmation modal.
+    // The modal is ALWAYS shown — even with zero findings — so users get
+    // a final chance to double-check their URLs and brand names before
+    // burning Apify/Claude credits on bad inputs.
     const input = buildInput();
     setPendingInput(input);
+    setPreValidateFindings(collectHandleFindings(input));
     setShowPreValidateModal(true);
-    setPreValidating(true);
-    setPreValidateResult(null);
-
-    try {
-      const response = await fetch('/api/scan/pre-validate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ input }),
-      });
-
-      if (!response.ok) {
-        // Fail-open: jeśli endpoint padnie, puszczamy scan bez blokowania
-        console.warn('[pre-validate] endpoint failed, skipping');
-        setShowPreValidateModal(false);
-        setPreValidating(false);
-        onSubmit(input);
-        return;
-      }
-
-      const result = (await response.json()) as PreValidateResult;
-      setPreValidateResult(result);
-      setPreValidating(false);
-
-      // Jeśli wszystko OK — auto-proceed bez pokazywania modala użytkownikowi
-      if (result.status === 'ok' && result.findings.length === 0) {
-        setShowPreValidateModal(false);
-        onSubmit(input);
-      }
-    } catch (err) {
-      console.error('[pre-validate] error:', err);
-      // Fail-open
-      setShowPreValidateModal(false);
-      setPreValidating(false);
-      onSubmit(input);
-    }
   };
 
   /**
-   * Zastosuj sugestię z findinga — podmienia konkretne pole w formularzu.
-   * Dla konkurenta używa competitorIndex, dla klienta — odpowiedni setter.
+   * Apply a finding's suggestion — writes the suggested value into the
+   * corresponding form field. Currently only `socialHandle` findings
+   * exist, but the routing stays generic in case we add fields later.
    */
   const applyFinding = (finding: ValidationFinding) => {
     if (finding.suggestion == null) return;
     const value = finding.suggestion;
 
     if (finding.role === 'client') {
-      if (finding.field === 'brandName') setBrandName(value);
-      else if (finding.field === 'url') setBrandUrl(value);
-      else if (finding.field === 'socialHandle') setSocialHandle(value);
+      if (finding.field === 'socialHandle') setSocialHandle(value);
     } else if (finding.role === 'competitor' && finding.competitorIndex != null) {
       const idx = finding.competitorIndex;
       if (idx < 0 || idx >= competitors.length) return;
-      const fieldMap: Record<ValidationFinding['field'], keyof Competitor> = {
-        brandName: 'name',
-        url: 'url',
-        socialHandle: 'socialHandle',
-      };
-      updateCompetitor(idx, fieldMap[finding.field], value);
+      if (finding.field === 'socialHandle') {
+        updateCompetitor(idx, 'socialHandle', value);
+      }
     }
 
-    // Usuń zastosowany finding z wyników żeby modal go nie pokazywał
-    setPreValidateResult((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        findings: prev.findings.filter((f) => f !== finding),
-      };
-    });
+    // Drop the finding from the list so the modal stops showing it
+    setPreValidateFindings((prev) => prev.filter((f) => f !== finding));
   };
 
   const applyAllFindings = (findings: ValidationFinding[]) => {
@@ -346,7 +341,7 @@ export default function InputForm({ onSubmit }: InputFormProps) {
   const cancelPreValidate = () => {
     setShowPreValidateModal(false);
     setPendingInput(null);
-    setPreValidateResult(null);
+    setPreValidateFindings([]);
   };
 
   return (
@@ -628,10 +623,10 @@ export default function InputForm({ onSubmit }: InputFormProps) {
       <div className="space-y-3">
         <button
           type="submit"
-          disabled={preValidating || showPreValidateModal}
+          disabled={showPreValidateModal}
           className="w-full py-4 bg-dk-orange text-white rounded-pill font-medium text-lg hover:bg-dk-orange-hover hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
         >
-          {preValidating ? 'Weryfikuję dane…' : 'Uruchom Skan'}
+          Uruchom Skan
         </button>
         {isDev && (
           <button
@@ -646,8 +641,7 @@ export default function InputForm({ onSubmit }: InputFormProps) {
 
       {showPreValidateModal && (
         <PreValidateModal
-          result={preValidateResult}
-          validating={preValidating}
+          findings={preValidateFindings}
           onApply={applyFinding}
           onApplyAll={applyAllFindings}
           onProceed={proceedWithScan}

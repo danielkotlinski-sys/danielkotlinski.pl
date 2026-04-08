@@ -1,12 +1,13 @@
-import type {
-  ScannerInput,
-  ValidationFinding,
-} from '@/types/scanner';
-import type { PageMeta } from './meta';
+import type { ValidationFinding } from '@/types/scanner';
 
 /**
- * Deterministic (non-LLM) checks for pre-validation.
- * Run first — they catch 90% of common errors without any API cost.
+ * Deterministic handle format checks for pre-scan confirmation.
+ *
+ * Only validates social media handle syntax — runs client-side in ~1ms
+ * with zero network / LLM dependencies. The rest of the pre-scan flow
+ * (URL verification, content vs category matching) was removed: users
+ * are best positioned to verify their own URLs and brand names, and
+ * scope-creeping into page-quality auditing confused the UX.
  */
 
 // === Handle format rules ===
@@ -92,51 +93,10 @@ export function checkHandleFormat(
   return { valid: true };
 }
 
-// === URL duplicate detection ===
-
-/** Normalizuje URL do porównania (bez trailing slash, bez protokołu, lowercase) */
-function normalizeForCompare(url: string): string {
-  return url
-    .toLowerCase()
-    .replace(/^https?:\/\//, '')
-    .replace(/^www\./, '')
-    .replace(/\/+$/, '');
-}
-
-export interface DuplicateGroup {
-  url: string;
-  owners: Array<{ role: 'client' | 'competitor'; index?: number; name: string }>;
-}
-
-export function findDuplicateUrls(input: ScannerInput): DuplicateGroup[] {
-  const byNormalized = new Map<string, DuplicateGroup>();
-
-  const addEntry = (rawUrl: string, owner: DuplicateGroup['owners'][number]) => {
-    if (!rawUrl) return;
-    const normalized = normalizeForCompare(rawUrl);
-    if (!normalized) return;
-    if (!byNormalized.has(normalized)) {
-      byNormalized.set(normalized, { url: rawUrl, owners: [] });
-    }
-    byNormalized.get(normalized)!.owners.push(owner);
-  };
-
-  addEntry(input.clientBrand.url, {
-    role: 'client',
-    name: input.clientBrand.name,
-  });
-  input.competitors.forEach((c, i) => {
-    addEntry(c.url, { role: 'competitor', index: i, name: c.name });
-  });
-
-  return Array.from(byNormalized.values()).filter((g) => g.owners.length > 1);
-}
-
-// === Finding builders ===
-//
-// Te helpery budują ValidationFinding z różnych źródeł, konsekwentnie
-// ustawiając role/competitorIndex — dzięki temu UI wie, które pole zmodyfikować.
-
+/**
+ * Convert a HandleCheckResult into a ValidationFinding ready for UI rendering.
+ * Returns null if the handle is valid (nothing to show).
+ */
 export function handleFindingFromFormatCheck(
   check: HandleCheckResult,
   brandName: string,
@@ -157,115 +117,5 @@ export function handleFindingFromFormatCheck(
       ? `Format sugeruje platformę "${check.suggestedPlatform}" zamiast zadeklarowanej`
       : 'Handle nie przejdzie walidacji scrapera',
     source: 'format',
-  };
-}
-
-export function urlFindingFromMeta(
-  meta: PageMeta,
-  brandName: string,
-  role: 'client' | 'competitor',
-  competitorIndex: number | undefined
-): ValidationFinding | null {
-  // Unreachable URL → error lub warning zależnie od typu błędu.
-  //
-  // Hard error: DNS nie istnieje, serwer nie przyjmuje połączeń — scan NA PEWNO
-  // nie zadziała, trzeba poprawić URL.
-  //
-  // Soft warning: timeout, SSL, generyczne fetch failed — scan przez Apify
-  // (z proper User-Agentem i proxy) często sobie radzi nawet tam gdzie nasz
-  // lightweight fetch pada. Dajemy userowi wybór, ale zachęcamy do weryfikacji
-  // adresu — bo niedostępna strona często oznacza też, że URL jest zły.
-  if (!meta.reachable && meta.error) {
-    const HARD_PATTERNS = ['DNS', 'nie istnieje', 'odrzucił połączenie'];
-    const isHard = HARD_PATTERNS.some((k) => meta.error!.includes(k));
-    return {
-      brand: brandName,
-      role,
-      competitorIndex,
-      field: 'url',
-      severity: isHard ? 'error' : 'warning',
-      issue: meta.error,
-      suggestion: null,
-      confidence: 1.0,
-      rationale: isHard
-        ? 'Nie uda nam się pobrać danych z tej strony. Popraw adres przed uruchomieniem skanu.'
-        : 'Upewnij się, że to właściwy adres marki. Jeśli strona jest tymczasowo niedostępna, skan może mimo wszystko zadziałać.',
-      source: 'reachability',
-    };
-  }
-
-  // 4xx (poza 403/429) → hard error
-  if (meta.status && meta.status >= 400 && meta.status < 500 && meta.status !== 403 && meta.status !== 429) {
-    return {
-      brand: brandName,
-      role,
-      competitorIndex,
-      field: 'url',
-      severity: 'error',
-      issue: `Strona zwraca ${meta.status} — prawdopodobnie nie istnieje pod tym adresem`,
-      suggestion: null,
-      confidence: 1.0,
-      rationale: `HTTP ${meta.status}`,
-      source: 'reachability',
-    };
-  }
-
-  // 5xx → soft warning
-  if (meta.status && meta.status >= 500) {
-    return {
-      brand: brandName,
-      role,
-      competitorIndex,
-      field: 'url',
-      severity: 'warning',
-      issue: `Strona zwraca ${meta.status} — serwer może być tymczasowo niedostępny`,
-      suggestion: null,
-      confidence: 0.9,
-      rationale: `HTTP ${meta.status}`,
-      source: 'reachability',
-    };
-  }
-
-  // Redirect cross-domain → info
-  if (meta.redirected && meta.finalUrl) {
-    try {
-      const originalHost = new URL(meta.requestedUrl).hostname.replace(/^www\./, '');
-      const finalHost = new URL(meta.finalUrl).hostname.replace(/^www\./, '');
-      if (originalHost !== finalHost) {
-        return {
-          brand: brandName,
-          role,
-          competitorIndex,
-          field: 'url',
-          severity: 'info',
-          issue: `Strona przekierowuje na inną domenę: ${finalHost}`,
-          suggestion: meta.finalUrl,
-          confidence: 1.0,
-          rationale: `${originalHost} → ${finalHost}`,
-          source: 'reachability',
-        };
-      }
-    } catch {
-      // invalid URL — ignore
-    }
-  }
-
-  return null;
-}
-
-export function duplicateUrlFinding(group: DuplicateGroup): ValidationFinding {
-  // Zawsze błąd — logika skanu zakłada unikalne źródła
-  const owners = group.owners.map((o) => o.name || (o.role === 'client' ? 'klient' : `konkurent ${(o.index ?? 0) + 1}`));
-  return {
-    brand: group.owners[0].name || 'nieznana',
-    role: group.owners[0].role,
-    competitorIndex: group.owners[0].index,
-    field: 'url',
-    severity: 'error',
-    issue: `Ten sam URL jest użyty dla: ${owners.join(', ')}. Każda marka musi mieć własną stronę.`,
-    suggestion: null,
-    confidence: 1.0,
-    rationale: 'Pipeline skanu wymaga unikalnych źródeł',
-    source: 'duplicate',
   };
 }
