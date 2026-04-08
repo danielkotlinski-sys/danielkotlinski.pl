@@ -14,7 +14,7 @@ function resolveModel(requested: ClaudeModel): ClaudeModel {
 
 export async function runPrompt(
   prompt: string,
-  model: 'claude-sonnet-4-5' | 'claude-opus-4-5' = 'claude-sonnet-4-5',
+  model: 'claude-sonnet-4-5' | 'claude-opus-4-5' | 'claude-haiku-4-5-20251001' = 'claude-sonnet-4-5',
   costTracker?: ScanCostTracker,
   operationLabel?: string
 ): Promise<string> {

@@ -1,7 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { ScannerInput } from '@/types/scanner';
+import type {
+  ScannerInput,
+  PreValidateResult,
+  ValidationFinding,
+} from '@/types/scanner';
+import PreValidateModal from './PreValidateModal';
 
 interface Competitor {
   name: string;
@@ -80,6 +85,12 @@ export default function InputForm({ onSubmit }: InputFormProps) {
   const [competitorsLoading, setCompetitorsLoading] = useState(false);
   const [competitorsSuggested, setCompetitorsSuggested] = useState(false);
   const [competitorsSuggestFailed, setCompetitorsSuggestFailed] = useState(false);
+
+  // Pre-validation state
+  const [preValidating, setPreValidating] = useState(false);
+  const [preValidateResult, setPreValidateResult] = useState<PreValidateResult | null>(null);
+  const [pendingInput, setPendingInput] = useState<ScannerInput | null>(null);
+  const [showPreValidateModal, setShowPreValidateModal] = useState(false);
 
   useEffect(() => {
     if (window.location.hostname === 'localhost') setIsDev(true);
@@ -216,19 +227,9 @@ export default function InputForm({ onSubmit }: InputFormProps) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validate()) {
-      // Scroll to first error
-      setTimeout(() => {
-        const firstError = document.querySelector('.text-dk-orange');
-        firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 50);
-      return;
-    }
+  const buildInput = (): ScannerInput => {
     const validCompetitors = competitors.filter((c) => c.name.trim() && c.url.trim());
-
-    onSubmit({
+    return {
       clientBrand: {
         name: brandName.trim(),
         url: normalizeUrl(brandUrl),
@@ -244,7 +245,108 @@ export default function InputForm({ onSubmit }: InputFormProps) {
         url: normalizeUrl(c.url),
         socialHandle: normalizeHandle(c.socialHandle),
       })),
+    };
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validate()) {
+      // Scroll to first error
+      setTimeout(() => {
+        const firstError = document.querySelector('.text-dk-orange');
+        firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 50);
+      return;
+    }
+
+    const input = buildInput();
+    setPendingInput(input);
+    setShowPreValidateModal(true);
+    setPreValidating(true);
+    setPreValidateResult(null);
+
+    try {
+      const response = await fetch('/api/scan/pre-validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input }),
+      });
+
+      if (!response.ok) {
+        // Fail-open: jeśli endpoint padnie, puszczamy scan bez blokowania
+        console.warn('[pre-validate] endpoint failed, skipping');
+        setShowPreValidateModal(false);
+        setPreValidating(false);
+        onSubmit(input);
+        return;
+      }
+
+      const result = (await response.json()) as PreValidateResult;
+      setPreValidateResult(result);
+      setPreValidating(false);
+
+      // Jeśli wszystko OK — auto-proceed bez pokazywania modala użytkownikowi
+      if (result.status === 'ok' && result.findings.length === 0) {
+        setShowPreValidateModal(false);
+        onSubmit(input);
+      }
+    } catch (err) {
+      console.error('[pre-validate] error:', err);
+      // Fail-open
+      setShowPreValidateModal(false);
+      setPreValidating(false);
+      onSubmit(input);
+    }
+  };
+
+  /**
+   * Zastosuj sugestię z findinga — podmienia konkretne pole w formularzu.
+   * Dla konkurenta używa competitorIndex, dla klienta — odpowiedni setter.
+   */
+  const applyFinding = (finding: ValidationFinding) => {
+    if (finding.suggestion == null) return;
+    const value = finding.suggestion;
+
+    if (finding.role === 'client') {
+      if (finding.field === 'brandName') setBrandName(value);
+      else if (finding.field === 'url') setBrandUrl(value);
+      else if (finding.field === 'socialHandle') setSocialHandle(value);
+    } else if (finding.role === 'competitor' && finding.competitorIndex != null) {
+      const idx = finding.competitorIndex;
+      if (idx < 0 || idx >= competitors.length) return;
+      const fieldMap: Record<ValidationFinding['field'], keyof Competitor> = {
+        brandName: 'name',
+        url: 'url',
+        socialHandle: 'socialHandle',
+      };
+      updateCompetitor(idx, fieldMap[finding.field], value);
+    }
+
+    // Usuń zastosowany finding z wyników żeby modal go nie pokazywał
+    setPreValidateResult((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        findings: prev.findings.filter((f) => f !== finding),
+      };
     });
+  };
+
+  const applyAllFindings = (findings: ValidationFinding[]) => {
+    findings.forEach((f) => applyFinding(f));
+  };
+
+  const proceedWithScan = () => {
+    setShowPreValidateModal(false);
+    if (pendingInput) {
+      onSubmit(pendingInput);
+    }
+  };
+
+  const cancelPreValidate = () => {
+    setShowPreValidateModal(false);
+    setPendingInput(null);
+    setPreValidateResult(null);
   };
 
   return (
@@ -526,9 +628,10 @@ export default function InputForm({ onSubmit }: InputFormProps) {
       <div className="space-y-3">
         <button
           type="submit"
-          className="w-full py-4 bg-dk-orange text-white rounded-pill font-medium text-lg hover:bg-dk-orange-hover hover:-translate-y-0.5 transition-all duration-300"
+          disabled={preValidating || showPreValidateModal}
+          className="w-full py-4 bg-dk-orange text-white rounded-pill font-medium text-lg hover:bg-dk-orange-hover hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
         >
-          Uruchom Skan
+          {preValidating ? 'Weryfikuję dane…' : 'Uruchom Skan'}
         </button>
         {isDev && (
           <button
@@ -540,6 +643,17 @@ export default function InputForm({ onSubmit }: InputFormProps) {
           </button>
         )}
       </div>
+
+      {showPreValidateModal && (
+        <PreValidateModal
+          result={preValidateResult}
+          validating={preValidating}
+          onApply={applyFinding}
+          onApplyAll={applyAllFindings}
+          onProceed={proceedWithScan}
+          onCancel={cancelPreValidate}
+        />
+      )}
     </form>
   );
 }

@@ -30,6 +30,42 @@ export interface ScanRequest {
   lead: LeadInfo;
 }
 
+// === Pre-validation Types ===
+
+export type ValidationSeverity = 'error' | 'warning' | 'info';
+
+export type ValidationField = 'url' | 'socialHandle' | 'brandName';
+
+export interface ValidationFinding {
+  /** Nazwa marki której dotyczy finding (klient lub dokładna nazwa konkurenta) */
+  brand: string;
+  /** Czy chodzi o klienta czy konkurenta (dla ujednoznacznienia przy apply) */
+  role: 'client' | 'competitor';
+  /** Indeks konkurenta w tablicy competitors (tylko gdy role === 'competitor') */
+  competitorIndex?: number;
+  field: ValidationField;
+  severity: ValidationSeverity;
+  /** Krótki opis problemu (po polsku, widoczny w UI) */
+  issue: string;
+  /** Sugerowana wartość do zastosowania, albo null jeśli tylko komunikat informacyjny */
+  suggestion: string | null;
+  /** 0.0-1.0 — jak pewny jest finding (dla warningów semantycznych z Claude'a) */
+  confidence: number;
+  /** 1-zdaniowe uzasadnienie (dla hovera / szczegółów) */
+  rationale?: string;
+  /** Skąd pochodzi finding — pomaga odfiltrować/debugować */
+  source: 'format' | 'reachability' | 'duplicate' | 'semantic';
+}
+
+export interface PreValidateResult {
+  status: 'ok' | 'warnings' | 'errors';
+  findings: ValidationFinding[];
+  /** Meta info dla debug/logów */
+  checkedAt: string;
+  /** ms całego pre-validate — przydatne do monitoringu */
+  durationMs: number;
+}
+
 // === Data Collection Types ===
 
 export interface ScrapedPost {
