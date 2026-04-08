@@ -173,7 +173,8 @@ export function urlFindingFromMeta(
   //
   // Soft warning: timeout, SSL, generyczne fetch failed — scan przez Apify
   // (z proper User-Agentem i proxy) często sobie radzi nawet tam gdzie nasz
-  // lightweight fetch pada. Dajemy userowi wybór.
+  // lightweight fetch pada. Dajemy userowi wybór, ale zachęcamy do weryfikacji
+  // adresu — bo niedostępna strona często oznacza też, że URL jest zły.
   if (!meta.reachable && meta.error) {
     const HARD_PATTERNS = ['DNS', 'nie istnieje', 'odrzucił połączenie'];
     const isHard = HARD_PATTERNS.some((k) => meta.error!.includes(k));
@@ -187,8 +188,8 @@ export function urlFindingFromMeta(
       suggestion: null,
       confidence: 1.0,
       rationale: isHard
-        ? 'Scan nie pozyska danych z tej strony — trzeba poprawić URL przed uruchomieniem'
-        : 'Lightweight fetch nie dał rady — scan przez Apify z pełnym browserem często mimo to działa',
+        ? 'Nie uda nam się pobrać danych z tej strony. Popraw adres przed uruchomieniem skanu.'
+        : 'Upewnij się, że to właściwy adres marki. Jeśli strona jest tymczasowo niedostępna, skan może mimo wszystko zadziałać.',
       source: 'reachability',
     };
   }

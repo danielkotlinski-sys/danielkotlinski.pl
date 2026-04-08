@@ -30,7 +30,7 @@ const DEV_DEFAULTS = {
   competitors: [
     { name: 'Resibo', url: 'https://resibo.pl', socialHandle: 'resibobynature' },
     { name: 'Mokosh', url: 'https://mokosh.pl', socialHandle: 'mokoshcosmetics' },
-    { name: 'BasicLab', url: 'https://basiclab.pl', socialHandle: 'basiclabdermocosmetics' },
+    { name: 'BasicLab', url: 'https://newapproach.pl', socialHandle: 'basiclabdermocosmetics' },
   ],
 };
 
