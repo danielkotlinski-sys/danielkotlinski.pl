@@ -22,18 +22,17 @@ interface InputFormProps {
 }
 
 const DEV_DEFAULTS = {
-  brandName: 'Veoli Botanica',
-  brandUrl: 'https://veolibotanica.pl',
-  socialHandle: 'veoli_botanica',
-  socialPlatform: 'instagram' as const,
-  category: 'Polskie marki kosmetyków naturalnych sprzedające online, pozycjonujące się na naturalne składniki i świadomą pielęgnację',
-  categoryPurpose: 'Klient szuka skutecznej pielęgnacji opartej na naturalnych składnikach — chce czuć że robi coś dobrego dla siebie i świadomie wybiera.',
+  brandName: 'Oral-B',
+  brandUrl: 'https://www.oralb.pl/pl-pl',
+  socialHandle: 'OralBPolska',
+  socialPlatform: 'facebook' as const,
+  category: 'Elektryczne i soniczne szczoteczki do zębów w segmencie premium — marki technologicznie zaawansowane, sprzedające B2C przez sieci handlowe i online',
+  categoryPurpose: 'Klient szuka skutecznej, „gabinetowej" jakości pielęgnacji jamy ustnej w domu — chce mieć pewność, że jego codzienna higiena jest lepsza niż zwykłe szczotkowanie i że produkt poparty jest rekomendacją dentystów oraz badaniami.',
   categoryType: 'b2c' as const,
   clientDescription: '',
   competitors: [
-    { name: 'Resibo', url: 'https://resibo.pl', socialHandle: 'resibobynature' },
-    { name: 'Mokosh', url: 'https://mokosh.pl', socialHandle: 'mokoshcosmetics' },
-    { name: 'BasicLab', url: 'https://newapproach.pl', socialHandle: 'basiclabdermocosmetics' },
+    { name: 'Seysso', url: 'https://seysso.pl', socialHandle: 'seysso_official' },
+    { name: 'Philips Sonicare', url: 'https://www.philips.pl/c-m-pe/soniczne-szczoteczki-do-zebow', socialHandle: 'philips_sonicare_stomatologia' },
   ],
 };
 
