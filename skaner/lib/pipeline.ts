@@ -73,6 +73,44 @@ async function runInBatches<T>(
   return results;
 }
 
+/**
+ * Detect whether an atomic analysis object is actually the fallback shell
+ * we build when the per-brand atomic analysis pipeline fails (see the
+ * `} catch (err) {` block in the atomic analysis step). Those shells
+ * contain sentinel strings like "Analiza niedostępna" / "Brak danych".
+ *
+ * Without this check, we stringify the fallback JSON and pass it to
+ * downstream prompts (brand profile, conventions). Claude then sees
+ * structure like { zewnetrzneSlownictwo: [], zgodnosc: { opis: "Analiza
+ * niedostępna" } } and — doing its job honestly — quotes the field names
+ * and placeholder strings as "kluczoweDowody" in the report. That's the
+ * variable-name leak we saw in the Philips Sonicare run.
+ *
+ * Replacing the JSON with a single line of natural-language Polish tells
+ * Claude unambiguously that the source is unavailable and should be
+ * skipped, not cited.
+ */
+const FALLBACK_SENTINELS = ['Analiza niedostępna', 'Brak danych'];
+
+function isFallbackAnalysisPart(obj: unknown): boolean {
+  if (obj == null) return true;
+  const json = JSON.stringify(obj);
+  return FALLBACK_SENTINELS.some((sentinel) => json.includes(sentinel));
+}
+
+/**
+ * Serialize an atomic analysis sub-object for inclusion in a prompt.
+ * Returns a human-readable unavailable message if the sub-object is
+ * missing or is a fallback shell; otherwise returns pretty-printed JSON.
+ */
+function formatAnalysisForPrompt(
+  obj: unknown,
+  unavailableMessage: string
+): string {
+  if (isFallbackAnalysisPart(obj)) return unavailableMessage;
+  return JSON.stringify(obj, null, 2);
+}
+
 export async function runCategoryScanner(
   input: ScannerInput,
   lead: LeadInfo,
@@ -585,12 +623,22 @@ export async function runCategoryScanner(
         fillPrompt(PROMPT_6_BRAND_PROFILE, {
           BRAND_NAME: brand.name,
           CATEGORY: input.category,
-          PROMPT1_RESULT: JSON.stringify(analysis.claim, null, 2),
-          PROMPT2_RESULT: JSON.stringify(analysis.vocabulary, null, 2),
-          PROMPT4_RESULT: analysis.socialSynthesis
-            ? JSON.stringify(analysis.socialSynthesis, null, 2)
-            : 'Brak danych social media dla tej marki.',
-          PROMPT5_RESULT: JSON.stringify(analysis.externalAnalysis, null, 2),
+          PROMPT1_RESULT: formatAnalysisForPrompt(
+            analysis.claim,
+            'Brak danych z analizy strony głównej dla tej marki (claim i obietnica niedostępne).'
+          ),
+          PROMPT2_RESULT: formatAnalysisForPrompt(
+            analysis.vocabulary,
+            'Brak danych o słownictwie marki ze strony głównej.'
+          ),
+          PROMPT4_RESULT: formatAnalysisForPrompt(
+            analysis.socialSynthesis,
+            'Brak danych social media dla tej marki.'
+          ),
+          PROMPT5_RESULT: formatAnalysisForPrompt(
+            analysis.externalAnalysis,
+            'Brak danych z dyskursu zewnętrznego dla tej marki.'
+          ),
         }) + homepageVisualContext,
         'claude-opus-4-5', costs, `brand profile: ${brand.name}`
       );
