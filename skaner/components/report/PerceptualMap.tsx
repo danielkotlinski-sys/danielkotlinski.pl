@@ -28,6 +28,12 @@ export default function PerceptualMap({ data, clientBrandName }: PerceptualMapPr
   const innerW = width - padding * 2;
   const innerH = height - padding * 2;
 
+  // Horizontal breathing room for edge-anchored axis labels (osX.lewy / osX.prawy).
+  // Labels like "Korporacyjny" or "Technologia potwierdzona dekadami badań" used
+  // to clip against the viewBox — we extend the viewBox outward so they can
+  // overflow the chart area without getting cut off.
+  const labelMargin = 110;
+
   // Convert -10..10 to pixel coordinates
   const toX = (val: number) => padding + ((val + 10) / 20) * innerW;
   const toY = (val: number) => padding + ((10 - val) / 20) * innerH; // invert Y
@@ -39,9 +45,9 @@ export default function PerceptualMap({ data, clientBrandName }: PerceptualMapPr
       </p>
       <div className="flex justify-center">
         <svg
-          viewBox={`0 0 ${width} ${height}`}
-          className="w-full max-w-[500px]"
-          style={{ fontFamily: 'inherit' }}
+          viewBox={`${-labelMargin} 0 ${width + labelMargin * 2} ${height}`}
+          className="w-full max-w-[640px]"
+          style={{ fontFamily: 'inherit', overflow: 'visible' }}
         >
           {/* Background */}
           <rect x={padding} y={padding} width={innerW} height={innerH} fill="#FAFAF5" rx="4" />

@@ -133,7 +133,13 @@ ZASADY:
 3. Każdy dowód musi zawierać DOSŁOWNY cytat z konkretnego źródła.
 4. Pisz ZWIĘŹLE — nie powtarzaj tych samych myśli innymi słowami.
 5. Nie ekstrapoluj jednego przykładu (np. nowego produktu, jednej kampanii) na całość marki. Szukaj POWTARZALNYCH wzorców.
-6. Jeśli dane są ograniczone — zaznacz to.
+6. Jeśli dane są ograniczone — zaznacz to zwięźle jednym zdaniem w logikaSprzedazy.tresc, ale nie buduj z braku danych osobnych "dowodów".
+7. Jeśli którekolwiek źródło powyżej zawiera komunikat zaczynający się od "Brak danych..." — pomiń to źródło całkowicie. NIE cytuj tego komunikatu, NIE parafrazuj braku danych jako wniosku, NIE umieszczaj tego w kluczoweDowody. Po prostu zbuduj profil z tych źródeł, które masz.
+8. KRYTYCZNE — pole kluczoweDowody[].cytat musi zawierać WYŁĄCZNIE dosłowne fragmenty merytorycznego tekstu ze źródeł (treść strony WWW, post social media, wywiad, recenzja, opinia). NIGDY nie wolno Ci cytować:
+   - nazw pól JSON ani ścieżek typu "zewnetrzneSlownictwo", "zgodnosc.opis"
+   - wartości strukturalnych: "[]", "{}", "null", "undefined"
+   - placeholderów technicznych: "Analiza niedostępna", "Brak danych", "pusta tablica"
+   Jeśli nie masz dosłownego cytatu merytorycznego do danej obserwacji — PROPUŚĆ tę obserwację zamiast wymyślać dowód lub cytować strukturę danych.
 
 Odpowiedz wyłącznie w JSON:
 

@@ -22,19 +22,155 @@ interface RawPost {
   url?: string;
   postUrl?: string;
   shortCode?: string;
-  // Instagram fields
+  // Text
   caption?: string;
   text?: string;
+  postText?: string;
+  // Date
   timestamp?: string;
+  postDate?: string;
+  // Instagram images
   displayUrl?: string;
   imageUrl?: string;
   images?: string[];
-  // Facebook fields (apify/facebook-posts-scraper)
-  postText?: string;
-  postDate?: string;
-  postImages?: Array<{ image?: string; link?: string }>;
-  media?: Array<{ thumbnail?: string; photo_image?: { uri?: string } }>;
+  thumbnailUrl?: string;
+  // Facebook — `media` array (new schema, apify/facebook-posts-scraper v2+).
+  // Apify docs evolved: earlier versions had photo_image.uri, later added image.uri,
+  // thumbnail, thumbnailUrl variants. We check all.
+  media?: Array<{
+    thumbnail?: string;
+    thumbnailUrl?: string;
+    photo_image?: { uri?: string; url?: string };
+    image?: { uri?: string; url?: string };
+  }>;
+  // Facebook — `attachments` array (alternate schema for shared/link posts)
+  attachments?: Array<{
+    url?: string;
+    type?: string;
+    photo_image_uri?: string;
+    media?: {
+      image?: { uri?: string; url?: string };
+      photo_image?: { uri?: string; url?: string };
+    };
+  }>;
+  // Facebook — legacy `postImages` array
+  postImages?: Array<{ image?: string; url?: string; link?: string }>;
+  // Facebook — top-level fallbacks (various actor versions)
   full_picture?: string;
+  topImage?: string;
+  image?: string;
+  pictureUrl?: string;
+}
+
+/**
+ * Extract image URL from a raw Apify post.
+ *
+ * Apify FB/IG scrapers have an unstable schema — fields change between actor
+ * versions. We check all known paths in priority order and return which one
+ * matched, so logs show us which schema the actor is currently emitting.
+ *
+ * Background: bug found 2026-04-07 where FB posts returned 0 images despite
+ * 24 items per scrape. Root cause: code only checked `postImages[0].image`
+ * and `full_picture`, but current Apify actor emits `media[0].photo_image.uri`.
+ * This function now checks ~15 known paths across old and new schemas.
+ */
+type ImageExtraction = { url: string; source: string };
+
+function extractImageUrl(rawItem: RawPost): ImageExtraction {
+  const isHttpUrl = (v: unknown): v is string =>
+    typeof v === 'string' && (v.startsWith('http://') || v.startsWith('https://'));
+
+  // Priority 1: Instagram fields (first to check for IG posts)
+  const igCandidates: Array<[unknown, string]> = [
+    [rawItem.displayUrl, 'displayUrl'],
+    [rawItem.imageUrl, 'imageUrl'],
+    [rawItem.images?.[0], 'images[0]'],
+  ];
+  for (const [value, source] of igCandidates) {
+    if (isHttpUrl(value)) return { url: value, source };
+  }
+
+  // Priority 2: Facebook `media[]` array (current Apify v2+ schema)
+  const firstMedia = rawItem.media?.[0];
+  if (firstMedia) {
+    const mediaCandidates: Array<[unknown, string]> = [
+      [firstMedia.photo_image?.uri, 'media[0].photo_image.uri'],
+      [firstMedia.photo_image?.url, 'media[0].photo_image.url'],
+      [firstMedia.image?.uri, 'media[0].image.uri'],
+      [firstMedia.image?.url, 'media[0].image.url'],
+      [firstMedia.thumbnail, 'media[0].thumbnail'],
+      [firstMedia.thumbnailUrl, 'media[0].thumbnailUrl'],
+    ];
+    for (const [value, source] of mediaCandidates) {
+      if (isHttpUrl(value)) return { url: value, source };
+    }
+  }
+
+  // Priority 3: Facebook `attachments[]` array (alternate schema)
+  const firstAttachment = rawItem.attachments?.[0];
+  if (firstAttachment) {
+    const attachmentCandidates: Array<[unknown, string]> = [
+      [firstAttachment.media?.image?.uri, 'attachments[0].media.image.uri'],
+      [firstAttachment.media?.image?.url, 'attachments[0].media.image.url'],
+      [firstAttachment.media?.photo_image?.uri, 'attachments[0].media.photo_image.uri'],
+      [firstAttachment.photo_image_uri, 'attachments[0].photo_image_uri'],
+      [firstAttachment.url, 'attachments[0].url'],
+    ];
+    for (const [value, source] of attachmentCandidates) {
+      if (isHttpUrl(value)) return { url: value, source };
+    }
+  }
+
+  // Priority 4: Facebook `postImages[]` array (legacy schema)
+  const firstPostImage = rawItem.postImages?.[0];
+  if (firstPostImage) {
+    const legacyCandidates: Array<[unknown, string]> = [
+      [firstPostImage.image, 'postImages[0].image'],
+      [firstPostImage.url, 'postImages[0].url'],
+      [firstPostImage.link, 'postImages[0].link'],
+    ];
+    for (const [value, source] of legacyCandidates) {
+      if (isHttpUrl(value)) return { url: value, source };
+    }
+  }
+
+  // Priority 5: Top-level fallbacks (various actor versions)
+  const topLevelCandidates: Array<[unknown, string]> = [
+    [rawItem.full_picture, 'full_picture'],
+    [rawItem.topImage, 'topImage'],
+    [rawItem.image, 'image'],
+    [rawItem.pictureUrl, 'pictureUrl'],
+    [rawItem.thumbnailUrl, 'thumbnailUrl'],
+  ];
+  for (const [value, source] of topLevelCandidates) {
+    if (isHttpUrl(value)) return { url: value, source };
+  }
+
+  return { url: '', source: 'none' };
+}
+
+/**
+ * Log shallow shape of first item in Apify response — helps diagnose schema
+ * changes without dumping PII or huge payloads. Prints top-level keys + keys
+ * of media[0] / attachments[0] if present.
+ */
+function logFirstItemShape(items: unknown[], platform: string, handle: string): void {
+  if (items.length === 0) return;
+  const first = items[0] as Record<string, unknown>;
+  const topKeys = Object.keys(first).sort().join(', ');
+  console.log(`[apify:${platform}] first item keys for ${handle}: ${topKeys}`);
+
+  const media = first.media;
+  if (Array.isArray(media) && media.length > 0 && typeof media[0] === 'object' && media[0]) {
+    const mediaKeys = Object.keys(media[0] as Record<string, unknown>).sort().join(', ');
+    console.log(`[apify:${platform}] first item media[0] keys: ${mediaKeys}`);
+  }
+
+  const attachments = first.attachments;
+  if (Array.isArray(attachments) && attachments.length > 0 && typeof attachments[0] === 'object' && attachments[0]) {
+    const attachKeys = Object.keys(attachments[0] as Record<string, unknown>).sort().join(', ');
+    console.log(`[apify:${platform}] first item attachments[0] keys: ${attachKeys}`);
+  }
 }
 
 async function downloadImageAsBase64(imageUrl: string): Promise<string> {
@@ -126,6 +262,9 @@ export async function scrapeSocialPosts(
     const { items } = await client.dataset(run.defaultDatasetId).listItems();
     console.log(`Apify: got ${items.length} items for ${handle} (actor ran ${runDuration}s)`);
 
+    // Log shape of first item — helps catch Apify schema changes early
+    logFirstItemShape(items, platform, handle);
+
     if (costTracker) {
       costTracker.trackApify(platform, `${handle} (${items.length} posts)`);
     }
@@ -157,6 +296,11 @@ export async function scrapeSocialPosts(
     // Download images for selected posts (parallel, with 10s timeout each)
     console.log(`Apify: downloading images for ${selected.length} posts (${handle})...`);
     const imageStart = Date.now();
+
+    // Track which field the URL came from — lets us spot schema drift in logs
+    const sourceCounts: Record<string, number> = {};
+    const downloadFailures: string[] = [];
+
     await Promise.all(
       selected.map(async (post) => {
         const rawItem = (items as RawPost[]).find(
@@ -164,23 +308,36 @@ export async function scrapeSocialPosts(
             (item.url || item.postUrl || '') === post.url ||
             (platform === 'instagram' && item.shortCode && post.url.includes(item.shortCode))
         );
-        if (rawItem) {
-          const imageUrl =
-            rawItem.displayUrl ||
-            rawItem.imageUrl ||
-            rawItem.images?.[0] ||
-            rawItem.postImages?.[0]?.image ||
-            rawItem.full_picture ||
-            '';
-          if (imageUrl) {
-            post.screenshotBase64 = await downloadImageAsBase64(imageUrl);
+        if (!rawItem) {
+          sourceCounts['not_found'] = (sourceCounts['not_found'] || 0) + 1;
+          return;
+        }
+
+        const { url, source } = extractImageUrl(rawItem);
+        sourceCounts[source] = (sourceCounts[source] || 0) + 1;
+
+        if (url) {
+          const base64 = await downloadImageAsBase64(url);
+          if (base64) {
+            post.screenshotBase64 = base64;
+          } else {
+            downloadFailures.push(source);
           }
         }
       })
     );
-    console.log(`Apify: images done for ${handle} in ${((Date.now() - imageStart) / 1000).toFixed(1)}s`);
 
-    console.log(`Apify: ${selected.length} posts selected, ${selected.filter(p => p.screenshotBase64).length} with images for ${handle}`);
+    const imageElapsed = ((Date.now() - imageStart) / 1000).toFixed(1);
+    const sourcesSummary = Object.entries(sourceCounts)
+      .map(([s, n]) => `${s}=${n}`)
+      .join(', ');
+    console.log(`Apify: images done for ${handle} in ${imageElapsed}s — sources: ${sourcesSummary || '(none)'}`);
+    if (downloadFailures.length > 0) {
+      console.log(`Apify: download failed for ${downloadFailures.length}/${selected.length} posts (${handle}) — sources: ${downloadFailures.join(', ')}`);
+    }
+
+    const withImages = selected.filter(p => p.screenshotBase64).length;
+    console.log(`Apify: ${selected.length} posts selected, ${withImages} with images for ${handle}`);
     return selected;
   } catch (error) {
     console.error(`Apify scraping failed for ${handle} on ${platform}:`, error);

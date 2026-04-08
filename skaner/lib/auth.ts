@@ -299,6 +299,33 @@ export async function incrementScanCount(email: string): Promise<void> {
   await saveUser(user);
 }
 
+/**
+ * Reset the monthly scan counter for a user (or their org if they belong
+ * to one). Used by /api/admin/reset-scan-count when a tester burns through
+ * the limit during QA. Returns the entity that was reset for logging.
+ */
+export async function resetScanCount(
+  email: string
+): Promise<{ scope: 'user' | 'org'; identifier: string } | null> {
+  const user = await getUser(email);
+  if (!user) return null;
+
+  if (user.orgId) {
+    const org = await getOrg(user.orgId);
+    if (org) {
+      org.scansThisMonth = 0;
+      org.lastScanReset = new Date().toISOString();
+      await saveOrg(org);
+      return { scope: 'org', identifier: user.orgId };
+    }
+  }
+
+  user.scansThisMonth = 0;
+  user.lastScanReset = new Date().toISOString();
+  await saveUser(user);
+  return { scope: 'user', identifier: email };
+}
+
 // ===================== EMAIL NOTIFICATION =====================
 
 export async function notifyNewRegistration(user: User): Promise<void> {

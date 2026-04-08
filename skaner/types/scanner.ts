@@ -30,6 +30,38 @@ export interface ScanRequest {
   lead: LeadInfo;
 }
 
+// === Pre-scan confirmation types ===
+//
+// Before each scan we show a confirmation modal. It always displays
+// a "double-check your input" notice and, if applicable, lists any
+// handle-format warnings surfaced by the synchronous client-side
+// validation (see `lib/validation/checks.ts`).
+
+export type ValidationSeverity = 'warning';
+
+export type ValidationField = 'socialHandle';
+
+export interface ValidationFinding {
+  /** Nazwa marki której dotyczy finding (klient lub dokładna nazwa konkurenta) */
+  brand: string;
+  /** Czy chodzi o klienta czy konkurenta (dla ujednoznacznienia przy apply) */
+  role: 'client' | 'competitor';
+  /** Indeks konkurenta w tablicy competitors (tylko gdy role === 'competitor') */
+  competitorIndex?: number;
+  field: ValidationField;
+  severity: ValidationSeverity;
+  /** Krótki opis problemu (po polsku, widoczny w UI) */
+  issue: string;
+  /** Sugerowana wartość do zastosowania, albo null jeśli tylko komunikat informacyjny */
+  suggestion: string | null;
+  /** 0.0-1.0 — jak pewny jest finding */
+  confidence: number;
+  /** 1-zdaniowe uzasadnienie (dla hovera / szczegółów) */
+  rationale?: string;
+  /** Skąd pochodzi finding — obecnie wyłącznie deterministyczny check formatu */
+  source: 'format';
+}
+
 // === Data Collection Types ===
 
 export interface ScrapedPost {

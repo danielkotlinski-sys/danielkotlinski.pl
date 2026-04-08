@@ -1,7 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { ScannerInput } from '@/types/scanner';
+import type {
+  ScannerInput,
+  ValidationFinding,
+} from '@/types/scanner';
+import {
+  checkHandleFormat,
+  handleFindingFromFormatCheck,
+} from '@/lib/validation/checks';
+import PreValidateModal from './PreValidateModal';
 
 interface Competitor {
   name: string;
@@ -14,18 +22,17 @@ interface InputFormProps {
 }
 
 const DEV_DEFAULTS = {
-  brandName: 'Veoli Botanica',
-  brandUrl: 'https://veolibotanica.pl',
-  socialHandle: 'veoli_botanica',
-  socialPlatform: 'instagram' as const,
-  category: 'Polskie marki kosmetyków naturalnych sprzedające online, pozycjonujące się na naturalne składniki i świadomą pielęgnację',
-  categoryPurpose: 'Klient szuka skutecznej pielęgnacji opartej na naturalnych składnikach — chce czuć że robi coś dobrego dla siebie i świadomie wybiera.',
+  brandName: 'Oral-B',
+  brandUrl: 'https://www.oralb.pl/pl-pl',
+  socialHandle: 'OralBPolska',
+  socialPlatform: 'facebook' as const,
+  category: 'Elektryczne i soniczne szczoteczki do zębów w segmencie premium — marki technologicznie zaawansowane, sprzedające B2C przez sieci handlowe i online',
+  categoryPurpose: 'Klient szuka skutecznej, „gabinetowej" jakości pielęgnacji jamy ustnej w domu — chce mieć pewność, że jego codzienna higiena jest lepsza niż zwykłe szczotkowanie i że produkt poparty jest rekomendacją dentystów oraz badaniami.',
   categoryType: 'b2c' as const,
   clientDescription: '',
   competitors: [
-    { name: 'Resibo', url: 'https://resibo.pl', socialHandle: 'resibobynature' },
-    { name: 'Mokosh', url: 'https://mokosh.pl', socialHandle: 'mokoshcosmetics' },
-    { name: 'BasicLab', url: 'https://basiclab.pl', socialHandle: 'basiclabdermocosmetics' },
+    { name: 'Seysso', url: 'https://seysso.pl', socialHandle: 'seysso' },
+    { name: 'Philips Sonicare', url: 'https://www.philips.pl/c-m-pe/soniczne-szczoteczki-do-zebow', socialHandle: 'PhilipsSonicare' },
   ],
 };
 
@@ -80,6 +87,13 @@ export default function InputForm({ onSubmit }: InputFormProps) {
   const [competitorsLoading, setCompetitorsLoading] = useState(false);
   const [competitorsSuggested, setCompetitorsSuggested] = useState(false);
   const [competitorsSuggestFailed, setCompetitorsSuggestFailed] = useState(false);
+
+  // Pre-scan confirmation state — we ALWAYS show the modal before running
+  // the scan (to get user's confirmation on URLs and brand names) plus any
+  // handle-format warnings from the deterministic check.
+  const [preValidateFindings, setPreValidateFindings] = useState<ValidationFinding[]>([]);
+  const [pendingInput, setPendingInput] = useState<ScannerInput | null>(null);
+  const [showPreValidateModal, setShowPreValidateModal] = useState(false);
 
   useEffect(() => {
     if (window.location.hostname === 'localhost') setIsDev(true);
@@ -216,19 +230,9 @@ export default function InputForm({ onSubmit }: InputFormProps) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validate()) {
-      // Scroll to first error
-      setTimeout(() => {
-        const firstError = document.querySelector('.text-dk-orange');
-        firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 50);
-      return;
-    }
+  const buildInput = (): ScannerInput => {
     const validCompetitors = competitors.filter((c) => c.name.trim() && c.url.trim());
-
-    onSubmit({
+    return {
       clientBrand: {
         name: brandName.trim(),
         url: normalizeUrl(brandUrl),
@@ -244,7 +248,99 @@ export default function InputForm({ onSubmit }: InputFormProps) {
         url: normalizeUrl(c.url),
         socialHandle: normalizeHandle(c.socialHandle),
       })),
+    };
+  };
+
+  /**
+   * Collect handle-format findings synchronously, client-side.
+   *
+   * For competitors we don't know their declared social platform, so we
+   * assume the same platform the user declared for the client brand.
+   * That's a pragmatic heuristic — most users keep the default.
+   */
+  const collectHandleFindings = (input: ScannerInput): ValidationFinding[] => {
+    const findings: ValidationFinding[] = [];
+
+    const clientCheck = checkHandleFormat(
+      input.clientBrand.socialHandle,
+      input.clientBrand.socialPlatform
+    );
+    const clientFinding = handleFindingFromFormatCheck(
+      clientCheck,
+      input.clientBrand.name,
+      'client',
+      undefined
+    );
+    if (clientFinding) findings.push(clientFinding);
+
+    input.competitors.forEach((c, i) => {
+      const check = checkHandleFormat(c.socialHandle, input.clientBrand.socialPlatform);
+      const finding = handleFindingFromFormatCheck(check, c.name, 'competitor', i);
+      if (finding) findings.push(finding);
     });
+
+    return findings;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validate()) {
+      // Scroll to first error
+      setTimeout(() => {
+        const firstError = document.querySelector('.text-dk-orange');
+        firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 50);
+      return;
+    }
+
+    // Build input, run sync handle-format check, show confirmation modal.
+    // The modal is ALWAYS shown — even with zero findings — so users get
+    // a final chance to double-check their URLs and brand names before
+    // burning Apify/Claude credits on bad inputs.
+    const input = buildInput();
+    setPendingInput(input);
+    setPreValidateFindings(collectHandleFindings(input));
+    setShowPreValidateModal(true);
+  };
+
+  /**
+   * Apply a finding's suggestion — writes the suggested value into the
+   * corresponding form field. Currently only `socialHandle` findings
+   * exist, but the routing stays generic in case we add fields later.
+   */
+  const applyFinding = (finding: ValidationFinding) => {
+    if (finding.suggestion == null) return;
+    const value = finding.suggestion;
+
+    if (finding.role === 'client') {
+      if (finding.field === 'socialHandle') setSocialHandle(value);
+    } else if (finding.role === 'competitor' && finding.competitorIndex != null) {
+      const idx = finding.competitorIndex;
+      if (idx < 0 || idx >= competitors.length) return;
+      if (finding.field === 'socialHandle') {
+        updateCompetitor(idx, 'socialHandle', value);
+      }
+    }
+
+    // Drop the finding from the list so the modal stops showing it
+    setPreValidateFindings((prev) => prev.filter((f) => f !== finding));
+  };
+
+  const applyAllFindings = (findings: ValidationFinding[]) => {
+    findings.forEach((f) => applyFinding(f));
+  };
+
+  const proceedWithScan = () => {
+    setShowPreValidateModal(false);
+    if (pendingInput) {
+      onSubmit(pendingInput);
+    }
+  };
+
+  const cancelPreValidate = () => {
+    setShowPreValidateModal(false);
+    setPendingInput(null);
+    setPreValidateFindings([]);
   };
 
   return (
@@ -526,7 +622,8 @@ export default function InputForm({ onSubmit }: InputFormProps) {
       <div className="space-y-3">
         <button
           type="submit"
-          className="w-full py-4 bg-dk-orange text-white rounded-pill font-medium text-lg hover:bg-dk-orange-hover hover:-translate-y-0.5 transition-all duration-300"
+          disabled={showPreValidateModal}
+          className="w-full py-4 bg-dk-orange text-white rounded-pill font-medium text-lg hover:bg-dk-orange-hover hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
         >
           Uruchom Skan
         </button>
@@ -540,6 +637,16 @@ export default function InputForm({ onSubmit }: InputFormProps) {
           </button>
         )}
       </div>
+
+      {showPreValidateModal && (
+        <PreValidateModal
+          findings={preValidateFindings}
+          onApply={applyFinding}
+          onApplyAll={applyAllFindings}
+          onProceed={proceedWithScan}
+          onCancel={cancelPreValidate}
+        />
+      )}
     </form>
   );
 }
