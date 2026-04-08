@@ -31,8 +31,8 @@ const DEV_DEFAULTS = {
   categoryType: 'b2c' as const,
   clientDescription: '',
   competitors: [
-    { name: 'Seysso', url: 'https://seysso.pl', socialHandle: 'seysso_official' },
-    { name: 'Philips Sonicare', url: 'https://www.philips.pl/c-m-pe/soniczne-szczoteczki-do-zebow', socialHandle: 'philips_sonicare_stomatologia' },
+    { name: 'Seysso', url: 'https://seysso.pl', socialHandle: 'seysso' },
+    { name: 'Philips Sonicare', url: 'https://www.philips.pl/c-m-pe/soniczne-szczoteczki-do-zebow', socialHandle: 'PhilipsSonicare' },
   ],
 };
 
