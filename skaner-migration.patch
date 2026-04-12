@@ -1,0 +1,2081 @@
+diff --git a/skaner/app/api/admin/copy-report/route.ts b/skaner/app/api/admin/copy-report/route.ts
+new file mode 100644
+index 0000000..98224cc
+--- /dev/null
++++ b/skaner/app/api/admin/copy-report/route.ts
+@@ -0,0 +1,71 @@
++import { NextRequest } from 'next/server';
++import { getReport, saveReport } from '@/lib/redis';
++
++/**
++ * Admin: copy a scan report from one scanId to another.
++ *
++ * Use case: a user receives an email with a link to a scan that turned
++ * out buggy (e.g. images not extracted, atomic analysis failed). We
++ * re-run the same input, get a good report under a NEW scanId, then
++ * use this endpoint to overwrite the OLD scanId's report data with
++ * the new one. The user's original email link now transparently
++ * resolves to the corrected report — no action needed on their side.
++ *
++ * Body: { fromScanId, toScanId, secret }
++ * Auth: ADMIN_SECRET matching server env.
++ *
++ * Example:
++ *   curl -X POST https://skaner.danielkotlinski.pl/api/admin/copy-report \
++ *     -H 'Content-Type: application/json' \
++ *     -d '{"fromScanId":"new-good-id","toScanId":"old-buggy-id","secret":"ADMIN_SECRET"}'
++ */
++export async function POST(request: NextRequest) {
++  const { fromScanId, toScanId, secret } = await request.json();
++
++  if (!process.env.ADMIN_SECRET || secret !== process.env.ADMIN_SECRET) {
++    return Response.json({ error: 'Unauthorized' }, { status: 401 });
++  }
++
++  if (!fromScanId || !toScanId || typeof fromScanId !== 'string' || typeof toScanId !== 'string') {
++    return Response.json(
++      { error: 'fromScanId and toScanId required (both strings)' },
++      { status: 400 }
++    );
++  }
++
++  if (fromScanId === toScanId) {
++    return Response.json(
++      { error: 'fromScanId and toScanId must be different' },
++      { status: 400 }
++    );
++  }
++
++  const sourceReport = await getReport(fromScanId);
++  if (!sourceReport) {
++    return Response.json(
++      { error: `Source report not found: ${fromScanId}` },
++      { status: 404 }
++    );
++  }
++
++  // Peek at destination for safety: log what we're overwriting so the
++  // action is auditable in server logs. We do NOT block on existence
++  // because the intended flow is overwrite.
++  const existingDest = await getReport(toScanId);
++  console.log(
++    `[admin] copy-report: ${fromScanId} → ${toScanId} ` +
++      `(destination ${existingDest ? 'exists, will be overwritten' : 'empty'})`
++  );
++
++  await saveReport(toScanId, sourceReport);
++
++  return Response.json({
++    ok: true,
++    fromScanId,
++    toScanId,
++    overwritten: existingDest !== null,
++    message: `Report copied from ${fromScanId} to ${toScanId}${
++      existingDest ? ' (old report overwritten)' : ''
++    }`,
++  });
++}
+diff --git a/skaner/app/api/admin/reset-scan-count/route.ts b/skaner/app/api/admin/reset-scan-count/route.ts
+new file mode 100644
+index 0000000..fb14af6
+--- /dev/null
++++ b/skaner/app/api/admin/reset-scan-count/route.ts
+@@ -0,0 +1,43 @@
++import { NextRequest } from 'next/server';
++import { resetScanCount } from '@/lib/auth';
++
++/**
++ * Admin: reset the monthly scan counter for a given user.
++ *
++ * Used during QA / dev testing when a tester (often the dev themselves)
++ * burns through the 3-scan-per-month quota and needs more runs to verify
++ * fixes. Resets the org-level counter if the user belongs to an org,
++ * otherwise the user-level counter.
++ *
++ * Auth: requires ADMIN_SECRET in the request body to match server env.
++ *
++ * Example:
++ *   curl -X POST http://localhost:3000/api/admin/reset-scan-count \
++ *     -H 'Content-Type: application/json' \
++ *     -d '{"email":"daniel@example.com","secret":"YOUR_ADMIN_SECRET"}'
++ */
++export async function POST(request: NextRequest) {
++  const { email, secret } = await request.json();
++
++  if (!process.env.ADMIN_SECRET || secret !== process.env.ADMIN_SECRET) {
++    return Response.json({ error: 'Unauthorized' }, { status: 401 });
++  }
++
++  if (!email || typeof email !== 'string') {
++    return Response.json({ error: 'Email required' }, { status: 400 });
++  }
++
++  const result = await resetScanCount(email);
++  if (!result) {
++    return Response.json({ error: 'User not found' }, { status: 404 });
++  }
++
++  console.log(`[admin] Scan count reset for ${email} (scope=${result.scope}, identifier=${result.identifier})`);
++
++  return Response.json({
++    ok: true,
++    message: `Scan count reset for ${email}`,
++    scope: result.scope,
++    identifier: result.identifier,
++  });
++}
+diff --git a/skaner/app/api/admin/scan-debug/[scanId]/route.ts b/skaner/app/api/admin/scan-debug/[scanId]/route.ts
+new file mode 100644
+index 0000000..888b83c
+--- /dev/null
++++ b/skaner/app/api/admin/scan-debug/[scanId]/route.ts
+@@ -0,0 +1,105 @@
++import { NextRequest } from 'next/server';
++import { getScanDebug, getScanMeta } from '@/lib/redis';
++import { searchExternalDiscourse } from '@/lib/perplexity';
++
++/**
++ * Admin: fetch raw source texts that fed into a scan's analysis.
++ *
++ * Why this exists: ScannerReport (what /raport/[scanId] shows) stores only
++ * the final Claude output + citation URLs. When a user questions a specific
++ * figure — "skąd wzięły się przychody w Krajobrazie kategorii?" — they need
++ * to see the raw Perplexity text Claude interpreted, not just the downstream
++ * narrative. ScanDebug stores exactly that: websiteText + externalDiscourse
++ * + citations per brand, saved alongside the report.
++ *
++ * Old scans (before we added saveScanDebug) have no debug blob. For those,
++ * pass ?regenerate=true to re-run Perplexity fresh against the brand list
++ * from ScanMeta. Regenerated data comes from today's web index, so it may
++ * differ from what the original scan saw — but it's the best we can do
++ * without re-running the whole expensive pipeline.
++ *
++ * GET /api/admin/scan-debug/<scanId>
++ *   Headers: x-admin-secret: ADMIN_SECRET
++ *   Query:   ?regenerate=true  — re-run Perplexity if debug blob is missing
++ *
++ * Response shape:
++ *   {
++ *     scanId, createdAt, source: 'saved' | 'regenerated' | null,
++ *     brands: { [brandName]: { websiteText, externalDiscourse, citations } }
++ *   }
++ */
++export async function GET(
++  request: NextRequest,
++  { params }: { params: { scanId: string } }
++) {
++  const secret = request.headers.get('x-admin-secret');
++  if (!process.env.ADMIN_SECRET || secret !== process.env.ADMIN_SECRET) {
++    return Response.json({ error: 'Unauthorized' }, { status: 401 });
++  }
++
++  const { scanId } = params;
++  if (!scanId) {
++    return Response.json({ error: 'scanId required' }, { status: 400 });
++  }
++
++  // Happy path: saved debug blob exists (scans run after this feature shipped)
++  const saved = await getScanDebug(scanId);
++  if (saved) {
++    return Response.json({
++      scanId,
++      createdAt: saved.createdAt,
++      source: 'saved',
++      brands: saved.brands,
++    });
++  }
++
++  // No saved blob. Check if caller wants us to regenerate via fresh Perplexity.
++  const { searchParams } = new URL(request.url);
++  const regenerate = searchParams.get('regenerate') === 'true';
++
++  if (!regenerate) {
++    return Response.json(
++      {
++        error: 'No saved debug data for this scan',
++        hint: 'Scan was run before scan-debug storage was added. Pass ?regenerate=true to re-run Perplexity queries from scratch. Note: results may differ from original scan because web content has changed.',
++        scanId,
++      },
++      { status: 404 }
++    );
++  }
++
++  // Regenerate path: read scan meta to find the brand list, re-query Perplexity.
++  const meta = await getScanMeta(scanId);
++  if (!meta) {
++    return Response.json(
++      { error: 'Scan not found — cannot regenerate without scan meta', scanId },
++      { status: 404 }
++    );
++  }
++
++  const allBrandNames = [
++    meta.input.clientBrand.name,
++    ...meta.input.competitors.map((c) => c.name),
++  ];
++
++  console.log(
++    `[admin:scan-debug] regenerating for scan ${scanId} — ` +
++      `${allBrandNames.length} brands: ${allBrandNames.join(', ')}`
++  );
++
++  // Run all brand queries in parallel (same as pipeline does)
++  const results = await Promise.all(
++    allBrandNames.map(async (name) => {
++      const { text, citations } = await searchExternalDiscourse(name, meta.input.category);
++      return [name, { websiteText: '', externalDiscourse: text, citations }] as const;
++    })
++  );
++
++  return Response.json({
++    scanId,
++    createdAt: meta.createdAt,
++    source: 'regenerated',
++    warning: 'Perplexity was re-queried today — content may differ from the original scan date.',
++    brands: Object.fromEntries(results),
++  });
++}
+diff --git a/skaner/components/InputForm.tsx b/skaner/components/InputForm.tsx
+index ac87318..b3e6c2d 100644
+--- a/skaner/components/InputForm.tsx
++++ b/skaner/components/InputForm.tsx
+@@ -1,7 +1,15 @@
+ 'use client';
+ 
+ import { useState, useEffect } from 'react';
+-import type { ScannerInput } from '@/types/scanner';
++import type {
++  ScannerInput,
++  ValidationFinding,
++} from '@/types/scanner';
++import {
++  checkHandleFormat,
++  handleFindingFromFormatCheck,
++} from '@/lib/validation/checks';
++import PreValidateModal from './PreValidateModal';
+ 
+ interface Competitor {
+   name: string;
+@@ -14,18 +22,17 @@ interface InputFormProps {
+ }
+ 
+ const DEV_DEFAULTS = {
+-  brandName: 'Veoli Botanica',
+-  brandUrl: 'https://veolibotanica.pl',
+-  socialHandle: 'veoli_botanica',
+-  socialPlatform: 'instagram' as const,
+-  category: 'Polskie marki kosmetyków naturalnych sprzedające online, pozycjonujące się na naturalne składniki i świadomą pielęgnację',
+-  categoryPurpose: 'Klient szuka skutecznej pielęgnacji opartej na naturalnych składnikach — chce czuć że robi coś dobrego dla siebie i świadomie wybiera.',
++  brandName: 'Oral-B',
++  brandUrl: 'https://www.oralb.pl/pl-pl',
++  socialHandle: 'OralBPolska',
++  socialPlatform: 'facebook' as const,
++  category: 'Elektryczne i soniczne szczoteczki do zębów w segmencie premium — marki technologicznie zaawansowane, sprzedające B2C przez sieci handlowe i online',
++  categoryPurpose: 'Klient szuka skutecznej, „gabinetowej" jakości pielęgnacji jamy ustnej w domu — chce mieć pewność, że jego codzienna higiena jest lepsza niż zwykłe szczotkowanie i że produkt poparty jest rekomendacją dentystów oraz badaniami.',
+   categoryType: 'b2c' as const,
+   clientDescription: '',
+   competitors: [
+-    { name: 'Resibo', url: 'https://resibo.pl', socialHandle: 'resibobynature' },
+-    { name: 'Mokosh', url: 'https://mokosh.pl', socialHandle: 'mokoshcosmetics' },
+-    { name: 'BasicLab', url: 'https://basiclab.pl', socialHandle: 'basiclabdermocosmetics' },
++    { name: 'Seysso', url: 'https://seysso.pl', socialHandle: 'seysso' },
++    { name: 'Philips Sonicare', url: 'https://www.philips.pl/c-m-pe/soniczne-szczoteczki-do-zebow', socialHandle: 'PhilipsSonicare' },
+   ],
+ };
+ 
+@@ -81,6 +88,13 @@ export default function InputForm({ onSubmit }: InputFormProps) {
+   const [competitorsSuggested, setCompetitorsSuggested] = useState(false);
+   const [competitorsSuggestFailed, setCompetitorsSuggestFailed] = useState(false);
+ 
++  // Pre-scan confirmation state — we ALWAYS show the modal before running
++  // the scan (to get user's confirmation on URLs and brand names) plus any
++  // handle-format warnings from the deterministic check.
++  const [preValidateFindings, setPreValidateFindings] = useState<ValidationFinding[]>([]);
++  const [pendingInput, setPendingInput] = useState<ScannerInput | null>(null);
++  const [showPreValidateModal, setShowPreValidateModal] = useState(false);
++
+   useEffect(() => {
+     if (window.location.hostname === 'localhost') setIsDev(true);
+ 
+@@ -216,19 +230,9 @@ export default function InputForm({ onSubmit }: InputFormProps) {
+     return Object.keys(newErrors).length === 0;
+   };
+ 
+-  const handleSubmit = (e: React.FormEvent) => {
+-    e.preventDefault();
+-    if (!validate()) {
+-      // Scroll to first error
+-      setTimeout(() => {
+-        const firstError = document.querySelector('.text-dk-orange');
+-        firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+-      }, 50);
+-      return;
+-    }
++  const buildInput = (): ScannerInput => {
+     const validCompetitors = competitors.filter((c) => c.name.trim() && c.url.trim());
+-
+-    onSubmit({
++    return {
+       clientBrand: {
+         name: brandName.trim(),
+         url: normalizeUrl(brandUrl),
+@@ -244,7 +248,99 @@ export default function InputForm({ onSubmit }: InputFormProps) {
+         url: normalizeUrl(c.url),
+         socialHandle: normalizeHandle(c.socialHandle),
+       })),
++    };
++  };
++
++  /**
++   * Collect handle-format findings synchronously, client-side.
++   *
++   * For competitors we don't know their declared social platform, so we
++   * assume the same platform the user declared for the client brand.
++   * That's a pragmatic heuristic — most users keep the default.
++   */
++  const collectHandleFindings = (input: ScannerInput): ValidationFinding[] => {
++    const findings: ValidationFinding[] = [];
++
++    const clientCheck = checkHandleFormat(
++      input.clientBrand.socialHandle,
++      input.clientBrand.socialPlatform
++    );
++    const clientFinding = handleFindingFromFormatCheck(
++      clientCheck,
++      input.clientBrand.name,
++      'client',
++      undefined
++    );
++    if (clientFinding) findings.push(clientFinding);
++
++    input.competitors.forEach((c, i) => {
++      const check = checkHandleFormat(c.socialHandle, input.clientBrand.socialPlatform);
++      const finding = handleFindingFromFormatCheck(check, c.name, 'competitor', i);
++      if (finding) findings.push(finding);
+     });
++
++    return findings;
++  };
++
++  const handleSubmit = async (e: React.FormEvent) => {
++    e.preventDefault();
++    if (!validate()) {
++      // Scroll to first error
++      setTimeout(() => {
++        const firstError = document.querySelector('.text-dk-orange');
++        firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
++      }, 50);
++      return;
++    }
++
++    // Build input, run sync handle-format check, show confirmation modal.
++    // The modal is ALWAYS shown — even with zero findings — so users get
++    // a final chance to double-check their URLs and brand names before
++    // burning Apify/Claude credits on bad inputs.
++    const input = buildInput();
++    setPendingInput(input);
++    setPreValidateFindings(collectHandleFindings(input));
++    setShowPreValidateModal(true);
++  };
++
++  /**
++   * Apply a finding's suggestion — writes the suggested value into the
++   * corresponding form field. Currently only `socialHandle` findings
++   * exist, but the routing stays generic in case we add fields later.
++   */
++  const applyFinding = (finding: ValidationFinding) => {
++    if (finding.suggestion == null) return;
++    const value = finding.suggestion;
++
++    if (finding.role === 'client') {
++      if (finding.field === 'socialHandle') setSocialHandle(value);
++    } else if (finding.role === 'competitor' && finding.competitorIndex != null) {
++      const idx = finding.competitorIndex;
++      if (idx < 0 || idx >= competitors.length) return;
++      if (finding.field === 'socialHandle') {
++        updateCompetitor(idx, 'socialHandle', value);
++      }
++    }
++
++    // Drop the finding from the list so the modal stops showing it
++    setPreValidateFindings((prev) => prev.filter((f) => f !== finding));
++  };
++
++  const applyAllFindings = (findings: ValidationFinding[]) => {
++    findings.forEach((f) => applyFinding(f));
++  };
++
++  const proceedWithScan = () => {
++    setShowPreValidateModal(false);
++    if (pendingInput) {
++      onSubmit(pendingInput);
++    }
++  };
++
++  const cancelPreValidate = () => {
++    setShowPreValidateModal(false);
++    setPendingInput(null);
++    setPreValidateFindings([]);
+   };
+ 
+   return (
+@@ -526,7 +622,8 @@ export default function InputForm({ onSubmit }: InputFormProps) {
+       <div className="space-y-3">
+         <button
+           type="submit"
+-          className="w-full py-4 bg-dk-orange text-white rounded-pill font-medium text-lg hover:bg-dk-orange-hover hover:-translate-y-0.5 transition-all duration-300"
++          disabled={showPreValidateModal}
++          className="w-full py-4 bg-dk-orange text-white rounded-pill font-medium text-lg hover:bg-dk-orange-hover hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+         >
+           Uruchom Skan
+         </button>
+@@ -540,6 +637,16 @@ export default function InputForm({ onSubmit }: InputFormProps) {
+           </button>
+         )}
+       </div>
++
++      {showPreValidateModal && (
++        <PreValidateModal
++          findings={preValidateFindings}
++          onApply={applyFinding}
++          onApplyAll={applyAllFindings}
++          onProceed={proceedWithScan}
++          onCancel={cancelPreValidate}
++        />
++      )}
+     </form>
+   );
+ }
+diff --git a/skaner/components/PreValidateModal.tsx b/skaner/components/PreValidateModal.tsx
+new file mode 100644
+index 0000000..85f4c57
+--- /dev/null
++++ b/skaner/components/PreValidateModal.tsx
+@@ -0,0 +1,164 @@
++'use client';
++
++import type { ValidationFinding } from '@/types/scanner';
++
++interface PreValidateModalProps {
++  /** Findings from the synchronous handle-format check (may be empty) */
++  findings: ValidationFinding[];
++  /** Apply a single suggestion — writes the value into the form field */
++  onApply: (finding: ValidationFinding) => void;
++  /** Apply all suggestions that have a non-null suggestion value */
++  onApplyAll: (findings: ValidationFinding[]) => void;
++  /** Proceed with the scan */
++  onProceed: () => void;
++  /** Close the modal and return to editing */
++  onCancel: () => void;
++}
++
++function fieldLabel(field: ValidationFinding['field']): string {
++  if (field === 'socialHandle') return 'Profil social media';
++  return field;
++}
++
++function brandLabel(f: ValidationFinding): string {
++  if (f.role === 'client') return `${f.brand} (Twoja marka)`;
++  const n = (f.competitorIndex ?? 0) + 1;
++  return `${f.brand} (konkurent ${n})`;
++}
++
++export default function PreValidateModal({
++  findings,
++  onApply,
++  onApplyAll,
++  onProceed,
++  onCancel,
++}: PreValidateModalProps) {
++  const applicableFindings = findings.filter((f) => f.suggestion != null);
++
++  return (
++    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
++      <div
++        className="bg-white rounded-card shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col"
++        onClick={(e) => e.stopPropagation()}
++      >
++        {/* Header */}
++        <div className="px-6 md:px-8 pt-6 pb-4 border-b border-beige-dark/30">
++          <h2 className="font-heading text-2xl text-text-primary">
++            Potwierdź dane przed uruchomieniem skanu
++          </h2>
++          <p className="text-sm text-text-gray mt-2 leading-relaxed">
++            Za moment Skaner wykona analizę źródeł. <strong className="text-text-primary">Upewnij się, że podajesz poprawne adresy stron WWW i nazwy marek w social media</strong> — w innym wypadku wyniki będą błędne, a skan zużyje budżet na złe dane.
++          </p>
++        </div>
++
++        {/* Body — handle-format warnings (if any) */}
++        <div className="flex-1 overflow-y-auto px-6 md:px-8 py-5">
++          {findings.length === 0 ? (
++            <div className="flex items-start gap-3 rounded-card p-4 bg-dk-teal/5 border-l-4 border-l-dk-teal border-dk-teal/20 border">
++              <div className="mt-0.5 w-5 h-5 rounded-full bg-dk-teal flex items-center justify-center text-white text-xs font-bold shrink-0">
++                i
++              </div>
++              <div className="text-sm text-text-primary leading-snug">
++                Wszystkie handle social media wyglądają poprawnie. Jeśli jesteś pewien adresów stron i nazw marek — możesz uruchomić skan.
++              </div>
++            </div>
++          ) : (
++            <>
++              <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 mb-3">
++                {findings.length === 1
++                  ? 'Znaleźliśmy 1 potencjalny problem z handle social media'
++                  : `Znaleźliśmy ${findings.length} potencjalne problemy z handle social media`}
++              </p>
++              <div className="space-y-3">
++                {findings.map((finding, idx) => (
++                  <div
++                    key={idx}
++                    className="rounded-card p-4 bg-amber-50 border border-amber-200 border-l-4 border-l-amber-500"
++                  >
++                    <div className="flex items-start gap-3">
++                      <div className="mt-1 w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
++                        !
++                      </div>
++
++                      <div className="flex-1 min-w-0">
++                        {/* Meta line: brand + field */}
++                        <div className="flex items-center gap-2 mb-1">
++                          <span className="text-xs font-semibold uppercase tracking-wide text-amber-700">
++                            Ostrzeżenie
++                          </span>
++                          <span className="text-xs text-text-gray">•</span>
++                          <span className="text-xs text-text-muted">
++                            {brandLabel(finding)} — {fieldLabel(finding.field)}
++                          </span>
++                        </div>
++
++                        {/* Issue */}
++                        <p className="text-sm text-text-primary leading-snug mb-1">
++                          {finding.issue}
++                        </p>
++
++                        {/* Rationale */}
++                        {finding.rationale && (
++                          <p className="text-xs text-text-gray italic mb-2">
++                            {finding.rationale}
++                          </p>
++                        )}
++
++                        {/* Suggestion + apply button */}
++                        {finding.suggestion && (
++                          <div className="mt-2 flex items-center gap-2 flex-wrap">
++                            <span className="text-xs text-text-gray">Sugestia:</span>
++                            <code className="text-xs bg-white/70 px-2 py-1 rounded border border-beige-dark/40 text-text-primary">
++                              {finding.suggestion}
++                            </code>
++                            <button
++                              type="button"
++                              onClick={() => onApply(finding)}
++                              className="text-xs font-medium text-dk-teal hover:text-dk-teal-hover transition-colors px-3 py-1 rounded-pill border border-dk-teal/30 hover:bg-dk-teal/5"
++                            >
++                              Zastosuj
++                            </button>
++                          </div>
++                        )}
++                      </div>
++                    </div>
++                  </div>
++                ))}
++
++                {applicableFindings.length >= 2 && (
++                  <div className="pt-2">
++                    <button
++                      type="button"
++                      onClick={() => onApplyAll(applicableFindings)}
++                      className="w-full py-2.5 text-sm font-medium text-dk-teal border border-dk-teal/30 rounded-card hover:bg-dk-teal/5 transition-colors"
++                    >
++                      Zastosuj wszystkie sugestie ({applicableFindings.length})
++                    </button>
++                  </div>
++                )}
++              </div>
++            </>
++          )}
++        </div>
++
++        {/* Footer */}
++        <div className="px-6 md:px-8 py-4 border-t border-beige-dark/30 flex flex-col sm:flex-row gap-3 sm:justify-end">
++          <button
++            type="button"
++            onClick={onCancel}
++            className="px-5 py-2.5 text-sm font-medium text-text-muted hover:text-text-primary border border-beige-dark/60 rounded-pill transition-colors"
++          >
++            Wróć i popraw
++          </button>
++          <button
++            type="button"
++            onClick={onProceed}
++            className="px-5 py-2.5 text-sm font-medium text-white bg-dk-orange hover:bg-dk-orange-hover rounded-pill transition-colors"
++          >
++            Uruchom skan
++          </button>
++        </div>
++      </div>
++    </div>
++  );
++}
+diff --git a/skaner/components/report/PerceptualMap.tsx b/skaner/components/report/PerceptualMap.tsx
+index fa9a551..fe5b0aa 100644
+--- a/skaner/components/report/PerceptualMap.tsx
++++ b/skaner/components/report/PerceptualMap.tsx
+@@ -28,6 +28,12 @@ export default function PerceptualMap({ data, clientBrandName }: PerceptualMapPr
+   const innerW = width - padding * 2;
+   const innerH = height - padding * 2;
+ 
++  // Horizontal breathing room for edge-anchored axis labels (osX.lewy / osX.prawy).
++  // Labels like "Korporacyjny" or "Technologia potwierdzona dekadami badań" used
++  // to clip against the viewBox — we extend the viewBox outward so they can
++  // overflow the chart area without getting cut off.
++  const labelMargin = 110;
++
+   // Convert -10..10 to pixel coordinates
+   const toX = (val: number) => padding + ((val + 10) / 20) * innerW;
+   const toY = (val: number) => padding + ((10 - val) / 20) * innerH; // invert Y
+@@ -39,9 +45,9 @@ export default function PerceptualMap({ data, clientBrandName }: PerceptualMapPr
+       </p>
+       <div className="flex justify-center">
+         <svg
+-          viewBox={`0 0 ${width} ${height}`}
+-          className="w-full max-w-[500px]"
+-          style={{ fontFamily: 'inherit' }}
++          viewBox={`${-labelMargin} 0 ${width + labelMargin * 2} ${height}`}
++          className="w-full max-w-[640px]"
++          style={{ fontFamily: 'inherit', overflow: 'visible' }}
+         >
+           {/* Background */}
+           <rect x={padding} y={padding} width={innerW} height={innerH} fill="#FAFAF5" rx="4" />
+diff --git a/skaner/lib/anthropic.ts b/skaner/lib/anthropic.ts
+index 66ef0c6..7b16562 100644
+--- a/skaner/lib/anthropic.ts
++++ b/skaner/lib/anthropic.ts
+@@ -1,5 +1,6 @@
+ import Anthropic from '@anthropic-ai/sdk';
+ import type { ScanCostTracker } from './costs';
++import { resizeBase64IfTooLarge } from './image';
+ 
+ const anthropic = new Anthropic({
+   apiKey: process.env.ANTHROPIC_API_KEY,
+@@ -14,7 +15,7 @@ function resolveModel(requested: ClaudeModel): ClaudeModel {
+ 
+ export async function runPrompt(
+   prompt: string,
+-  model: 'claude-sonnet-4-5' | 'claude-opus-4-5' = 'claude-sonnet-4-5',
++  model: 'claude-sonnet-4-5' | 'claude-opus-4-5' | 'claude-haiku-4-5-20251001' = 'claude-sonnet-4-5',
+   costTracker?: ScanCostTracker,
+   operationLabel?: string
+ ): Promise<string> {
+@@ -64,9 +65,53 @@ export async function analyzePostVision(
+   costTracker?: ScanCostTracker,
+   operationLabel?: string
+ ): Promise<string> {
+-  const mediaType = detectMediaType(screenshotBase64);
++  // Defensive resize — Anthropic rejects images with any dimension > 8000 px.
++  // Apify Playwright full-page screenshots routinely exceed this (15000+ px tall).
++  // We resize to ≤ 7500 px per dimension (headroom for safety) preserving aspect.
++  // If the image is fundamentally unreadable, we skip the image input entirely
++  // and let Claude answer from prompt text alone — better than throwing 400.
++  let processedBase64 = screenshotBase64;
++  let mediaType: 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp' = detectMediaType(screenshotBase64);
++  let imageAvailable = true;
++
++  try {
++    const result = await resizeBase64IfTooLarge(screenshotBase64);
++    processedBase64 = result.base64;
++    if (result.resized) {
++      console.log(
++        `[vision] resized image for "${operationLabel || 'vision'}": ` +
++        `${result.originalWidth}x${result.originalHeight} → ${result.width}x${result.height} (${result.format})`
++      );
++      // Resized output is always JPEG
++      mediaType = 'image/jpeg';
++    }
++  } catch (err) {
++    // Image unreadable / too small / corrupt — proceed WITHOUT image.
++    // The analysis will be less accurate but the scan won't fail.
++    imageAvailable = false;
++    const msg = err instanceof Error ? err.message : String(err);
++    console.warn(`[vision] skipping unreadable image for "${operationLabel || 'vision'}": ${msg}`);
++  }
+ 
+   const effectiveModel = resolveModel('claude-sonnet-4-5');
++  const textContent = imageAvailable
++    ? `${prompt}\n\nCaption posta: "${caption}"\n\nWAŻNE: Odpowiedz WYŁĄCZNIE poprawnym JSON. Żadnych komentarzy (//), żadnego tekstu. Tylko czysty JSON.`
++    : `${prompt}\n\nCaption posta: "${caption}"\n\nUWAGA: Obraz nie był dostępny do analizy — oprzyj odpowiedź wyłącznie na captionie i opisie zadania. Dla pól wymagających obserwacji wizualnych zwróć neutralny opis oparty na captionie.\n\nWAŻNE: Odpowiedz WYŁĄCZNIE poprawnym JSON. Żadnych komentarzy (//), żadnego tekstu. Tylko czysty JSON.`;
++
++  const userContent: Anthropic.MessageParam['content'] = imageAvailable
++    ? [
++        {
++          type: 'image',
++          source: {
++            type: 'base64',
++            media_type: mediaType,
++            data: processedBase64,
++          },
++        },
++        { type: 'text', text: textContent },
++      ]
++    : [{ type: 'text', text: textContent }];
++
+   const response = await anthropic.messages.create({
+     model: effectiveModel,
+     max_tokens: 1024,
+@@ -74,20 +119,7 @@ export async function analyzePostVision(
+     messages: [
+       {
+         role: 'user',
+-        content: [
+-          {
+-            type: 'image',
+-            source: {
+-              type: 'base64',
+-              media_type: mediaType,
+-              data: screenshotBase64,
+-            },
+-          },
+-          {
+-            type: 'text',
+-            text: `${prompt}\n\nCaption posta: "${caption}"\n\nWAŻNE: Odpowiedz WYŁĄCZNIE poprawnym JSON. Żadnych komentarzy (//), żadnego tekstu. Tylko czysty JSON.`,
+-          },
+-        ],
++        content: userContent,
+       },
+       {
+         role: 'assistant',
+diff --git a/skaner/lib/apify.ts b/skaner/lib/apify.ts
+index 3d660a9..82f3e51 100644
+--- a/skaner/lib/apify.ts
++++ b/skaner/lib/apify.ts
+@@ -22,19 +22,155 @@ interface RawPost {
+   url?: string;
+   postUrl?: string;
+   shortCode?: string;
+-  // Instagram fields
++  // Text
+   caption?: string;
+   text?: string;
++  postText?: string;
++  // Date
+   timestamp?: string;
++  postDate?: string;
++  // Instagram images
+   displayUrl?: string;
+   imageUrl?: string;
+   images?: string[];
+-  // Facebook fields (apify/facebook-posts-scraper)
+-  postText?: string;
+-  postDate?: string;
+-  postImages?: Array<{ image?: string; link?: string }>;
+-  media?: Array<{ thumbnail?: string; photo_image?: { uri?: string } }>;
++  thumbnailUrl?: string;
++  // Facebook — `media` array (new schema, apify/facebook-posts-scraper v2+).
++  // Apify docs evolved: earlier versions had photo_image.uri, later added image.uri,
++  // thumbnail, thumbnailUrl variants. We check all.
++  media?: Array<{
++    thumbnail?: string;
++    thumbnailUrl?: string;
++    photo_image?: { uri?: string; url?: string };
++    image?: { uri?: string; url?: string };
++  }>;
++  // Facebook — `attachments` array (alternate schema for shared/link posts)
++  attachments?: Array<{
++    url?: string;
++    type?: string;
++    photo_image_uri?: string;
++    media?: {
++      image?: { uri?: string; url?: string };
++      photo_image?: { uri?: string; url?: string };
++    };
++  }>;
++  // Facebook — legacy `postImages` array
++  postImages?: Array<{ image?: string; url?: string; link?: string }>;
++  // Facebook — top-level fallbacks (various actor versions)
+   full_picture?: string;
++  topImage?: string;
++  image?: string;
++  pictureUrl?: string;
++}
++
++/**
++ * Extract image URL from a raw Apify post.
++ *
++ * Apify FB/IG scrapers have an unstable schema — fields change between actor
++ * versions. We check all known paths in priority order and return which one
++ * matched, so logs show us which schema the actor is currently emitting.
++ *
++ * Background: bug found 2026-04-07 where FB posts returned 0 images despite
++ * 24 items per scrape. Root cause: code only checked `postImages[0].image`
++ * and `full_picture`, but current Apify actor emits `media[0].photo_image.uri`.
++ * This function now checks ~15 known paths across old and new schemas.
++ */
++type ImageExtraction = { url: string; source: string };
++
++function extractImageUrl(rawItem: RawPost): ImageExtraction {
++  const isHttpUrl = (v: unknown): v is string =>
++    typeof v === 'string' && (v.startsWith('http://') || v.startsWith('https://'));
++
++  // Priority 1: Instagram fields (first to check for IG posts)
++  const igCandidates: Array<[unknown, string]> = [
++    [rawItem.displayUrl, 'displayUrl'],
++    [rawItem.imageUrl, 'imageUrl'],
++    [rawItem.images?.[0], 'images[0]'],
++  ];
++  for (const [value, source] of igCandidates) {
++    if (isHttpUrl(value)) return { url: value, source };
++  }
++
++  // Priority 2: Facebook `media[]` array (current Apify v2+ schema)
++  const firstMedia = rawItem.media?.[0];
++  if (firstMedia) {
++    const mediaCandidates: Array<[unknown, string]> = [
++      [firstMedia.photo_image?.uri, 'media[0].photo_image.uri'],
++      [firstMedia.photo_image?.url, 'media[0].photo_image.url'],
++      [firstMedia.image?.uri, 'media[0].image.uri'],
++      [firstMedia.image?.url, 'media[0].image.url'],
++      [firstMedia.thumbnail, 'media[0].thumbnail'],
++      [firstMedia.thumbnailUrl, 'media[0].thumbnailUrl'],
++    ];
++    for (const [value, source] of mediaCandidates) {
++      if (isHttpUrl(value)) return { url: value, source };
++    }
++  }
++
++  // Priority 3: Facebook `attachments[]` array (alternate schema)
++  const firstAttachment = rawItem.attachments?.[0];
++  if (firstAttachment) {
++    const attachmentCandidates: Array<[unknown, string]> = [
++      [firstAttachment.media?.image?.uri, 'attachments[0].media.image.uri'],
++      [firstAttachment.media?.image?.url, 'attachments[0].media.image.url'],
++      [firstAttachment.media?.photo_image?.uri, 'attachments[0].media.photo_image.uri'],
++      [firstAttachment.photo_image_uri, 'attachments[0].photo_image_uri'],
++      [firstAttachment.url, 'attachments[0].url'],
++    ];
++    for (const [value, source] of attachmentCandidates) {
++      if (isHttpUrl(value)) return { url: value, source };
++    }
++  }
++
++  // Priority 4: Facebook `postImages[]` array (legacy schema)
++  const firstPostImage = rawItem.postImages?.[0];
++  if (firstPostImage) {
++    const legacyCandidates: Array<[unknown, string]> = [
++      [firstPostImage.image, 'postImages[0].image'],
++      [firstPostImage.url, 'postImages[0].url'],
++      [firstPostImage.link, 'postImages[0].link'],
++    ];
++    for (const [value, source] of legacyCandidates) {
++      if (isHttpUrl(value)) return { url: value, source };
++    }
++  }
++
++  // Priority 5: Top-level fallbacks (various actor versions)
++  const topLevelCandidates: Array<[unknown, string]> = [
++    [rawItem.full_picture, 'full_picture'],
++    [rawItem.topImage, 'topImage'],
++    [rawItem.image, 'image'],
++    [rawItem.pictureUrl, 'pictureUrl'],
++    [rawItem.thumbnailUrl, 'thumbnailUrl'],
++  ];
++  for (const [value, source] of topLevelCandidates) {
++    if (isHttpUrl(value)) return { url: value, source };
++  }
++
++  return { url: '', source: 'none' };
++}
++
++/**
++ * Log shallow shape of first item in Apify response — helps diagnose schema
++ * changes without dumping PII or huge payloads. Prints top-level keys + keys
++ * of media[0] / attachments[0] if present.
++ */
++function logFirstItemShape(items: unknown[], platform: string, handle: string): void {
++  if (items.length === 0) return;
++  const first = items[0] as Record<string, unknown>;
++  const topKeys = Object.keys(first).sort().join(', ');
++  console.log(`[apify:${platform}] first item keys for ${handle}: ${topKeys}`);
++
++  const media = first.media;
++  if (Array.isArray(media) && media.length > 0 && typeof media[0] === 'object' && media[0]) {
++    const mediaKeys = Object.keys(media[0] as Record<string, unknown>).sort().join(', ');
++    console.log(`[apify:${platform}] first item media[0] keys: ${mediaKeys}`);
++  }
++
++  const attachments = first.attachments;
++  if (Array.isArray(attachments) && attachments.length > 0 && typeof attachments[0] === 'object' && attachments[0]) {
++    const attachKeys = Object.keys(attachments[0] as Record<string, unknown>).sort().join(', ');
++    console.log(`[apify:${platform}] first item attachments[0] keys: ${attachKeys}`);
++  }
+ }
+ 
+ async function downloadImageAsBase64(imageUrl: string): Promise<string> {
+@@ -126,6 +262,9 @@ export async function scrapeSocialPosts(
+     const { items } = await client.dataset(run.defaultDatasetId).listItems();
+     console.log(`Apify: got ${items.length} items for ${handle} (actor ran ${runDuration}s)`);
+ 
++    // Log shape of first item — helps catch Apify schema changes early
++    logFirstItemShape(items, platform, handle);
++
+     if (costTracker) {
+       costTracker.trackApify(platform, `${handle} (${items.length} posts)`);
+     }
+@@ -157,6 +296,11 @@ export async function scrapeSocialPosts(
+     // Download images for selected posts (parallel, with 10s timeout each)
+     console.log(`Apify: downloading images for ${selected.length} posts (${handle})...`);
+     const imageStart = Date.now();
++
++    // Track which field the URL came from — lets us spot schema drift in logs
++    const sourceCounts: Record<string, number> = {};
++    const downloadFailures: string[] = [];
++
+     await Promise.all(
+       selected.map(async (post) => {
+         const rawItem = (items as RawPost[]).find(
+@@ -164,23 +308,36 @@ export async function scrapeSocialPosts(
+             (item.url || item.postUrl || '') === post.url ||
+             (platform === 'instagram' && item.shortCode && post.url.includes(item.shortCode))
+         );
+-        if (rawItem) {
+-          const imageUrl =
+-            rawItem.displayUrl ||
+-            rawItem.imageUrl ||
+-            rawItem.images?.[0] ||
+-            rawItem.postImages?.[0]?.image ||
+-            rawItem.full_picture ||
+-            '';
+-          if (imageUrl) {
+-            post.screenshotBase64 = await downloadImageAsBase64(imageUrl);
++        if (!rawItem) {
++          sourceCounts['not_found'] = (sourceCounts['not_found'] || 0) + 1;
++          return;
++        }
++
++        const { url, source } = extractImageUrl(rawItem);
++        sourceCounts[source] = (sourceCounts[source] || 0) + 1;
++
++        if (url) {
++          const base64 = await downloadImageAsBase64(url);
++          if (base64) {
++            post.screenshotBase64 = base64;
++          } else {
++            downloadFailures.push(source);
+           }
+         }
+       })
+     );
+-    console.log(`Apify: images done for ${handle} in ${((Date.now() - imageStart) / 1000).toFixed(1)}s`);
+ 
+-    console.log(`Apify: ${selected.length} posts selected, ${selected.filter(p => p.screenshotBase64).length} with images for ${handle}`);
++    const imageElapsed = ((Date.now() - imageStart) / 1000).toFixed(1);
++    const sourcesSummary = Object.entries(sourceCounts)
++      .map(([s, n]) => `${s}=${n}`)
++      .join(', ');
++    console.log(`Apify: images done for ${handle} in ${imageElapsed}s — sources: ${sourcesSummary || '(none)'}`);
++    if (downloadFailures.length > 0) {
++      console.log(`Apify: download failed for ${downloadFailures.length}/${selected.length} posts (${handle}) — sources: ${downloadFailures.join(', ')}`);
++    }
++
++    const withImages = selected.filter(p => p.screenshotBase64).length;
++    console.log(`Apify: ${selected.length} posts selected, ${withImages} with images for ${handle}`);
+     return selected;
+   } catch (error) {
+     console.error(`Apify scraping failed for ${handle} on ${platform}:`, error);
+diff --git a/skaner/lib/auth.ts b/skaner/lib/auth.ts
+index 78b2b40..7a0b03f 100644
+--- a/skaner/lib/auth.ts
++++ b/skaner/lib/auth.ts
+@@ -299,6 +299,33 @@ export async function incrementScanCount(email: string): Promise<void> {
+   await saveUser(user);
+ }
+ 
++/**
++ * Reset the monthly scan counter for a user (or their org if they belong
++ * to one). Used by /api/admin/reset-scan-count when a tester burns through
++ * the limit during QA. Returns the entity that was reset for logging.
++ */
++export async function resetScanCount(
++  email: string
++): Promise<{ scope: 'user' | 'org'; identifier: string } | null> {
++  const user = await getUser(email);
++  if (!user) return null;
++
++  if (user.orgId) {
++    const org = await getOrg(user.orgId);
++    if (org) {
++      org.scansThisMonth = 0;
++      org.lastScanReset = new Date().toISOString();
++      await saveOrg(org);
++      return { scope: 'org', identifier: user.orgId };
++    }
++  }
++
++  user.scansThisMonth = 0;
++  user.lastScanReset = new Date().toISOString();
++  await saveUser(user);
++  return { scope: 'user', identifier: email };
++}
++
+ // ===================== EMAIL NOTIFICATION =====================
+ 
+ export async function notifyNewRegistration(user: User): Promise<void> {
+diff --git a/skaner/lib/image.ts b/skaner/lib/image.ts
+new file mode 100644
+index 0000000..474209f
+--- /dev/null
++++ b/skaner/lib/image.ts
+@@ -0,0 +1,101 @@
++import sharp from 'sharp';
++
++/**
++ * Image preprocessing for Anthropic vision API.
++ *
++ * Anthropic's limit: no image dimension may exceed 8000 pixels.
++ * Our screenshots come from Apify Playwright (full-page captures) which
++ * routinely exceed this — a long homepage can be 15000+ px tall.
++ *
++ * Background: bug found 2026-04-07 — "Atomic analysis failed for Oral B:
++ * image dimensions exceed max allowed size: 8000 pixels" for full-page
++ * website screenshots. We now defensively resize ALL images before sending
++ * them to Claude.
++ */
++
++/** Safe margin below Anthropic's hard limit — leaves headroom for edge cases */
++const MAX_DIMENSION_PX = 7500;
++
++/** Minimum useful image dimension — smaller than this, we skip (no useful content) */
++const MIN_DIMENSION_PX = 32;
++
++export interface ResizeResult {
++  base64: string;
++  /** Whether the image was actually resized */
++  resized: boolean;
++  /** Original dimensions (before resize) */
++  originalWidth: number;
++  originalHeight: number;
++  /** Final dimensions (same as original if not resized) */
++  width: number;
++  height: number;
++  /** Format detected by sharp (png, jpeg, webp, …) */
++  format: string;
++}
++
++/**
++ * Resize a base64-encoded image if any dimension exceeds MAX_DIMENSION_PX.
++ * Preserves aspect ratio. Returns JPEG output for resized images (smaller
++ * payload for Claude) and passes through the original base64 if no resize
++ * was needed (keeps original format/quality).
++ *
++ * Throws only if the image is fundamentally unreadable — caller should
++ * handle this gracefully (e.g. skip sending to Claude, continue with text).
++ */
++export async function resizeBase64IfTooLarge(base64: string): Promise<ResizeResult> {
++  const buffer = Buffer.from(base64, 'base64');
++  const image = sharp(buffer, { failOn: 'none' });
++  const metadata = await image.metadata();
++
++  const originalWidth = metadata.width ?? 0;
++  const originalHeight = metadata.height ?? 0;
++  const format = metadata.format ?? 'unknown';
++
++  // Unreadable image — sharp couldn't even parse dimensions
++  if (!originalWidth || !originalHeight) {
++    throw new Error(`unreadable image (format=${format}, buffer=${buffer.length}B)`);
++  }
++
++  // Too small to be useful — likely a corrupt or placeholder image
++  if (originalWidth < MIN_DIMENSION_PX || originalHeight < MIN_DIMENSION_PX) {
++    throw new Error(
++      `image too small (${originalWidth}x${originalHeight}, min=${MIN_DIMENSION_PX})`
++    );
++  }
++
++  // Fast path: within limits, no resize needed — return original untouched
++  if (originalWidth <= MAX_DIMENSION_PX && originalHeight <= MAX_DIMENSION_PX) {
++    return {
++      base64,
++      resized: false,
++      originalWidth,
++      originalHeight,
++      width: originalWidth,
++      height: originalHeight,
++      format,
++    };
++  }
++
++  // Resize path: scale longest dimension to MAX_DIMENSION_PX, preserve aspect
++  const resizedBuffer = await sharp(buffer, { failOn: 'none' })
++    .resize(MAX_DIMENSION_PX, MAX_DIMENSION_PX, {
++      fit: 'inside',          // preserve aspect ratio, fit within bounds
++      withoutEnlargement: true, // never upscale
++    })
++    // Convert to JPEG for smaller payload — OK for screenshots, we're sending
++    // to vision model, not archiving. Quality 85 = good balance.
++    .jpeg({ quality: 85, mozjpeg: true })
++    .toBuffer();
++
++  const resizedMeta = await sharp(resizedBuffer).metadata();
++
++  return {
++    base64: resizedBuffer.toString('base64'),
++    resized: true,
++    originalWidth,
++    originalHeight,
++    width: resizedMeta.width ?? 0,
++    height: resizedMeta.height ?? 0,
++    format: 'jpeg',
++  };
++}
+diff --git a/skaner/lib/pipeline.ts b/skaner/lib/pipeline.ts
+index c5c6cd7..942a308 100644
+--- a/skaner/lib/pipeline.ts
++++ b/skaner/lib/pipeline.ts
+@@ -52,7 +52,7 @@ import {
+   PROMPT_WEBSITE_ANALYSIS,
+   fillPrompt,
+ } from './prompts';
+-import { saveReport, saveScanMeta } from './redis';
++import { saveReport, saveScanMeta, saveScanDebug } from './redis';
+ import { saveLead, sendReportEmail } from './loops';
+ import { ScanCostTracker } from './costs';
+ 
+@@ -73,6 +73,44 @@ async function runInBatches<T>(
+   return results;
+ }
+ 
++/**
++ * Detect whether an atomic analysis object is actually the fallback shell
++ * we build when the per-brand atomic analysis pipeline fails (see the
++ * `} catch (err) {` block in the atomic analysis step). Those shells
++ * contain sentinel strings like "Analiza niedostępna" / "Brak danych".
++ *
++ * Without this check, we stringify the fallback JSON and pass it to
++ * downstream prompts (brand profile, conventions). Claude then sees
++ * structure like { zewnetrzneSlownictwo: [], zgodnosc: { opis: "Analiza
++ * niedostępna" } } and — doing its job honestly — quotes the field names
++ * and placeholder strings as "kluczoweDowody" in the report. That's the
++ * variable-name leak we saw in the Philips Sonicare run.
++ *
++ * Replacing the JSON with a single line of natural-language Polish tells
++ * Claude unambiguously that the source is unavailable and should be
++ * skipped, not cited.
++ */
++const FALLBACK_SENTINELS = ['Analiza niedostępna', 'Brak danych'];
++
++function isFallbackAnalysisPart(obj: unknown): boolean {
++  if (obj == null) return true;
++  const json = JSON.stringify(obj);
++  return FALLBACK_SENTINELS.some((sentinel) => json.includes(sentinel));
++}
++
++/**
++ * Serialize an atomic analysis sub-object for inclusion in a prompt.
++ * Returns a human-readable unavailable message if the sub-object is
++ * missing or is a fallback shell; otherwise returns pretty-printed JSON.
++ */
++function formatAnalysisForPrompt(
++  obj: unknown,
++  unavailableMessage: string
++): string {
++  if (isFallbackAnalysisPart(obj)) return unavailableMessage;
++  return JSON.stringify(obj, null, 2);
++}
++
+ export async function runCategoryScanner(
+   input: ScannerInput,
+   lead: LeadInfo,
+@@ -591,12 +629,22 @@ export async function runCategoryScanner(
+         fillPrompt(PROMPT_6_BRAND_PROFILE, {
+           BRAND_NAME: brand.name,
+           CATEGORY: input.category,
+-          PROMPT1_RESULT: JSON.stringify(analysis.claim, null, 2),
+-          PROMPT2_RESULT: JSON.stringify(analysis.vocabulary, null, 2),
+-          PROMPT4_RESULT: analysis.socialSynthesis
+-            ? JSON.stringify(analysis.socialSynthesis, null, 2)
+-            : 'Brak danych social media dla tej marki.',
+-          PROMPT5_RESULT: JSON.stringify(analysis.externalAnalysis, null, 2),
++          PROMPT1_RESULT: formatAnalysisForPrompt(
++            analysis.claim,
++            'Brak danych z analizy strony głównej dla tej marki (claim i obietnica niedostępne).'
++          ),
++          PROMPT2_RESULT: formatAnalysisForPrompt(
++            analysis.vocabulary,
++            'Brak danych o słownictwie marki ze strony głównej.'
++          ),
++          PROMPT4_RESULT: formatAnalysisForPrompt(
++            analysis.socialSynthesis,
++            'Brak danych social media dla tej marki.'
++          ),
++          PROMPT5_RESULT: formatAnalysisForPrompt(
++            analysis.externalAnalysis,
++            'Brak danych z dyskursu zewnętrznego dla tej marki.'
++          ),
+         }) + homepageVisualContext,
+         'claude-opus-4-5', costs, `brand profile: ${brand.name}`
+       );
+@@ -861,6 +909,24 @@ export async function runCategoryScanner(
+   // Save report to Redis
+   await saveReport(scanId, report);
+ 
++  // Save raw per-brand source texts for later auditability (e.g. tracing
++  // which Perplexity answer produced a financial figure in Krajobraz kategorii).
++  // Text-only, so storage footprint is tiny compared to the report itself.
++  await saveScanDebug(scanId, {
++    scanId,
++    createdAt: new Date().toISOString(),
++    brands: Object.fromEntries(
++      allBrands.map((b) => [
++        b.name,
++        {
++          websiteText: brandData[b.name].websiteText,
++          externalDiscourse: brandData[b.name].externalDiscourse,
++          citations: brandCitations[b.name] || [],
++        },
++      ])
++    ),
++  });
++
+   // Send email
+   sendReportEmail(lead.email, {
+     firstName: lead.firstName,
+diff --git a/skaner/lib/prompts.ts b/skaner/lib/prompts.ts
+index 467dac8..d824478 100644
+--- a/skaner/lib/prompts.ts
++++ b/skaner/lib/prompts.ts
+@@ -133,7 +133,13 @@ ZASADY:
+ 3. Każdy dowód musi zawierać DOSŁOWNY cytat z konkretnego źródła.
+ 4. Pisz ZWIĘŹLE — nie powtarzaj tych samych myśli innymi słowami.
+ 5. Nie ekstrapoluj jednego przykładu (np. nowego produktu, jednej kampanii) na całość marki. Szukaj POWTARZALNYCH wzorców.
+-6. Jeśli dane są ograniczone — zaznacz to.
++6. Jeśli dane są ograniczone — zaznacz to zwięźle jednym zdaniem w logikaSprzedazy.tresc, ale nie buduj z braku danych osobnych "dowodów".
++7. Jeśli którekolwiek źródło powyżej zawiera komunikat zaczynający się od "Brak danych..." — pomiń to źródło całkowicie. NIE cytuj tego komunikatu, NIE parafrazuj braku danych jako wniosku, NIE umieszczaj tego w kluczoweDowody. Po prostu zbuduj profil z tych źródeł, które masz.
++8. KRYTYCZNE — pole kluczoweDowody[].cytat musi zawierać WYŁĄCZNIE dosłowne fragmenty merytorycznego tekstu ze źródeł (treść strony WWW, post social media, wywiad, recenzja, opinia). NIGDY nie wolno Ci cytować:
++   - nazw pól JSON ani ścieżek typu "zewnetrzneSlownictwo", "zgodnosc.opis"
++   - wartości strukturalnych: "[]", "{}", "null", "undefined"
++   - placeholderów technicznych: "Analiza niedostępna", "Brak danych", "pusta tablica"
++   Jeśli nie masz dosłownego cytatu merytorycznego do danej obserwacji — PROPUŚĆ tę obserwację zamiast wymyślać dowód lub cytować strukturę danych.
+ 
+ Odpowiedz wyłącznie w JSON:
+ 
+diff --git a/skaner/lib/redis.ts b/skaner/lib/redis.ts
+index 47041ae..1abecf0 100644
+--- a/skaner/lib/redis.ts
++++ b/skaner/lib/redis.ts
+@@ -91,6 +91,51 @@ export async function saveReport(
+   }
+ }
+ 
++// === Scan debug data (raw source texts — Perplexity + website scrape) ===
++//
++// For auditability: when a report shows a financial figure in
++// mapaKategorii.gracze[].skala, the user needs to verify which Perplexity
++// answer produced it. ScannerReport only keeps the final Claude output +
++// citation URLs, not the raw Perplexity text. This blob stores the inputs
++// Claude saw for each deep-analyzed brand so we can reproduce the chain
++// of reasoning after the fact.
++//
++// Only stores text (not images) — tiny footprint compared to reports.
++
++export interface ScanDebug {
++  scanId: string;
++  createdAt: string;
++  /** Per-brand raw inputs fed into downstream prompts */
++  brands: Record<string, {
++    websiteText: string;
++    externalDiscourse: string;
++    citations: string[];
++  }>;
++}
++
++export async function saveScanDebug(scanId: string, debug: ScanDebug): Promise<void> {
++  const json = JSON.stringify(debug);
++  const r = await getRedis();
++  if (r) {
++    await r.set(`scan-debug:${scanId}`, json, 'EX', REPORT_TTL);
++  } else {
++    memSet(`scan-debug:${scanId}`, json, REPORT_TTL);
++  }
++}
++
++export async function getScanDebug(scanId: string): Promise<ScanDebug | null> {
++  const r = await getRedis();
++  const data = r
++    ? await r.get(`scan-debug:${scanId}`)
++    : memGet(`scan-debug:${scanId}`);
++  if (!data) return null;
++  try {
++    return JSON.parse(data);
++  } catch {
++    return null;
++  }
++}
++
+ export async function checkRateLimit(email: string): Promise<{ allowed: boolean; daysLeft?: number }> {
+   const key = `ratelimit:${email.toLowerCase().trim()}`;
+   const r = await getRedis();
+@@ -153,6 +198,17 @@ export async function saveScanMeta(meta: ScanMeta): Promise<void> {
+   }
+ }
+ 
++export async function getScanMeta(scanId: string): Promise<ScanMeta | null> {
++  const r = await getRedis();
++  const data = r ? await r.get(`scan:${scanId}`) : memGet(`scan:${scanId}`);
++  if (!data) return null;
++  try {
++    return JSON.parse(data);
++  } catch {
++    return null;
++  }
++}
++
+ export async function listScans(limit = 50, offset = 0): Promise<ScanMeta[]> {
+   const r = await getRedis();
+   if (!r) {
+diff --git a/skaner/lib/validation/checks.ts b/skaner/lib/validation/checks.ts
+new file mode 100644
+index 0000000..ce746a6
+--- /dev/null
++++ b/skaner/lib/validation/checks.ts
+@@ -0,0 +1,121 @@
++import type { ValidationFinding } from '@/types/scanner';
++
++/**
++ * Deterministic handle format checks for pre-scan confirmation.
++ *
++ * Only validates social media handle syntax — runs client-side in ~1ms
++ * with zero network / LLM dependencies. The rest of the pre-scan flow
++ * (URL verification, content vs category matching) was removed: users
++ * are best positioned to verify their own URLs and brand names, and
++ * scope-creeping into page-quality auditing confused the UX.
++ */
++
++// === Handle format rules ===
++//
++// Facebook: letters, digits, dots. Minimum 5 chars. NO underscores.
++// Instagram: letters, digits, dots, underscores. Up to 30 chars.
++// LinkedIn: letters, digits, hyphens (company slugs).
++//
++// Source: platform documentation + empirical testing of real handles.
++
++const FB_HANDLE_REGEX = /^[a-zA-Z0-9.]{5,50}$/;
++const IG_HANDLE_REGEX = /^[a-zA-Z0-9._]{1,30}$/;
++const LI_HANDLE_REGEX = /^[a-zA-Z0-9\-]{3,100}$/;
++
++interface HandleCheckResult {
++  valid: boolean;
++  /** Opis problemu jeśli !valid */
++  reason?: string;
++  /** Sugerowana poprawka (np. po usunięciu underscore'a) */
++  suggestion?: string;
++  /** Sugerowana zmiana platformy (np. underscore w FB → pewnie IG) */
++  suggestedPlatform?: 'instagram' | 'facebook' | 'linkedin';
++}
++
++export function checkHandleFormat(
++  handle: string,
++  platform: 'instagram' | 'facebook' | 'linkedin'
++): HandleCheckResult {
++  // Pusty handle jest OK — social jest opcjonalny
++  if (!handle) return { valid: true };
++
++  // Oczywiste śmieci
++  if (/\s/.test(handle)) {
++    return { valid: false, reason: 'Handle zawiera spacje' };
++  }
++  if (/[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/.test(handle)) {
++    return { valid: false, reason: 'Handle zawiera polskie znaki — platformy social media ich nie obsługują' };
++  }
++  if (/[^a-zA-Z0-9._\-]/.test(handle)) {
++    return { valid: false, reason: 'Handle zawiera nieobsługiwane znaki specjalne' };
++  }
++
++  // Specyficzne reguły per platforma
++  if (platform === 'facebook') {
++    if (!FB_HANDLE_REGEX.test(handle)) {
++      if (handle.includes('_')) {
++        return {
++          valid: false,
++          reason: 'Facebook usernames nie mogą zawierać podkreślnika (_). Wygląda to na handle Instagrama.',
++          suggestion: handle.replace(/_/g, ''),
++          suggestedPlatform: 'instagram',
++        };
++      }
++      if (handle.length < 5) {
++        return { valid: false, reason: 'Facebook username musi mieć minimum 5 znaków' };
++      }
++      return { valid: false, reason: 'Handle nie pasuje do formatu Facebook username' };
++    }
++    return { valid: true };
++  }
++
++  if (platform === 'instagram') {
++    if (!IG_HANDLE_REGEX.test(handle)) {
++      return { valid: false, reason: 'Handle nie pasuje do formatu Instagram username' };
++    }
++    return { valid: true };
++  }
++
++  if (platform === 'linkedin') {
++    if (!LI_HANDLE_REGEX.test(handle)) {
++      if (handle.includes('_') || handle.includes('.')) {
++        return {
++          valid: false,
++          reason: 'LinkedIn company slug używa myślników (-), nie podkreślników ani kropek',
++          suggestion: handle.replace(/[_.]/g, '-'),
++        };
++      }
++      return { valid: false, reason: 'Handle nie pasuje do formatu LinkedIn company slug' };
++    }
++    return { valid: true };
++  }
++
++  return { valid: true };
++}
++
++/**
++ * Convert a HandleCheckResult into a ValidationFinding ready for UI rendering.
++ * Returns null if the handle is valid (nothing to show).
++ */
++export function handleFindingFromFormatCheck(
++  check: HandleCheckResult,
++  brandName: string,
++  role: 'client' | 'competitor',
++  competitorIndex: number | undefined
++): ValidationFinding | null {
++  if (check.valid) return null;
++  return {
++    brand: brandName,
++    role,
++    competitorIndex,
++    field: 'socialHandle',
++    severity: 'warning',
++    issue: check.reason || 'Handle w złym formacie',
++    suggestion: check.suggestion || null,
++    confidence: 0.95,
++    rationale: check.suggestedPlatform
++      ? `Format sugeruje platformę "${check.suggestedPlatform}" zamiast zadeklarowanej`
++      : 'Handle nie przejdzie walidacji scrapera',
++    source: 'format',
++  };
++}
+diff --git a/skaner/package-lock.json b/skaner/package-lock.json
+index 7cc960f..13b629e 100644
+--- a/skaner/package-lock.json
++++ b/skaner/package-lock.json
+@@ -17,6 +17,7 @@
+         "next": "14.2.35",
+         "react": "^18",
+         "react-dom": "^18",
++        "sharp": "^0.34.5",
+         "uuid": "^13.0.0"
+       },
+       "devDependencies": {
+@@ -128,7 +129,6 @@
+       "version": "1.9.1",
+       "resolved": "https://registry.npmjs.org/@emnapi/runtime/-/runtime-1.9.1.tgz",
+       "integrity": "sha512-VYi5+ZVLhpgK4hQ0TAjiQiZ6ol0oe4mBx7mVv7IflsiEp0OWoVsp/+f9Vc1hOhE0TtkORVrI1GvzyreqpgWtkA==",
+-      "dev": true,
+       "license": "MIT",
+       "optional": true,
+       "dependencies": {
+@@ -247,6 +247,471 @@
+       "dev": true,
+       "license": "BSD-3-Clause"
+     },
++    "node_modules/@img/colour": {
++      "version": "1.1.0",
++      "resolved": "https://registry.npmjs.org/@img/colour/-/colour-1.1.0.tgz",
++      "integrity": "sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==",
++      "license": "MIT",
++      "engines": {
++        "node": ">=18"
++      }
++    },
++    "node_modules/@img/sharp-darwin-arm64": {
++      "version": "0.34.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-darwin-arm64/-/sharp-darwin-arm64-0.34.5.tgz",
++      "integrity": "sha512-imtQ3WMJXbMY4fxb/Ndp6HBTNVtWCUI0WdobyheGf5+ad6xX8VIDO8u2xE4qc/fr08CKG/7dDseFtn6M6g/r3w==",
++      "cpu": [
++        "arm64"
++      ],
++      "license": "Apache-2.0",
++      "optional": true,
++      "os": [
++        "darwin"
++      ],
++      "engines": {
++        "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      },
++      "optionalDependencies": {
++        "@img/sharp-libvips-darwin-arm64": "1.2.4"
++      }
++    },
++    "node_modules/@img/sharp-darwin-x64": {
++      "version": "0.34.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-darwin-x64/-/sharp-darwin-x64-0.34.5.tgz",
++      "integrity": "sha512-YNEFAF/4KQ/PeW0N+r+aVVsoIY0/qxxikF2SWdp+NRkmMB7y9LBZAVqQ4yhGCm/H3H270OSykqmQMKLBhBJDEw==",
++      "cpu": [
++        "x64"
++      ],
++      "license": "Apache-2.0",
++      "optional": true,
++      "os": [
++        "darwin"
++      ],
++      "engines": {
++        "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      },
++      "optionalDependencies": {
++        "@img/sharp-libvips-darwin-x64": "1.2.4"
++      }
++    },
++    "node_modules/@img/sharp-libvips-darwin-arm64": {
++      "version": "1.2.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-darwin-arm64/-/sharp-libvips-darwin-arm64-1.2.4.tgz",
++      "integrity": "sha512-zqjjo7RatFfFoP0MkQ51jfuFZBnVE2pRiaydKJ1G/rHZvnsrHAOcQALIi9sA5co5xenQdTugCvtb1cuf78Vf4g==",
++      "cpu": [
++        "arm64"
++      ],
++      "license": "LGPL-3.0-or-later",
++      "optional": true,
++      "os": [
++        "darwin"
++      ],
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-libvips-darwin-x64": {
++      "version": "1.2.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-darwin-x64/-/sharp-libvips-darwin-x64-1.2.4.tgz",
++      "integrity": "sha512-1IOd5xfVhlGwX+zXv2N93k0yMONvUlANylbJw1eTah8K/Jtpi15KC+WSiaX/nBmbm2HxRM1gZ0nSdjSsrZbGKg==",
++      "cpu": [
++        "x64"
++      ],
++      "license": "LGPL-3.0-or-later",
++      "optional": true,
++      "os": [
++        "darwin"
++      ],
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-libvips-linux-arm": {
++      "version": "1.2.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-arm/-/sharp-libvips-linux-arm-1.2.4.tgz",
++      "integrity": "sha512-bFI7xcKFELdiNCVov8e44Ia4u2byA+l3XtsAj+Q8tfCwO6BQ8iDojYdvoPMqsKDkuoOo+X6HZA0s0q11ANMQ8A==",
++      "cpu": [
++        "arm"
++      ],
++      "license": "LGPL-3.0-or-later",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-libvips-linux-arm64": {
++      "version": "1.2.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-arm64/-/sharp-libvips-linux-arm64-1.2.4.tgz",
++      "integrity": "sha512-excjX8DfsIcJ10x1Kzr4RcWe1edC9PquDRRPx3YVCvQv+U5p7Yin2s32ftzikXojb1PIFc/9Mt28/y+iRklkrw==",
++      "cpu": [
++        "arm64"
++      ],
++      "license": "LGPL-3.0-or-later",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-libvips-linux-ppc64": {
++      "version": "1.2.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-ppc64/-/sharp-libvips-linux-ppc64-1.2.4.tgz",
++      "integrity": "sha512-FMuvGijLDYG6lW+b/UvyilUWu5Ayu+3r2d1S8notiGCIyYU/76eig1UfMmkZ7vwgOrzKzlQbFSuQfgm7GYUPpA==",
++      "cpu": [
++        "ppc64"
++      ],
++      "license": "LGPL-3.0-or-later",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-libvips-linux-riscv64": {
++      "version": "1.2.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-riscv64/-/sharp-libvips-linux-riscv64-1.2.4.tgz",
++      "integrity": "sha512-oVDbcR4zUC0ce82teubSm+x6ETixtKZBh/qbREIOcI3cULzDyb18Sr/Wcyx7NRQeQzOiHTNbZFF1UwPS2scyGA==",
++      "cpu": [
++        "riscv64"
++      ],
++      "license": "LGPL-3.0-or-later",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-libvips-linux-s390x": {
++      "version": "1.2.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-s390x/-/sharp-libvips-linux-s390x-1.2.4.tgz",
++      "integrity": "sha512-qmp9VrzgPgMoGZyPvrQHqk02uyjA0/QrTO26Tqk6l4ZV0MPWIW6LTkqOIov+J1yEu7MbFQaDpwdwJKhbJvuRxQ==",
++      "cpu": [
++        "s390x"
++      ],
++      "license": "LGPL-3.0-or-later",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-libvips-linux-x64": {
++      "version": "1.2.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-x64/-/sharp-libvips-linux-x64-1.2.4.tgz",
++      "integrity": "sha512-tJxiiLsmHc9Ax1bz3oaOYBURTXGIRDODBqhveVHonrHJ9/+k89qbLl0bcJns+e4t4rvaNBxaEZsFtSfAdquPrw==",
++      "cpu": [
++        "x64"
++      ],
++      "license": "LGPL-3.0-or-later",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-libvips-linuxmusl-arm64": {
++      "version": "1.2.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linuxmusl-arm64/-/sharp-libvips-linuxmusl-arm64-1.2.4.tgz",
++      "integrity": "sha512-FVQHuwx1IIuNow9QAbYUzJ+En8KcVm9Lk5+uGUQJHaZmMECZmOlix9HnH7n1TRkXMS0pGxIJokIVB9SuqZGGXw==",
++      "cpu": [
++        "arm64"
++      ],
++      "license": "LGPL-3.0-or-later",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-libvips-linuxmusl-x64": {
++      "version": "1.2.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linuxmusl-x64/-/sharp-libvips-linuxmusl-x64-1.2.4.tgz",
++      "integrity": "sha512-+LpyBk7L44ZIXwz/VYfglaX/okxezESc6UxDSoyo2Ks6Jxc4Y7sGjpgU9s4PMgqgjj1gZCylTieNamqA1MF7Dg==",
++      "cpu": [
++        "x64"
++      ],
++      "license": "LGPL-3.0-or-later",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-linux-arm": {
++      "version": "0.34.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-linux-arm/-/sharp-linux-arm-0.34.5.tgz",
++      "integrity": "sha512-9dLqsvwtg1uuXBGZKsxem9595+ujv0sJ6Vi8wcTANSFpwV/GONat5eCkzQo/1O6zRIkh0m/8+5BjrRr7jDUSZw==",
++      "cpu": [
++        "arm"
++      ],
++      "license": "Apache-2.0",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      },
++      "optionalDependencies": {
++        "@img/sharp-libvips-linux-arm": "1.2.4"
++      }
++    },
++    "node_modules/@img/sharp-linux-arm64": {
++      "version": "0.34.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-linux-arm64/-/sharp-linux-arm64-0.34.5.tgz",
++      "integrity": "sha512-bKQzaJRY/bkPOXyKx5EVup7qkaojECG6NLYswgktOZjaXecSAeCWiZwwiFf3/Y+O1HrauiE3FVsGxFg8c24rZg==",
++      "cpu": [
++        "arm64"
++      ],
++      "license": "Apache-2.0",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      },
++      "optionalDependencies": {
++        "@img/sharp-libvips-linux-arm64": "1.2.4"
++      }
++    },
++    "node_modules/@img/sharp-linux-ppc64": {
++      "version": "0.34.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-linux-ppc64/-/sharp-linux-ppc64-0.34.5.tgz",
++      "integrity": "sha512-7zznwNaqW6YtsfrGGDA6BRkISKAAE1Jo0QdpNYXNMHu2+0dTrPflTLNkpc8l7MUP5M16ZJcUvysVWWrMefZquA==",
++      "cpu": [
++        "ppc64"
++      ],
++      "license": "Apache-2.0",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      },
++      "optionalDependencies": {
++        "@img/sharp-libvips-linux-ppc64": "1.2.4"
++      }
++    },
++    "node_modules/@img/sharp-linux-riscv64": {
++      "version": "0.34.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-linux-riscv64/-/sharp-linux-riscv64-0.34.5.tgz",
++      "integrity": "sha512-51gJuLPTKa7piYPaVs8GmByo7/U7/7TZOq+cnXJIHZKavIRHAP77e3N2HEl3dgiqdD/w0yUfiJnII77PuDDFdw==",
++      "cpu": [
++        "riscv64"
++      ],
++      "license": "Apache-2.0",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      },
++      "optionalDependencies": {
++        "@img/sharp-libvips-linux-riscv64": "1.2.4"
++      }
++    },
++    "node_modules/@img/sharp-linux-s390x": {
++      "version": "0.34.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-linux-s390x/-/sharp-linux-s390x-0.34.5.tgz",
++      "integrity": "sha512-nQtCk0PdKfho3eC5MrbQoigJ2gd1CgddUMkabUj+rBevs8tZ2cULOx46E7oyX+04WGfABgIwmMC0VqieTiR4jg==",
++      "cpu": [
++        "s390x"
++      ],
++      "license": "Apache-2.0",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      },
++      "optionalDependencies": {
++        "@img/sharp-libvips-linux-s390x": "1.2.4"
++      }
++    },
++    "node_modules/@img/sharp-linux-x64": {
++      "version": "0.34.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-linux-x64/-/sharp-linux-x64-0.34.5.tgz",
++      "integrity": "sha512-MEzd8HPKxVxVenwAa+JRPwEC7QFjoPWuS5NZnBt6B3pu7EG2Ge0id1oLHZpPJdn3OQK+BQDiw9zStiHBTJQQQQ==",
++      "cpu": [
++        "x64"
++      ],
++      "license": "Apache-2.0",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      },
++      "optionalDependencies": {
++        "@img/sharp-libvips-linux-x64": "1.2.4"
++      }
++    },
++    "node_modules/@img/sharp-linuxmusl-arm64": {
++      "version": "0.34.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-linuxmusl-arm64/-/sharp-linuxmusl-arm64-0.34.5.tgz",
++      "integrity": "sha512-fprJR6GtRsMt6Kyfq44IsChVZeGN97gTD331weR1ex1c1rypDEABN6Tm2xa1wE6lYb5DdEnk03NZPqA7Id21yg==",
++      "cpu": [
++        "arm64"
++      ],
++      "license": "Apache-2.0",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      },
++      "optionalDependencies": {
++        "@img/sharp-libvips-linuxmusl-arm64": "1.2.4"
++      }
++    },
++    "node_modules/@img/sharp-linuxmusl-x64": {
++      "version": "0.34.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-linuxmusl-x64/-/sharp-linuxmusl-x64-0.34.5.tgz",
++      "integrity": "sha512-Jg8wNT1MUzIvhBFxViqrEhWDGzqymo3sV7z7ZsaWbZNDLXRJZoRGrjulp60YYtV4wfY8VIKcWidjojlLcWrd8Q==",
++      "cpu": [
++        "x64"
++      ],
++      "license": "Apache-2.0",
++      "optional": true,
++      "os": [
++        "linux"
++      ],
++      "engines": {
++        "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      },
++      "optionalDependencies": {
++        "@img/sharp-libvips-linuxmusl-x64": "1.2.4"
++      }
++    },
++    "node_modules/@img/sharp-wasm32": {
++      "version": "0.34.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-wasm32/-/sharp-wasm32-0.34.5.tgz",
++      "integrity": "sha512-OdWTEiVkY2PHwqkbBI8frFxQQFekHaSSkUIJkwzclWZe64O1X4UlUjqqqLaPbUpMOQk6FBu/HtlGXNblIs0huw==",
++      "cpu": [
++        "wasm32"
++      ],
++      "license": "Apache-2.0 AND LGPL-3.0-or-later AND MIT",
++      "optional": true,
++      "dependencies": {
++        "@emnapi/runtime": "^1.7.0"
++      },
++      "engines": {
++        "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-win32-arm64": {
++      "version": "0.34.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-win32-arm64/-/sharp-win32-arm64-0.34.5.tgz",
++      "integrity": "sha512-WQ3AgWCWYSb2yt+IG8mnC6Jdk9Whs7O0gxphblsLvdhSpSTtmu69ZG1Gkb6NuvxsNACwiPV6cNSZNzt0KPsw7g==",
++      "cpu": [
++        "arm64"
++      ],
++      "license": "Apache-2.0 AND LGPL-3.0-or-later",
++      "optional": true,
++      "os": [
++        "win32"
++      ],
++      "engines": {
++        "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-win32-ia32": {
++      "version": "0.34.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-win32-ia32/-/sharp-win32-ia32-0.34.5.tgz",
++      "integrity": "sha512-FV9m/7NmeCmSHDD5j4+4pNI8Cp3aW+JvLoXcTUo0IqyjSfAZJ8dIUmijx1qaJsIiU+Hosw6xM5KijAWRJCSgNg==",
++      "cpu": [
++        "ia32"
++      ],
++      "license": "Apache-2.0 AND LGPL-3.0-or-later",
++      "optional": true,
++      "os": [
++        "win32"
++      ],
++      "engines": {
++        "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
++    "node_modules/@img/sharp-win32-x64": {
++      "version": "0.34.5",
++      "resolved": "https://registry.npmjs.org/@img/sharp-win32-x64/-/sharp-win32-x64-0.34.5.tgz",
++      "integrity": "sha512-+29YMsqY2/9eFEiW93eqWnuLcWcufowXewwSNIT6UwZdUUCrM3oFjMWH/Z6/TMmb4hlFenmfAVbpWeup2jryCw==",
++      "cpu": [
++        "x64"
++      ],
++      "license": "Apache-2.0 AND LGPL-3.0-or-later",
++      "optional": true,
++      "os": [
++        "win32"
++      ],
++      "engines": {
++        "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      }
++    },
+     "node_modules/@ioredis/commands": {
+       "version": "1.5.1",
+       "resolved": "https://registry.npmjs.org/@ioredis/commands/-/commands-1.5.1.tgz",
+@@ -2217,6 +2682,15 @@
+         "node": ">=0.10"
+       }
+     },
++    "node_modules/detect-libc": {
++      "version": "2.1.2",
++      "resolved": "https://registry.npmjs.org/detect-libc/-/detect-libc-2.1.2.tgz",
++      "integrity": "sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==",
++      "license": "Apache-2.0",
++      "engines": {
++        "node": ">=8"
++      }
++    },
+     "node_modules/didyoumean": {
+       "version": "1.2.2",
+       "resolved": "https://registry.npmjs.org/didyoumean/-/didyoumean-1.2.2.tgz",
+@@ -5697,7 +6171,6 @@
+       "version": "7.7.4",
+       "resolved": "https://registry.npmjs.org/semver/-/semver-7.7.4.tgz",
+       "integrity": "sha512-vFKC2IEtQnVhpT78h1Yp8wzwrf8CM+MzKMHGJZfBtzhZNycRFnXsHk6E5TxIkkMsgNS7mdX3AGB7x2QM2di4lA==",
+-      "dev": true,
+       "license": "ISC",
+       "bin": {
+         "semver": "bin/semver.js"
+@@ -5755,6 +6228,50 @@
+         "node": ">= 0.4"
+       }
+     },
++    "node_modules/sharp": {
++      "version": "0.34.5",
++      "resolved": "https://registry.npmjs.org/sharp/-/sharp-0.34.5.tgz",
++      "integrity": "sha512-Ou9I5Ft9WNcCbXrU9cMgPBcCK8LiwLqcbywW3t4oDV37n1pzpuNLsYiAV8eODnjbtQlSDwZ2cUEeQz4E54Hltg==",
++      "hasInstallScript": true,
++      "license": "Apache-2.0",
++      "dependencies": {
++        "@img/colour": "^1.0.0",
++        "detect-libc": "^2.1.2",
++        "semver": "^7.7.3"
++      },
++      "engines": {
++        "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
++      },
++      "funding": {
++        "url": "https://opencollective.com/libvips"
++      },
++      "optionalDependencies": {
++        "@img/sharp-darwin-arm64": "0.34.5",
++        "@img/sharp-darwin-x64": "0.34.5",
++        "@img/sharp-libvips-darwin-arm64": "1.2.4",
++        "@img/sharp-libvips-darwin-x64": "1.2.4",
++        "@img/sharp-libvips-linux-arm": "1.2.4",
++        "@img/sharp-libvips-linux-arm64": "1.2.4",
++        "@img/sharp-libvips-linux-ppc64": "1.2.4",
++        "@img/sharp-libvips-linux-riscv64": "1.2.4",
++        "@img/sharp-libvips-linux-s390x": "1.2.4",
++        "@img/sharp-libvips-linux-x64": "1.2.4",
++        "@img/sharp-libvips-linuxmusl-arm64": "1.2.4",
++        "@img/sharp-libvips-linuxmusl-x64": "1.2.4",
++        "@img/sharp-linux-arm": "0.34.5",
++        "@img/sharp-linux-arm64": "0.34.5",
++        "@img/sharp-linux-ppc64": "0.34.5",
++        "@img/sharp-linux-riscv64": "0.34.5",
++        "@img/sharp-linux-s390x": "0.34.5",
++        "@img/sharp-linux-x64": "0.34.5",
++        "@img/sharp-linuxmusl-arm64": "0.34.5",
++        "@img/sharp-linuxmusl-x64": "0.34.5",
++        "@img/sharp-wasm32": "0.34.5",
++        "@img/sharp-win32-arm64": "0.34.5",
++        "@img/sharp-win32-ia32": "0.34.5",
++        "@img/sharp-win32-x64": "0.34.5"
++      }
++    },
+     "node_modules/shebang-command": {
+       "version": "2.0.0",
+       "resolved": "https://registry.npmjs.org/shebang-command/-/shebang-command-2.0.0.tgz",
+diff --git a/skaner/package.json b/skaner/package.json
+index 094fa51..eece8bd 100644
+--- a/skaner/package.json
++++ b/skaner/package.json
+@@ -18,6 +18,7 @@
+     "next": "14.2.35",
+     "react": "^18",
+     "react-dom": "^18",
++    "sharp": "^0.34.5",
+     "uuid": "^13.0.0"
+   },
+   "devDependencies": {
+diff --git a/skaner/types/scanner.ts b/skaner/types/scanner.ts
+index 7a3dcc5..c081669 100644
+--- a/skaner/types/scanner.ts
++++ b/skaner/types/scanner.ts
+@@ -30,6 +30,38 @@ export interface ScanRequest {
+   lead: LeadInfo;
+ }
+ 
++// === Pre-scan confirmation types ===
++//
++// Before each scan we show a confirmation modal. It always displays
++// a "double-check your input" notice and, if applicable, lists any
++// handle-format warnings surfaced by the synchronous client-side
++// validation (see `lib/validation/checks.ts`).
++
++export type ValidationSeverity = 'warning';
++
++export type ValidationField = 'socialHandle';
++
++export interface ValidationFinding {
++  /** Nazwa marki której dotyczy finding (klient lub dokładna nazwa konkurenta) */
++  brand: string;
++  /** Czy chodzi o klienta czy konkurenta (dla ujednoznacznienia przy apply) */
++  role: 'client' | 'competitor';
++  /** Indeks konkurenta w tablicy competitors (tylko gdy role === 'competitor') */
++  competitorIndex?: number;
++  field: ValidationField;
++  severity: ValidationSeverity;
++  /** Krótki opis problemu (po polsku, widoczny w UI) */
++  issue: string;
++  /** Sugerowana wartość do zastosowania, albo null jeśli tylko komunikat informacyjny */
++  suggestion: string | null;
++  /** 0.0-1.0 — jak pewny jest finding */
++  confidence: number;
++  /** 1-zdaniowe uzasadnienie (dla hovera / szczegółów) */
++  rationale?: string;
++  /** Skąd pochodzi finding — obecnie wyłącznie deterministyczny check formatu */
++  source: 'format';
++}
++
+ // === Data Collection Types ===
+ 
+ export interface ScrapedPost {
