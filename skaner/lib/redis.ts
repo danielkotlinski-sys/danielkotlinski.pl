@@ -91,6 +91,51 @@ export async function saveReport(
   }
 }
 
+// === Scan debug data (raw source texts — Perplexity + website scrape) ===
+//
+// For auditability: when a report shows a financial figure in
+// mapaKategorii.gracze[].skala, the user needs to verify which Perplexity
+// answer produced it. ScannerReport only keeps the final Claude output +
+// citation URLs, not the raw Perplexity text. This blob stores the inputs
+// Claude saw for each deep-analyzed brand so we can reproduce the chain
+// of reasoning after the fact.
+//
+// Only stores text (not images) — tiny footprint compared to reports.
+
+export interface ScanDebug {
+  scanId: string;
+  createdAt: string;
+  /** Per-brand raw inputs fed into downstream prompts */
+  brands: Record<string, {
+    websiteText: string;
+    externalDiscourse: string;
+    citations: string[];
+  }>;
+}
+
+export async function saveScanDebug(scanId: string, debug: ScanDebug): Promise<void> {
+  const json = JSON.stringify(debug);
+  const r = await getRedis();
+  if (r) {
+    await r.set(`scan-debug:${scanId}`, json, 'EX', REPORT_TTL);
+  } else {
+    memSet(`scan-debug:${scanId}`, json, REPORT_TTL);
+  }
+}
+
+export async function getScanDebug(scanId: string): Promise<ScanDebug | null> {
+  const r = await getRedis();
+  const data = r
+    ? await r.get(`scan-debug:${scanId}`)
+    : memGet(`scan-debug:${scanId}`);
+  if (!data) return null;
+  try {
+    return JSON.parse(data);
+  } catch {
+    return null;
+  }
+}
+
 export async function checkRateLimit(email: string): Promise<{ allowed: boolean; daysLeft?: number }> {
   const key = `ratelimit:${email.toLowerCase().trim()}`;
   const r = await getRedis();
@@ -150,6 +195,17 @@ export async function saveScanMeta(meta: ScanMeta): Promise<void> {
     await r.zadd('scans:all', Date.parse(meta.createdAt), meta.scanId);
   } else {
     memSet(`scan:${meta.scanId}`, json, REPORT_TTL);
+  }
+}
+
+export async function getScanMeta(scanId: string): Promise<ScanMeta | null> {
+  const r = await getRedis();
+  const data = r ? await r.get(`scan:${scanId}`) : memGet(`scan:${scanId}`);
+  if (!data) return null;
+  try {
+    return JSON.parse(data);
+  } catch {
+    return null;
   }
 }
 

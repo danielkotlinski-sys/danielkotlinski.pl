@@ -52,7 +52,7 @@ import {
   PROMPT_WEBSITE_ANALYSIS,
   fillPrompt,
 } from './prompts';
-import { saveReport, saveScanMeta } from './redis';
+import { saveReport, saveScanMeta, saveScanDebug } from './redis';
 import { saveLead, sendReportEmail } from './loops';
 import { ScanCostTracker } from './costs';
 
@@ -908,6 +908,24 @@ export async function runCategoryScanner(
 
   // Save report to Redis
   await saveReport(scanId, report);
+
+  // Save raw per-brand source texts for later auditability (e.g. tracing
+  // which Perplexity answer produced a financial figure in Krajobraz kategorii).
+  // Text-only, so storage footprint is tiny compared to the report itself.
+  await saveScanDebug(scanId, {
+    scanId,
+    createdAt: new Date().toISOString(),
+    brands: Object.fromEntries(
+      allBrands.map((b) => [
+        b.name,
+        {
+          websiteText: brandData[b.name].websiteText,
+          externalDiscourse: brandData[b.name].externalDiscourse,
+          citations: brandCitations[b.name] || [],
+        },
+      ])
+    ),
+  });
 
   // Send email
   sendReportEmail(lead.email, {
