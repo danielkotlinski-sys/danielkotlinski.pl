@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Backstage Academy — Polydor Poland</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:#0d0d0d;color:#f0f0f0;font-family:'DM Sans',sans-serif}
+.magazine{display:flex;height:100vh;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
+.magazine::-webkit-scrollbar{display:none}
+.page{min-width:100vw;width:100vw;height:100vh;scroll-snap-align:start;position:relative;overflow:hidden;display:flex}
+
+/* NAV */
+.nav{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:100;background:rgba(0,0,0,.5);padding:6px 14px;border-radius:20px;backdrop-filter:blur(10px)}
+.nav .dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.25);cursor:pointer;transition:all .3s}
+.nav .dot.active{background:#e23636;width:24px;border-radius:4px}
+.page-num{position:absolute;bottom:24px;right:40px;font-size:11px;color:rgba(255,255,255,.3);font-variant-numeric:tabular-nums}
+
+/* TYPOGRAPHY */
+.serif{font-family:'DM Serif Display',serif}
+h1{font-size:clamp(42px,6vw,72px);line-height:1.05;letter-spacing:-1px}
+h2{font-size:clamp(28px,3.5vw,44px);line-height:1.1;letter-spacing:-.5px}
+h3{font-size:clamp(18px,2vw,24px);line-height:1.2}
+.body-text{font-size:clamp(14px,1.3vw,17px);line-height:1.7;color:#e8e8e8;max-width:620px}
+.body-text p+p{margin-top:1.2em}
+.caption{font-size:12px;color:rgba(255,255,255,.4);letter-spacing:.5px;text-transform:uppercase}
+.accent{color:#e23636}
+.muted{color:rgba(255,255,255,.5)}
+
+/* STAT */
+.stat{font-size:clamp(64px,10vw,120px);font-weight:700;line-height:1;letter-spacing:-3px}
+
+/* COMMON LAYOUTS */
+.split{display:grid;grid-template-columns:1fr 1fr;height:100%}
+.pad{padding:clamp(40px,5vw,80px)}
+.vcenter{display:flex;flex-direction:column;justify-content:center}
+.red-bar{position:absolute;left:0;top:0;width:6px;height:100%;background:#e23636}
+
+/* LAYER COLORS */
+.lc-truth{color:#9990E0}.bg-truth{background:#9990E0}
+.lc-voice{color:#4DB894}.bg-voice{background:#4DB894}
+.lc-world{color:#D4A04A}.bg-world{background:#D4A04A}
+.lc-reach{color:#5A8CC8}.bg-reach{background:#5A8CC8}
+.lc-legacy{color:#D87A56}.bg-legacy{background:#D87A56}
+
+/* TABLE */
+.price-table{width:100%;border-collapse:collapse;font-size:14px}
+.price-table th{text-align:left;padding:10px 12px;background:#e23636;color:#fff;font-weight:500;font-size:12px;letter-spacing:.5px;text-transform:uppercase}
+.price-table td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08)}
+.price-table tr:nth-child(even) td{background:rgba(255,255,255,.03)}
+.price-table .subtotal td{border-top:2px solid rgba(255,255,255,.15);font-weight:700;padding-top:14px}
+.price-table .total td{border-top:2px solid #e23636;font-size:18px;font-weight:700;padding-top:16px}
+.price-table .phase-header td{background:rgba(255,255,255,.06);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.5);padding:14px 12px 8px}
+.price-table .amount{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* GATE */
+.gate{border-left:3px solid;padding:12px 16px;background:rgba(255,255,255,.04);margin-top:20px;border-radius:0 6px 6px 0}
+.gate .gate-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:700}
+.gate p{font-size:13px;font-style:italic;color:rgba(255,255,255,.7)}
+
+/* FRAMEWORK STACK */
+.fw-layer{display:flex;align-items:center;gap:16px;padding:10px 16px;background:rgba(255,255,255,.04);margin-bottom:6px;border-radius:4px;border-left:4px solid}
+.fw-layer .fw-num{font-size:13px;font-weight:700;min-width:24px}
+.fw-layer .fw-name{font-size:15px;font-weight:700;min-width:80px}
+.fw-layer .fw-q{font-size:13px;color:rgba(255,255,255,.6)}
+
+/* SESSION ROW */
+.session-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,.04);margin-bottom:5px;border-radius:4px;border-left:4px solid}
+.session-row .sn{font-size:18px;font-weight:700;min-width:24px}
+.session-row .st{font-weight:700;min-width:140px;font-size:13px}
+.session-row .sd{font-size:12px;color:rgba(255,255,255,.65);flex:1}
+.session-row .sdur{font-size:11px;color:rgba(255,255,255,.35);min-width:70px;text-align:right}
+
+/* MONTH GRID */
+.month-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.month-card{background:rgba(255,255,255,.04);border-radius:6px;padding:12px 10px;text-align:center;border-top:3px solid}
+.month-card .mm{font-size:13px;font-weight:700;margin-bottom:6px}
+.month-card .mi{font-size:11px;color:rgba(255,255,255,.6);line-height:1.5}
+
+/* COMP ROW */
+.comp-row{display:flex;align-items:stretch;gap:0;margin-bottom:5px;border-radius:4px;overflow:hidden}
+.comp-row .cl{width:90px;padding:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;background:rgba(255,255,255,.06)}
+.comp-row .ct{width:170px;padding:10px;font-weight:700;font-size:12px;display:flex;align-items:center;background:rgba(255,255,255,.03)}
+.comp-row .cs{flex:1;padding:10px;font-size:11px;color:rgba(255,255,255,.65);display:flex;align-items:center;background:rgba(255,255,255,.02)}
+
+/* NEXT STEP */
+.step-row{display:flex;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.step-row .step-n{font-size:20px;font-weight:700;color:#e23636;min-width:36px}
+.step-row .step-t{font-weight:700;min-width:200px;font-size:15px}
+.step-row .step-d{font-size:13px;color:rgba(255,255,255,.55)}
+</style>
+</head>
+<body>
+
+<div class="magazine" id="mag">
+
+<!-- ==================== PAGE 1: COVER ==================== -->
+<section class="page" style="background:#0d0d0d">
+<div class="red-bar"></div>
+<div class="pad vcenter" style="padding-left:clamp(60px,8vw,120px)">
+  <p class="caption" style="margin-bottom:24px">Polydor Poland × Daniel Kotliński</p>
+  <h1 class="serif">Backstage<br>Academy<span class="accent">.</span></h1>
+  <p style="margin-top:24px;font-size:17px;color:rgba(255,255,255,.6);max-width:480px">Program rozwoju kompetencji<br>Artist Brand Management</p>
+  <div style="width:60px;height:3px;background:#e23636;margin-top:40px"></div>
+  <p style="margin-top:16px;font-size:12px;color:rgba(255,255,255,.3)">Propozycja — Kwiecień 2026</p>
+</div>
+<span class="page-num">01</span>
+</section>
+
+<!-- ==================== PAGE 2: CONTEXT ==================== -->
+<section class="page split">
+<div style="background:#e23636" class="pad vcenter">
+  <p class="stat" style="color:rgba(0,0,0,.15);font-size:clamp(80px,14vw,200px)">55%</p>
+  <p style="font-size:clamp(18px,2vw,26px);color:#fff;margin-top:20px;max-width:380px;line-height:1.4">słuchaczy Gen Z mówi: gatunek nie obchodzi ich, dopóki piosenka pasuje do nastroju.</p>
+  <p style="margin-top:30px;font-size:12px;color:rgba(255,255,255,.5)">IFPI 2025, Spotify Culture Next</p>
+</div>
+<div style="background:#0d0d0d" class="pad vcenter">
+  <h2 class="serif">Świat się zmienił<span class="accent">.</span></h2>
+  <div class="body-text" style="margin-top:24px">
+    <p>Przez ostatnie kilka lat przemysł muzyczny przeszedł fundamentalną zmianę. Gatunki przestały być głównym filtrem odkrywania muzyki. Playlisty oparte na mood i kontekście wzrosły o 1338% od 2020 roku.</p>
+    <p>Artysta nie może być już tylko wykonawcą piosenek. Fani nie followują singli — followują ciekawych twórców, z którymi coś ich łączy. 67% przedstawicieli Gen Z słucha muzyki, żeby poczuć się zauważonymi lub zrozumianymi.</p>
+    <p>W tym nowym świecie artyści bez marki są wymienni. Wytwórnia, która nie potrafi budować marek artystów, staje się jedynie dostawcą usług — i przegrywa wyścig o najciekawszych twórców.</p>
+  </div>
+</div>
+<span class="page-num">02</span>
+</section>
+
+<!-- ==================== PAGE 3: CHALLENGE ==================== -->
+<section class="page" style="background:#111">
+<div class="red-bar"></div>
+<div class="pad vcenter" style="max-width:800px;margin:0 auto">
+  <h2 class="serif">Wyzwanie Polydor<span class="accent">.</span></h2>
+  <div class="body-text" style="margin-top:28px">
+    <p>Polydor ma świetną wizję. Hasło „We are the backstage" definiuje wytwórnię jako zaplecze twórcze artysty. Strategia mówi o artystach jako markach osobistych, o emocjach jako walucie, o odwadze kreatywnej.</p>
+    <p>Polydor ma też nową rolę w zespole — Artist Brand Manager — która ma zastąpić tradycyjnego project managera. To właściwy kierunek: ABM nie koordynuje harmonogramów, tylko współtworzy narrację i rozwija markę artysty.</p>
+    <p>Problem polega na tym, że między wizją a codziennym działaniem jest luka. Hasła są, ale nie ma frameworku — uporządkowanego systemu pracy. Nie ma narzędzi — szablonów i canvasów, które ABM może wziąć do ręki. I nie ma systemu budowania kompetencji — ABM nie wie, czego się uczyć.</p>
+    <p style="color:#e23636;font-weight:500;margin-top:8px">Bez tych trzech rzeczy wizja Polydor pozostanie na slajdach. Dobre intencje bez mechaniki nie przyniosą wyniku.</p>
+  </div>
+</div>
+<span class="page-num">03</span>
+</section>
+
+<!-- ==================== PAGE 4: GOAL ==================== -->
+<section class="page split">
+<div style="background:#0d0d0d" class="pad vcenter">
+  <p class="caption" style="margin-bottom:16px">Cel programu</p>
+  <h2 class="serif">Do końca<br>2026 roku<span class="accent">.</span></h2>
+</div>
+<div style="background:#141414" class="pad vcenter">
+  <div style="margin-bottom:32px">
+    <p class="stat accent" style="font-size:48px">01</p>
+    <p style="font-size:16px;margin-top:8px;max-width:400px">Każdy ABM potrafi samodzielnie stworzyć strategię marki artysty — od audytu po mierzenie wpływu kulturowego.</p>
+  </div>
+  <div style="margin-bottom:32px">
+    <p class="stat accent" style="font-size:48px">02</p>
+    <p style="font-size:16px;margin-top:8px;max-width:400px">Cały zespół operuje na wspólnym frameworku — jeden język, jedna metodyka, jedno podejście.</p>
+  </div>
+  <div>
+    <p class="stat accent" style="font-size:48px">03</p>
+    <p style="font-size:16px;margin-top:8px;max-width:400px">Framework staje się standardem pracy Polydor Poland — nie jednorazowym szkoleniem, ale systemem, który żyje.</p>
+  </div>
+</div>
+<span class="page-num">04</span>
+</section>
+
+<!-- ==================== PAGE 5: BACKSTAGE ACADEMY ==================== -->
+<section class="page" style="background:#0a0a0a">
+<div class="red-bar"></div>
+<div class="pad vcenter" style="max-width:800px;margin:0 auto">
+  <p class="caption" style="margin-bottom:12px">Propozycja rozwiązania</p>
+  <h2 class="serif">Backstage Academy<span class="accent">.</span></h2>
+  <div class="body-text" style="margin-top:24px">
+    <p>Backstage Academy to 8-miesięczny program rozwoju kompetencji Artist Brand Management, zaprojektowany specjalnie dla Polydor Poland. Trwa od maja do grudnia 2026 i składa się z trzech faz.</p>
+    <p>Sercem programu jest autorski <strong>Artist Brand Framework</strong> — pięcioskładowy system pracy na marce artysty. To nie jest zestaw slajdów z ładnymi hasłami. To operacyjny framework z konkretnymi narzędziami, szablonami i procedurami, który ABM może wziąć do ręki następnego dnia po szkoleniu.</p>
+    <p>Program zaczyna się od intensywnego <strong>Bootcampu</strong> (5 sesji w ciągu 6 tygodni), podczas którego ABM-owie poznają cały framework i tworzą pierwszą strategię dla swojego artysty. Potem przechodzi w <strong>Operating Rhythm</strong> — 6 miesięcy superwizowanej praktyki na żywych artystach.</p>
+    <p>Efekt: ABM z certyfikatem, gotową strategią artysty i toolkitem do samodzielnej pracy.</p>
+  </div>
+</div>
+<span class="page-num">05</span>
+</section>
+
+<!-- ==================== PAGE 6: FRAMEWORK OVERVIEW ==================== -->
+<section class="page" style="background:#0d0d0d">
+<div class="red-bar"></div>
+<div class="pad vcenter" style="max-width:860px;margin:0 auto">
+  <h2 class="serif">Artist Brand Framework<span class="accent">.</span></h2>
+  <p class="body-text" style="margin:16px 0 28px">5 warstw. Nie przeskakujesz. Każda stoi na poprzedniej. Między warstwą Truth a Voice rodzi się Claim artysty — jednozdaniowa esencja jego marki.</p>
+  <div>
+    <div class="fw-layer" style="border-color:#9990E0"><span class="fw-num lc-truth">1</span><span class="fw-name lc-truth">Truth</span><span class="fw-q">Kim jest artysta naprawdę?</span></div>
+    <div style="text-align:center;padding:2px 0;font-size:10px;color:rgba(255,255,255,.25)">↓ CLAIM — esencja strategii ↓</div>
+    <div class="fw-layer" style="border-color:#4DB894"><span class="fw-num lc-voice">2</span><span class="fw-name lc-voice">Voice</span><span class="fw-q">Jak brzmi i jak mówi?</span></div>
+    <div class="fw-layer" style="border-color:#D4A04A"><span class="fw-num lc-world">3</span><span class="fw-name lc-world">World</span><span class="fw-q">Jaki świat tworzy wokół siebie?</span></div>
+    <div class="fw-layer" style="border-color:#5A8CC8"><span class="fw-num lc-reach">4</span><span class="fw-name lc-reach">Reach</span><span class="fw-q">Gdzie i jak dociera?</span></div>
+    <div class="fw-layer" style="border-color:#D87A56"><span class="fw-num lc-legacy">5</span><span class="fw-name lc-legacy">Legacy</span><span class="fw-q">Co po sobie zostawia?</span></div>
+  </div>
+  <p style="margin-top:20px;font-size:12px;font-style:italic;color:rgba(255,255,255,.35)">Gate check na każdym przejściu — ABM nie idzie dalej, dopóki output warstwy nie jest zamknięty.</p>
+</div>
+<span class="page-num">06</span>
+</section>
+
+<!-- ==================== PAGES 7-11: FRAMEWORK LAYERS ==================== -->
+<!-- TRUTH -->
+<section class="page split">
+<div style="background:#1a1428" class="pad vcenter">
+  <p class="stat lc-truth" style="opacity:.15;font-size:clamp(100px,16vw,220px)">01</p>
+  <h2 class="serif" style="margin-top:-40px">Truth<span class="accent">.</span></h2>
+  <p style="font-size:16px;color:rgba(255,255,255,.5);margin-top:8px;font-style:italic">Kim jest artysta naprawdę?</p>
+</div>
+<div style="background:#0d0d0d" class="pad vcenter">
+  <div class="body-text">
+    <p>Pierwsza warstwa frameworku to fundament całej strategii. Zanim powiemy światu kim jest artysta, musimy wiedzieć kim jest naprawdę — nie kim chciałby być, nie kim był kiedyś, ale kim jest w tym momencie. Jaka emocja go napędza? Jakie ma napięcie? Co go odróżnia?</p>
+    <p>ABM przeprowadza głęboki audyt artysty z dwóch narzędzi. <strong>Brand Audit Canvas</strong> to jednostronicowy szablon: fakty, postrzeganie przez fanów i media, self-perception artysty, napięcia i paradoksy. <strong>Kwestionariusz IDI</strong> to ustrukturyzowana rozmowa z artystą metodą pytań otwartych.</p>
+    <p>Output: <strong>Truth Brief</strong> (1-2 strony) + <strong>Claim artysty</strong> — jednozdaniowa synteza napięcia, która staje się kompasem dla całej strategii.</p>
+  </div>
+  <div class="gate" style="border-color:#9990E0">
+    <p class="gate-label lc-truth">Gate check</p>
+    <p>Czy potrafisz opisać artystę w 2 zdaniach tak, że ktoś obcy zrozumie dlaczego jest wyjątkowy — nie przez gatunki, ale przez ludzką prawdę?</p>
+  </div>
+</div>
+<span class="page-num">07</span>
+</section>
+
+<!-- VOICE -->
+<section class="page split">
+<div style="background:#0f1f18" class="pad vcenter">
+  <p class="stat lc-voice" style="opacity:.15;font-size:clamp(100px,16vw,220px)">02</p>
+  <h2 class="serif" style="margin-top:-40px">Voice<span class="accent">.</span></h2>
+  <p style="font-size:16px;color:rgba(255,255,255,.5);margin-top:8px;font-style:italic">Jak brzmi i jak mówi?</p>
+</div>
+<div style="background:#0d0d0d" class="pad vcenter">
+  <div class="body-text">
+    <p>Z prawdy rodzi się głos. Voice to sposób, w jaki artysta istnieje w języku — jak mówi o sobie, jak mówią o nim inni, jakie słowa powtarzają fani. ABM musi tę częstotliwość wychwycić i wzmocnić, nie wymyślić od zera.</p>
+    <p>Narzędzia: <strong>Voice Compass</strong> — mapa czteroosiowa (intymny↔publiczny, raw↔polished, bunt↔czułość, vintage↔future). <strong>Archetyp Explorer</strong> — baza archetypów z referencjami. ABM definiuje archetyp, tone of voice (3 przymiotniki), kody wizualne i storytelling frame.</p>
+    <p>Output: <strong>Brand Identity Card</strong> — łączy archetyp, ton, kody wizualne i narrację. ABM bierze go do ręki i wie jak napisać post na IG, bio, opis albumu. Wszystko brzmi jak ta sama osoba.</p>
+  </div>
+  <div class="gate" style="border-color:#4DB894">
+    <p class="gate-label lc-voice">Gate check</p>
+    <p>Czy widzisz ten głos? Czy potrafisz napisać post na IG, bio i opis albumu — i wszystkie trzy brzmią jak ta sama osoba?</p>
+  </div>
+</div>
+<span class="page-num">08</span>
+</section>
+
+<!-- WORLD -->
+<section class="page split">
+<div style="background:#1a1508" class="pad vcenter">
+  <p class="stat lc-world" style="opacity:.15;font-size:clamp(100px,16vw,220px)">03</p>
+  <h2 class="serif" style="margin-top:-40px">World<span class="accent">.</span></h2>
+  <p style="font-size:16px;color:rgba(255,255,255,.5);margin-top:8px;font-style:italic">Jaki świat tworzy wokół siebie?</p>
+</div>
+<div style="background:#0d0d0d" class="pad vcenter">
+  <div class="body-text">
+    <p>To jest nowa warstwa — nie ma jej w dotychczasowym podejściu Polydor i to jest największy gap w obecnej strategii. Voice mówi JAK artysta brzmi. World mówi GDZIE żyje. Materialnie, World to zaprojektowany ekosystem powiązań artysty — sieć kontekstów, partnerstw, formatów i touchpointów, dzięki którym marka artysty istnieje poza samą muzyką i buduje wielowymiarową obecność w kulturze.</p>
+    <p>Narzędzia: <strong>World-Building Map</strong> — mapa koncentryczna czterech pierścieni: rdzeń (muzyka) → estetyka i styl (moda, wizual, ciało jako medium) → autorskie formaty i community (serie, eventy, rytuały fanów, kolaboracje) → wpływ kulturowy (wartości, lifestyle, partnerstwa pozamuzyczne). <strong>Touchpoint Planner</strong> przekłada mapę na konkretne punkty styku fana ze światem artysty — co, gdzie, kiedy i z kim.</p>
+    <p>Output: <strong>Artist Universe Deck</strong> — operacyjna prezentacja ekosystemu artysty: moodboard, lista formatów autorskich, mapa partnerstw (kto, w jakim celu, jaka korzyść), kalendarz touchpointów z fanem. To nie jest zbiór pomysłów — to architektura świata, w który fan może wejść.</p>
+  </div>
+  <div class="gate" style="border-color:#D4A04A">
+    <p class="gate-label lc-world">Gate check</p>
+    <p>Czy potrafisz opisać świat artysty tak, że ktoś kto nigdy nie słyszał jego muzyki, chciałby w nim być?</p>
+  </div>
+</div>
+<span class="page-num">09</span>
+</section>
+
+<!-- REACH -->
+<section class="page split">
+<div style="background:#0c1520" class="pad vcenter">
+  <p class="stat lc-reach" style="opacity:.15;font-size:clamp(100px,16vw,220px)">04</p>
+  <h2 class="serif" style="margin-top:-40px">Reach<span class="accent">.</span></h2>
+  <p style="font-size:16px;color:rgba(255,255,255,.5);margin-top:8px;font-style:italic">Gdzie i jak dociera?</p>
+</div>
+<div style="background:#0d0d0d" class="pad vcenter">
+  <div class="body-text">
+    <p>Dopiero teraz — na czwartej warstwie — możemy mówić o zasięgu i kampaniach. To jest świadomy wybór: Reach bez Truth, Voice i World to spalona kasa. Ale Reach z tymi trzema warstwami to maszyna — bo wiesz CO mówisz, JAK mówisz i GDZIE żyjesz.</p>
+    <p>Narzędzia: <strong>Channel Strategy Matrix</strong> (segment × kanał × format × cel) i <strong>Campaign Blueprint</strong> (timeline od -8 do +4 tygodni). Każda decyzja o kanale wynika z Voice i World — nie z tego co modne, ale z tego co spójne z marką artysty.</p>
+    <p>Output: <strong>Launch Plan</strong> (pełny plan kampanii: timeline, kanały, kreacje, budżet, KPIs) + <strong>Content Calendar</strong> (harmonogram treści z kodami z warstwy Voice i World).</p>
+  </div>
+  <div class="gate" style="border-color:#5A8CC8">
+    <p class="gate-label lc-reach">Gate check</p>
+    <p>Czy kampania jest spójna z Truth, Voice i World? Czy ktoś kto ją zobaczy po raz pierwszy, poczuje świat artysty?</p>
+  </div>
+</div>
+<span class="page-num">10</span>
+</section>
+
+<!-- LEGACY -->
+<section class="page split">
+<div style="background:#1a100a" class="pad vcenter">
+  <p class="stat lc-legacy" style="opacity:.15;font-size:clamp(100px,16vw,220px)">05</p>
+  <h2 class="serif" style="margin-top:-40px">Legacy<span class="accent">.</span></h2>
+  <p style="font-size:16px;color:rgba(255,255,255,.5);margin-top:8px;font-style:italic">Co po sobie zostawia?</p>
+</div>
+<div style="background:#0d0d0d" class="pad vcenter">
+  <div class="body-text">
+    <p>Legacy to nie nagroda za 10 lat kariery. To decyzja, którą podejmujesz od pierwszego dnia — co ten artysta wnosi do kultury? Jaki ślad zostawia? O czym ludzie będą mówić, gdy singiel spadnie z playlisty? To jest różnica między artystą a wokalistą.</p>
+    <p>Narzędzia: <strong>Cultural Impact Scorecard</strong> — kwartalny dashboard łączący wskaźniki kulturowe (cytowania, wpływ na trendy) ze wskaźnikami biznesowymi (streaming, sprzedaż). <strong>OKR Tracker</strong> mierzy postęp.</p>
+    <p>Output: <strong>Brand Evolution Report</strong> — kwartalny raport, który zamyka pętlę: wnioski z Legacy aktualizują Truth. Artysta się zmienia, rynek się zmienia — framework żyje.</p>
+  </div>
+  <div class="gate" style="border-color:#D87A56">
+    <p class="gate-label lc-legacy">Gate check</p>
+    <p>Gdyby artysta zniknął na rok — czego by brakowało? Jaki temat kulturowy „posiada" w świadomości ludzi?</p>
+  </div>
+</div>
+<span class="page-num">11</span>
+</section>
+
+<!-- ==================== PAGE 12: STRESS-TEST ==================== -->
+<section class="page" style="background:#0d0d0d">
+<div class="red-bar"></div>
+<div class="pad vcenter" style="max-width:860px;margin:0 auto">
+  <p class="caption" style="margin-bottom:12px">Proof of concept</p>
+  <h2 class="serif">Stress-test: Julia Wieniawa<span class="accent">.</span></h2>
+  <p class="body-text" style="margin:16px 0 24px;max-width:700px">Aby sprawdzić czy framework działa, przepuściliśmy przez niego artystkę z rostera Polydor. Wynik natychmiast odsłonił luki:</p>
+  <div>
+    <div class="fw-layer" style="border-color:#9990E0"><span class="fw-name lc-truth" style="min-width:70px">Truth</span><span class="fw-q" style="flex:1">Hasło „Strong Enough To Feel" celne, ale brak udokumentowanego audytu i napięcia.</span><span style="color:#D4A04A;font-weight:700;font-size:12px;min-width:80px;text-align:right">Częściowo</span></div>
+    <div class="fw-layer" style="border-color:#4DB894"><span class="fw-name lc-voice" style="min-width:70px">Voice</span><span class="fw-q" style="flex:1">Kompletnie brak. ABM nie ma narzędzia do mówienia głosem Julii.</span><span style="color:#e23636;font-weight:700;font-size:12px;min-width:80px;text-align:right">Brak</span></div>
+    <div class="fw-layer" style="border-color:#D4A04A"><span class="fw-name lc-world" style="min-width:70px">World</span><span class="fw-q" style="flex:1">Kompletnie brak. Bogaty ekosystem, ale niezaprojektowany celowo.</span><span style="color:#e23636;font-weight:700;font-size:12px;min-width:80px;text-align:right">Brak</span></div>
+    <div class="fw-layer" style="border-color:#5A8CC8"><span class="fw-name lc-reach" style="min-width:70px">Reach</span><span class="fw-q" style="flex:1">Organicznie silny (2.1M IG, Torwar), ale bez strategicznego kierunku.</span><span style="color:#D4A04A;font-weight:700;font-size:12px;min-width:80px;text-align:right">Częściowo</span></div>
+    <div class="fw-layer" style="border-color:#D87A56"><span class="fw-name lc-legacy" style="min-width:70px">Legacy</span><span class="fw-q" style="flex:1">W budowie. Brak jasnego tematu kulturowego do posiadania.</span><span style="color:#D87A56;font-weight:700;font-size:12px;min-width:80px;text-align:right">Do zbudowania</span></div>
+  </div>
+  <p style="margin-top:20px;font-size:12px;font-style:italic;color:rgba(255,255,255,.35)">Konkluzja: strategia operuje głównie na Reach (warstwa 4) z fragmentem Truth — z pominięciem Voice, World i Legacy.</p>
+</div>
+<span class="page-num">12</span>
+</section>
+
+<!-- ==================== PAGE 13: PROGRAM OVERVIEW ==================== -->
+<section class="page" style="background:#111">
+<div class="pad vcenter" style="max-width:860px;margin:0 auto">
+  <h2 class="serif">Przebieg programu<span class="accent">.</span></h2>
+  <p class="body-text" style="margin:16px 0 28px;max-width:700px">ABM-owie muszą zacząć działać szybko — nie rozciągamy nauki na pół roku. Najpierw intensywne przygotowanie, potem szybki bootcamp z całym frameworkiem, a potem 6 miesięcy superwizowanej praktyki.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+    <div style="background:rgba(255,255,255,.04);padding:24px;border-radius:6px;border-top:3px solid #9990E0">
+      <p style="font-size:12px;color:#9990E0;font-weight:700;margin-bottom:4px">FAZA 1</p>
+      <p style="font-size:18px;font-weight:700;margin-bottom:4px">Koncepcja</p>
+      <p style="font-size:16px;color:#9990E0;margin-bottom:16px;font-weight:700">Maj</p>
+      <p style="font-size:13px;color:rgba(255,255,255,.7);line-height:1.6">Sesja strategiczna z Jakubem. Audyt zespołu 1:1. Dopracowanie frameworku i narzędzi. Raport.</p>
+    </div>
+    <div style="background:rgba(255,255,255,.04);padding:24px;border-radius:6px;border-top:3px solid #e23636">
+      <p style="font-size:12px;color:#e23636;font-weight:700;margin-bottom:4px">FAZA 2</p>
+      <p style="font-size:18px;font-weight:700;margin-bottom:4px">Bootcamp</p>
+      <p style="font-size:16px;color:#e23636;margin-bottom:16px;font-weight:700">Maj — Czerwiec</p>
+      <p style="font-size:13px;color:rgba(255,255,255,.7);line-height:1.6">5 sesji intensywnych. Cały framework + narzędzia. Zadania domowe + review. Obrona strategii.</p>
+    </div>
+    <div style="background:rgba(255,255,255,.04);padding:24px;border-radius:6px;border-top:3px solid #4DB894">
+      <p style="font-size:12px;color:#4DB894;font-weight:700;margin-bottom:4px">FAZA 3</p>
+      <p style="font-size:18px;font-weight:700;margin-bottom:4px">Operating Rhythm</p>
+      <p style="font-size:16px;color:#4DB894;margin-bottom:16px;font-weight:700">Lipiec — Grudzień</p>
+      <p style="font-size:13px;color:rgba(255,255,255,.7);line-height:1.6">Praca na żywych artystach. 2 workshopy kwartalne. 4 spotkania inspiracyjne. Office hours ciągłe.</p>
+    </div>
+  </div>
+</div>
+<span class="page-num">13</span>
+</section>
+
+
+<!-- ==================== PAGE 14: FAZA 1 ==================== -->
+<section class="page" style="background:#0d0d0d">
+<div class="red-bar"></div>
+<div class="pad vcenter" style="max-width:800px;margin:0 auto">
+  <p class="caption" style="margin-bottom:12px;color:#9990E0">Faza 1</p>
+  <h2 class="serif">Koncepcja<span class="accent">.</span></h2>
+  <div class="body-text" style="margin-top:24px">
+    <p>Zanim zaczniemy uczyć, musimy zrozumieć z kim pracujemy i dopracować to, czego będziemy uczyć. Faza 1 to fundament — krótka, ale krytyczna.</p>
+    <p>Zaczynamy od <strong>sesji strategicznej z Jakubem</strong> (2-3 godziny), podczas której dopracowujemy Artist Brand Framework — upewniamy się, że każda warstwa jest jasna, że narzędzia odpowiadają na realne potrzeby zespołu, i że agendy sesji bootcampu mają sens.</p>
+    <p>Potem przeprowadzam <strong>rozmowy 1:1 z każdym ABM-em</strong> (3-5 osób). To nie jest test — to audyt: jaki jest ich obecny poziom wiedzy, jakie mają mocne strony, gdzie widzą luki, czego oczekują od programu. Te rozmowy dają mi materiał do kalibracji bootcampu — wiem z kim pracuję i mogę dostosować tempo i głębokość.</p>
+    <p>Na koniec dostarczam <strong>raport podsumowujący</strong> dla Jakuba: wnioski z audytu, rekomendacje dotyczące priorytetów programu, i gotowe agendy wszystkich sesji do akceptu. Dopiero po zatwierdzeniu agend ruszamy z bootcampem.</p>
+  </div>
+</div>
+<span class="page-num">14</span>
+</section>
+
+<!-- ==================== PAGE 15: BOOTCAMP ==================== -->
+<section class="page" style="background:#0d0d0d">
+<div class="red-bar"></div>
+<div class="pad vcenter" style="max-width:860px;margin:0 auto">
+  <h2 class="serif">Faza 2: Bootcamp<span class="accent">.</span></h2>
+  <p class="body-text" style="margin:12px 0 20px">Każda sesja to pakiet: prezentacja merytoryczna, nowe narzędzie, warsztat praktyczny na artyście ABM-a, i zadanie domowe między sesjami.</p>
+  <div>
+    <div class="session-row" style="border-color:#9990E0"><span class="sn lc-truth">1</span><span class="st">Kick-off + Truth</span><span class="sd">Kontekst rynkowy. Wprowadzenie frameworku. Metoda audytu. Brand Audit Canvas. Zadanie: pogłębiony wywiad.</span><span class="sdur">~19 maja · pełny dzień</span></div>
+    <div class="session-row" style="border-color:#4DB894"><span class="sn lc-voice">2</span><span class="st">Claim + Voice</span><span class="sd">Od napięcia do claima. Voice Compass, archetypy, ToV. Kody wizualne i storytelling. Zadanie: Brand Identity Card.</span><span class="sdur">~26 maja · pełny dzień</span></div>
+    <div class="session-row" style="border-color:#D4A04A"><span class="sn lc-world">3</span><span class="st">World + Reach</span><span class="sd">World-Building Map. Channel Strategy Matrix. Campaign Blueprint. Zadanie: pełna strategia artysty (draft).</span><span class="sdur">~2 czerwca · pełny dzień</span></div>
+    <div class="session-row" style="border-color:#D87A56"><span class="sn lc-legacy">4</span><span class="st">Legacy + OKR</span><span class="sd">Cultural Impact Scorecard. Wyznaczanie OKR-ów na H2. Mierzenie postępu. Sesja z gościem.</span><span class="sdur">~9 czerwca · pół dnia</span></div>
+    <div class="session-row" style="border-color:#5A8CC8"><span class="sn lc-reach">5</span><span class="st">Obrona strategii</span><span class="sd">Każdy ABM prezentuje strategię artysty (5 warstw). Panel feedback. Zatwierdzenie = licencja na operowanie.</span><span class="sdur">~16 czerwca · pół dnia</span></div>
+  </div>
+  <p style="margin-top:16px;font-size:12px;font-style:italic;color:rgba(255,255,255,.35)">+ Review zadań domowych między sesjami — pisemny feedback na każdy output ABM-a.</p>
+</div>
+<span class="page-num">15</span>
+</section>
+
+<!-- ==================== PAGE 15: OPERATING RHYTHM ==================== -->
+<section class="page" style="background:#111">
+<div class="pad vcenter" style="max-width:860px;margin:0 auto">
+  <h2 class="serif">Faza 3: Operating Rhythm<span class="accent">.</span></h2>
+  <p class="body-text" style="margin:12px 0 24px">6 miesięcy superwizowanej praktyki na żywych artystach. Tu teoria spotyka rzeczywistość.</p>
+  <div class="month-grid">
+    <div class="month-card" style="border-color:#4DB894"><p class="mm">LIP</p><p class="mi">Inspiracja 1<br>Office hours</p></div>
+    <div class="month-card" style="border-color:#4DB894"><p class="mm">SIE</p><p class="mi">Inspiracja 2<br>Office hours</p></div>
+    <div class="month-card" style="border-color:#9990E0"><p class="mm">WRZ</p><p class="mi">Workshop Q3<br>Mid-review<br>Office hours</p></div>
+    <div class="month-card" style="border-color:#4DB894"><p class="mm">PAŹ</p><p class="mi">Inspiracja 3<br>Office hours</p></div>
+    <div class="month-card" style="border-color:#4DB894"><p class="mm">LIS</p><p class="mi">Inspiracja 4<br>Office hours</p></div>
+    <div class="month-card" style="border-color:#e23636"><p class="mm">GRU</p><p class="mi">Workshop Q4<br>Final review<br>Certyfikacja</p></div>
+  </div>
+  <div style="margin-top:24px;font-size:12px;color:rgba(255,255,255,.5);line-height:1.8">
+    <strong style="color:#fff">Workshop kwartalny</strong> (pół dnia) — pełny przegląd strategii artystów, aktualizacja frameworku, feedback.<br>
+    <strong style="color:#fff">Spotkanie inspiracyjne</strong> (1.5-2h) — zaproszony gość, deep dive w jeden temat, wymiana doświadczeń (np. strateg, który zbudował partnerstwo marki z festiwalem; kreatywny dyrektor, który zaprojektował świat artysty poza muzyką).<br>
+    <strong style="color:#fff">Office hours</strong> (1h/tydzień online) — bieżące konsultacje ABM-ów, review materiałów kreatywnych.
+  </div>
+</div>
+<span class="page-num">16</span>
+</section>
+
+<!-- ==================== PAGE 16: COMPETENCIES ==================== -->
+<section class="page" style="background:#0d0d0d">
+<div class="red-bar"></div>
+<div class="pad vcenter" style="max-width:860px;margin:0 auto">
+  <h2 class="serif">Kompetencje ABM<span class="accent">.</span></h2>
+  <p class="body-text" style="margin:12px 0 24px">Każda warstwa frameworku buduje konkretne kompetencje. Program uczy dokładnie tych umiejętności, które ABM potrzebuje.</p>
+  <div>
+    <div class="comp-row"><div class="cl lc-truth">Truth</div><div class="ct">Badawcze</div><div class="cs">Desk research, social listening, analiza sentymentu. Pogłębiony wywiad (mini-IDI). Synteza danych jakościowych.</div></div>
+    <div class="comp-row"><div class="cl lc-voice">Voice<br>+ World</div><div class="ct">Strategiczne</div><div class="cs">Myślenie abstrakcyjne: archetypy, metafory. Synteza i kolokacja. Myślenie przyczynowo-skutkowe. Projektowanie systemów.</div></div>
+    <div class="comp-row"><div class="cl lc-reach">Reach</div><div class="ct">Kreatywno-mediowe</div><div class="cs">Strategia komunikacji. Kreatywny marketing. Segmentacja i targeting. Zarządzanie kampanią: timeline, budżet.</div></div>
+    <div class="comp-row"><div class="cl lc-legacy">Legacy</div><div class="ct">Analityczne</div><div class="cs">Analiza danych (streaming, social, earned media). Synteza wyników. OKR review. Loop zwrotny do Truth.</div></div>
+  </div>
+</div>
+<span class="page-num">17</span>
+</section>
+
+<!-- ==================== PAGE 17: CAREER PATH ==================== -->
+<section class="page" style="background:#111">
+<div class="pad vcenter" style="max-width:860px;margin:0 auto">
+  <h2 class="serif">Ścieżka kariery ABM<span class="accent">.</span></h2>
+  <div class="body-text" style="margin:16px 0 28px">
+    <p>Framework jest też systemem rozwoju ludzi. Każdy poziom ABM odpowiada głębokości, na jakiej potrafi operować. Program jest zaprojektowany tak, żeby do końca roku każdy uczestnik osiągnął co najmniej poziom Junior ABM, a najlepsi — pełny ABM z samodzielną strategią artysty.</p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+    <div style="background:rgba(255,255,255,.04);padding:20px;border-radius:6px;border-top:3px solid #9990E0"><p style="font-weight:700;margin-bottom:8px">Specialist ABM</p><p style="font-size:12px;color:rgba(255,255,255,.5)">Warstwy 1-2<br>Wykonawczo, pod nadzorem</p></div>
+    <div style="background:rgba(255,255,255,.04);padding:20px;border-radius:6px;border-top:3px solid #4DB894"><p style="font-weight:700;margin-bottom:8px">Junior ABM</p><p style="font-size:12px;color:rgba(255,255,255,.5)">Warstwy 1-3<br>Samodzielnie</p></div>
+    <div style="background:rgba(255,255,255,.04);padding:20px;border-radius:6px;border-top:3px solid #e23636"><p style="font-weight:700;margin-bottom:8px">Artist Brand Manager</p><p style="font-size:12px;color:rgba(255,255,255,.5)">Warstwy 1-5<br>Pełny framework</p></div>
+    <div style="background:rgba(255,255,255,.04);padding:20px;border-radius:6px;border-top:3px solid #fff"><p style="font-weight:700;margin-bottom:8px">Senior ABM</p><p style="font-size:12px;color:rgba(255,255,255,.5)">1-5 × wielu artystów<br>+ mentoring zespołu</p></div>
+  </div>
+</div>
+<span class="page-num">18</span>
+</section>
+
+<!-- ==================== PAGE 18: TOOLKIT ==================== -->
+<section class="page" style="background:#0d0d0d">
+<div class="red-bar"></div>
+<div class="pad vcenter" style="max-width:860px;margin:0 auto">
+  <h2 class="serif">Toolkit ABM<span class="accent">.</span></h2>
+  <p class="body-text" style="margin:12px 0 20px">To nie jest teoria. To są dokumenty, które ABM otwiera następnego dnia po szkoleniu i zaczyna nimi pracować.</p>
+  <table class="price-table" style="font-size:12px">
+    <tr><th style="width:90px">Warstwa</th><th>Narzędzie diagnostyczne</th><th>Narzędzie operacyjne</th><th>Output</th></tr>
+    <tr><td class="lc-truth" style="font-weight:700">Truth</td><td>Brand Audit Canvas<br>Kwestionariusz IDI</td><td>Wywiad z artystą<br>Analiza postrzegania</td><td>Truth Brief + Claim</td></tr>
+    <tr><td class="lc-voice" style="font-weight:700">Voice</td><td>Voice Compass<br>Archetyp Explorer</td><td>Tone of voice guide<br>Kody wizualne</td><td>Brand Identity Card</td></tr>
+    <tr><td class="lc-world" style="font-weight:700">World</td><td>World-Building Map</td><td>Touchpoint Planner<br>Partnership brief</td><td>Artist Universe Deck</td></tr>
+    <tr><td class="lc-reach" style="font-weight:700">Reach</td><td>Channel Strategy Matrix</td><td>Campaign Blueprint<br>Content Calendar</td><td>Launch Plan</td></tr>
+    <tr><td class="lc-legacy" style="font-weight:700">Legacy</td><td>Cultural Impact Scorecard</td><td>OKR Tracker</td><td>Brand Evolution Report</td></tr>
+  </table>
+</div>
+<span class="page-num">19</span>
+</section>
+
+<!-- ==================== PAGE 19: DECEMBER VISION ==================== -->
+<section class="page" style="background:#0a0a0a">
+<div class="red-bar"></div>
+<div class="pad vcenter" style="max-width:720px;margin:0 auto">
+  <h1 class="serif" style="font-size:clamp(36px,5vw,56px)">Grudzień 2026<span class="accent">.</span></h1>
+  <div class="body-text" style="margin-top:32px;font-size:clamp(15px,1.5vw,18px)">
+    <p style="color:rgba(255,255,255,.5)">Wyobraźmy sobie, że spotykamy się ostatni raz przed świętami.</p>
+    <p>Każdy ABM prezentuje strategię swojego artysty — pełny framework, 5 warstw, od Truth po Legacy. Widzimy, jak zmieniło się myślenie o artystach. Nie mówimy „premiera singla w piątek". Mówimy „jaka jest prawda tego artysty i jak ją przekładamy na świat, który budujemy".</p>
+    <p>Widzimy, że ABM-owie potrafią przeprowadzić audyt, zbudować claim, zdefiniować głos i świat artysty, zaprojektować kampanię i zmierzyć jej wpływ. Mają na to narzędzia i język.</p>
+    <p style="font-weight:700;color:#fff;font-size:clamp(16px,1.6vw,20px)">Polydor ma swój framework. Ma narzędzia. Ma język.<br>I ma ludzi, którzy potrafią tego używać.</p>
+  </div>
+</div>
+<span class="page-num">20</span>
+</section>
+
+<!-- ==================== PAGE 21: INVESTMENT FAZA 1 ==================== -->
+<section class="page" style="background:#0d0d0d">
+<div class="red-bar"></div>
+<div class="pad vcenter" style="max-width:800px;margin:0 auto">
+  <p class="caption" style="margin-bottom:8px">Inwestycja</p>
+  <h2 class="serif">Faza 1: Koncepcja<span class="accent">.</span></h2>
+  <p style="font-size:14px;color:rgba(255,255,255,.5);margin:8px 0 24px">Maj 2026</p>
+  <table class="price-table">
+    <tr><th>Pozycja</th><th>Szczegóły</th><th class="amount" style="width:110px">Kwota netto</th></tr>
+    <tr><td>Sesja strategiczna z Jakubem</td><td>Dopracowanie frameworku, brief na narzędzia (2-3h)</td><td class="amount">—</td></tr>
+    <tr><td>Audyt zespołu 1:1</td><td>Rozmowy indywidualne z każdym ABM (3-5 osób)</td><td class="amount">—</td></tr>
+    <tr><td>Dopracowanie narzędzi ABM</td><td>Koncepty szablonów, canvasów, kwestionariuszy</td><td class="amount">—</td></tr>
+    <tr><td>Agendy sesji bootcampu</td><td>Przygotowanie wszystkich agend do akceptu</td><td class="amount">—</td></tr>
+    <tr><td>Raport podsumowujący</td><td>Wnioski z audytu + rekomendacje dla Jakuba</td><td class="amount">—</td></tr>
+    <tr class="subtotal"><td colspan="2">Faza 1 razem</td><td class="amount">10 000 zł</td></tr>
+  </table>
+  <p style="margin-top:16px;font-size:12px;color:rgba(255,255,255,.35)">Płatność: 5 000 zł z góry (start prac) + 5 000 zł po dostarczeniu raportu i agend.</p>
+</div>
+<span class="page-num">21</span>
+</section>
+
+<!-- ==================== PAGE 22: INVESTMENT FAZA 2 ==================== -->
+<section class="page" style="background:#111">
+<div class="pad vcenter" style="max-width:800px;margin:0 auto">
+  <p class="caption" style="margin-bottom:8px">Inwestycja</p>
+  <h2 class="serif">Faza 2: Bootcamp<span class="accent">.</span></h2>
+  <p style="font-size:14px;color:rgba(255,255,255,.5);margin:8px 0 24px">Maj — Czerwiec 2026</p>
+  <table class="price-table">
+    <tr><th>Pozycja</th><th>Szczegóły</th><th class="amount" style="width:110px">Kwota netto</th></tr>
+    <tr><td>Sesja 1: Kick-off + Truth</td><td>Prezentacja + narzędzie + warsztat + przygotowanie (~19 maja)</td><td class="amount">6 000 zł</td></tr>
+    <tr><td>Sesja 2: Claim + Voice</td><td>Prezentacja + narzędzie + warsztat + przygotowanie (~26 maja)</td><td class="amount">6 000 zł</td></tr>
+    <tr><td>Sesja 3: World + Reach</td><td>Prezentacja + narzędzie + warsztat + przygotowanie (~2 czerwca)</td><td class="amount">6 000 zł</td></tr>
+    <tr><td>Sesja 4: Legacy + OKR</td><td>Prezentacja + narzędzie + warsztat + przygotowanie (~9 czerwca)</td><td class="amount">6 000 zł</td></tr>
+    <tr><td>Sesja 5: Obrona strategii</td><td>Panel feedback, zatwierdzenie strategii (~16 czerwca)</td><td class="amount">5 000 zł</td></tr>
+    <tr><td>Review zadań domowych</td><td>Pisemny feedback na każdy output, 3-5 ABM-ów × 3 zadania</td><td class="amount">4 000 zł</td></tr>
+    <tr class="subtotal"><td colspan="2">Faza 2 razem</td><td class="amount">33 000 zł</td></tr>
+  </table>
+  <p style="margin-top:16px;font-size:12px;color:rgba(255,255,255,.35)">Płatność: 16 500 zł z góry (przed sesją 1) + 16 500 zł po zakończeniu bootcampu.</p>
+</div>
+<span class="page-num">22</span>
+</section>
+
+<!-- ==================== PAGE 23: INVESTMENT FAZA 3 ==================== -->
+<section class="page" style="background:#0d0d0d">
+<div class="red-bar"></div>
+<div class="pad vcenter" style="max-width:800px;margin:0 auto">
+  <p class="caption" style="margin-bottom:8px">Inwestycja</p>
+  <h2 class="serif">Faza 3: Operating Rhythm<span class="accent">.</span></h2>
+  <p style="font-size:14px;color:rgba(255,255,255,.5);margin:8px 0 24px">Lipiec — Grudzień 2026</p>
+  <table class="price-table">
+    <tr><th>Pozycja</th><th>Szczegóły</th><th class="amount" style="width:110px">Kwota netto</th></tr>
+    <tr><td>Workshop kwartalny Q3</td><td>Wrzesień — mid-review strategii, pół dnia</td><td class="amount">6 000 zł</td></tr>
+    <tr><td>Workshop kwartalny Q4</td><td>Grudzień — final review + certyfikacja, pół dnia</td><td class="amount">6 000 zł</td></tr>
+    <tr><td>Spotkania inspiracyjne × 4</td><td>Lip, sie, paź, lis — briefing gościa, moderacja, podsumowanie</td><td class="amount">8 000 zł</td></tr>
+    <tr><td>Office hours × 6 miesięcy</td><td>1h/tydzień online, bieżące konsultacje, async support</td><td class="amount">12 000 zł</td></tr>
+    <tr class="subtotal"><td colspan="2">Faza 3 razem</td><td class="amount">32 000 zł</td></tr>
+  </table>
+  <p style="margin-top:16px;font-size:12px;color:rgba(255,255,255,.35)">Płatność miesięczna: lip 4K, sie 4K, wrz 8K, paź 4K, lis 4K, gru 8K.</p>
+</div>
+<span class="page-num">23</span>
+</section>
+
+<!-- ==================== PAGE 24: INVESTMENT SUMMARY ==================== -->
+<section class="page split">
+<div style="background:#e23636" class="pad vcenter">
+  <p class="stat" style="color:rgba(0,0,0,.15);font-size:clamp(60px,10vw,140px)">75K</p>
+  <p style="font-size:clamp(20px,2.5vw,32px);color:#fff;margin-top:16px;font-weight:700">75 000 zł netto</p>
+  <p style="font-size:14px;color:rgba(255,255,255,.6);margin-top:8px">Maj — Grudzień 2026</p>
+</div>
+<div style="background:#0d0d0d" class="pad vcenter">
+  <h3 style="margin-bottom:20px">Podsumowanie</h3>
+  <div style="margin-bottom:24px">
+    <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.1)"><span>Faza 1: Koncepcja</span><span style="font-weight:700">10 000 zł</span></div>
+    <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.1)"><span>Faza 2: Bootcamp</span><span style="font-weight:700">33 000 zł</span></div>
+    <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.1)"><span>Faza 3: Operating Rhythm</span><span style="font-weight:700">32 000 zł</span></div>
+    <div style="display:flex;justify-content:space-between;padding:14px 0;border-top:2px solid #e23636;margin-top:4px;font-size:18px"><span style="font-weight:700">Razem</span><span style="font-weight:700">75 000 zł</span></div>
+  </div>
+  <div style="font-size:13px;color:rgba(255,255,255,.5);line-height:1.7">
+    <p style="font-weight:700;color:#fff;margin-bottom:8px">Warunki płatności</p>
+    <p>Fakturowanie miesięczne — 10 faktur od maja do grudnia. Kwoty rozłożone tak, żeby żadna faktura nie przekraczała 16 500 zł. IP frameworku i narzędzi przekazane Polydor w ramach projektu.</p>
+  </div>
+</div>
+<span class="page-num">24</span>
+</section>
+
+<!-- ==================== PAGE 21: NEXT STEPS ==================== -->
+<section class="page" style="background:#111">
+<div class="pad vcenter" style="max-width:720px;margin:0 auto">
+  <h2 class="serif">Następne kroki<span class="accent">.</span></h2>
+  <div style="margin-top:28px">
+    <div class="step-row"><span class="step-n">01</span><span class="step-t">Finalizacja NDA</span><span class="step-d">Już wysłane — domknięcie formalności.</span></div>
+    <div class="step-row"><span class="step-n">02</span><span class="step-t">Akceptacja propozycji</span><span class="step-d">Ustalenie zakresu, ewentualne korekty.</span></div>
+    <div class="step-row"><span class="step-n">03</span><span class="step-t">Sesja strategiczna (Faza 1)</span><span class="step-d">Dopracowanie frameworku, brief na narzędzia.</span></div>
+    <div class="step-row"><span class="step-n">04</span><span class="step-t">Audyt zespołu 1:1</span><span class="step-d">Rozmowy z ABM-ami, raport.</span></div>
+    <div class="step-row"><span class="step-n">05</span><span class="step-t">Start Bootcampu</span><span class="step-d">Pierwsza sesja — maj 2026.</span></div>
+  </div>
+</div>
+<span class="page-num">25</span>
+</section>
+
+<!-- ==================== PAGE 22: BACK COVER ==================== -->
+<section class="page" style="background:#0a0a0a">
+<div class="red-bar"></div>
+<div class="pad vcenter" style="padding-left:clamp(60px,8vw,120px)">
+  <h1 class="serif" style="font-size:clamp(32px,4vw,48px)">We are the backstage<span class="accent">.</span></h1>
+  <p style="margin-top:16px;font-size:clamp(15px,1.5vw,18px);color:rgba(255,255,255,.6);max-width:500px">Teraz dajmy zespołowi narzędzia,<br>żeby z tego backstage'u tworzyć marki.</p>
+  <div style="width:60px;height:3px;background:#e23636;margin-top:40px"></div>
+  <p style="margin-top:24px;font-weight:700">Daniel Kotliński</p>
+  <p style="margin-top:6px;font-size:14px;color:rgba(255,255,255,.4)">hi@danielkotlinski.pl</p>
+</div>
+<span class="page-num">26</span>
+</section>
+
+</div><!-- /magazine -->
+
+<!-- NAV DOTS -->
+<nav class="nav" id="nav"></nav>
+
+<script>
+const mag=document.getElementById('mag');
+const pages=document.querySelectorAll('.page');
+const nav=document.getElementById('nav');
+const total=pages.length;
+
+// Build dots
+for(let i=0;i<total;i++){
+  const d=document.createElement('div');
+  d.className='dot';
+  d.onclick=()=>pages[i].scrollIntoView({behavior:'smooth',inline:'start'});
+  nav.appendChild(d);
+}
+const dots=nav.querySelectorAll('.dot');
+
+function updateDots(){
+  const scrollLeft=mag.scrollLeft;
+  const w=window.innerWidth;
+  const idx=Math.round(scrollLeft/w);
+  dots.forEach((d,i)=>d.classList.toggle('active',i===idx));
+}
+
+mag.addEventListener('scroll',updateDots);
+updateDots();
+
+// Arrow keys
+document.addEventListener('keydown',e=>{
+  const w=window.innerWidth;
+  if(e.key==='ArrowRight')mag.scrollBy({left:w,behavior:'smooth'});
+  if(e.key==='ArrowLeft')mag.scrollBy({left:-w,behavior:'smooth'});
+});
+</script>
+</body>
+</html>
