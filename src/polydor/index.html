@@ -37,6 +37,8 @@ h3{font-size:clamp(18px,2vw,24px);line-height:1.2}
 .pad{padding:clamp(28px,5vw,80px)}
 .vcenter{display:flex;flex-direction:column;justify-content:center}
 .red-bar{position:absolute;left:0;top:0;width:6px;height:100%;background:#e23636;z-index:5}
+.scroll-hint{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);display:flex;align-items:center;cursor:pointer;animation:nudge 2s ease-in-out infinite;z-index:10}
+@keyframes nudge{0%,100%{transform:translateX(-50%)}50%{transform:translateX(-40%)}}
 .page-inner{min-height:100vh;display:flex;flex-direction:column;justify-content:center}
 
 /* MOBILE */
@@ -142,9 +144,11 @@ h3{font-size:clamp(18px,2vw,24px);line-height:1.2}
   <p style="margin-top:16px;font-size:12px;color:rgba(255,255,255,.3)">Propozycja — Kwiecień 2026</p>
 </div>
 <span class="page-num">01</span>
+<div class="scroll-hint" onclick="document.getElementById('mag').scrollBy({left:window.innerWidth,behavior:'smooth'})">
+  <span style="font-size:13px;color:rgba(255,255,255,.35);margin-right:8px">Przewiń</span>
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="vertical-align:middle"><path d="M5 12h14M13 6l6 6-6 6" stroke="rgba(255,255,255,.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</div>
 </section>
-
-<!-- ==================== PAGE 2: CONTEXT ==================== -->
 <section class="page split">
 <div style="background:#e23636" class="pad vcenter">
   <p class="stat" style="color:rgba(0,0,0,.15);font-size:clamp(80px,14vw,200px)">55%</p>
