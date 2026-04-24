@@ -152,69 +152,70 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && lmPopup && lmPopup.classList.contains('is-open')) closePopup();
 });
 
-// ===== CONTACT FORM AJAX SUBMIT =====
+// ===== ANTI-SPAM + FORM SUBMIT HELPERS =====
+const FORM_MIN_FILL_MS = 3000;
+const URL_PATTERN = /(https?:\/\/|www\.|<a\s|\[url)/i;
+
+function isLikelySpam(form) {
+  const hp = form.querySelector('input[name="_gotcha"]');
+  if (hp && hp.value) return true;
+
+  const startedAt = Number(form.dataset.startedAt || 0);
+  if (startedAt && Date.now() - startedAt < FORM_MIN_FILL_MS) return true;
+
+  const nameFields = form.querySelectorAll('input[name="firstName"], input[name="lastName"], input[name="name"]');
+  for (const field of nameFields) {
+    if (URL_PATTERN.test(field.value)) return true;
+  }
+  return false;
+}
+
+function initForm(form, successEl) {
+  if (!form || !successEl) return;
+  form.dataset.startedAt = String(Date.now());
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const btn = form.querySelector('button[type="submit"]');
+
+    if (isLikelySpam(form)) {
+      // Silently "succeed" — don't give bots feedback.
+      form.hidden = true;
+      successEl.hidden = false;
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Wysyłanie...';
+
+    fetch(form.action, {
+      method: 'POST',
+      body: new FormData(form),
+      headers: { 'Accept': 'application/json' }
+    }).then(function(response) {
+      if (response.ok) {
+        form.hidden = true;
+        successEl.hidden = false;
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'Wyślij zapytanie';
+        alert('Coś poszło nie tak. Spróbuj ponownie.');
+      }
+    }).catch(function() {
+      btn.disabled = false;
+      btn.textContent = 'Wyślij zapytanie';
+      alert('Błąd połączenia. Spróbuj ponownie.');
+    });
+  });
+}
+
 const contactForm = document.getElementById('contactForm');
 const contactFormSuccess = document.getElementById('contactFormSuccess');
+initForm(contactForm, contactFormSuccess);
 
-if (contactForm && contactFormSuccess) {
-  contactForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const btn = contactForm.querySelector('button[type="submit"]');
-    btn.disabled = true;
-    btn.textContent = 'Wysyłanie...';
-
-    fetch(contactForm.action, {
-      method: 'POST',
-      body: new FormData(contactForm),
-      headers: { 'Accept': 'application/json' }
-    }).then(function(response) {
-      if (response.ok) {
-        contactForm.hidden = true;
-        contactFormSuccess.hidden = false;
-      } else {
-        btn.disabled = false;
-        btn.textContent = 'Wyślij zapytanie';
-        alert('Coś poszło nie tak. Spróbuj ponownie.');
-      }
-    }).catch(function() {
-      btn.disabled = false;
-      btn.textContent = 'Wyślij zapytanie';
-      alert('Błąd połączenia. Spróbuj ponownie.');
-    });
-  });
-}
-
-// ===== DRAWER FORM AJAX SUBMIT =====
 const drawerForm = document.getElementById('drawer-form');
 const drawerFormSuccess = document.getElementById('drawer-form-success');
-
-if (drawerForm && drawerFormSuccess) {
-  drawerForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const btn = drawerForm.querySelector('button[type="submit"]');
-    btn.disabled = true;
-    btn.textContent = 'Wysyłanie...';
-
-    fetch(drawerForm.action, {
-      method: 'POST',
-      body: new FormData(drawerForm),
-      headers: { 'Accept': 'application/json' }
-    }).then(function(response) {
-      if (response.ok) {
-        drawerForm.hidden = true;
-        drawerFormSuccess.hidden = false;
-      } else {
-        btn.disabled = false;
-        btn.textContent = 'Wyślij zapytanie';
-        alert('Coś poszło nie tak. Spróbuj ponownie.');
-      }
-    }).catch(function() {
-      btn.disabled = false;
-      btn.textContent = 'Wyślij zapytanie';
-      alert('Błąd połączenia. Spróbuj ponownie.');
-    });
-  });
-}
+initForm(drawerForm, drawerFormSuccess);
 
 // ===== SMOOTH SCROLL FOR ANCHOR LINKS =====
 document.querySelectorAll('a[href^="/#"]').forEach(anchor => {

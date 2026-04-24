@@ -45,6 +45,9 @@ description: Skontaktuj się ze mną w sprawie strategii marki i komunikacji.
     {# Right column: form in white card #}
     <div class="contact-form-card reveal reveal-delay-1">
       <form class="contact-form" id="contactForm" action="https://formspree.io/f/mjgpyajv" method="POST">
+        <div class="form-hp" aria-hidden="true">
+          <label>Zostaw to pole puste<input type="text" name="_gotcha" tabindex="-1" autocomplete="off"></label>
+        </div>
         <div class="contact-form__group">
           <label for="firstName">Imię</label>
           <input type="text" id="firstName" name="firstName" required placeholder="Twoje imię">
