@@ -101,7 +101,7 @@ Przeprowadzam 8–12 wywiadów 1:1 (60–90 minut każdy), z różnymi typami kl
 
 **Co dostajesz po fazie 3:**
 
-Mapę Ukrytych Motywacji — dokument, który pokazuje, *co klienci naprawdę próbują osiągnąć*, jakie napięcia ich blokują i które z tych napięć kategoria systematycznie pomija. Plus surowy materiał (anonimowe cytaty, segmenty rozmów) jako bazę dowodową — żebyś nie musiał mi wierzyć na słowo.
+Mapę Ukrytych Motywacji — dokument, który pokazuje, *co klienci naprawdę próbują osiągnąć*, jakie napięcia ich blokują i które z tych napięć kategoria systematycznie pomija. Plus surowy materiał (anonimowe cytaty, segmenty rozmów).
 
 **Kryterium wyjścia z fazy 3:** mamy zidentyfikowane co najmniej 2–3 ukryte motywacje, które nie są adresowane przez konwencje kategorii. To są kandydaci na fundamenty Nowego Popytu.
 
@@ -119,28 +119,28 @@ Krótki dokument obserwacyjny — bez teorii, z konkretnymi spostrzeżeniami: gd
 
 ### Faza 5: Warsztat diagnostyczny — konfrontacja z intuicjami zespołu
 
-Warsztat to moment, w którym wynoszę cały materiał z faz 2–4 na stół i konfrontuję go z zespołem zarządczym (zwykle 4–8 osób: właściciel/founder, head of marketing, head of sales, ewentualnie operations lub product). To jeden intensywny dzień, podzielony na trzy bloki.
+Warsztat to moment, w którym wnoszę cały materiał z faz 2–4 na stół i konfrontuję go z zespołem zarządczym (zwykle 4–8 osób: właściciel/founder, head of marketing, head of sales, ewentualnie operations lub product). To jeden intensywny dzień, podzielony na trzy bloki.
 
 **Blok 1: Raport z badań.** Pokazuję Mapę Konwencji Kategorii i Mapę Ukrytych Motywacji. Zespół nie tylko słucha — ma odnosić każdy wniosek do własnej intuicji. Często to, co dla mnie jest świeżym odkryciem, ktoś z zespołu „od dawna podejrzewał" — i odwrotnie, to, co dla zespołu wydawało się oczywiste, badanie czasem podważa.
 
-**Blok 2: Identyfikacja napięć strategicznych.** Wspólnie nazywamy 2–3 największe napięcia, które wynikają z tego, że firma jest dziś *jednocześnie* w starej grze (obsługa core'owej grupy klientów) i ma potencjał w nowej (nowy popyt, który zidentyfikowaliśmy). To rzadko jest wybór 0/1 — częściej rozmowa o priorytetach i sekwencji.
+**Blok 2: Identyfikacja napięć strategicznych.** Wspólnie nazywamy 2–3 największe szanse, które wynikają z tego, że firma jest dziś *jednocześnie* w starej grze (obsługa core'owej grupy klientów) i ma potencjał w nowej (nowy popyt, który zidentyfikowaliśmy). To rzadko jest wybór 0/1 — częściej rozmowa o priorytetach i sekwencji.
 
-**Blok 3: Wstępne kierunki strategiczne.** Na bazie napięć zespół razem ze mną szkicuje 2–3 wstępne kierunki Strategii Nowego Popytu. Nie podejmujemy jeszcze decyzji — celem jest oświetlić wszystkie realne opcje, żebym mógł je rozpisać w fazie 6.
+**Blok 3: Wstępne kierunki strategiczne.** Na bazie napięć zespół razem ze mną szkicuje wstępne kierunki Strategii Nowego Popytu. Nie podejmujemy jeszcze decyzji — celem jest oświetlić wszystkie realne opcje, żebym mógł je rozpisać w fazie 6.
 
 **Kryterium wyjścia z fazy 5:** zespół rozumie i akceptuje materiał badawczy. Mamy zarysowane 2–3 kierunki strategiczne, między którymi w fazie 6 dokonamy wyboru i którym nadamy ostateczny kształt.
 
 ### Faza 6: Synteza i strategia — budowanie Nowego Popytu
 
-To faza, w której ja pracuję sam (z możliwością konsultacji w razie potrzeby), żeby z całego zgromadzonego materiału — Mapy Konwencji, Mapy Ukrytych Motywacji, obserwacji z safari, wniosków z warsztatu — zbudować jeden spójny dokument strategiczny.
+To faza, w której pracuję nad ostateczną syntezą kierunku (z możliwością konsultacji w razie potrzeby), żeby z całego zgromadzonego materiału — Mapy Konwencji, Mapy Ukrytych Motywacji, obserwacji z safari, wniosków z warsztatu — zbudować jeden spójny, lekki i praktyczny dokument strategiczny.
 
 **Co składa się na Strategię Nowego Popytu:**
 
+- **Tajemnica Kategorii** — odkryliśmy coś fascynującego: lukę między tym, co sprzedaje branża a tym, co naprawdę kupuje klient. Ta tajemnica staje się źródłem naszej narracji - to szansa, którą możemy wykorzystać.
 - **Pozycjonowanie marki w jednym zdaniu** — ostre, jednoznaczne, możliwe do wypowiedzenia przez każdego w organizacji.
 - **Definicja nowej grupy docelowej** — nie demografia, lecz „kto i w jakim momencie życia / pracy" wybiera tę markę.
-- **Propozycja wartości** — co konkretnie marka obiecuje, czego konkurencja nie obiecuje albo nie umie obiecać.
-- **Brand voice** — jak marka mówi: słowa, których używa, słowa, których unika, struktura argumentacji, ton.
-- **Centralna idea marki** — jedna myśl, wokół której organizuje się cała komunikacja przez kolejne 24–36 miesięcy.
-- **Pole narracyjne** — mapa tematów, o których marka mówi, i tych, których świadomie nie podejmuje.
+- **Propozycja wartości** — co konkretnie marka obiecuje, czego konkurencja nie obiecuje albo nie może obiecać.
+- **Brand voice** — jak marka będzie mówić: słowa, których używa, słowa, których unika, struktura argumentacji, ton.
+- **Centralna idea marki** — jedna myśl, wokół której organizuje się cała komunikacja przez kolejne 6-12 miesięcy.
 - **Rekomendacja 3 głównych działań wdrożeniowych** — konkretne, priorytetowe ruchy w marketingu, sprzedaży lub produkcie, które ten kierunek strategiczny aktywują w pierwszej kolejności.
 
 **Dodatkowo: strategia komunikacji na 90 dni:**
@@ -153,9 +153,9 @@ To faza, w której ja pracuję sam (z możliwością konsultacji w razie potrzeb
 
 ### Faza 7: Prezentacja dla zespołu — adopcja, nie tylko akceptacja
 
-Strategia, którą rozumie wyłącznie zarząd, nie działa. W siódmej fazie prezentuję pełną Strategię Nowego Popytu szerszemu gronu — zwykle to cały zespół marketingu i sprzedaży, czasem także osoby z obsługi klienta i produktu.
+Strategia, którą rozumie wyłącznie zarząd, nie działa. W siódmej fazie prezentuję pełną Strategię Nowego Popytu szerszemu gronu — zwykle to cały zespół marketingu i sprzedaży, a także osoby z obsługi klienta i produktu.
 
-Cel: każda osoba, która będzie *wykonywać* tę strategię, ma rozumieć nie tylko *co* mamy robić, ale przede wszystkim *dlaczego*. Prezentacja prowadzi przez całą logikę: gdzie zatrzymał się wzrost, co pokazała analiza kategorii, czego dowiedzieliśmy się od klientów, jaki kierunek z tego wybraliśmy i co to oznacza dla codziennej pracy w każdym z działów.
+Cel: każda osoba, która będzie *wykonywać* tę strategię, ma rozumieć nie tylko *co* mamy robić, ale przede wszystkim *dlaczego*. Prezentacja prowadzi przez całą logikę: od tajemnicy branży, przez to, gdzie zatrzymał się wzrost, co pokazała analiza kategorii, czego dowiedzieliśmy się od klientów, jaki kierunek z tego wybraliśmy i co to oznacza dla codziennej pracy w każdym z działów.
 
 To nie jest jednostronna prezentacja — zostawiam czas na pytania, kontrowersje i adopcję. Jeśli na tej prezentacji wychodzą pytania, których strategia nie rozwiązuje, traktuję to jako sygnał do uzupełnienia dokumentu.
 
@@ -177,7 +177,7 @@ Krótki raport korekcyjny z konkretnymi rekomendacjami: gdzie strategia działa,
 
 ## Co wyróżnia ten proces — pięć tradycji teoretycznych w jednej metodzie
 
-Strategia Nowego Popytu nie jest moją autorską wymyślonką ani odgrzaną wersją jednego frameworka. Metoda operacjonalizuje pięć tradycji strategicznych w konkretne kroki badawcze i decyzyjne.
+Strategia Nowego Popytu jest autorską interpretacją szeregu klasycznych frameworków:
 
 **Category Design** (Lochhead) — myślenie o tym, jak marka definiuje (lub redefiniuje) samą kategorię, w której gra, zamiast walczyć o pozycję w kategorii zdefiniowanej przez kogoś innego.
 
@@ -193,21 +193,21 @@ Każda z tych tradycji odpowiada na inne pytanie. Razem dają komplet narzędzi 
 
 ## Bramki decyzyjne: kiedy idziemy dalej, kiedy się zatrzymujemy
 
-Każda faza ma bramkę wyjścia. Bramki nie służą do biurokracji — służą do tego, żeby na żadnym etapie nie wpaść w pułapkę „już zainwestowaliśmy tyle czasu, że trzeba dokończyć". Jeśli faza nie dostarczyła tego, czego miała dostarczyć, korygujemy kurs lub kończymy proces wcześniej.
+Każda faza ma bramkę wyjścia, które służą do tego, żeby na żadnym etapie nie wpaść w pułapkę „już zainwestowaliśmy tyle czasu, że trzeba dokończyć". Jeśli faza nie dostarczyła tego, czego miała dostarczyć, korygujemy kurs lub kończymy proces wcześniej.
 
 **Bramka po fazie 1:** czy moja metoda pasuje do problemu firmy. Jeśli widzę, że firma potrzebuje innego typu wsparcia (np. operacyjnego konsultanta sprzedaży, restrukturyzacji, agencji performance), mówię to wprost i nie zaczynamy procesu.
 
 **Bramka po fazie 2:** czy Mapa Konwencji Kategorii pokazuje wystarczająco wyraźne pole do nowego popytu. Jeśli okazuje się, że kategoria jest *naprawdę* dojrzała i zróżnicowana (rzadziej niż się wydaje), wracamy do rozmowy o tym, czy strategia jest właściwą interwencją.
 
-**Bramka po fazie 3:** czy badania klientów potwierdzają hipotezy z fazy 2. Jeśli nie — nie udajemy, że potwierdzają. Reformułujemy hipotezy, czasem dodajemy 2–3 dodatkowe wywiady. Ta bramka jest najważniejsza w całym procesie.
+**Bramka po fazie 3:** czy badania klientów potwierdzają hipotezy z fazy 2. Jeśli nie — nie udajemy, że potwierdzają. Reformułujemy hipotezy, czasem dodajemy dodatkowe wywiady lub inny rodzaj badań. Ta bramka jest najważniejsza w całym procesie.
 
 **Bramka po fazie 5 (warsztat):** czy zespół zarządczy autentycznie zgadza się z kierunkiem, czy tylko grzecznie kiwa głową. Jeśli widzę, że zespół ma poważne obiekcje, których nie odważa się wypowiedzieć, traktuję to jako sygnał alarmowy. Bez realnej akceptacji na poziomie zarządu, strategia nie zostanie wdrożona — niezależnie od jakości dokumentu.
 
-**Bramka po fazie 7 (prezentacja):** czy zespół, który będzie strategię wykonywał, jest w stanie ją *opowiedzieć własnymi słowami*. Jeśli nie, strategia nie jest wystarczająco prosta, i wracam do dokumentu.
+**Bramka po fazie 7 (prezentacja):** czy zespół, który będzie strategię wykonywał, jest w stanie ją *opowiedzieć własnymi słowami*. Jeśli nie, strategia nie jest wystarczająco prosta, więc wracam do redakcji i edycji treści.
 
 ## Najczęstsze błędy w samodzielnym projektowaniu strategii
 
-**Błąd 1: Strategia bez analizy kategorii.** Firma zaczyna od warsztatu „kim jesteśmy, dla kogo jesteśmy, co obiecujemy" — w izolacji od tego, co już istnieje na rynku. Rezultat: strategia, która brzmi jak strategia każdej innej firmy w branży, tylko z lepszą prezentacją.
+**Błąd 1: Strategia bez zrozumienia kategorii.** Firma zaczyna od warsztatu „kim jesteśmy, dla kogo jesteśmy, co obiecujemy" — w izolacji od tego, co już istnieje na rynku. Rezultat: strategia, która brzmi jak strategia każdej innej firmy w branży.
 
 **Błąd 2: Badania, które potwierdzają to, co firma już wie.** Pytania w ankietach i wywiadach zadawane są tak, żeby uzyskać konkretne odpowiedzi — najczęściej te, które potwierdzają roboczą hipotezę. Dobry research jakościowy pyta o kontekst decyzji, nie o opinie o produkcie.
 
@@ -221,11 +221,11 @@ Każda faza ma bramkę wyjścia. Bramki nie służą do biurokracji — służą
 
 ### Jak długo trwa pełny proces?
 
-Strategia Nowego Popytu trwa zwykle 10–14 tygodni od podpisania umowy do finalnej prezentacji. Czas zależy od dostępności zespołu klienta (wywiady z klientami i warsztat to są terminy, które trzeba dopiąć w kalendarzach), liczby kanałów do uwzględnienia w planie komunikacji, i stopnia złożoności kategorii. Brand Sprint Mini to 2 tygodnie. Konsultacje są elastyczne — sesje umawiamy w rytmie dopasowanym do potrzeb.
+Strategia Nowego Popytu trwa zwykle 2,5-3 miesiące od podpisania umowy do finalnej prezentacji. Czas zależy od dostępności zespołu klienta (wywiady z klientami i warsztat to są terminy, które trzeba dopiąć w kalendarzach), liczby kanałów do uwzględnienia w planie komunikacji, i stopnia złożoności kategorii. Brand Sprint Mini to 2 tygodnie. Konsultacje są elastyczne — sesje umawiamy w rytmie dopasowanym do potrzeb.
 
 ### Kto z zespołu musi być zaangażowany?
 
-W pełnym procesie: founder/właściciel (kluczowe), head of marketing, head of sales. W fazie warsztatu i prezentacji szerszy zespół — zwykle 4–8 osób na warsztacie, do 15–20 na prezentacji. Zaangażowanie po stronie klienta to łącznie 25–40 godzin w trakcie całego procesu, rozłożonych na 3 miesiące. W Brand Sprint Mini niezbędny jest udział osoby zarządzającej firmą — minimum 16 godzin warsztatów + pre-work.
+W pełnym procesie: founder/właściciel (kluczowe), head of marketing, head of sales. W fazie warsztatu i prezentacji szerszy zespół — zwykle 4–8 osób na warsztacie a potem cały zespół na prezentacji. Zaangażowanie po stronie klienta to łącznie 10-15 godzin w trakcie całego procesu, rozłożonych na 3 miesiące. W Brand Sprint Mini niezbędny jest udział osoby zarządzającej firmą — 9 godzin warsztatów + pre-work.
 
 ### Czy w trakcie procesu mogę dostawać podgląd materiałów?
 
@@ -241,7 +241,7 @@ Strategia Nowego Popytu nie jest kampanią, więc nie mierzy się jej miarami ka
 
 ### Czy współpracujesz z konkurencyjnymi markami w tej samej kategorii?
 
-Nie. Jeśli pracuję dla marki w kategorii X, nie podejmuję projektów dla bezpośrednich konkurentów tej marki w okresie obowiązywania strategii i przez 12 miesięcy po jej zakończeniu. To zasada bez wyjątków.
+Nie podejmuję projektów dla bezpośrednich konkurentów w okresie opracowywania strategii, ale zastrzegam sobie prawo do pracy z innymi firmami z branży po zakończeniu procesu. Kluczowe zabezpieczenie: moje umowy zawierają restrykcyjne zapisy o poufności.
 
 ### Czy mogę zacząć od Brand Sprint Mini i potem przejść do pełnego procesu?
 
