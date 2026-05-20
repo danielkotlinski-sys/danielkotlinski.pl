@@ -1706,6 +1706,38 @@ p {
   color: inherit;
 }
 
+.article-page__content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 32px 0;
+  font-size: 15px;
+  display: block;
+  overflow-x: auto;
+}
+
+.article-page__content thead {
+  background-color: var(--bg-alt);
+}
+
+.article-page__content th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-dark);
+  padding: 14px 16px;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+  vertical-align: top;
+}
+
+.article-page__content td {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  vertical-align: top;
+}
+
+.article-page__content tbody tr:hover {
+  background-color: var(--bg-alt);
+}
+
 /* ===== CONTACT PAGE ===== */
 .contact-hero {
   padding: 80px 0 40px;
